@@ -48,3 +48,7 @@ Le script compile Side, l'installe dans `~/Applications` et le lance. Une icône
 ## Licence
 
 MIT — voir [LICENSE](LICENSE).
+
+## Historique
+
+Tous les changements sont notés dans [changes-side.md](changes-side.md), du plus récent au plus ancien.

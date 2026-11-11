@@ -5871,7 +5871,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
             depotPanel.setFrame(cadre, display: true)
             DispatchQueue.main.async { self.placementAuto = false }
         }
+        // Filet de sécurité : une zone affichée n'est jamais laissée transparente (hors animation d'arrivée).
+        if !animationDepot && depotPanel.alphaValue < 1 { depotPanel.alphaValue = 1 }
         depotPanel.orderFrontRegardless()
+        journal("zones affichées à \(cadre) | transparence=\(depotPanel.alphaValue)")
         depotPanel.invalidateShadow()
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { depotPanel.invalidateShadow() }
     }
@@ -5995,7 +5998,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
             }
         }
         Doigts.carteOuverte = true
-        if suivi { return }   // ce sont les doigts qui la font avancer
+        if suivi {   // ce sont les doigts qui font avancer la carte ; la zone de dépôt, elle, arrive en fondu
+            if let arrivee, let zone = depotPanel {
+                NSAnimationContext.runAnimationGroup { ctx in
+                    ctx.duration = reduit ? 0.15 : 0.3
+                    zone.animator().setFrame(arrivee, display: true)
+                    zone.animator().alphaValue = 1
+                }
+            }
+            return
+        }
         NSAnimationContext.runAnimationGroup { ctx in
             // Un vrai glissement depuis le bord : part avec élan, puis ralentit longuement pour se poser en douceur.
             ctx.duration = reduit ? 0.15 : 0.45
@@ -6105,7 +6117,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         // Un glisser-déposer est-il en cours ? Le presse-papiers du glisser change au début de chaque glisser.
         if NSEvent.pressedMouseButtons & 1 != 0 {
             let compte = NSPasteboard(name: .drag).changeCount
-            if compte != dernierGlisser { dernierGlisser = compte; glisserActif = true }
+            if compte != dernierGlisser {
+                dernierGlisser = compte; glisserActif = true
+                journal("glisser détecté | visible=\(visible) appGlissee=\(appGlissee != nil) types=\(NSPasteboard(name: .drag).types?.map(\.rawValue).prefix(4) ?? [])")
+            }
         } else if glisserActif {
             glisserActif = false
             // Une icône du mini-Dock lâchée pendant que la croix est affichée : on la retire, comme dans le Dock.
@@ -6132,7 +6147,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         if montrer, !store.glisse, glisserActif, !store.etageres.contains(where: { $0.items.isEmpty }) {
             store.ajouterZone()
         }
-        if montrer != store.glisse { store.glisse = montrer }
+        if montrer != store.glisse {
+            journal("zones : \(montrer ? "montrer" : "cacher") | glisser=\(glisserActif) visible=\(visible) appGlissee=\(appGlissee != nil) zones=\(store.etageres.count) panneau=\(depotPanel?.frame ?? .zero)")
+            store.glisse = montrer
+        }
         // La cible « épingler en colonne » ne sert que pour un dossier : on regarde ce qui est glissé.
         let dossier = montrer && (forcerGlisse || glisseContientDossier())
         if dossier != store.glisseDossier { store.glisseDossier = dossier }
