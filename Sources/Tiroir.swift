@@ -4251,6 +4251,30 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
                     Selection.shared.choisir(premier?.url, colonne)
                 }
             }
+            if CommandLine.arguments.contains("--test-fleches") {
+                // Pour les tests : les flèches dans la grille d'une colonne épinglée, sans clavier ni écran.
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                    let col = self.store.columns.first ?? self.store.navigateur
+                    col.presentation = .icones
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                        vue.layoutSubtreeIfNeeded()
+                        let noms = col.visibles.map(\.name)
+                        print("colonne :", col.titre, "— icônes par ligne mesurées :", col.colonnesVisibles)
+                        func ou() -> String {
+                            guard let u = Selection.shared.url, let i = col.visibles.firstIndex(where: { $0.url == u }) else { return "rien" }
+                            return "n°\(i) \(noms[i])"
+                        }
+                        Selection.shared.choisir(col.visibles.first?.url, col)
+                        print("départ        :", ou())
+                        for (t, nom) in [(124, "droite"), (125, "bas"), (123, "gauche"), (125, "bas"), (126, "haut"), (124, "droite"), (124, "droite (bord)"), (123, "gauche"), (123, "gauche (bord)")] {
+                            self.fleche(UInt16(t))
+                            print(nom.padding(toLength: 14, withPad: " ", startingAt: 0), ":", ou())
+                        }
+                        exit(0)
+                    }
+                }
+                return
+            }
             DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
                 vue.layoutSubtreeIfNeeded()
                 if let rep = vue.bitmapImageRepForCachingDisplay(in: vue.bounds) {
@@ -4913,6 +4937,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         let liste = col.visibles.map(\.url)
         if col.presentation == .icones {
             let n = max(1, col.colonnesVisibles)
+            // Gauche et droite restent sur la ligne : au bord, on ne passe pas à la ligne suivante.
+            if let i = Selection.shared.url.flatMap({ liste.firstIndex(of: $0) }) {
+                if gauche && i % n == 0 { return }
+                if droite && (i % n == n - 1 || i + 1 >= liste.count) { return }
+            }
             deplacer(dans: liste, pas: gauche ? -1 : (droite ? 1 : (bas ? n : -n)), col)
         } else if bas || haut {
             deplacer(dans: liste, pas: bas ? 1 : -1, col)
@@ -5277,11 +5306,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         guard let png = rep.representation(using: .png, properties: [:]), (try? png.write(to: cible)) != nil else { return nil }
         return cible
     }
-    /// Dans l'aperçu, les flèches haut et bas changent de fichier, comme dans le Finder.
+    /// Aperçu ouvert : les quatre flèches se déplacent dans la grille (ou la liste) exactement comme sans aperçu,
+    /// et l'aperçu suit. (Avant, l'aperçu les prenait pour « fichier précédent / suivant » dans l'ordre de la liste.)
     func previewPanel(_ panel: QLPreviewPanel!, handle event: NSEvent!) -> Bool {
-        guard event.type == .keyDown, event.keyCode == 125 || event.keyCode == 126, apercus.count > 1 else { return false }
-        let i = panel.currentPreviewItemIndex + (event.keyCode == 125 ? 1 : -1)
-        if apercus.indices.contains(i) { panel.currentPreviewItemIndex = i }
+        guard event.type == .keyDown, [123, 124, 125, 126].contains(event.keyCode) else { return false }
+        fleche(event.keyCode)
         return true
     }
     /// Tant que l'aperçu est affiché : Espace ou Échap le referme, les flèches changent de fichier.
@@ -5290,8 +5319,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
               let ql = QLPreviewPanel.shared(), ql.isVisible else { return false }
         switch ev.keyCode {
         case 49, 53: fermerApercu()
-        case 125: deplacerSelection(1)
-        case 126: deplacerSelection(-1)
+        case 123, 124, 125, 126: fleche(ev.keyCode)   // mêmes déplacements qu'aperçu fermé
         default: return false
         }
         return true
