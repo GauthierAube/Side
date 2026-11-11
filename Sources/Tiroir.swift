@@ -2755,7 +2755,7 @@ struct MillerRow: View {
         }
         .foregroundStyle(choisi ? Color.white : Color.primary)
         .padding(.horizontal, 8)
-        .padding(.vertical, 5)
+        .padding(.vertical, 3)   // lignes resserrées, presque comme dans le Finder
         .background(RoundedRectangle(cornerRadius: 6).fill(
             depot ? Color.accentColor.opacity(0.35)
                 : (choisi ? Selection.bleu
@@ -3003,7 +3003,7 @@ struct RowView: View {
         }
         .foregroundStyle(choisi ? Color.white : Color.primary)
         .padding(.horizontal, 8)
-        .padding(.vertical, 5)
+        .padding(.vertical, 3)   // lignes resserrées, presque comme dans le Finder
         .modifier(Interactions(item: item, column: column, survol: $survol))
     }
 
