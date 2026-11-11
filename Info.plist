@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>fr</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>fr</string>
+	</array>
+	<key>CFBundleName</key>
+	<string>Side</string>
+	<key>CFBundleDisplayName</key>
+	<string>Side</string>
+	<key>CFBundleIdentifier</key>
+	<string>com.gauthieraube.tiroir</string>
+	<key>CFBundleExecutable</key>
+	<string>Side</string>
+	<key>CFBundleIconFile</key>
+	<string>Side</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>1.0</string>
+	<key>CFBundleVersion</key>
+	<string>1</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>14.0</string>
+	<key>LSUIElement</key>
+	<true/>
+	<key>NSHighResolutionCapable</key>
+	<true/>
+	<key>NSAppleEventsUsageDescription</key>
+	<string>Side demande au Finder d'afficher la fenêtre d'informations d'un fichier.</string>
+	<key>NSDocumentsFolderUsageDescription</key>
+	<string>Side affiche vos dossiers.</string>
+	<key>NSDownloadsFolderUsageDescription</key>
+	<string>Side affiche votre dossier Téléchargements.</string>
+	<key>NSDesktopFolderUsageDescription</key>
+	<string>Side affiche vos dossiers.</string>
+</dict>
+</plist>
