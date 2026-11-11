@@ -246,7 +246,7 @@ enum Geste {
     /// Un tour à peu près complet, dans un sens ou dans l'autre, pas trop aplati.
     static func boucle(_ p: [CGPoint], degres: CGFloat) -> Bool {
         let b = boite(p), grand = max(b.width, b.height), petit = min(b.width, b.height)
-        guard grand >= 60, petit >= grand * 0.35 else { return false }
+        guard grand >= 24, petit >= grand * 0.35 else { return false }   // 24 points : un petit rond du poignet suffit
         let r = rotation(p)
         return abs(r.degres) >= degres && r.constance >= 0.7
     }
@@ -3332,6 +3332,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
             let ligne: [CGPoint] = (0...40).map { (i: Int) -> CGPoint in CGPoint(x: Double(i) * 10, y: 300 + Double(i)) }
             let zigzag: [CGPoint] = (0...60).map { (i: Int) -> CGPoint in CGPoint(x: 400 + 150 * sin(Double(i) / 5), y: 300 + Double(i)) }
             tour("cercle propre           ", cercle(0))
+            tour("tout petit cercle (30)  ", cercle(2, rayon: 15, bruit: 1))
             tour("patate tremblée         ", cercle(1, rayon: 60, bruit: 12))
             tour("ovale                   ", cercle(1).map { CGPoint(x: $0.x * 1.8, y: $0.y) })
             tour("sens inverse            ", cercle(0, sens: -1))
@@ -3566,7 +3567,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
     private func chercherCercle(_ ici: CGPoint) {
         let maintenant = ProcessInfo.processInfo.systemUptime
         if let dernier = trace.last {
-            guard hypot(ici.x - dernier.p.x, ici.y - dernier.p.y) >= 4 else { return }
+            guard hypot(ici.x - dernier.p.x, ici.y - dernier.p.y) >= 2 else { return }
             if maintenant - dernier.t > 0.35 { trace = [] }   // une pause : un nouveau geste commence
         }
         trace.append((ici, maintenant))
