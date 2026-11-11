@@ -432,11 +432,15 @@ enum Tri: String, CaseIterable {
 
 enum Presentation: String { case liste, icones, colonnes }
 
+/// Où en est un fichier d'iCloud Drive : sur le Mac, resté dans le nuage, en cours de téléchargement ou d'envoi.
+enum Nuage { case aucun, aTelecharger, telechargement, envoi }
+
 struct FileItem: Identifiable, Hashable {
     let url: URL
     let isFolder: Bool
     let date: Date
     var taille: Int = 0
+    var nuage: Nuage = .aucun
     var id: URL { url }
     /// Nom affiché. Avec « Afficher toutes les extensions », les fichiers gardent leur extension ;
     /// les dossiers gardent leur nom traduit (Documents, Téléchargements…).
@@ -478,13 +482,22 @@ enum Fichiers {
 
     static let cles: [URLResourceKey] = [
         .isDirectoryKey, .isPackageKey, .contentModificationDateKey, .addedToDirectoryDateKey, .fileSizeKey,
+        .isUbiquitousItemKey, .ubiquitousItemDownloadingStatusKey, .ubiquitousItemIsDownloadingKey,
+        .ubiquitousItemIsUploadingKey,
     ]
 
     static func item(_ url: URL) -> FileItem {
         let v = try? url.resourceValues(forKeys: Set(cles))
         let dossier = (v?.isDirectory ?? false) && !(v?.isPackage ?? false)
         let date = max(v?.contentModificationDate ?? .distantPast, v?.addedToDirectoryDate ?? .distantPast)
-        return FileItem(url: url, isFolder: dossier, date: date, taille: v?.fileSize ?? 0)
+        // iCloud Drive : le fichier est-il vraiment sur le Mac ?
+        var nuage = Nuage.aucun
+        if v?.isUbiquitousItem == true {
+            if v?.ubiquitousItemIsDownloading == true { nuage = .telechargement }
+            else if v?.ubiquitousItemDownloadingStatus == .notDownloaded { nuage = .aTelecharger }
+            else if v?.ubiquitousItemIsUploading == true { nuage = .envoi }
+        }
+        return FileItem(url: url, isFolder: dossier, date: date, taille: v?.fileSize ?? 0, nuage: nuage)
     }
 
     static func contenu(_ url: URL, tri: Tri) -> [FileItem] {
@@ -2561,6 +2574,7 @@ struct MillerRow: View {
                 .resizable().frame(width: 18, height: 18)
             Text(item.name).lineLimit(1).truncationMode(.middle)
             Spacer(minLength: 4)
+            NuageIcone(item: item, blanc: choisi)
             Image(systemName: "chevron.right").font(.caption)
                 .foregroundStyle(choisi ? Color.white.opacity(0.85) : Color.secondary.opacity(0.6))
                 .opacity(item.isFolder ? 1 : 0)
@@ -2587,6 +2601,40 @@ struct MillerRow: View {
             action: item.isFolder ? { AppDelegate.shared.deposer($0, dans: item.url) } : nil,
             cible: $depot))
         .help(item.name)
+    }
+}
+
+/// Le petit nuage du Finder, à côté d'un fichier d'iCloud Drive qui n'est pas (encore) sur le Mac.
+/// Un clic dessus lance le téléchargement.
+struct NuageIcone: View {
+    let item: FileItem
+    var blanc = false   // sur une ligne sélectionnée (fond bleu)
+
+    var body: some View {
+        if item.nuage != .aucun {
+            let couleur = blanc ? Color.white.opacity(0.9) : Color.secondary
+            Group {
+                switch item.nuage {
+                case .aTelecharger:
+                    Image(systemName: "icloud.and.arrow.down")
+                        .contentShape(Rectangle())
+                        .onTapGesture { AppDelegate.shared.telecharger(item.url) }
+                        .help("Dans iCloud, pas encore sur ce Mac. Clique pour le télécharger.")
+                        .accessibilityLabel("Télécharger depuis iCloud")
+                        .accessibilityAddTraits(.isButton)
+                case .telechargement:
+                    Image(systemName: "icloud.and.arrow.down.fill").symbolEffect(.pulse)
+                        .help("Téléchargement en cours…")
+                        .accessibilityLabel("Téléchargement en cours")
+                default:
+                    Image(systemName: "icloud.and.arrow.up").symbolEffect(.pulse)
+                        .help("Envoi vers iCloud en cours…")
+                        .accessibilityLabel("Envoi vers iCloud en cours")
+                }
+            }
+            .font(.system(size: 12))
+            .foregroundStyle(couleur)
+        }
     }
 }
 
@@ -2667,13 +2715,16 @@ struct IconView: View {
             // Comme dans le Finder : l'icône choisie se pose sur un carré gris, son nom sur du bleu.
             .background(RoundedRectangle(cornerRadius: 6).fill(choisi ? Color.primary.opacity(0.12) : .clear))
         let texte = VStack(alignment: droite ? .leading : .center, spacing: 2) {
-            Text(item.name)
-                .font(.system(size: CGFloat(config.tailleTexte)))
-                .multilineTextAlignment(droite ? .leading : .center)
-                .lineLimit(2).truncationMode(.middle)
-                .foregroundStyle(choisi ? Color.white : Color.primary)
-                .padding(.horizontal, 5).padding(.vertical, 1)
-                .background(RoundedRectangle(cornerRadius: 4).fill(choisi ? Selection.bleu : .clear))
+            HStack(alignment: .firstTextBaseline, spacing: 4) {
+                NuageIcone(item: item, blanc: choisi)
+                Text(item.name)
+                    .font(.system(size: CGFloat(config.tailleTexte)))
+                    .multilineTextAlignment(droite ? .leading : .center)
+                    .lineLimit(2).truncationMode(.middle)
+                    .foregroundStyle(choisi ? Color.white : Color.primary)
+            }
+            .padding(.horizontal, 5).padding(.vertical, 1)
+            .background(RoundedRectangle(cornerRadius: 4).fill(choisi ? Selection.bleu : .clear))
             if config.infos && !info.isEmpty {
                 Text(info).font(.system(size: max(9, CGFloat(config.tailleTexte) - 2)))
                     .foregroundStyle(Color.accentColor).lineLimit(1)
@@ -2759,6 +2810,7 @@ struct RowView: View {
                 }
             }
             Spacer(minLength: 4)
+            NuageIcone(item: item, blanc: choisi)
             if large {
                 Group {
                     Text(Self.jour.string(from: item.date))
@@ -3189,6 +3241,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
     /// La carte seule (sans la bande du mini-Dock), à l'écran, et le mini-Dock tel que la vue le dessine.
     private var cadreSeule: NSRect = .zero
     var cadreDockVue: CGRect = .zero
+    /// Demande à iCloud de rapatrier un fichier resté dans le nuage.
+    func telecharger(_ url: URL) {
+        try? FileManager.default.startDownloadingUbiquitousItem(at: url)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { self.store.reloadAll() }
+    }
+    private var battement = 0
+
     /// Vrai si ce point de l'écran est sur la carte ou sur le mini-Dock — et pas dans le vide autour d'eux.
     private func surSide(_ p: NSPoint) -> Bool {
         if cadreSeule.contains(p) { return true }
@@ -4735,6 +4794,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
     }
 
     private func tick() {
+        // Tant qu'un fichier affiché se télécharge ou s'envoie, on rafraîchit de temps en temps pour suivre son état.
+        battement += 1
+        if visible, battement % 50 == 0,
+           (store.columns + store.onglets).contains(where: { c in
+               (c.visibles + c.niveaux.flatMap { $0 }).contains { $0.nuage == .telechargement || $0.nuage == .envoi } }) {
+            store.reloadAll()
+        }
         // L'aperçu a été refermé de lui-même (Espace, Échap, sa croix) : on rend la main à l'app d'avant.
         if apercuOuvert, !(QLPreviewPanel.sharedPreviewPanelExists() && QLPreviewPanel.shared().isVisible) { apresApercu() }
         // Un glisser-déposer est-il en cours ? Le presse-papiers du glisser change au début de chaque glisser.
