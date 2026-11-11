@@ -591,6 +591,18 @@ enum Fichiers {
         .ubiquitousItemIsUploadingKey,
     ]
 
+    /// Le dossier lui-même, puis ceux qui le contiennent, en remontant jusqu'au dossier personnel
+    /// (ou jusqu'au disque pour un dossier situé ailleurs).
+    static func ascendants(_ url: URL) -> [URL] {
+        var liste: [URL] = [], u = url.standardizedFileURL
+        while liste.count < 30 {
+            liste.append(u)
+            if u.path == "/" || u.path == home.path || u.path == icloud.path { break }
+            u = u.deletingLastPathComponent()
+        }
+        return liste
+    }
+
     /// Si c'est un alias ou un lien vers un dossier, rend ce dossier ; sinon rend l'adresse telle quelle.
     static func resoudre(_ url: URL) -> URL {
         guard (try? url.resourceValues(forKeys: [.isAliasFileKey]))?.isAliasFile == true,
@@ -1501,6 +1513,12 @@ struct AppsView: View {
 /// Les icônes d'apps, gardées en mémoire : les relire à chaque mouvement de souris faisait saccader.
 enum Icones {
     private static let cache = NSCache<NSString, NSImage>()
+    /// Une icône à la taille d'une ligne de menu.
+    static func petite(_ chemin: String) -> NSImage {
+        let image = de(chemin).copy() as? NSImage ?? de(chemin)
+        image.size = NSSize(width: 16, height: 16)
+        return image
+    }
     static func de(_ chemin: String) -> NSImage {
         if let image = cache.object(forKey: chemin as NSString) { return image }
         let image = NSWorkspace.shared.icon(forFile: chemin)
@@ -2487,10 +2505,36 @@ struct ColumnView: View {
                     navBouton("chevron.left", true, "Dossier précédent") { column.revenir() }
                         .background(Capsule().fill(Color.primary.opacity(0.09)))
                 }
-                Text(column.titre).font(fixe ? .title3.weight(.semibold) : .headline).layoutPriority(1).lineLimit(1).truncationMode(.middle)
-                    .contentShape(Rectangle())
-                    .onTapGesture { if column.peutRevenir { column.revenir() } }   // cliquer le nom = revenir en arrière
-                    .help(column.peutRevenir ? "Revenir au dossier précédent" : column.titre)
+                if fixe, let ici = column.courant {
+                    // Cliquer le nom du dossier déroule le chemin qui y mène, comme Commande-clic sur le titre dans le Finder.
+                    Menu {
+                        ForEach(Array(Fichiers.ascendants(ici).enumerated()), id: \.offset) { rang, dossier in
+                            Button {
+                                if rang > 0 { store.naviguer(.folder(dossier)) }
+                            } label: {
+                                Label { Text(Fichiers.nom(dossier)) } icon: {
+                                    Image(nsImage: Icones.petite(dossier.path))
+                                }
+                            }
+                            .disabled(rang == 0)
+                        }
+                    } label: {
+                        HStack(spacing: 4) {
+                            Text(column.titre).font(.title3.weight(.semibold)).lineLimit(1).truncationMode(.middle)
+                            Image(systemName: "chevron.down").font(.system(size: 9, weight: .bold)).foregroundStyle(.secondary)
+                        }
+                        .contentShape(Rectangle())
+                    }
+                    .menuStyle(.button).buttonStyle(.plain).menuIndicator(.hidden)
+                    .layoutPriority(1)
+                    .help("Afficher le chemin de ce dossier")
+                    .accessibilityLabel("Chemin du dossier \(column.titre)")
+                } else {
+                    Text(column.titre).font(fixe ? .title3.weight(.semibold) : .headline).layoutPriority(1).lineLimit(1).truncationMode(.middle)
+                        .contentShape(Rectangle())
+                        .onTapGesture { if column.peutRevenir { column.revenir() } }   // cliquer le nom = revenir en arrière
+                        .help(column.peutRevenir ? "Revenir au dossier précédent" : column.titre)
+                }
                 Spacer(minLength: 4)
                 HStack(spacing: 2) {
                     boutonVue(.icones, "square.grid.2x2", "Afficher en icônes")
@@ -2711,6 +2755,7 @@ struct MillerView: View {
                             .padding(6)
                         }
                         .frame(width: CGFloat(config.largeurMiller))
+                        .modifier(DepotNiveau(dossier: dossier(niveau)))
                         .id(niveau)
                         // Glisser ce trait change la largeur des colonnes.
                         Poignee(valeur: $config.largeurMiller, mini: 140, maxi: 520)
@@ -2728,6 +2773,29 @@ struct MillerView: View {
                 withAnimation(.easeOut(duration: 0.2)) { defilement.scrollTo(niveau) }
             }
         }
+    }
+}
+
+extension MillerView {
+    /// Le dossier que montre la colonne numéro `niveau` (nil si ce n'est pas un vrai dossier : récents, tags…).
+    func dossier(_ niveau: Int) -> URL? {
+        if niveau > 0 { return niveau - 1 < column.pile.count ? column.pile[niveau - 1] : nil }
+        if let premier = column.pile.first {
+            if case .folder = column.kind { return premier.deletingLastPathComponent() }
+            return nil
+        }
+        return column.courant
+    }
+}
+
+/// Une colonne de la présentation en colonnes accepte les fichiers pour son propre dossier.
+struct DepotNiveau: ViewModifier {
+    let dossier: URL?
+    @State private var cible = false
+    func body(content: Content) -> some View {
+        content
+            .background(RoundedRectangle(cornerRadius: 8).fill(Color.accentColor.opacity(cible ? 0.12 : 0)))
+            .modifier(Depot(action: dossier.map { d in { AppDelegate.shared.deposer($0, dans: d) } }, cible: $cible))
     }
 }
 
@@ -3990,7 +4058,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         if f.hasItemConformingToTypeIdentifier(UTType.fileURL.identifier) {
             _ = f.loadObject(ofClass: URL.self) { url, _ in
                 guard let url, url.isFileURL else { return }
-                DispatchQueue.main.async { suite(url, false) }
+                // macOS transmet parfois une « référence » au fichier plutôt que son chemin : on revient au chemin,
+                // sinon Side ne reconnaît pas le dossier d'origine et crée un doublon.
+                let chemin = (url as NSURL).filePathURL ?? url
+                DispatchQueue.main.async { suite(chemin, false) }
             }
             return
         }
@@ -4053,8 +4124,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
 
     /// Comme le Finder : déplace sur le même disque, copie sinon (ou si Option est enfoncée).
     private func ranger(_ source: URL, dans dossier: URL) {
+        let source = (source as NSURL).filePathURL ?? source
         let src = source.standardizedFileURL, dst = Fichiers.resoudre(dossier).standardizedFileURL   // un alias de dossier : on range dans le vrai dossier
-        guard src != dst, src.deletingLastPathComponent() != dst, !dst.path.hasPrefix(src.path + "/") else { return }
+        // Lâché dans le dossier où il se trouve déjà (ou sur lui-même, ou dans un de ses sous-dossiers) : on ne fait rien.
+        // On compare les vrais chemins : deux écritures du même dossier ne doivent pas créer un doublon.
+        let ici = src.resolvingSymlinksInPath().path, parent = src.deletingLastPathComponent().resolvingSymlinksInPath().path
+        let la = dst.resolvingSymlinksInPath().path
+        guard ici != la, parent != la, !(la + "/").hasPrefix(ici + "/") else { return }
+        // Dernière vérification, par l'identité du dossier sur le disque plutôt que par son nom.
+        let idParent = try? URL(fileURLWithPath: parent).resourceValues(forKeys: [.fileResourceIdentifierKey]).fileResourceIdentifier
+        let idCible = try? URL(fileURLWithPath: la).resourceValues(forKeys: [.fileResourceIdentifierKey]).fileResourceIdentifier
+        if let idParent, let idCible, idParent.isEqual(idCible) { return }
         var cible = dst.appendingPathComponent(src.lastPathComponent)
         if FileManager.default.fileExists(atPath: cible.path) { cible = nomLibre(cible, suffixe: " 2") }
         let v1 = try? src.resourceValues(forKeys: [.volumeIdentifierKey]).volumeIdentifier
@@ -4677,6 +4757,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         majDepot()
     }
 
+    /// Vrai si le glisser en cours transporte un fichier ou une image (et pas du simple texte).
+    private func glisseContientFichier() -> Bool {
+        let types = NSPasteboard(name: .drag).types ?? []
+        return types.contains(.fileURL) || types.contains(.tiff) || types.contains(.png) || types.contains(.pdf)
+            || types.contains(NSPasteboard.PasteboardType("com.apple.pasteboard.promised-file-url"))
+    }
+
     /// Vrai si le glisser en cours transporte au moins un dossier, ou une entrée de la barre latérale.
     private func glisseContientDossier() -> Bool {
         let pb = NSPasteboard(name: .drag)
@@ -5050,8 +5137,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
             // Le glisser est fini : on retire les zones restées vides (il en reste toujours une).
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { [weak self] in self?.store.nettoyerZones() }
         }
-        let montrer = (glisserActif && visible && appGlissee == nil) || forcerGlisse || (visible && store.accueil == 3)
+        // Side fermé mais une zone de dépôt restée à l'écran : glisser un fichier la réveille aussi.
+        let zoneSeule = !visible && depotPanel?.isVisible == true && glisserActif && glisseContientFichier()
+        let montrer = (glisserActif && visible && appGlissee == nil) || zoneSeule || forcerGlisse || (visible && store.accueil == 3)
             || ProcessInfo.processInfo.systemUptime - depotEnCours < 1.5
+        // Un glisser commence alors que toutes les zones sont déjà remplies : une zone vide apparaît en dessous,
+        // pour pouvoir poser ailleurs. Elle disparaîtra d'elle-même si on ne s'en sert pas.
+        if montrer, !store.glisse, glisserActif, !store.etageres.contains(where: { $0.items.isEmpty }) {
+            store.ajouterZone()
+        }
         if montrer != store.glisse { store.glisse = montrer }
         // La cible « épingler en colonne » ne sert que pour un dossier : on regarde ce qui est glissé.
         let dossier = montrer && (forcerGlisse || glisseContientDossier())
