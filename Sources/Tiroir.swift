@@ -122,6 +122,8 @@ final class Config: ObservableObject {
     @Published var quatreDoigts: Bool {
         didSet { d.set(quatreDoigts, forKey: "quatreDoigts"); Doigts.actif = quatreDoigts; if quatreDoigts { Doigts.demarrer() } }
     }
+    /// Sens du geste à quatre doigts : "haut", "bas" ou "deux".
+    @Published var sensDoigts: String { didSet { d.set(sensDoigts, forKey: "sensDoigts"); Doigts.sens = sensDoigts } }
     /// Geste de la souris : faux = secouer le pointeur, vrai = lui faire faire un cercle.
     @Published var cercle: Bool { didSet { d.set(cercle, forKey: "gestePerso") } }
     // Réglages repris du Finder.
@@ -184,6 +186,7 @@ final class Config: ObservableObject {
         depotReste = d.object(forKey: "depotReste") as? Bool ?? true
         secouer = d.object(forKey: "secouer") as? Bool ?? true
         quatreDoigts = d.bool(forKey: "quatreDoigts")
+        sensDoigts = d.string(forKey: "sensDoigts") ?? "bas"
         cercle = d.bool(forKey: "gestePerso")
         var entrees = d.stringArray(forKey: "barre") ?? ["recents", "dossiers", "icloud", "maison", "applications", "reseau", "tags"]
         // La rubrique Réseau est arrivée après coup : on l'ajoute une fois aux réglages déjà enregistrés.
@@ -360,6 +363,7 @@ private struct Contact {
 /// Repère un glissement à quatre doigts vers le haut ou vers le bas, et ouvre ou ferme Side.
 enum Doigts {
     static var actif = UserDefaults.standard.bool(forKey: "quatreDoigts")
+    static var sens = UserDefaults.standard.string(forKey: "sensDoigts") ?? "bas"
     private static var demarre = false
     private static var departY: Float?       // hauteur moyenne des quatre doigts au début du geste
     private static var dejaFait = false       // le geste en cours a déjà servi
@@ -400,7 +404,10 @@ enum Doigts {
         y /= Float(nombre)
         guard let depart = departY else { departY = y; return }
         // Un quart de la hauteur du trackpad, dans un sens ou dans l'autre : le geste est fait, une seule fois.
-        if !dejaFait, abs(y - depart) > 0.22 {
+        // Le trackpad compte la hauteur de bas en haut : un geste vers le haut fait grandir y.
+        let ecart = y - depart
+        let bonSens = sens == "haut" ? ecart > 0.22 : (sens == "bas" ? ecart < -0.22 : abs(ecart) > 0.22)
+        if !dejaFait, bonSens {
             dejaFait = true
             DispatchQueue.main.async { AppDelegate.shared.basculer() }
         }
@@ -1068,8 +1075,10 @@ final class Store: ObservableObject {
     @Published var etageres: [Column] = Store.zones()
     /// Un glisser-déposer est en cours : c'est le moment de montrer les cibles de dépôt.
     @Published var glisse = false
-    /// Le panneau des applications est ouvert, au centre de la carte.
+    /// Le panneau des applications est ouvert, sous le mini-Dock.
     @Published var lanceurOuvert = false
+    /// Largeur du mini-Dock, pour que le panneau des applications ait la même.
+    @Published var largeurDock: CGFloat = 0
     /// Présentation de bienvenue : numéro de l'étape affichée par-dessus la carte (nil = pas de présentation).
     @Published var accueil: Int?
     func finAccueil() {
@@ -1662,6 +1671,11 @@ struct RangeeDock: View {
         .contextMenu { Button("Masquer le mini-Dock") { config.apps = false } }
         // Side retient la place exacte du mini-Dock : un clic juste à côté de lui compte comme un clic en dehors.
         .background(Repere())
+        .background(GeometryReader { g in
+            Color.clear
+                .onAppear { AppDelegate.shared.store.largeurDock = vertical ? 0 : g.size.width }
+                .onChange(of: g.size.width) { _, l in AppDelegate.shared.store.largeurDock = vertical ? 0 : l }
+        })
         .frame(maxWidth: vertical ? nil : .infinity, maxHeight: vertical ? .infinity : nil)
         .animation(.smooth(duration: 0.3), value: items)
         .animation(.smooth(duration: 0.3), value: config.raccourcis)
@@ -1826,6 +1840,7 @@ struct LanceurIcone: View {
 struct LanceurPanneau: View {
     let fermer: () -> Void
     @ObservedObject var applis = Applis.shared
+    @ObservedObject var store = AppDelegate.shared.store
     @State private var texte = ""
     @FocusState private var champ: Bool
 
@@ -1862,7 +1877,8 @@ struct LanceurPanneau: View {
                 }
             }
         }
-        .frame(width: 330, height: 300)
+        // Aussi large que le mini-Dock, sans descendre sous 330 points.
+        .frame(width: max(330, store.largeurDock), height: 300)
         .background(Repere(lanceur: true))
         .background(ZStack { VisualEffect(); Color(nsColor: .windowBackgroundColor).opacity(0.55) })
         .clipShape(forme)
@@ -3538,7 +3554,14 @@ struct ReglagesView: View {
                 }
             }
             Section {
-                Toggle("Glisser quatre doigts vers le haut ou le bas", isOn: $config.quatreDoigts)
+                Toggle("Glisser quatre doigts sur le trackpad", isOn: $config.quatreDoigts)
+                Picker("Sens", selection: $config.sensDoigts) {
+                    Text("Vers le bas").tag("bas")
+                    Text("Vers le haut").tag("haut")
+                    Text("Les deux").tag("deux")
+                }
+                .pickerStyle(.segmented)
+                .disabled(!config.quatreDoigts)
                 if config.quatreDoigts {
                     LabeledContent("Gestes de macOS") {
                         Button("Ouvrir les réglages du trackpad") {
@@ -3549,7 +3572,11 @@ struct ReglagesView: View {
                     }
                 }
             } header: { Text("Trackpad") } footer: {
-                note("Attention : macOS utilise déjà ce geste. Vers le haut, il ouvre Mission Control ; vers le bas, Exposé des apps. Si tu actives cette option, les deux se déclencheront en même temps. Pour l'éviter, désactive « Mission Control » et « Exposé des apps » dans Réglages Système > Trackpad > Autres gestes. Side ne change pas ces réglages lui-même.")
+                note(config.sensDoigts == "bas"
+                     ? "Attention : macOS utilise déjà ce geste pour « Exposé des apps ». Pour que les deux ne se déclenchent pas ensemble, mets « Exposé des apps » sur « Désactivé » dans Réglages Système > Trackpad > Autres gestes. Side ne change pas ce réglage lui-même."
+                     : (config.sensDoigts == "haut"
+                        ? "Attention : macOS utilise déjà ce geste pour Mission Control. Pour que les deux ne se déclenchent pas ensemble, mets « Mission Control » sur « Désactivé » dans Réglages Système > Trackpad > Autres gestes. Side ne change pas ce réglage lui-même."
+                        : "Attention : macOS utilise déjà ces gestes : vers le haut pour Mission Control, vers le bas pour « Exposé des apps ». Pour que les deux ne se déclenchent pas ensemble, mets-les sur « Désactivé » dans Réglages Système > Trackpad > Autres gestes. Side ne change pas ces réglages lui-même."))
             }
             Section("Clavier") {
                 LabeledContent("Raccourci") {
@@ -4293,7 +4320,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         }
         trace.append((ici, maintenant))
         trace.removeAll { maintenant - $0.t > 1.8 }
-        guard maintenant - derniereSecousse > 0.8 else { return }
+        guard maintenant - derniereSecousse > 0.35 else { return }   // juste de quoi ne pas compter deux fois le même cercle
         // Le cercle n'a pas besoin d'être fermé. Plus c'est sensible, moins il en faut :
         // de 270° mesurés (environ 8 dixièmes de tour) à 210° (environ les deux tiers).
         let degres = 270 - 60 * CGFloat(config.sensibilite)
@@ -4311,14 +4338,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         guard config.secouer, prise == nil else { return }   // secouer ouvre la carte, et la referme si elle est ouverte
         // Le cercle remplace la secousse — sauf pendant un glisser-déposer, où secouer ajoute une zone.
         if config.cercle, !glisserActif {
-            if ProcessInfo.processInfo.systemUptime - dernierBasculement < 1.2 { trace = []; return }
+            // Pas de délai de sécurité pour le cercle : un geste aussi net ne se fait pas par erreur.
             chercherCercle(NSEvent.mouseLocation)
             return
         }
         // Garde-fous : aller vite vers le coin actif ressemble à une secousse. On l'ignore donc près du coin,
         // et pendant un instant après chaque ouverture ou fermeture.
         let ici = NSEvent.mouseLocation
-        if ProcessInfo.processInfo.systemUptime - dernierBasculement < 1.2
+        // Délai raccourci (0,6 s au lieu de 1,2 s) : assez pour ne pas confondre l'élan vers le coin avec une secousse.
+        if ProcessInfo.processInfo.systemUptime - dernierBasculement < 0.6
             || (ecranSous(ici).map { dansCoin(ici, $0, marge: 160) } ?? false) {
             demiTours = []
             dernierX = ici.x
