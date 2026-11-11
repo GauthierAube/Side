@@ -13,7 +13,7 @@ Side est une carte flottante : on la fait venir d'un geste, on attrape un fichie
 - **Une zone de dépôt** : pendant un glisser, une case apparaît à côté de la carte. Ce qu'on y pose reste sous la main, même Side fermé, pour le glisser ailleurs plus tard.
 - **Des colonnes épinglées** : glisser un dossier sur le bord droit de la carte le garde affiché en colonne.
 - **Un mini-Dock** : les apps ouvertes ou favorites, et des raccourcis de l'app Raccourcis de macOS.
-- **Un historique du copier-coller**, gardé en mémoire seulement.
+- **Un historique du copier-coller** : il se déroule en passant la souris sur son icône, au bout du mini-Dock.
 - **Des réglages** façon Réglages Système : position et taille de la carte, flou de l'arrière-plan, options reprises du Finder.
 
 ## Installation
@@ -35,7 +35,7 @@ Le script compile Side, l'installe dans `~/Applications` et le lance. Une icône
 - Side ne se connecte à aucun serveur : rien ne quitte le Mac.
 - macOS demande l'accès aux dossiers que Side affiche (Documents, Téléchargements, Bureau).
 - L'autorisation Accessibilité est facultative ; elle ne sert qu'à rejoindre une app en plein écran depuis le mini-Dock.
-- L'historique du copier-coller reste en mémoire et s'efface quand Side se ferme. Les mots de passe copiés depuis un gestionnaire de mots de passe y sont masqués à l'écran ; un réglage permet de ne pas les garder du tout, ou de couper l'historique.
+- L'historique du copier-coller reste en mémoire et s'efface quand Side se ferme ; seuls les textes épinglés à la main sont conservés dans les réglages de l'app. Les mots de passe copiés depuis un gestionnaire de mots de passe y sont masqués à l'écran ; un réglage permet de ne pas les garder du tout, ou de couper l'historique.
 
 ## Limites connues
 

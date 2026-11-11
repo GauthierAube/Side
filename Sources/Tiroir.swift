@@ -240,13 +240,31 @@ struct Copie: Identifiable {
     var fichiers: [URL] = []
     var image: NSImage?
     var secret = false   // marqué « mot de passe » par l'app d'origine : affiché masqué
+    var epingle = false  // épinglé : reste en haut de la liste, et survit à « Effacer »
 }
 
 final class PressePapiers: ObservableObject {
     static let shared = PressePapiers()
     static let maximum = 60
-    @Published var elements: [Copie] = []
+    @Published var elements: [Copie] = PressePapiers.epingles()
     private var compte = NSPasteboard.general.changeCount
+
+    /// Les éléments épinglés d'abord, puis les autres du plus récent au plus ancien.
+    var tries: [Copie] { elements.filter(\.epingle) + elements.filter { !$0.epingle } }
+
+    /// Les textes épinglés sont les seuls à être gardés d'un lancement à l'autre (jamais les mots de passe).
+    private static func epingles() -> [Copie] {
+        (UserDefaults.standard.stringArray(forKey: "presseEpingles") ?? [])
+            .map { Copie(date: Date(), texte: $0, epingle: true) }
+    }
+    private func sauver() {
+        UserDefaults.standard.set(elements.filter { $0.epingle && !$0.secret }.compactMap(\.texte), forKey: "presseEpingles")
+    }
+    func epingler(_ c: Copie) {
+        guard let i = elements.firstIndex(where: { $0.id == c.id }) else { return }
+        elements[i].epingle.toggle()
+        sauver()
+    }
 
     /// Appelé régulièrement : enregistre ce qui vient d'être copié.
     func verifier() {
@@ -268,9 +286,13 @@ final class PressePapiers: ObservableObject {
             copie.image = image
         } else { return }
         // Recopier la même chose ne crée pas de doublon : l'élément remonte en tête.
-        elements.removeAll { $0.texte == copie.texte && $0.fichiers == copie.fichiers && $0.image == nil && copie.image == nil }
+        if let i = elements.firstIndex(where: { $0.texte == copie.texte && $0.fichiers == copie.fichiers && $0.image == nil && copie.image == nil }) {
+            copie.epingle = elements[i].epingle   // un élément épinglé le reste
+            elements.remove(at: i)
+        }
         elements.insert(copie, at: 0)
-        if elements.count > Self.maximum { elements.removeLast(elements.count - Self.maximum) }
+        // Au-delà de la limite, on oublie les plus anciens — jamais les épinglés.
+        while elements.count > Self.maximum, let i = elements.lastIndex(where: { !$0.epingle }) { elements.remove(at: i) }
     }
 
     /// Remet un élément dans le presse-papiers, prêt à être collé.
@@ -284,8 +306,8 @@ final class PressePapiers: ObservableObject {
         if let i = elements.firstIndex(where: { $0.id == c.id }), i > 0 { elements.insert(elements.remove(at: i), at: 0) }
     }
 
-    func supprimer(_ c: Copie) { elements.removeAll { $0.id == c.id } }
-    func vider() { elements = [] }
+    func supprimer(_ c: Copie) { elements.removeAll { $0.id == c.id }; sauver() }
+    func vider() { elements.removeAll { !$0.epingle } }
 }
 
 // MARK: - Largeurs de la carte
@@ -901,13 +923,14 @@ struct DrawerView: View {
         // flottantes (à droite, ou à gauche si la carte est collée à droite).
         let p = config.apps ? config.dockPosition : ""
         HStack(alignment: .top, spacing: 8) {
-            if p == "gauche" { AppsView(vertical: true) }
+            // Le mini-Dock passe devant la carte : la liste du presse-papiers se déroule par-dessus elle.
+            if p == "gauche" { AppsView(vertical: true).zIndex(1) }
             VStack(spacing: 8) {
-                if p == "haut" { AppsView(vertical: false) }
+                if p == "haut" { AppsView(vertical: false).zIndex(1) }
                 carte
-                if p == "bas" { AppsView(vertical: false) }
+                if p == "bas" { AppsView(vertical: false).zIndex(1) }
             }
-            if p == "droite" { AppsView(vertical: true) }
+            if p == "droite" { AppsView(vertical: true).zIndex(1) }
         }
     }
 
@@ -1301,6 +1324,11 @@ struct RangeeDock: View {
                         .transition(.scale(scale: 0.2).combined(with: .opacity))
                 }
             }
+            // Tout au bout : le presse-papiers, dont la liste se déroule au survol.
+            if config.historique {
+                if vertical { Divider().frame(width: t * 0.7) } else { Divider().frame(height: t * 0.7) }
+                PresseIcone(taille: t)
+            }
         }
         Group {
             if vertical { VStack(spacing: 6) { contenu }.padding(6) }
@@ -1379,6 +1407,95 @@ struct AvecCroix: ViewModifier {
 
 /// Un raccourci macOS dans le mini-Dock : une tuile colorée avec ses initiales.
 /// Un clic le lance ; déposer des fichiers dessus le lance avec ces fichiers en entrée.
+/// Le presse-papiers dans le mini-Dock : passer la souris dessus déroule l'historique,
+/// un clic sur une ligne la recopie. Aucun clic pour regarder, un seul pour reprendre.
+struct PresseIcone: View {
+    let taille: CGFloat
+    @ObservedObject var config = Config.shared
+    @ObservedObject var presse = PressePapiers.shared
+    @State private var surIcone = false
+    @State private var surListe = false
+    @State private var ouvert = false
+    @State private var filtre = ""
+
+    var body: some View {
+        let cote = config.dockPosition
+        // La liste se déroule vers la carte : sous le Dock s'il est en haut, au-dessus s'il est en bas…
+        let ancre: Alignment = ["haut": .top, "bas": .bottom, "gauche": .bottomLeading, "droite": .bottomTrailing][cote] ?? .top
+        let ecart = taille + 14
+        ZStack {
+            RoundedRectangle(cornerRadius: taille * 0.24, style: .continuous)
+                .fill(Color.primary.opacity(ouvert ? 0.22 : 0.12))
+                .padding(taille * 0.06)
+            Image(systemName: "doc.on.clipboard")
+                .font(.system(size: taille * 0.42, weight: .medium))
+                .foregroundStyle(.primary)
+        }
+        .frame(width: taille, height: taille)
+        .modifier(SurvolDock())
+        .contentShape(Rectangle())
+        .onHover { surIcone = $0; suivre() }
+        .onTapGesture { ouvert.toggle() }
+        .overlay(alignment: ancre) {
+            if ouvert || ProcessInfo.processInfo.arguments.contains("--presse") {
+                PresseListe(filtre: $filtre) { fermer() }
+                    .onHover { surListe = $0; suivre() }
+                    .offset(x: cote == "gauche" ? ecart : (cote == "droite" ? -ecart : 0),
+                            y: cote == "haut" ? ecart : (cote == "bas" ? -ecart : 0))
+                    .transition(.opacity.combined(with: .scale(scale: 0.96, anchor: cote == "bas" ? .bottom : .top)))
+            }
+        }
+        .animation(.snappy(duration: 0.18), value: ouvert)
+        .help("Presse-papiers")
+        .accessibilityLabel("Historique du presse-papiers")
+        .accessibilityAddTraits(.isButton)
+    }
+
+    private func fermer() { ouvert = false; filtre = "" }
+
+    /// Un court délai à l'ouverture évite que la liste surgisse quand la souris ne fait que passer ;
+    /// un autre à la fermeture laisse le temps d'aller de l'icône à la liste.
+    private func suivre() {
+        let dessus = surIcone || surListe
+        DispatchQueue.main.asyncAfter(deadline: .now() + (dessus ? 0.15 : 0.35)) {
+            guard (surIcone || surListe) == dessus else { return }
+            if dessus { ouvert = true } else if filtre.isEmpty { ouvert = false }
+        }
+    }
+}
+
+/// La liste déroulée : une recherche (seulement quand l'historique est long) et les éléments copiés.
+struct PresseListe: View {
+    @Binding var filtre: String
+    let fermer: () -> Void
+    @ObservedObject var presse = PressePapiers.shared
+
+    var body: some View {
+        let forme = RoundedRectangle(cornerRadius: 14, style: .continuous)
+        VStack(spacing: 0) {
+            if presse.elements.count > 10 {
+                HStack(spacing: 5) {
+                    Image(systemName: "magnifyingglass").foregroundStyle(.secondary)
+                    TextField("Rechercher dans le presse-papiers", text: $filtre).textFieldStyle(.plain)
+                    if !filtre.isEmpty {
+                        Button { filtre = "" } label: { Image(systemName: "xmark.circle.fill").foregroundStyle(.secondary) }
+                            .buttonStyle(.plain).accessibilityLabel("Effacer la recherche")
+                    }
+                }
+                .padding(.horizontal, 10).frame(height: 28)
+                .background(Capsule().fill(Color.primary.opacity(0.09)))
+                .padding([.horizontal, .top], 8).padding(.bottom, 2)
+            }
+            PressePapiersView(filtre: filtre, apresCopie: fermer)
+        }
+        .frame(width: 320, height: min(380, max(110, CGFloat(presse.elements.count) * 52 + (presse.elements.count > 10 ? 54 : 16))))
+        .background(Color(nsColor: .windowBackgroundColor))
+        .clipShape(forme)
+        .overlay(forme.strokeBorder(Color.primary.opacity(0.14), lineWidth: 1))
+        .shadow(color: .black.opacity(0.28), radius: 16, y: 6)
+    }
+}
+
 struct RaccourciIcone: View {
     let nom: String
     let taille: CGFloat
@@ -1755,16 +1872,13 @@ struct SidebarView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 3) {
                 let b = Set(config.barre)
-                if b.contains("recents") || b.contains("dossiers") || config.historique { titre("Récents") }
+                if b.contains("recents") || b.contains("dossiers") { titre("Récents") }
                 if ouverte("Récents") {
                     if b.contains("recents") {
                         LigneBarre(store: store, kind: .recents, nom: "Fichiers récents", symbole: "clock")
                     }
                     if b.contains("dossiers") {
                         LigneBarre(store: store, kind: .dossiers, nom: "Dossiers récents", symbole: "clock.arrow.circlepath")
-                    }
-                    if config.historique {
-                        LigneBarre(store: store, kind: .presse, nom: "Presse-papiers", symbole: "doc.on.clipboard")
                     }
                 }
                 titre("Favoris")
@@ -1876,7 +1990,15 @@ struct LigneRaccourci: View {
 /// L'historique du copier-coller : un clic recopie l'élément, on peut aussi le glisser ailleurs.
 struct PressePapiersView: View {
     @ObservedObject var presse = PressePapiers.shared
+    var filtre = ""
+    var apresCopie: (() -> Void)?
     @State private var copie: UUID?
+
+    private var visibles: [Copie] {
+        let f = filtre.trimmingCharacters(in: .whitespaces)
+        guard !f.isEmpty else { return presse.tries }
+        return presse.tries.filter { !$0.secret && apercu($0).localizedCaseInsensitiveContains(f) }
+    }
 
     private static let dates: RelativeDateTimeFormatter = {
         let f = RelativeDateTimeFormatter()
@@ -1887,14 +2009,16 @@ struct PressePapiersView: View {
 
     var body: some View {
         if presse.elements.isEmpty {
-            Text("Ce que tu copies apparaîtra ici.\nL'historique n'est gardé qu'en mémoire : il s'efface quand Side se ferme.")
+            Text("Ce que tu copies apparaîtra ici.")
                 .foregroundStyle(.secondary).multilineTextAlignment(.center)
                 .padding(.horizontal, 24)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
+        } else if visibles.isEmpty {
+            Text("Aucun résultat").foregroundStyle(.secondary).frame(maxWidth: .infinity, maxHeight: .infinity)
         } else {
             ScrollView {
                 LazyVStack(spacing: 2) {
-                    ForEach(presse.elements) { ligne($0) }
+                    ForEach(visibles) { ligne($0) }
                 }
                 .padding(6)
             }
@@ -1920,6 +2044,7 @@ struct PressePapiersView: View {
                     .font(.caption).foregroundStyle(copie == c.id ? Color.accentColor : .secondary)
             }
             Spacer(minLength: 0)
+            if c.epingle { Image(systemName: "pin.fill").font(.caption).foregroundStyle(Color.accentColor).padding(.top, 3) }
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 6)
@@ -1928,7 +2053,10 @@ struct PressePapiersView: View {
         .onTapGesture {
             presse.recopier(c)
             copie = c.id
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { if copie == c.id { copie = nil } }
+            // Le temps de lire « Copié », puis la liste se referme.
+            DispatchQueue.main.asyncAfter(deadline: .now() + (apresCopie == nil ? 1.5 : 0.6)) {
+                if copie == c.id { copie = nil; apresCopie?() }
+            }
         }
         .onDrag {
             if let fichier = c.fichiers.first { return NSItemProvider(object: fichier as NSURL) }
@@ -1937,11 +2065,16 @@ struct PressePapiersView: View {
         }
         .contextMenu {
             Button("Copier") { presse.recopier(c) }
+            if c.secret {
+                // Un mot de passe ne s'épingle pas : il serait écrit sur le disque.
+            } else {
+                Button(c.epingle ? "Désépingler" : "Épingler en haut de la liste") { presse.epingler(c) }
+            }
             Button("Supprimer de l'historique") { presse.supprimer(c) }
             Divider()
-            Button("Effacer tout l'historique") { presse.vider() }
+            Button("Effacer l'historique (sauf les épinglés)") { presse.vider() }
         }
-        .help("Clic : recopier. On peut aussi le glisser ailleurs.")
+        .help("Clic : recopier. Clic droit : épingler. On peut aussi le glisser ailleurs.")
     }
 
     private func apercu(_ c: Copie) -> String {
@@ -2865,7 +2998,7 @@ struct ReglagesView: View {
                 Toggle("Y garder aussi les mots de passe (affichés masqués)", isOn: $config.historiqueSecrets)
                     .disabled(!config.historique)
             } header: { Text("Presse-papiers") } footer: {
-                note("L'historique reste en mémoire : rien n'est écrit sur le disque, et il s'efface quand Side se ferme. Les mots de passe sont masqués à l'écran mais restent recopiables d'un clic.")
+                note("L'historique se déroule en passant la souris sur l'icône au bout du mini-Dock. Il reste en mémoire et s'efface quand Side se ferme ; seuls les textes que tu épingles (clic droit) sont conservés. Les mots de passe sont masqués à l'écran mais restent recopiables d'un clic.")
             }
             Section("Présentation") {
                 LabeledContent("Les cinq étapes de bienvenue") {
@@ -3120,6 +3253,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
             w.contentView = vue
             store.largeurMax = 1400
             store.reloadAll()
+            if CommandLine.arguments.contains("--presse") {   // pour les tests : un historique d'exemple
+                PressePapiers.shared.elements = [
+                    Copie(date: Date(), texte: "FR76 0000 0000 0000 0000 0000 000", epingle: true),
+                    Copie(date: Date().addingTimeInterval(-40), texte: "Bonjour, merci pour votre message, je reviens vers vous demain."),
+                    Copie(date: Date().addingTimeInterval(-300), texte: "motdepasse", secret: true),
+                    Copie(date: Date().addingTimeInterval(-900), texte: "https://github.com/GauthierAube/Side"),
+                    Copie(date: Date().addingTimeInterval(-4000), fichiers: [URL(fileURLWithPath: "/Applications/Safari.app")]),
+                ]
+            }
             if let j = CommandLine.arguments.firstIndex(of: "--accueil"), j + 1 < CommandLine.arguments.count {
                 store.accueil = Int(CommandLine.arguments[j + 1])   // pour les tests : une étape de la présentation
             }
