@@ -1299,18 +1299,6 @@ struct DrawerView: View {
                 Color(nsColor: .textBackgroundColor)
             }
         })
-        // Le panneau des applications, au centre de la carte, sur un voile : un clic sur le voile le referme.
-        .overlay {
-            if store.lanceurOuvert || ProcessInfo.processInfo.arguments.contains("--lanceur") {
-                ZStack {
-                    Color.black.opacity(0.18).contentShape(Rectangle())
-                        .onTapGesture { store.lanceurOuvert = false }
-                    LanceurPanneau { store.lanceurOuvert = false }
-                }
-                .transition(.opacity)
-            }
-        }
-        .animation(.easeOut(duration: 0.15), value: store.lanceurOuvert)
         .overlay {
             if let etape = store.accueil {
                 AccueilView(store: store, etape: etape).transition(.opacity)
@@ -1739,9 +1727,11 @@ struct AvecCroix: ViewModifier {
 /// Un clic le lance ; déposer des fichiers dessus le lance avec ces fichiers en entrée.
 /// Un repère invisible : la vue qui le porte (mini-Dock, panneau) compte comme une partie de Side pour les clics.
 struct Repere: NSViewRepresentable {
+    var lanceur = false   // le panneau des applications : un clic hors de lui le referme
     func makeNSView(context: Context) -> NSView {
         let v = NSView()
         AppDelegate.shared.reperes.add(v)
+        if lanceur { AppDelegate.shared.vueLanceur = v }
         return v
     }
     func updateNSView(_ v: NSView, context: Context) {}
@@ -1805,11 +1795,26 @@ struct LanceurIcone: View {
     }()
 
     var body: some View {
+        let cote = Config.shared.dockPosition
+        // Le panneau part de l'icône : vers le bas si le mini-Dock est en haut, vers le haut s'il est en bas…
+        let ancre: Alignment = ["haut": .topLeading, "bas": .bottomLeading, "gauche": .topLeading, "droite": .topTrailing][cote] ?? .topLeading
+        let pointDepart: UnitPoint = ["haut": .topLeading, "bas": .bottomLeading, "gauche": .topLeading, "droite": .topTrailing][cote] ?? .topLeading
+        let ecart = taille + 16
+        let ouvert = store.lanceurOuvert || ProcessInfo.processInfo.arguments.contains("--lanceur")
         Image(nsImage: Self.icone)
             .resizable().frame(width: taille, height: taille)
             .modifier(SurvolDock())
             .contentShape(Rectangle())
             .onTapGesture { store.lanceurOuvert.toggle() }
+            .overlay(alignment: ancre) {
+                if ouvert {
+                    LanceurPanneau { store.lanceurOuvert = false }
+                        .offset(x: cote == "gauche" ? ecart : (cote == "droite" ? -ecart : -6),
+                                y: cote == "haut" ? ecart : (cote == "bas" ? -ecart : -6))
+                        .transition(.scale(scale: 0.15, anchor: pointDepart).combined(with: .opacity))
+                }
+            }
+            .animation(.spring(response: 0.3, dampingFraction: 0.82), value: store.lanceurOuvert)
             .help("Toutes les applications")
             .accessibilityLabel("Toutes les applications")
             .accessibilityAddTraits(.isButton)
@@ -1839,16 +1844,16 @@ struct LanceurPanneau: View {
                         .buttonStyle(.plain).accessibilityLabel("Effacer la recherche")
                 }
             }
-            .padding(.horizontal, 10).frame(height: 30)
+            .padding(.horizontal, 9).frame(height: 26)
             .background(Capsule().fill(Color.primary.opacity(0.08)))
-            .padding(10)
+            .padding(8)
             Divider()
             if trouvees.isEmpty {
                 Text(applis.toutes.isEmpty ? "Chargement…" : "Aucune app").foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 ScrollView {
-                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 84), spacing: 6)], spacing: 10) {
+                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 70), spacing: 4)], spacing: 6) {
                         ForEach(Array(trouvees.enumerated()), id: \.element.id) { rang, app in
                             CaseAppli(app: app, premiere: rang == 0 && !texte.isEmpty) { lancer(app) }
                         }
@@ -1857,11 +1862,12 @@ struct LanceurPanneau: View {
                 }
             }
         }
-        .frame(width: 440, height: 380)
-        .background(Color(nsColor: .windowBackgroundColor))
+        .frame(width: 330, height: 300)
+        .background(Repere(lanceur: true))
+        .background(ZStack { VisualEffect(); Color(nsColor: .windowBackgroundColor).opacity(0.55) })
         .clipShape(forme)
-        .overlay(forme.strokeBorder(Color.primary.opacity(0.14), lineWidth: 1))
-        .shadow(color: .black.opacity(0.28), radius: 18, y: 6)
+        .overlay(forme.strokeBorder(Color.primary.opacity(0.12), lineWidth: 1))
+        .shadow(color: .black.opacity(0.22), radius: 14, y: 5)
         .onAppear {
             applis.charger()
             DispatchQueue.main.async { champ = true }
@@ -1884,9 +1890,9 @@ struct CaseAppli: View {
 
     var body: some View {
         VStack(spacing: 4) {
-            Image(nsImage: Icones.de(app.url.path)).resizable().frame(width: 48, height: 48)
-            Text(app.nom).font(.system(size: 11)).lineLimit(2).multilineTextAlignment(.center)
-                .frame(maxWidth: .infinity, minHeight: 28, alignment: .top)
+            Image(nsImage: Icones.de(app.url.path)).resizable().frame(width: 38, height: 38)
+            Text(app.nom).font(.system(size: 10)).lineLimit(2).multilineTextAlignment(.center)
+                .frame(maxWidth: .infinity, minHeight: 24, alignment: .top)
         }
         .padding(.vertical, 6).padding(.horizontal, 2)
         .background(RoundedRectangle(cornerRadius: 10).fill(
@@ -3793,12 +3799,30 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
     private var cadreSeule: NSRect = .zero
     /// Les vues qui font partie de Side en plus de la carte : le mini-Dock, et le panneau du presse-papiers.
     let reperes = NSHashTable<NSView>.weakObjects()
+    weak var vueLanceur: NSView?
+    /// Vrai si ce point de l'écran est dans cette vue.
+    private func dans(_ v: NSView?, _ p: NSPoint, marge: CGFloat = 0) -> Bool {
+        guard let v, let w = v.window else { return false }
+        return w.convertToScreen(v.convert(v.bounds, to: nil)).insetBy(dx: -marge, dy: -marge).contains(p)
+    }
     /// Demande à iCloud de rapatrier un fichier resté dans le nuage.
     func telecharger(_ url: URL) {
         try? FileManager.default.startDownloadingUbiquitousItem(at: url)
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { self.store.reloadAll() }
     }
     private var battement = 0
+
+    /// L'icône Apps est la première du mini-Dock : on la reconnaît à sa place au bout de celui-ci.
+    private func surIconeLanceur(_ p: NSPoint) -> Bool {
+        guard let dock = reperes.allObjects.first(where: { $0 !== vueLanceur && $0.bounds.width > 0 && $0.window != nil }),
+              let w = dock.window else { return false }
+        let r = w.convertToScreen(dock.convert(dock.bounds, to: nil))
+        let t = CGFloat(config.tailleDock) + 12
+        let vertical = config.dockPosition == "gauche" || config.dockPosition == "droite"
+        let icone = vertical ? NSRect(x: r.minX, y: r.maxY - t, width: r.width, height: t)
+                             : NSRect(x: r.minX, y: r.minY, width: t, height: r.height)
+        return icone.contains(p)
+    }
 
     /// Vrai si ce point de l'écran est sur la carte, le mini-Dock ou un panneau ouvert — pas dans le vide autour.
     /// La place de chaque vue est lue au moment du clic : toujours juste, même pendant une animation.
@@ -3968,7 +3992,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         NSEvent.addLocalMonitorForEvents(matching: [.leftMouseDown, .leftMouseUp]) { [weak self] ev in
             guard let self, ev.window === self.panel else { return ev }
             let p = NSEvent.mouseLocation
-            if ev.type == .leftMouseDown { self.pointClicDedans = self.surSide(p) ? nil : p; return ev }
+            if ev.type == .leftMouseDown {
+                // Panneau des applications ouvert : un clic hors de lui (et hors de son icône) le referme.
+                if self.store.lanceurOuvert, !self.dans(self.vueLanceur, p), !self.surIconeLanceur(p) {
+                    self.store.lanceurOuvert = false
+                }
+                self.pointClicDedans = self.surSide(p) ? nil : p
+                return ev
+            }
             guard let debut = self.pointClicDedans else { return ev }
             self.pointClicDedans = nil
             if self.visible, self.config.fermerAuClic, !self.modeTest, self.prise == nil, self.store.accueil == nil,
