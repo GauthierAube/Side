@@ -4537,6 +4537,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         for duree in [0.45, 0.7, 1.0, 1.4, 1.8] {
             let morceau = trace.filter { maintenant - $0.t <= duree }.map(\.p)
             guard morceau.count >= 10, Geste.boucle(morceau, degres: degres) else { continue }
+            // Carte ouverte : un tout petit rond fait en bougeant la souris ne doit pas la refermer.
+            if visible { let b = Geste.boite(morceau); guard max(b.width, b.height) >= 50 else { continue } }
             derniereSecousse = maintenant
             trace = []
             attendrePause = true
@@ -5798,6 +5800,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         aQuitteCoin = false
         suivreBureaux(doitSuivre())
         Selection.shared.choisir(nil, nil)
+        // Le cercle ne peut refermer qu'après un arrêt de la souris : la fin du geste d'ouverture ne compte pas.
+        attendrePause = true
+        derniereSecousse = ProcessInfo.processInfo.systemUptime
+        trace = []
         // Toute première ouverture : la présentation de bienvenue.
         if store.accueil == nil && !UserDefaults.standard.bool(forKey: "accueilVu") { store.accueil = 0 }
         placer(sur: e, anime: true)
@@ -5994,8 +6000,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         if suivre != suitBureaux { suivreBureaux(suivre) }
 
         // Revenir dans le coin referme le tiroir.
-        if !coin { aQuitteCoin = true }
-        else if aQuitteCoin && NSEvent.pressedMouseButtons == 0 && !modeTest
+        // La souris doit s'être vraiment éloignée du coin (140 points) avant qu'y revenir ne referme :
+        // un petit mouvement autour du coin, juste après l'ouverture, ne compte pas.
+        if !dansCoin(p, e, marge: 140) { aQuitteCoin = true }
+        else if coin && aQuitteCoin && NSEvent.pressedMouseButtons == 0 && !modeTest
                     && ProcessInfo.processInfo.systemUptime - dernierBasculement > 0.5 { hide(); return }
 
         // Par défaut le tiroir reste ouvert. Avec le réglage « Fermer quand la souris en sort »,
