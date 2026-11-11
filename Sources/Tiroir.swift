@@ -2803,6 +2803,8 @@ struct ColumnView: View {
     var fixe = false   // la grande zone : ni retirable, ni déplaçable
     var dernier = false   // dernière colonne épinglée : porte le petit bouton « + »
     @State private var depot = false
+    @State private var recherche = false          // le champ de recherche est déplié
+    @FocusState private var champRecherche: Bool
     @ObservedObject private var config = Config.shared
 
     var body: some View {
@@ -2938,21 +2940,38 @@ struct ColumnView: View {
                     .help("Nouvel onglet (Commande + T)")
                     .accessibilityLabel("Nouvel onglet")
                 }
-                if fixe && large {
-                    HStack(spacing: 5) {
-                        Image(systemName: "magnifyingglass").foregroundStyle(.secondary)
-                        TextField("Rechercher", text: $column.filtre).textFieldStyle(.plain)
-                        if !column.filtre.isEmpty {
-                            Button { column.filtre = "" } label: {
+                if fixe {
+                    if recherche || !column.filtre.isEmpty {
+                        // Le champ ne s'ouvre que sur demande ; fermé, il laisse la place au nom du dossier.
+                        HStack(spacing: 5) {
+                            Image(systemName: "magnifyingglass").foregroundStyle(.secondary)
+                            TextField("Rechercher", text: $column.filtre).textFieldStyle(.plain).focused($champRecherche)
+                                .onExitCommand { column.filtre = ""; recherche = false }
+                            Button { column.filtre = ""; recherche = false } label: {
                                 Image(systemName: "xmark.circle.fill").foregroundStyle(.secondary)
                             }
                             .buttonStyle(.plain)
-                            .accessibilityLabel("Effacer la recherche")
+                            .accessibilityLabel("Fermer la recherche")
                         }
+                        .padding(.horizontal, 10)
+                        .frame(width: large ? 180 : 140, height: 28)
+                        .background(Capsule().fill(Color.primary.opacity(0.09)))
+                        .transition(.opacity)
+                    } else {
+                        Button {
+                            recherche = true
+                            DispatchQueue.main.async { champRecherche = true }
+                        } label: {
+                            Image(systemName: "magnifyingglass")
+                                .font(.system(size: 12, weight: .semibold))
+                                .frame(width: 30, height: 28)
+                                .background(Capsule().fill(Color.primary.opacity(0.09)))
+                                .contentShape(Capsule())
+                        }
+                        .buttonStyle(.plain)
+                        .help("Rechercher")
+                        .accessibilityLabel("Rechercher")
                     }
-                    .padding(.horizontal, 10)
-                    .frame(width: 180, height: 28)
-                    .background(Capsule().fill(Color.primary.opacity(0.09)))
                 }
             }
             .padding(.horizontal, 10)
