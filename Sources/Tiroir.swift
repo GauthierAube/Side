@@ -4316,11 +4316,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         let maintenant = ProcessInfo.processInfo.systemUptime
         if let dernier = trace.last {
             guard hypot(ici.x - dernier.p.x, ici.y - dernier.p.y) >= 2 else { return }
-            if maintenant - dernier.t > 0.35 { trace = [] }   // une pause : un nouveau geste commence
+            if maintenant - dernier.t > 0.35 { trace = []; attendrePause = false }   // une pause : un nouveau geste commence
+        } else if maintenant - dernierMouvement > 0.35 {
+            attendrePause = false
         }
+        dernierMouvement = maintenant
         trace.append((ici, maintenant))
         trace.removeAll { maintenant - $0.t > 1.8 }
-        guard maintenant - derniereSecousse > 0.35 else { return }   // juste de quoi ne pas compter deux fois le même cercle
+        // Après un cercle reconnu, on attend que la main s'arrête (ou 1,5 s au plus) : la fin du même geste
+        // ne doit pas être prise pour un nouveau cercle qui refermerait aussitôt Side.
+        if attendrePause && maintenant - derniereSecousse < 1.5 { return }
+        attendrePause = false
         // Le cercle n'a pas besoin d'être fermé. Plus c'est sensible, moins il en faut :
         // de 270° mesurés (environ 8 dixièmes de tour) à 210° (environ les deux tiers).
         let degres = 270 - 60 * CGFloat(config.sensibilite)
@@ -4329,10 +4335,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
             guard morceau.count >= 10, Geste.boucle(morceau, degres: degres) else { continue }
             derniereSecousse = maintenant
             trace = []
+            attendrePause = true
             basculer()
             return
         }
     }
+    private var attendrePause = false
+    private var dernierMouvement: TimeInterval = 0
 
     private func secousse() {
         guard config.secouer, prise == nil else { return }   // secouer ouvre la carte, et la referme si elle est ouverte
