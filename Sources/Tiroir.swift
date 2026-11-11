@@ -5353,14 +5353,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         if visible, let e = ecran { placer(sur: e, anime: false) }
     }
 
-    /// Position de départ de l'animation : juste derrière le bord d'où vient la carte.
+    /// Position de départ de l'animation : à peine décalée vers le bord d'où vient la carte.
+    /// Comme les panneaux de macOS (Spotlight, Centre de notifications) : un court glissement et un fondu, sans rebond.
     private var horsChamp: NSPoint {
-        let fenetre = panel.frame.size
+        let d: CGFloat = 20
         switch config.bord {
-        case .haut: return NSPoint(x: repos.x, y: fenetre.height)
-        case .bas: return NSPoint(x: repos.x, y: -host.frame.height)
-        case .gauche: return NSPoint(x: -host.frame.width, y: repos.y)
-        case .droite: return NSPoint(x: fenetre.width, y: repos.y)
+        case .haut: return NSPoint(x: repos.x, y: repos.y + d)
+        case .bas: return NSPoint(x: repos.x, y: repos.y - d)
+        case .gauche: return NSPoint(x: repos.x - d, y: repos.y)
+        case .droite: return NSPoint(x: repos.x + d, y: repos.y)
         case .plein: return repos   // la carte ne bouge pas : elle apparaît et disparaît en fondu
         }
     }
@@ -5549,7 +5550,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         // Toute première ouverture : la présentation de bienvenue.
         if store.accueil == nil && !UserDefaults.standard.bool(forKey: "accueilVu") { store.accueil = 0 }
         placer(sur: e, anime: true)
-        let fondu = config.bord == .plein
         let reduit = NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
         host.setFrameOrigin(reduit ? repos : horsChamp)   // « Réduire les animations » : fondu seul
         panel.alphaValue = 0
@@ -5568,10 +5568,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
             }
         }
         NSAnimationContext.runAnimationGroup { ctx in
-            ctx.duration = reduit ? 0.15 : (fondu ? 0.28 : 0.45)
-            // La courbe dépasse légèrement la position finale puis revient : le rebond d'iOS.
-            ctx.timingFunction = fondu ? CAMediaTimingFunction(name: .easeOut)
-                : CAMediaTimingFunction(controlPoints: 0.28, 1.32, 0.42, 1)
+            // Court et sans dépassement, comme les panneaux de macOS : démarre vite, se pose en douceur.
+            ctx.duration = reduit ? 0.15 : 0.22
+            ctx.timingFunction = CAMediaTimingFunction(controlPoints: 0.2, 0.8, 0.2, 1)
             if let arrivee, let zone = depotPanel {
                 zone.animator().setFrame(arrivee, display: true)
                 zone.animator().alphaValue = 1
@@ -5602,9 +5601,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         let glisse = !reduit && !fondu
         if ensemble { animationDepot = true }
         NSAnimationContext.runAnimationGroup({ ctx in
-            ctx.duration = reduit ? 0.15 : (fondu ? 0.22 : 0.26)
-            ctx.timingFunction = fondu ? CAMediaTimingFunction(name: .easeIn)
-                : CAMediaTimingFunction(controlPoints: 0.5, 0, 0.9, 0.6)   // part doucement, accélère
+            ctx.duration = reduit ? 0.12 : 0.16   // la fermeture est encore plus brève que l'ouverture
+            ctx.timingFunction = CAMediaTimingFunction(name: .easeIn)
             if glisse { host.animator().setFrameOrigin(horsChamp) }
             panel.animator().alphaValue = 0
             if ensemble, let zone {
