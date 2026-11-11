@@ -269,6 +269,37 @@ enum Geste {
         }
         return max(0, 1 - meilleur / 0.5)
     }
+    /// De combien le tracé tourne, en degrés (positif dans un sens, négatif dans l'autre),
+    /// et à quel point il tourne toujours du même côté (1 = toujours, 0 = autant à gauche qu'à droite).
+    static func rotation(_ p: [CGPoint]) -> (degres: CGFloat, constance: CGFloat) {
+        // Un point sur deux : les petits tremblements de la main ne comptent pas comme des virages.
+        let r = regulier(p).enumerated().filter { $0.offset % 2 == 0 }.map(\.element)
+        guard r.count >= 3 else { return (0, 0) }
+        var somme: CGFloat = 0, absolue: CGFloat = 0
+        for i in 1..<(r.count - 1) {
+            let a = atan2(r[i].y - r[i - 1].y, r[i].x - r[i - 1].x)
+            let b = atan2(r[i + 1].y - r[i].y, r[i + 1].x - r[i].x)
+            var d = b - a
+            while d > .pi { d -= 2 * .pi }
+            while d < -.pi { d += 2 * .pi }
+            somme += d
+            absolue += abs(d)
+        }
+        return (somme * 180 / .pi, absolue > 0 ? abs(somme) / absolue : 0)
+    }
+    /// Le modèle est-il une boucle (cercle, ovale, patate) ? On la reconnaît alors « à la louche » :
+    /// n'importe quel tour à peu près complet fait l'affaire, sans comparer la forme exacte.
+    static func estBoucle(_ p: [CGPoint]) -> Bool {
+        let r = rotation(p)
+        return abs(r.degres) >= 250 && r.constance >= 0.7
+    }
+    /// Un tour à peu près complet, dans un sens ou dans l'autre, pas trop aplati.
+    static func boucle(_ p: [CGPoint], degres: CGFloat) -> Bool {
+        let b = boite(p), grand = max(b.width, b.height), petit = min(b.width, b.height)
+        guard grand >= 60, petit >= grand * 0.35 else { return false }
+        let r = rotation(p)
+        return abs(r.degres) >= degres && r.constance >= 0.75
+    }
     static func points(_ plat: [Double]) -> [CGPoint] {
         stride(from: 0, to: plat.count - 1, by: 2).map { CGPoint(x: plat[$0], y: plat[$0 + 1]) }
     }
@@ -2869,6 +2900,12 @@ struct ZoneGeste: View {
                     }
                     dessin = []
                 })
+            if message.isEmpty && enregistre.count >= 8 {
+                Text(Geste.estBoucle(enregistre) ? "Compris comme une boucle : n'importe quel cercle, même grossier, dans un sens ou dans l'autre."
+                                                 : "Compris comme un tracé libre : à refaire dans le même sens, avec la même forme.")
+                    .font(.caption).foregroundStyle(.secondary)
+                    .frame(width: 230, alignment: .trailing).multilineTextAlignment(.trailing)
+            }
             if !message.isEmpty {
                 Text(message).font(.caption).foregroundStyle(message == "Geste enregistré" ? Color.green : Color.orange)
                     .frame(width: 230, alignment: .trailing).multilineTextAlignment(.trailing)
@@ -2997,7 +3034,7 @@ struct ReglagesView: View {
                     .disabled(!config.secouer)
             } header: { Text("Geste de la souris") } footer: {
                 if config.gestePerso {
-                    note("Dessine ton geste dans le cadre en maintenant le clic : un cercle, un zigzag, un 8… Ensuite, refais-le n'importe où à l'écran, sans cliquer, d'un seul mouvement rapide. Sa taille ne compte pas, son sens oui.")
+                    note("Dessine ton geste dans le cadre en maintenant le clic : un cercle, un zigzag, un 8… Ensuite, refais-le n'importe où à l'écran, sans cliquer, d'un seul mouvement rapide. Sa taille ne compte pas. Un cercle n'a pas besoin d'être soigné.")
                 }
             }
             Section("Clavier") {
@@ -3430,6 +3467,21 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
                 return CGPoint(x: 200, y: 300 + (k - 20) * 10)
             }
             note("virage en L             ", virage)
+            print("--- boucle à la louche (sensibilité moyenne : 270°) ---")
+            func tour(_ nom: String, _ p: [CGPoint]) {
+                let r = Geste.rotation(p)
+                print(nom, Geste.boucle(p, degres: 270) ? "reconnu" : "refusé ", String(format: "%.0f° constance %.2f", r.degres, r.constance))
+            }
+            tour("cercle propre           ", cercle(0))
+            tour("patate tremblée         ", cercle(1, rayon: 60, bruit: 12))
+            tour("ovale                   ", cercle(1).map { CGPoint(x: $0.x * 1.8, y: $0.y) })
+            tour("sens inverse            ", cercle(0, sens: -1))
+            tour("un tour et quart        ", cercle(0.5, tours: 1.25))
+            tour("trois quarts de tour    ", cercle(0.5, tours: 0.75))
+            tour("ligne droite            ", ligne)
+            tour("zigzag (secousse)       ", zigzag)
+            tour("virage en L             ", virage)
+            var boucles = 0
             var pire: CGFloat = 0, faux = 0
             for _ in 0..<2000 {   // des mouvements au hasard : aucun ne doit ressembler au cercle
                 var p = CGPoint(x: 500, y: 400), cap = Double.random(in: 0...6.28), trajet: [CGPoint] = []
@@ -3438,13 +3490,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
                     p.x += 9 * cos(cap); p.y += 9 * sin(cap)
                     trajet.append(p)
                 }
+                if Geste.boucle(trajet, degres: 270) { boucles += 1 }
                 if Geste.richesse(trajet) >= Geste.richesse(modele) * 0.7 {
                     let r = Geste.ressemblance(trajet, modele: modele)
                     pire = max(pire, r)
                     if r >= 0.79 { faux += 1 }
                 }
             }
-            print("2000 mouvements au hasard : ressemblance la plus haute", String(format: "%.2f", pire), "— déclenchements (sensibilité moyenne) :", faux)
+            print("2000 mouvements au hasard : ressemblance la plus haute", String(format: "%.2f", pire), "— déclenchements (sensibilité moyenne) :", faux, "— pris pour une boucle :", boucles)
             exit(0)
         }
         // Pour les tests : « --image fichier.png » dessine la carte (ou les réglages, avec --volet) dans une image,
@@ -3671,15 +3724,24 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         trace.removeAll { maintenant - $0.t > 1.8 }
         guard maintenant - derniereSecousse > 0.8 else { return }
         // Plus c'est sensible, moins le geste a besoin d'être fidèle au modèle.
-        let seuil = 0.86 - 0.14 * CGFloat(config.sensibilite)
+        let s = CGFloat(config.sensibilite)
+        let seuil = 0.8 - 0.15 * s
         let richesse = Geste.richesse(modeleGeste)
+        let boucle = Geste.estBoucle(modeleGeste)
         for duree in [0.45, 0.7, 1.0, 1.4, 1.8] {
             let morceau = trace.filter { maintenant - $0.t <= duree }.map(\.p)
             guard morceau.count >= 10 else { continue }
             let b = Geste.boite(morceau)
-            // Assez grand pour être voulu, et aussi « riche » que le modèle (pas un simple trait).
-            guard max(b.width, b.height) >= 60, Geste.richesse(morceau) >= richesse * 0.7 else { continue }
-            if Geste.ressemblance(morceau, modele: modeleGeste) >= seuil {
+            let reconnu: Bool
+            if boucle {
+                // Le modèle est une boucle : un tour à peu près complet suffit, même grossier, dans les deux sens.
+                reconnu = Geste.boucle(morceau, degres: 300 - 60 * s)
+            } else {
+                // Assez grand pour être voulu, et aussi « riche » que le modèle (pas un simple trait).
+                reconnu = max(b.width, b.height) >= 60 && Geste.richesse(morceau) >= richesse * 0.7
+                    && Geste.ressemblance(morceau, modele: modeleGeste) >= seuil
+            }
+            if reconnu {
                 derniereSecousse = maintenant
                 trace = []
                 basculer()
