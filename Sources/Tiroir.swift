@@ -1876,6 +1876,9 @@ struct LanceurIcone: View {
             .modifier(SurvolDock())
             .contentShape(Rectangle())
             .onTapGesture { store.lanceurOuvert.toggle() }
+            .contextMenu {
+                Button("Masquer le bouton Apps") { store.lanceurOuvert = false; Config.shared.lanceur = false }
+            }
             .overlay(alignment: ancre) {
                 if ouvert {
                     LanceurPanneau { store.lanceurOuvert = false }
@@ -3760,7 +3763,7 @@ struct ReglagesView: View {
                 .disabled(!config.apps)
                 curseur("Taille des icônes", $config.tailleDock, 28...64, "\(Int(config.tailleDock.rounded())) pt")
                     .disabled(!config.apps)
-                Toggle("Bouton « Apps » (toutes les applications, avec une recherche)", isOn: $config.lanceur).disabled(!config.apps)
+                Toggle("Afficher le bouton « Apps » (toutes les applications, avec une recherche)", isOn: $config.lanceur).disabled(!config.apps)
                 Toggle("Apps ouvertes", isOn: $config.appsOuvertes).disabled(!config.apps)
                 Toggle("Apps favorites", isOn: $config.appsFavoris).disabled(!config.apps)
                 if !config.appsMasquees.isEmpty {
