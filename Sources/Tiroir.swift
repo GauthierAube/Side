@@ -403,7 +403,19 @@ enum Doigts {
         }
         dernierePresence = ProcessInfo.processInfo.systemUptime
         nombreDoigts = doigts.count
-        if actif, traiter(doigts) { DispatchQueue.main.async { AppDelegate.shared.basculer() } }
+        guard actif else { return }
+        let geste = traiter(doigts)
+        guard geste != 0 else { return }
+        // Le sens choisi ouvre Side, le sens inverse le referme. « Les deux » : chaque geste ouvre ou ferme.
+        let ouvrir = sens == "deux" ? nil : (geste > 0) == (sens == "haut")
+        DispatchQueue.main.async {
+            let side = AppDelegate.shared
+            switch ouvrir {
+            case nil: side.basculer()
+            case true?: if !side.estOuvert { side.basculer() }
+            case false?: if side.estOuvert { side.basculer() }
+            }
+        }
     }
 
     /// Nombre de doigts posés à l'instant, et moment de la dernière mesure (pour bloquer le défilement parasite).
@@ -413,25 +425,25 @@ enum Doigts {
     private static let seuil: Float = 0.12             // un huitième de la hauteur du trackpad suffit
 
     /// Une image du trackpad : chaque doigt avec son numéro et sa hauteur (0 en bas, 1 en haut).
-    /// Renvoie vrai quand le geste est fait. Le geste ne compte qu'une fois, jusqu'à ce que les doigts se lèvent.
-    static func traiter(_ doigts: [(Int32, Float)]) -> Bool {
+    /// Renvoie 1 pour un geste vers le haut, -1 vers le bas, 0 sinon.
+    /// Le geste ne compte qu'une fois, jusqu'à ce que les doigts se lèvent.
+    static func traiter(_ doigts: [(Int32, Float)]) -> Int {
         // Moins de trois doigts : le geste est fini (ou n'a pas commencé).
-        if doigts.count < 3 { departs = [:]; dejaFait = false; return false }
+        if doigts.count < 3 { departs = [:]; dejaFait = false; return 0 }
         // On note la hauteur de départ de chaque doigt la première fois qu'on le voit,
         // y compris ceux qui se posent un peu en retard : les doigts n'arrivent jamais tous en même temps.
         for (id, y) in doigts where departs[id] == nil { departs[id] = y }
         // Il faut quatre doigts (ou cinq) pour le geste ; à trois, on attend le quatrième.
-        guard doigts.count >= 4, !dejaFait else { return false }
+        guard doigts.count >= 4, !dejaFait else { return 0 }
         // Déplacement moyen des doigts présents, chacun mesuré depuis son propre départ :
         // un doigt qui se lève ou se pose ne fausse plus la mesure.
         let ecarts = doigts.compactMap { id, y in departs[id].map { y - $0 } }
-        guard ecarts.count >= 4 else { return false }
+        guard ecarts.count >= 4 else { return 0 }
         let moyen = ecarts.reduce(0, +) / Float(ecarts.count)
         // Tous les doigts doivent aller dans le même sens (pas un pincement ni un écartement).
         let memeSens = ecarts.allSatisfy { moyen > 0 ? $0 > -0.02 : $0 < 0.02 }
-        let bonSens = sens == "haut" ? moyen > seuil : (sens == "bas" ? moyen < -seuil : abs(moyen) > seuil)
-        if memeSens && bonSens { dejaFait = true; return true }
-        return false
+        if memeSens && abs(moyen) > seuil { dejaFait = true; return moyen > 0 ? 1 : -1 }
+        return 0
     }
 
     /// Pendant un geste à trois doigts ou plus, macOS envoie aussi du défilement à l'app sous le pointeur :
@@ -3599,7 +3611,7 @@ struct ReglagesView: View {
             }
             Section {
                 Toggle("Glisser quatre doigts sur le trackpad", isOn: $config.quatreDoigts)
-                Picker("Sens", selection: $config.sensDoigts) {
+                Picker("Pour ouvrir", selection: $config.sensDoigts) {
                     Text("Vers le bas").tag("bas")
                     Text("Vers le haut").tag("haut")
                     Text("Les deux").tag("deux")
@@ -3616,11 +3628,10 @@ struct ReglagesView: View {
                     }
                 }
             } header: { Text("Trackpad") } footer: {
-                note(config.sensDoigts == "bas"
-                     ? "Attention : macOS utilise déjà ce geste pour « Exposé des apps ». Pour que les deux ne se déclenchent pas ensemble, mets « Exposé des apps » sur « Désactivé » dans Réglages Système > Trackpad > Autres gestes. Side ne change pas ce réglage lui-même."
-                     : (config.sensDoigts == "haut"
-                        ? "Attention : macOS utilise déjà ce geste pour Mission Control. Pour que les deux ne se déclenchent pas ensemble, mets « Mission Control » sur « Désactivé » dans Réglages Système > Trackpad > Autres gestes. Side ne change pas ce réglage lui-même."
-                        : "Attention : macOS utilise déjà ces gestes : vers le haut pour Mission Control, vers le bas pour « Exposé des apps ». Pour que les deux ne se déclenchent pas ensemble, mets-les sur « Désactivé » dans Réglages Système > Trackpad > Autres gestes. Side ne change pas ces réglages lui-même."))
+                note((config.sensDoigts == "deux"
+                      ? "Chaque geste, vers le haut ou vers le bas, ouvre ou ferme Side. "
+                      : "Le geste dans l'autre sens referme Side. ")
+                     + "Attention : macOS utilise déjà ces gestes, vers le haut pour Mission Control et vers le bas pour « Exposé des apps ». Pour que les deux ne se déclenchent pas ensemble, mets-les sur « Désactivé » dans Réglages Système > Trackpad > Autres gestes. Side ne change pas ces réglages lui-même.")
             }
             Section("Clavier") {
                 LabeledContent("Raccourci") {
@@ -4090,8 +4101,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
             func essai(_ nom: String, _ sens: String, _ images: [[(Int32, Float)]]) {
                 Doigts.sens = sens
                 _ = Doigts.traiter([])
-                let fait = images.contains { Doigts.traiter($0) }
-                print(nom, fait ? "reconnu" : "refusé")
+                let geste = images.lazy.map { Doigts.traiter($0) }.first { $0 != 0 } ?? 0
+                let effet = geste == 0 ? "rien" : (sens == "deux" ? "ouvre ou ferme" : ((geste > 0) == (sens == "haut") ? "ouvre" : "ferme"))
+                print(nom, effet)
             }
             func quatre(_ y: Float, decalages: [Float] = [0, 0, 0, 0]) -> [(Int32, Float)] {
                 (0..<4).map { (Int32($0), y + decalages[$0]) }
@@ -4099,6 +4111,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
             let descente = stride(from: Float(0.7), through: 0.5, by: -0.02).map { quatre($0) }
             essai("4 doigts vers le bas, court (0,2)        ", "bas", descente)
             essai("même geste, réglé sur vers le haut       ", "haut", descente)
+            essai("4 doigts vers le haut, réglé vers le bas ", "bas", descente.reversed())
             // Doigts qui se posent un par un pendant la descente.
             var arrivee: [[(Int32, Float)]] = [[(0, 0.7), (1, 0.7)], [(0, 0.69), (1, 0.69), (2, 0.7)]]
             arrivee += stride(from: Float(0.68), through: 0.5, by: -0.02).map { quatre($0) }
@@ -4337,6 +4350,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
             return nil
         }
     }
+
+    /// La carte est-elle ouverte ? (pour le geste à quatre doigts : ouvrir dans un sens, fermer dans l'autre)
+    var estOuvert: Bool { visible }
 
     /// Relance la présentation de bienvenue, carte ouverte.
     @objc func revoirAccueil() {
