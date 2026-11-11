@@ -114,10 +114,8 @@ final class Config: ObservableObject {
     /// Cadenas des zones de dépôt : fermé = elles restent à l'écran quand Side se ferme.
     @Published var depotReste: Bool { didSet { d.set(depotReste, forKey: "depotReste") } }
     @Published var secouer: Bool { didSet { d.set(secouer, forKey: "secouer") } }
-    /// Geste de souris personnalisé (un cercle, un zigzag…) : il remplace la secousse quand il est activé.
-    /// Le tracé est gardé sous forme de points x, y à la suite.
-    @Published var gestePerso: Bool { didSet { d.set(gestePerso, forKey: "gestePerso") } }
-    @Published var geste: [Double] { didSet { d.set(geste, forKey: "geste") } }
+    /// Geste de la souris : faux = secouer le pointeur, vrai = lui faire faire un cercle.
+    @Published var cercle: Bool { didSet { d.set(cercle, forKey: "gestePerso") } }
     // Réglages repris du Finder.
     /// Entrées affichées dans la barre latérale (par leur clé : "recents", "icloud", "disques"…).
     @Published var barre: [String] { didSet { d.set(barre, forKey: "barre") } }
@@ -176,8 +174,7 @@ final class Config: ObservableObject {
         fermerApresDepot = d.object(forKey: "fermerApresDepot") as? Bool ?? true
         depotReste = d.object(forKey: "depotReste") as? Bool ?? true
         secouer = d.object(forKey: "secouer") as? Bool ?? true
-        gestePerso = d.bool(forKey: "gestePerso")
-        geste = d.array(forKey: "geste") as? [Double] ?? []
+        cercle = d.bool(forKey: "gestePerso")
         barre = d.stringArray(forKey: "barre") ?? ["recents", "dossiers", "icloud", "maison", "applications", "tags"]
         extensions = Fichiers.extensions
         dossiersEnHaut = Fichiers.dossiersEnHaut
@@ -194,11 +191,10 @@ final class Config: ObservableObject {
     }
 }
 
-// MARK: - Geste de souris personnalisé
+// MARK: - Geste de la souris : le cercle
 
-/// Reconnaît un tracé fait à la souris (sans clic) en le comparant au geste enregistré.
-/// Les deux tracés sont ramenés à la même taille et au même nombre de points, puis comparés point à point :
-/// la taille et la vitesse du geste ne comptent pas, sa forme et son sens oui.
+/// Reconnaît un cercle fait à la souris, sans clic. On ne compare pas la forme : il suffit que le pointeur
+/// fasse un tour à peu près complet, dans un sens ou dans l'autre. Un cercle grossier ou tremblé convient.
 enum Geste {
     static let nombre = 32
 
@@ -209,14 +205,6 @@ enum Geste {
         guard let a = p.first else { return .zero }
         return p.reduce(CGRect(origin: a, size: .zero)) { $0.union(CGRect(origin: $1, size: .zero)) }
     }
-    /// Richesse d'un tracé : longueur parcourue rapportée à sa taille. Une ligne vaut 1, un cercle environ 2,2.
-    static func richesse(_ p: [CGPoint]) -> CGFloat {
-        let b = boite(p), diagonale = hypot(b.width, b.height)
-        return diagonale > 0 ? longueur(p) / diagonale : 0
-    }
-    /// Un geste trop simple (une ligne, une courbe) se déclencherait à chaque mouvement de souris.
-    static func assezRiche(_ p: [CGPoint]) -> Bool { richesse(p) >= 1.9 && p.count >= 8 }
-
     /// Rééchantillonne en `nombre` points régulièrement espacés le long du tracé.
     static func regulier(_ p: [CGPoint]) -> [CGPoint] {
         guard p.count > 1 else { return p }
@@ -237,38 +225,6 @@ enum Geste {
         while sortie.count < nombre { sortie.append(p[p.count - 1]) }
         return Array(sortie.prefix(nombre))
     }
-    /// Ramène le tracé dans un carré de côté 1 centré sur son milieu, en gardant ses proportions.
-    static func normal(_ p: [CGPoint]) -> [CGPoint] {
-        let r = regulier(p), b = boite(r), cote = max(b.width, b.height, 0.0001)
-        let cx = r.reduce(0) { $0 + $1.x } / CGFloat(r.count), cy = r.reduce(0) { $0 + $1.y } / CGFloat(r.count)
-        return r.map { CGPoint(x: ($0.x - cx) / cote, y: ($0.y - cy) / cote) }
-    }
-    /// Vrai si le tracé revient à son point de départ (cercle, triangle…) : on peut alors le commencer n'importe où.
-    static func ferme(_ p: [CGPoint]) -> Bool {
-        guard let a = p.first, let z = p.last else { return false }
-        let b = boite(p)
-        return hypot(z.x - a.x, z.y - a.y) < 0.3 * max(b.width, b.height)
-    }
-    private static func ecart(_ a: [CGPoint], _ b: [CGPoint]) -> CGFloat {
-        zip(a, b).reduce(0) { $0 + hypot($1.0.x - $1.1.x, $1.0.y - $1.1.y) } / CGFloat(a.count)
-    }
-    /// Ressemblance entre un tracé et le modèle, de 0 (rien à voir) à 1 (identique).
-    static func ressemblance(_ trace: [CGPoint], modele: [CGPoint]) -> CGFloat {
-        guard trace.count >= 8, modele.count >= 8 else { return 0 }
-        let t = normal(trace)
-        var meilleur = CGFloat.greatestFiniteMagnitude
-        if ferme(modele) {
-            // Modèle fermé : on essaie plusieurs points de départ le long de la boucle.
-            let m = regulier(modele)
-            for decalage in stride(from: 0, to: nombre, by: 2) {
-                let tourne = Array(m[decalage...] + m[..<decalage])
-                meilleur = min(meilleur, ecart(t, normal(tourne + [tourne[0]])))
-            }
-        } else {
-            meilleur = ecart(t, normal(modele))
-        }
-        return max(0, 1 - meilleur / 0.5)
-    }
     /// De combien le tracé tourne, en degrés (positif dans un sens, négatif dans l'autre),
     /// et à quel point il tourne toujours du même côté (1 = toujours, 0 = autant à gauche qu'à droite).
     static func rotation(_ p: [CGPoint]) -> (degres: CGFloat, constance: CGFloat) {
@@ -287,23 +243,13 @@ enum Geste {
         }
         return (somme * 180 / .pi, absolue > 0 ? abs(somme) / absolue : 0)
     }
-    /// Le modèle est-il une boucle (cercle, ovale, patate) ? On la reconnaît alors « à la louche » :
-    /// n'importe quel tour à peu près complet fait l'affaire, sans comparer la forme exacte.
-    static func estBoucle(_ p: [CGPoint]) -> Bool {
-        let r = rotation(p)
-        return abs(r.degres) >= 250 && r.constance >= 0.7
-    }
     /// Un tour à peu près complet, dans un sens ou dans l'autre, pas trop aplati.
     static func boucle(_ p: [CGPoint], degres: CGFloat) -> Bool {
         let b = boite(p), grand = max(b.width, b.height), petit = min(b.width, b.height)
         guard grand >= 60, petit >= grand * 0.35 else { return false }
         let r = rotation(p)
-        return abs(r.degres) >= degres && r.constance >= 0.75
+        return abs(r.degres) >= degres && r.constance >= 0.7
     }
-    static func points(_ plat: [Double]) -> [CGPoint] {
-        stride(from: 0, to: plat.count - 1, by: 2).map { CGPoint(x: plat[$0], y: plat[$0 + 1]) }
-    }
-    static func plat(_ p: [CGPoint]) -> [Double] { p.flatMap { [Double($0.x), Double($0.y)] } }
 }
 
 // MARK: - Raccourcis de macOS
@@ -1253,7 +1199,7 @@ struct AccueilView: View {
                 Text("Pour l'ouvrir et le fermer :").foregroundStyle(.secondary)
                 if config.coin != .aucun { geste("arrow.up.left.and.arrow.down.right", "Le coin " + config.coin.titre.lowercased()) }
                 if config.secouer {
-                    geste("cursorarrow.motionlines", config.gestePerso && config.geste.count >= 16 ? "Ton geste de souris" : "Une secousse de souris")
+                    geste("cursorarrow.motionlines", config.cercle ? "Un cercle avec la souris" : "Une secousse de souris")
                 }
                 if config.touche != -1 { geste("keyboard", config.libelle) }
             }
@@ -2862,66 +2808,6 @@ enum Volet: String, CaseIterable, Identifiable {
     }
 }
 
-/// Le cadre où l'on dessine son geste, clic maintenu. Il montre aussi le geste enregistré.
-struct ZoneGeste: View {
-    @ObservedObject var config = Config.shared
-    @State private var dessin: [CGPoint] = []
-    @State private var message = ""
-    private let cote: CGFloat = 150
-
-    var body: some View {
-        let enregistre = Geste.points(config.geste)
-        VStack(alignment: .trailing, spacing: 6) {
-            ZStack {
-                RoundedRectangle(cornerRadius: 10).fill(Color.primary.opacity(0.06))
-                RoundedRectangle(cornerRadius: 10).strokeBorder(Color.primary.opacity(0.15), style: StrokeStyle(lineWidth: 1, dash: [4]))
-                if !dessin.isEmpty {
-                    trait(dessin).stroke(Color.accentColor, style: StrokeStyle(lineWidth: 3, lineCap: .round, lineJoin: .round))
-                } else if enregistre.count >= 8 {
-                    // Le geste enregistré, recadré au milieu, avec un point à son départ.
-                    let p = Geste.normal(enregistre).map { CGPoint(x: cote / 2 + $0.x * (cote - 40), y: cote / 2 + $0.y * (cote - 40)) }
-                    trait(p).stroke(Color.accentColor, style: StrokeStyle(lineWidth: 3, lineCap: .round, lineJoin: .round))
-                    Circle().fill(Color.accentColor).frame(width: 9, height: 9).position(p[0])
-                } else {
-                    Text("Dessine ici").foregroundStyle(.secondary)
-                }
-            }
-            .frame(width: cote, height: cote)
-            .contentShape(Rectangle())
-            .gesture(DragGesture(minimumDistance: 0)
-                .onChanged { dessin.append($0.location); message = "" }
-                .onEnded { _ in
-                    if Geste.assezRiche(dessin) {
-                        config.geste = Geste.plat(Geste.regulier(dessin))
-                        AppDelegate.shared.gesteChange()
-                        message = "Geste enregistré"
-                    } else {
-                        message = "Trop simple : il se déclencherait sans arrêt. Essaie un cercle ou un zigzag."
-                    }
-                    dessin = []
-                })
-            if message.isEmpty && enregistre.count >= 8 {
-                Text(Geste.estBoucle(enregistre) ? "Compris comme une boucle : n'importe quel cercle, même grossier, dans un sens ou dans l'autre."
-                                                 : "Compris comme un tracé libre : à refaire dans le même sens, avec la même forme.")
-                    .font(.caption).foregroundStyle(.secondary)
-                    .frame(width: 230, alignment: .trailing).multilineTextAlignment(.trailing)
-            }
-            if !message.isEmpty {
-                Text(message).font(.caption).foregroundStyle(message == "Geste enregistré" ? Color.green : Color.orange)
-                    .frame(width: 230, alignment: .trailing).multilineTextAlignment(.trailing)
-            }
-        }
-    }
-
-    private func trait(_ p: [CGPoint]) -> Path {
-        Path { chemin in
-            guard let a = p.first else { return }
-            chemin.move(to: a)
-            p.dropFirst().forEach { chemin.addLine(to: $0) }
-        }
-    }
-}
-
 struct ReglagesView: View {
     @ObservedObject var config = Config.shared
     @ObservedObject var store = AppDelegate.shared.store
@@ -3020,21 +2906,18 @@ struct ReglagesView: View {
             }
             Section {
                 Toggle("Geste de la souris (ouvre et ferme)", isOn: $config.secouer)
-                Picker("Geste", selection: $config.gestePerso) {
+                Picker("Geste", selection: $config.cercle) {
                     Text("Secouer le pointeur").tag(false)
-                    Text("Mon geste").tag(true)
+                    Text("Faire un cercle").tag(true)
                 }
                 .pickerStyle(.segmented)
                 .disabled(!config.secouer)
-                if config.gestePerso {
-                    LabeledContent("Mon geste") { ZoneGeste() }
-                }
                 curseur("Sensibilité", $config.sensibilite, 0...1,
                         config.sensibilite > 0.66 ? "Élevée" : (config.sensibilite > 0.33 ? "Moyenne" : "Faible"))
                     .disabled(!config.secouer)
             } header: { Text("Geste de la souris") } footer: {
-                if config.gestePerso {
-                    note("Dessine ton geste dans le cadre en maintenant le clic : un cercle, un zigzag, un 8… Ensuite, refais-le n'importe où à l'écran, sans cliquer, d'un seul mouvement rapide. Sa taille ne compte pas. Un cercle n'a pas besoin d'être soigné.")
+                if config.cercle {
+                    note("Fais un cercle avec le pointeur, d'un seul mouvement rapide, sans cliquer. Il peut être grossier, petit ou grand, dans un sens ou dans l'autre.")
                 }
             }
             Section("Clavier") {
@@ -3433,57 +3316,30 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         if CommandLine.arguments.contains("--reglages") {   // pour les tests
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { self.ouvrirReglages() }
         }
-        // Pour les tests : « --test-geste » mesure la reconnaissance sur des tracés fabriqués, sans toucher à la souris.
+        // Pour les tests : « --test-geste » mesure la reconnaissance du cercle sur des tracés fabriqués, sans toucher à la souris.
         if CommandLine.arguments.contains("--test-geste") {
             func cercle(_ depart: Double, tours: Double = 1, rayon: Double = 80, bruit: Double = 0, sens: Double = 1) -> [CGPoint] {
-                (0...60).map { i in
+                (0...60).map { (i: Int) -> CGPoint in
                     let a = depart + sens * tours * 2 * .pi * Double(i) / 60
-                    return CGPoint(x: 500 + (rayon + Double.random(in: -bruit...bruit)) * cos(a),
-                                   y: 400 + (rayon + Double.random(in: -bruit...bruit)) * sin(a))
+                    let r = rayon + Double.random(in: -bruit...bruit)
+                    return CGPoint(x: 500 + r * cos(a), y: 400 + r * sin(a))
                 }
             }
-            let modele = Geste.regulier(cercle(0))
-            func note(_ nom: String, _ p: [CGPoint]) {
-                print(nom, String(format: "%.2f", Geste.ressemblance(p, modele: modele)), "richesse", String(format: "%.1f", Geste.richesse(p)))
-            }
-            print("modèle : cercle, fermé =", Geste.ferme(modele), "assez riche =", Geste.assezRiche(modele))
-            note("même cercle             ", cercle(0))
-            note("départ ailleurs         ", cercle(2.1))
-            note("petit et tremblé        ", cercle(4, rayon: 35, bruit: 5))
-            note("ovale                   ", cercle(1).map { CGPoint(x: $0.x * 1.5, y: $0.y) })
-            note("un tour et quart        ", cercle(0.5, tours: 1.25))
-            note("trois quarts de tour    ", cercle(0.5, tours: 0.75))
-            note("sens inverse            ", cercle(0, sens: -1))
-            let ligne: [CGPoint] = (0...40).map { (i: Int) -> CGPoint in CGPoint(x: Double(i) * 10, y: 300 + Double(i)) }
-            note("ligne droite            ", ligne)
-            let zigzag: [CGPoint] = (0...60).map { (i: Int) -> CGPoint in
-                let k = Double(i)
-                return CGPoint(x: 400 + 150 * sin(k / 5), y: 300 + k)
-            }
-            note("zigzag (secousse)       ", zigzag)
-            let virage: [CGPoint] = (0...40).map { (i: Int) -> CGPoint in
-                let k = Double(i)
-                if i < 20 { return CGPoint(x: k * 10, y: 300) }
-                return CGPoint(x: 200, y: 300 + (k - 20) * 10)
-            }
-            note("virage en L             ", virage)
-            print("--- boucle à la louche (sensibilité moyenne : 270°) ---")
             func tour(_ nom: String, _ p: [CGPoint]) {
                 let r = Geste.rotation(p)
                 print(nom, Geste.boucle(p, degres: 270) ? "reconnu" : "refusé ", String(format: "%.0f° constance %.2f", r.degres, r.constance))
             }
+            let ligne: [CGPoint] = (0...40).map { (i: Int) -> CGPoint in CGPoint(x: Double(i) * 10, y: 300 + Double(i)) }
+            let zigzag: [CGPoint] = (0...60).map { (i: Int) -> CGPoint in CGPoint(x: 400 + 150 * sin(Double(i) / 5), y: 300 + Double(i)) }
             tour("cercle propre           ", cercle(0))
             tour("patate tremblée         ", cercle(1, rayon: 60, bruit: 12))
             tour("ovale                   ", cercle(1).map { CGPoint(x: $0.x * 1.8, y: $0.y) })
             tour("sens inverse            ", cercle(0, sens: -1))
-            tour("un tour et quart        ", cercle(0.5, tours: 1.25))
             tour("trois quarts de tour    ", cercle(0.5, tours: 0.75))
             tour("ligne droite            ", ligne)
             tour("zigzag (secousse)       ", zigzag)
-            tour("virage en L             ", virage)
             var boucles = 0
-            var pire: CGFloat = 0, faux = 0
-            for _ in 0..<2000 {   // des mouvements au hasard : aucun ne doit ressembler au cercle
+            for _ in 0..<2000 {   // des mouvements au hasard : presque aucun ne doit passer pour un cercle
                 var p = CGPoint(x: 500, y: 400), cap = Double.random(in: 0...6.28), trajet: [CGPoint] = []
                 for _ in 0..<Int.random(in: 15...60) {
                     cap += Double.random(in: -0.5...0.5)
@@ -3491,13 +3347,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
                     trajet.append(p)
                 }
                 if Geste.boucle(trajet, degres: 270) { boucles += 1 }
-                if Geste.richesse(trajet) >= Geste.richesse(modele) * 0.7 {
-                    let r = Geste.ressemblance(trajet, modele: modele)
-                    pire = max(pire, r)
-                    if r >= 0.79 { faux += 1 }
-                }
             }
-            print("2000 mouvements au hasard : ressemblance la plus haute", String(format: "%.2f", pire), "— déclenchements (sensibilité moyenne) :", faux, "— pris pour une boucle :", boucles)
+            print("2000 mouvements au hasard pris pour un cercle :", boucles)
             exit(0)
         }
         // Pour les tests : « --image fichier.png » dessine la carte (ou les réglages, avec --volet) dans une image,
@@ -3709,12 +3560,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
     // MARK: Secouer le pointeur
 
     /// Quatre allers-retours rapides de la souris (même pendant qu'on glisse un fichier) ouvrent le tiroir.
-    /// Le geste personnalisé, cherché en continu dans les derniers mouvements de la souris.
+    /// Le cercle, cherché en continu dans les derniers mouvements de la souris.
     private var trace: [(p: CGPoint, t: TimeInterval)] = []
-    private lazy var modeleGeste: [CGPoint] = Geste.points(config.geste)
-    func gesteChange() { modeleGeste = Geste.points(config.geste); trace = [] }
 
-    private func gesteLibre(_ ici: CGPoint) {
+    private func chercherCercle(_ ici: CGPoint) {
         let maintenant = ProcessInfo.processInfo.systemUptime
         if let dernier = trace.last {
             guard hypot(ici.x - dernier.p.x, ici.y - dernier.p.y) >= 4 else { return }
@@ -3723,40 +3572,24 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         trace.append((ici, maintenant))
         trace.removeAll { maintenant - $0.t > 1.8 }
         guard maintenant - derniereSecousse > 0.8 else { return }
-        // Plus c'est sensible, moins le geste a besoin d'être fidèle au modèle.
-        let s = CGFloat(config.sensibilite)
-        let seuil = 0.8 - 0.15 * s
-        let richesse = Geste.richesse(modeleGeste)
-        let boucle = Geste.estBoucle(modeleGeste)
+        // Plus c'est sensible, moins le tour a besoin d'être complet : de 300° (presque entier) à 240° (trois quarts).
+        let degres = 300 - 60 * CGFloat(config.sensibilite)
         for duree in [0.45, 0.7, 1.0, 1.4, 1.8] {
             let morceau = trace.filter { maintenant - $0.t <= duree }.map(\.p)
-            guard morceau.count >= 10 else { continue }
-            let b = Geste.boite(morceau)
-            let reconnu: Bool
-            if boucle {
-                // Le modèle est une boucle : un tour à peu près complet suffit, même grossier, dans les deux sens.
-                reconnu = Geste.boucle(morceau, degres: 300 - 60 * s)
-            } else {
-                // Assez grand pour être voulu, et aussi « riche » que le modèle (pas un simple trait).
-                reconnu = max(b.width, b.height) >= 60 && Geste.richesse(morceau) >= richesse * 0.7
-                    && Geste.ressemblance(morceau, modele: modeleGeste) >= seuil
-            }
-            if reconnu {
-                derniereSecousse = maintenant
-                trace = []
-                basculer()
-                return
-            }
+            guard morceau.count >= 10, Geste.boucle(morceau, degres: degres) else { continue }
+            derniereSecousse = maintenant
+            trace = []
+            basculer()
+            return
         }
     }
 
     private func secousse() {
         guard config.secouer, prise == nil else { return }   // secouer ouvre la carte, et la referme si elle est ouverte
-        // Un geste personnalisé remplace la secousse — sauf pendant un glisser-déposer, où secouer ajoute une zone.
-        if config.gestePerso, modeleGeste.count >= 8, !glisserActif {
-            let ici = NSEvent.mouseLocation
+        // Le cercle remplace la secousse — sauf pendant un glisser-déposer, où secouer ajoute une zone.
+        if config.cercle, !glisserActif {
             if ProcessInfo.processInfo.systemUptime - dernierBasculement < 1.2 { trace = []; return }
-            gesteLibre(ici)
+            chercherCercle(NSEvent.mouseLocation)
             return
         }
         // Garde-fous : aller vite vers le coin actif ressemble à une secousse. On l'ignore donc près du coin,
