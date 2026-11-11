@@ -175,7 +175,13 @@ final class Config: ObservableObject {
         depotReste = d.object(forKey: "depotReste") as? Bool ?? true
         secouer = d.object(forKey: "secouer") as? Bool ?? true
         cercle = d.bool(forKey: "gestePerso")
-        barre = d.stringArray(forKey: "barre") ?? ["recents", "dossiers", "icloud", "maison", "applications", "tags"]
+        var entrees = d.stringArray(forKey: "barre") ?? ["recents", "dossiers", "icloud", "maison", "applications", "reseau", "tags"]
+        // La rubrique Réseau est arrivée après coup : on l'ajoute une fois aux réglages déjà enregistrés.
+        if !d.bool(forKey: "barreReseauAjoutee") {
+            d.set(true, forKey: "barreReseauAjoutee")
+            if !entrees.contains("reseau") { entrees.append("reseau"); d.set(entrees, forKey: "barre") }
+        }
+        barre = entrees
         extensions = Fichiers.extensions
         dossiersEnHaut = Fichiers.dossiersEnHaut
         rechercheMac = d.bool(forKey: "rechercheMac")
@@ -269,6 +275,62 @@ enum Geste {
         guard rondeur(p) >= 0.45 else { return false }
         let r = rotation(p)
         return abs(r.degres) >= degres && r.constance >= 0.65
+    }
+}
+
+// MARK: - Réseau
+
+/// Les ordinateurs du réseau local qui partagent des fichiers, comme la rubrique « Réseau » du Finder.
+/// Side les repère (annonces Bonjour) ; s'y connecter passe par le Finder, qui demande le mot de passe.
+final class Reseau: NSObject, ObservableObject, NetServiceBrowserDelegate, NetServiceDelegate {
+    static let shared = Reseau()
+    @Published var ordinateurs: [String] = []
+    private var chercheurs: [NetServiceBrowser] = []
+    private var services: [NetService] = []
+    private var enAttente: NetService?
+
+    /// Lance la recherche (une seule fois) : partages Windows/Mac récents (SMB) et anciens Mac (AFP).
+    func chercher() {
+        guard chercheurs.isEmpty else { return }
+        for type in ["_smb._tcp.", "_afpovertcp._tcp."] {
+            let c = NetServiceBrowser()
+            c.delegate = self
+            c.searchForServices(ofType: type, inDomain: "local.")
+            chercheurs.append(c)
+        }
+    }
+    func netServiceBrowser(_ browser: NetServiceBrowser, didFind service: NetService, moreComing: Bool) {
+        services.append(service)
+        publier()
+    }
+    func netServiceBrowser(_ browser: NetServiceBrowser, didRemove service: NetService, moreComing: Bool) {
+        services.removeAll { $0 == service }
+        publier()
+    }
+    private func publier() {
+        let moi = Host.current().localizedName
+        let noms = Set(services.map(\.name)).filter { $0 != moi }.sorted { $0.localizedStandardCompare($1) == .orderedAscending }
+        if noms != ordinateurs { ordinateurs = noms }
+    }
+    /// Ouvre l'ordinateur dans le Finder, qui affiche ses dossiers partagés (après identification si besoin).
+    func ouvrir(_ nom: String) {
+        guard let service = services.first(where: { $0.name == nom && $0.type.hasPrefix("_smb") })
+                ?? services.first(where: { $0.name == nom }) else { return }
+        enAttente = service
+        service.delegate = self
+        service.resolve(withTimeout: 5)
+    }
+    func netServiceDidResolveAddress(_ sender: NetService) {
+        guard sender == enAttente, let hote = sender.hostName else { return }
+        enAttente = nil
+        let protocole = sender.type.hasPrefix("_afp") ? "afp" : "smb"
+        var adresse = URLComponents()
+        adresse.scheme = protocole
+        adresse.host = hote.hasSuffix(".") ? String(hote.dropLast()) : hote
+        if let url = adresse.url { NSWorkspace.shared.open(url) }
+    }
+    func netService(_ sender: NetService, didNotResolve errorDict: [String: NSNumber]) {
+        if sender == enAttente { enAttente = nil; NSSound.beep() }
     }
 }
 
@@ -1965,8 +2027,32 @@ struct EtagereView: View {
 }
 
 /// La barre latérale, façon Finder : étagère, récents, favoris, emplacements.
+/// Un ordinateur du réseau dans la barre latérale : un clic l'ouvre dans le Finder pour s'y connecter.
+struct LigneReseau: View {
+    let nom: String
+    @State private var survol = false
+
+    var body: some View {
+        HStack(spacing: 7) {
+            Image(systemName: "desktopcomputer").foregroundStyle(Color.accentColor).frame(width: 18)
+            Text(nom).lineLimit(1).truncationMode(.middle)
+            Spacer(minLength: 0)
+        }
+        .padding(.horizontal, 6)
+        .padding(.vertical, 6)
+        .background(RoundedRectangle(cornerRadius: 6).fill(survol ? Color.primary.opacity(0.08) : .clear))
+        .contentShape(Rectangle())
+        .onHover { survol = $0 }
+        .onTapGesture { Reseau.shared.ouvrir(nom) }
+        .help("Se connecter à « \(nom) » dans le Finder. Une fois connecté, il apparaît ici et se parcourt dans Side.")
+        .accessibilityLabel("Se connecter à \(nom)")
+        .accessibilityAddTraits(.isButton)
+    }
+}
+
 struct SidebarView: View {
     @ObservedObject var store: Store
+    @ObservedObject var reseau = Reseau.shared
     @ObservedObject var config = Config.shared
     @State private var depotFavori = false
     /// Sections repliées (mémorisées). Les tags sont repliés au départ.
@@ -2023,6 +2109,20 @@ struct SidebarView: View {
                         }
                     }
                 }
+                if b.contains("reseau") {
+                    titre("Réseau")
+                    if ouverte("Réseau") {
+                        // D'abord les serveurs déjà connectés (on peut les parcourir), puis les ordinateurs repérés.
+                        ForEach(Fichiers.disques().filter(Fichiers.estReseau), id: \.self) { serveur in
+                            LigneBarre(store: store, kind: .folder(serveur), nom: Fichiers.nom(serveur), symbole: "server.rack")
+                        }
+                        ForEach(reseau.ordinateurs, id: \.self) { nom in LigneReseau(nom: nom) }
+                        if reseau.ordinateurs.isEmpty {
+                            Text("Aucun ordinateur repéré").font(.caption).foregroundStyle(.secondary)
+                                .padding(.horizontal, 8).padding(.vertical, 4)
+                        }
+                    }
+                }
                 if b.contains("tags") { titre("Tags") }
                 if b.contains("tags") && ouverte("Tags") {
                     let noms = NSWorkspace.shared.fileLabels, couleurs = NSWorkspace.shared.fileLabelColors
@@ -2034,6 +2134,9 @@ struct SidebarView: View {
             }
         }
         .padding(8)
+        // La recherche d'ordinateurs ne démarre que si la rubrique Réseau est affichée.
+        .onAppear { if config.barre.contains("reseau") { reseau.chercher() } }
+        .onChange(of: config.barre) { _, b in if b.contains("reseau") { reseau.chercher() } }
     }
 
     private func ouverte(_ section: String) -> Bool { !repliees.contains(section) }
@@ -2705,7 +2808,7 @@ struct IconView: View {
     @ObservedObject private var config = Config.shared
 
     var body: some View {
-        let choisi = legende && selection.url == item.url
+        let choisi = selection.url == item.url
         let cote = taille ?? CGFloat(config.tailleIcones)
         let droite = legende && config.texteADroite
         let image = Image(nsImage: (config.apercus ? vignette : nil) ?? NSWorkspace.shared.icon(forFile: item.url.path))
@@ -2713,7 +2816,10 @@ struct IconView: View {
             .frame(width: cote, height: cote)
             .padding(3)
             // Comme dans le Finder : l'icône choisie se pose sur un carré gris, son nom sur du bleu.
-            .background(RoundedRectangle(cornerRadius: 6).fill(choisi ? Color.primary.opacity(0.12) : .clear))
+            .background(RoundedRectangle(cornerRadius: 6).fill(
+                choisi ? (legende ? Color.primary.opacity(0.12) : Selection.bleu.opacity(0.3)) : .clear))
+            // Sans nom sous l'icône (zone de dépôt) : un cadre bleu montre clairement ce qui est sélectionné.
+            .overlay(RoundedRectangle(cornerRadius: 6).strokeBorder(Selection.bleu, lineWidth: choisi && !legende ? 2.5 : 0))
         let texte = VStack(alignment: droite ? .leading : .center, spacing: 2) {
             HStack(alignment: .firstTextBaseline, spacing: 4) {
                 NuageIcone(item: item, blanc: choisi)
@@ -3059,6 +3165,7 @@ struct ReglagesView: View {
                 entree("Documents", "doc", "documents")
                 entree("Téléchargements", "arrow.down.circle", "telechargements")
                 entree("Disques externes et serveurs connectés", "externaldrive", "disques")
+                entree("Réseau (ordinateurs qui partagent des fichiers)", "network", "reseau")
                 entree("Tags", "circle.fill", "tags")
             } header: { Text("Afficher dans la barre latérale") } footer: {
                 note("Tes favoris se gèrent directement dans la barre : glisse un dossier sur « Favoris » pour l'ajouter, clic droit pour le retirer.")
@@ -3238,6 +3345,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
     private var demiTours: [TimeInterval] = []
     private var pointClic: NSPoint?
     private var pointClicDedans: NSPoint?
+    private var depotEnCours: TimeInterval = -10   // moment du dernier lâcher dans une zone de dépôt
     /// La carte seule (sans la bande du mini-Dock), à l'écran, et le mini-Dock tel que la vue le dessine.
     private var cadreSeule: NSRect = .zero
     var cadreDockVue: CGRect = .zero
@@ -3840,6 +3948,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
     func poser(_ fournisseurs: [NSItemProvider], _ zone: Int) {
         // Option maintenue au moment de lâcher : Side reste ouvert, pour enchaîner.
         let garder = NSEvent.modifierFlags.contains(.option)
+        // Entre le lâcher et l'arrivée du fichier dans la zone, celle-ci reste affichée (sinon elle clignote).
+        depotEnCours = ProcessInfo.processInfo.systemUptime
+        if !store.glisse { store.glisse = true }
         for f in fournisseurs {
             recevoir(f) { url, temporaire in
                 // Une image ou capture déposée une seconde fois : Side vient d'en enregistrer une copie.
@@ -3851,6 +3962,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
                     try? FileManager.default.removeItem(at: url)
                 }
                 self.store.reloadAll()
+                self.depotEnCours = ProcessInfo.processInfo.systemUptime - 1.2   // le fichier est là : encore un court instant
                 guard self.config.fermerApresDepot, !garder else { return }
                 // Un court instant avant de fermer : si la souris est revenue sur la carte, c'est qu'on n'a pas fini.
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
@@ -4818,6 +4930,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { [weak self] in self?.store.nettoyerZones() }
         }
         let montrer = (glisserActif && visible && appGlissee == nil) || forcerGlisse || (visible && store.accueil == 3)
+            || ProcessInfo.processInfo.systemUptime - depotEnCours < 1.5
         if montrer != store.glisse { store.glisse = montrer }
         // La cible « épingler en colonne » ne sert que pour un dossier : on regarde ce qui est glissé.
         let dossier = montrer && (forcerGlisse || glisseContientDossier())

@@ -30,6 +30,13 @@
 	<true/>
 	<key>NSHighResolutionCapable</key>
 	<true/>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>Side repère les ordinateurs du réseau qui partagent des fichiers, pour les afficher dans sa barre latérale.</string>
+	<key>NSBonjourServices</key>
+	<array>
+		<string>_smb._tcp</string>
+		<string>_afpovertcp._tcp</string>
+	</array>
 	<key>NSAppleEventsUsageDescription</key>
 	<string>Side demande au Finder d'afficher la fenêtre d'informations d'un fichier.</string>
 	<key>NSDocumentsFolderUsageDescription</key>
