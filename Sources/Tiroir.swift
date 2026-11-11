@@ -1318,10 +1318,21 @@ struct DrawerView: View {
                 // La grande zone garde la largeur qu'elle a sans colonne épinglée.
                 let zone = max(300, min(Disposition.base(store.largeurMax), geo.size.width) - fixes)
                 let largeur = Disposition.colonne(store.columns.count, store.largeurMax)
-                // Glisser le trait à droite de la grande zone change la largeur du « Finder ».
+                // Glisser le trait à droite de la grande zone partage la place entre elle et les colonnes épinglées :
+                // ce que gagne l'une, les autres le perdent, et la carte garde sa largeur.
+                // (Sans colonne épinglée, ce trait est le bord de la carte : il change alors sa largeur.)
+                let n = store.columns.count
                 let reglage = Binding<Double>(
                     get: { Double(zone) },
-                    set: { config.largeurSeule = Double((CGFloat($0) + fixes) / max(store.largeurMax, 1)) })
+                    set: { nouvelle in
+                        let ecart = CGFloat(nouvelle) - zone
+                        if n > 0 {
+                            let col = CGFloat(config.tailleColonne) - ecart / CGFloat(n)
+                            guard col >= 160 else { return }   // une colonne épinglée garde une largeur lisible
+                            config.tailleColonne = Double(col)
+                        }
+                        config.largeurSeule = Double((CGFloat(nouvelle) + fixes) / max(store.largeurMax, 1))
+                    })
                 HStack(spacing: 0) {
                     SidebarView(store: store).frame(width: barre)
                     Divider()
@@ -1381,6 +1392,7 @@ struct DrawerView: View {
         .animation(.easeInOut(duration: 0.25), value: store.accueil)
         .clipShape(forme)
         .overlay(forme.strokeBorder(Color.primary.opacity(0.14), lineWidth: 1))
+        .overlay(BordsRedimension())
     }
 
     private var boutonAjout: some View {
@@ -2173,6 +2185,66 @@ struct Poignee: View {
                 .onEnded { _ in depart = nil })
             .help("Glisse pour changer la largeur")
             .accessibilityLabel("Changer la largeur")
+    }
+}
+
+/// Les bords et les coins de la carte : les tirer change sa taille, comme une fenêtre de macOS.
+/// Les bords gauche et droit changent la largeur, le haut et le bas la hauteur, les coins les deux.
+struct BordsRedimension: View {
+    private let e: CGFloat = 6   // épaisseur de la zone sensible
+
+    var body: some View {
+        ZStack {
+            VStack(spacing: 0) {
+                HStack(spacing: 0) { coin(-1, 1, .topLeading); bord(0, 1); coin(1, 1, .topTrailing) }.frame(height: e)
+                HStack(spacing: 0) { bord(-1, 0); Color.clear.allowsHitTesting(false); bord(1, 0) }
+                HStack(spacing: 0) { coin(-1, -1, .bottomLeading); bord(0, -1); coin(1, -1, .bottomTrailing) }.frame(height: e)
+            }
+        }
+    }
+
+    private func bord(_ x: Int, _ y: Int) -> some View {
+        Poignée(x: x, y: y, curseur: x != 0 ? .resizeLeftRight : .resizeUpDown)
+            .frame(width: x != 0 ? e : nil, height: y != 0 ? e : nil)
+            .frame(maxWidth: x == 0 ? .infinity : nil, maxHeight: y == 0 ? .infinity : nil)
+    }
+    private func coin(_ x: Int, _ y: Int, _ cote: Alignment) -> some View {
+        // macOS n'a pas de pointeur « diagonal » public : on prend la croix de redimensionnement.
+        Poignée(x: x, y: y, curseur: .crosshair).frame(width: 14, height: e)
+    }
+
+    /// Une zone sensible : `x` (-1 gauche, 1 droite) et `y` (1 haut, -1 bas) disent quel bord elle tire.
+    struct Poignée: View {
+        let x: Int, y: Int
+        let curseur: NSCursor
+        @State private var depart: (souris: NSPoint, largeur: Double, hauteur: Double)?
+
+        var body: some View {
+            Color.clear
+                .contentShape(Rectangle())
+                .onHover { dedans in if dedans { curseur.push() } else { NSCursor.pop() } }
+                .gesture(DragGesture(minimumDistance: 1, coordinateSpace: .global)
+                    .onChanged { _ in tirer() }
+                    .onEnded { _ in depart = nil })
+                .accessibilityHidden(true)
+        }
+
+        private func tirer() {
+            let config = Config.shared
+            let ici = NSEvent.mouseLocation   // position sur l'écran : juste même si la carte bouge pendant qu'on tire
+            if depart == nil { depart = (ici, config.largeurSeule, config.tailleHauteur) }
+            guard let d = depart, let ecran = NSScreen.screens.first(where: { $0.frame.contains(ici) }) ?? NSScreen.main else { return }
+            // Une carte centrée grandit des deux côtés à la fois : le bord suit alors la souris si on double l'écart.
+            let centreeX = config.bord == .haut || config.bord == .bas, centreeY = config.bord == .gauche || config.bord == .droite
+            if x != 0 {
+                let dx = (ici.x - d.souris.x) * CGFloat(x) * (centreeX ? 2 : 1)
+                config.largeurSeule = min(1, max(0.35, d.largeur + Double(dx / max(ecran.frame.width, 1))))
+            }
+            if y != 0 {
+                let dy = (ici.y - d.souris.y) * CGFloat(y) * (centreeY ? 2 : 1)
+                config.tailleHauteur = min(0.9, max(0.15, d.hauteur + Double(dy / max(ecran.frame.height, 1))))
+            }
+        }
     }
 }
 
