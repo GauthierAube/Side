@@ -983,6 +983,10 @@ final class Column: ObservableObject, Identifiable {
     @Published var presentation: Presentation {
         didSet { UserDefaults.standard.set(presentation.rawValue, forKey: cleVue); reload() }
     }
+    /// Présentation en icônes : nombre de colonnes de la grille (0 = autant que la place le permet).
+    @Published var colonnesGrille: Int = 0 {
+        didSet { UserDefaults.standard.set(colonnesGrille, forKey: "grille:" + cleVue) }
+    }
     private var generation = 0
 
     /// `navigateur` : la grande zone garde la même présentation d'un dossier à l'autre.
@@ -993,6 +997,7 @@ final class Column: ObservableObject, Identifiable {
         tri = d.string(forKey: "tri2:" + kind.code).flatMap(Tri.init)
             ?? (kind == .folder(Fichiers.downloads) ? .date : .nom)
         presentation = d.string(forKey: cleVue).flatMap(Presentation.init) ?? .liste
+        colonnesGrille = d.integer(forKey: "grille:" + cleVue)
     }
 
     var racine: URL? { if case .folder(let u) = kind { return u } else { return nil } }
@@ -1135,6 +1140,8 @@ final class Store: ObservableObject {
     @Published var lanceurOuvert = false
     /// Largeur du mini-Dock, pour que le panneau des applications ait la même.
     @Published var largeurDock: CGFloat = 0
+    /// L'icône du mini-Dock qu'on est en train de glisser : elle n'est plus affichée dans le mini-Dock.
+    @Published var appEnGlisse: URL?
     /// Présentation de bienvenue : numéro de l'étape affichée par-dessus la carte (nil = pas de présentation).
     @Published var accueil: Int?
     func finAccueil() {
@@ -1645,11 +1652,13 @@ final class Apps: ObservableObject {
 struct AppsView: View {
     @ObservedObject var apps = Apps.shared
     @ObservedObject var config = Config.shared
+    @ObservedObject var store = AppDelegate.shared.store
     let vertical: Bool
 
     var body: some View {
         // La liste des apps n'est recalculée que lorsqu'une app s'ouvre, se ferme ou qu'un réglage change.
-        RangeeDock(items: apps.elements(config), vertical: vertical)
+        // L'icône qu'on glisse quitte le mini-Dock : elle est sous la souris, pas en double.
+        RangeeDock(items: apps.elements(config).filter { $0.url != store.appEnGlisse }, vertical: vertical)
     }
 }
 
@@ -1726,7 +1735,7 @@ struct RangeeDock: View {
         }
         .contextMenu { Button("Masquer le mini-Dock") { config.apps = false } }
         // Side retient la place exacte du mini-Dock : un clic juste à côté de lui compte comme un clic en dehors.
-        .background(Repere())
+        .background(Repere(dock: true))
         .background(GeometryReader { g in
             Color.clear
                 .onAppear { AppDelegate.shared.store.largeurDock = vertical ? 0 : g.size.width }
@@ -1751,57 +1760,17 @@ struct SurvolDock: ViewModifier {
 }
 
 /// La petite croix dans un cercle, en haut à gauche d'une icône, comme sur iOS : elle la retire du mini-Dock.
-struct CroixRetrait: View {
-    let action: () -> Void
-    var body: some View {
-        Button(action: action) {
-            Image(systemName: "xmark.circle.fill")
-                .font(.system(size: 15))
-                .symbolRenderingMode(.palette)
-                .foregroundStyle(Color.white, Color(white: 0.32))
-                .background(Circle().fill(Color.black.opacity(0.25)).padding(1))
-        }
-        .buttonStyle(.plain)
-        .offset(x: -5, y: -5)
-        .transition(.scale(scale: 0.3).combined(with: .opacity))
-        .help("Retirer du mini-Dock")
-        .accessibilityLabel("Retirer du mini-Dock")
-    }
-}
-
-/// Fait apparaître la croix quand le pointeur reste un instant sur l'icône.
-struct AvecCroix: ViewModifier {
-    let retirer: () -> Void
-    @State private var visible = false
-    @State private var attente: DispatchWorkItem?
-
-    func body(content: Content) -> some View {
-        content
-            .overlay(alignment: .topLeading) { if visible { CroixRetrait(action: retirer) } }
-            .onHover { dedans in
-                attente?.cancel()
-                if dedans {
-                    let tache = DispatchWorkItem {
-                        withAnimation(.spring(response: 0.25, dampingFraction: 0.7)) { visible = true }
-                    }
-                    attente = tache
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.7, execute: tache)
-                } else {
-                    withAnimation(.easeOut(duration: 0.15)) { visible = false }
-                }
-            }
-    }
-}
-
 /// Un raccourci macOS dans le mini-Dock : une tuile colorée avec ses initiales.
 /// Un clic le lance ; déposer des fichiers dessus le lance avec ces fichiers en entrée.
 /// Un repère invisible : la vue qui le porte (mini-Dock, panneau) compte comme une partie de Side pour les clics.
 struct Repere: NSViewRepresentable {
     var lanceur = false   // le panneau des applications : un clic hors de lui le referme
+    var dock = false      // le mini-Dock : sert à savoir si une icône glissée en est sortie
     func makeNSView(context: Context) -> NSView {
         let v = NSView()
         AppDelegate.shared.reperes.add(v)
         if lanceur { AppDelegate.shared.vueLanceur = v }
+        if dock { AppDelegate.shared.vueDock = v }
         return v
     }
     func updateNSView(_ v: NSView, context: Context) {}
@@ -2116,7 +2085,6 @@ struct RaccourciIcone: View {
         .modifier(SurvolDock())
         .background(Circle().fill(Color.accentColor.opacity(cible ? 0.45 : 0)).padding(-3))
         .contentShape(Rectangle())
-        .modifier(AvecCroix { Config.shared.raccourcis.removeAll { $0 == nom } })
         .onTapGesture { AppDelegate.shared.lancerRaccourci(nom, []) }
         .onDrop(of: [UTType.fileURL], isTargeted: $cible) { fournisseurs in
             AppDelegate.shared.lancerRaccourci(nom, fournisseurs)
@@ -2141,12 +2109,12 @@ struct AppIcone: View {
             .modifier(SurvolDock())
             .background(Circle().fill(Color.accentColor.opacity(cible ? 0.45 : 0)).padding(-3))
             .contentShape(Rectangle())
-            .modifier(AvecCroix { item.retirer() })
             .onTapGesture { AppDelegate.shared.allerA(item.url) }
             // Comme dans le Dock : glisser l'icône hors du mini-Dock et la lâcher la retire.
             // Le glisser porte un type que seul Side connaît, pour qu'aucune autre app ne l'accepte.
             .onDrag {
                 AppDelegate.shared.appGlissee = item
+                DispatchQueue.main.async { AppDelegate.shared.store.appEnGlisse = item.url }
                 let colis = NSItemProvider()
                 colis.registerDataRepresentation(forTypeIdentifier: "com.gauthieraube.nook.app", visibility: .ownProcess) { fini in
                     fini(Data(), nil)
@@ -2862,7 +2830,8 @@ struct ColumnView: View {
                         .contentShape(Rectangle())
                     }
                     .menuStyle(.button).buttonStyle(.plain).menuIndicator(.hidden)
-                    .layoutPriority(1)
+                    .frame(minWidth: 90, alignment: .leading)   // le nom reste lisible, même sur une carte étroite
+                    .layoutPriority(2)
                     .help("Afficher le chemin de ce dossier")
                     .accessibilityLabel("Chemin du dossier \(column.titre)")
                 } else {
@@ -2872,14 +2841,38 @@ struct ColumnView: View {
                         .help(column.peutRevenir ? "Revenir au dossier précédent" : column.titre)
                 }
                 Spacer(minLength: 4)
-                HStack(spacing: 2) {
-                    boutonVue(.icones, "square.grid.2x2", "Afficher en icônes")
-                    boutonVue(.liste, "list.bullet", "Afficher en liste")
-                    if fixe { boutonVue(.colonnes, "rectangle.split.3x1", "Afficher en colonnes") }
+                // Colonnes épinglées, plus étroites : les boutons de présentation passent dans le menu « … »,
+                // pour laisser toute la place au nom du dossier.
+                if fixe {
+                    HStack(spacing: 2) {
+                        boutonVue(.icones, "square.grid.2x2", "Afficher en icônes")
+                        boutonVue(.liste, "list.bullet", "Afficher en liste")
+                        boutonVue(.colonnes, "rectangle.split.3x1", "Afficher en colonnes")
+                    }
+                    .padding(3)
+                    .background(Capsule().fill(Color.primary.opacity(0.09)))
                 }
-                .padding(3)
-                .background(Capsule().fill(Color.primary.opacity(0.09)))
                 Menu {
+                    if !fixe {
+                        Picker("Présentation", selection: $column.presentation) {
+                            Label("Icônes", systemImage: "square.grid.2x2").tag(Presentation.icones)
+                            Label("Liste", systemImage: "list.bullet").tag(Presentation.liste)
+                        }
+                        .pickerStyle(.inline)
+                        if column.presentation == .icones {
+                            Picker("Colonnes de la grille", selection: $column.colonnesGrille) {
+                                Text("Automatique").tag(0)
+                                ForEach(1...4, id: \.self) { n in Text(n == 1 ? "1 colonne" : "\(n) colonnes").tag(n) }
+                            }
+                        }
+                        Divider()
+                    } else if column.presentation == .icones {
+                        Picker("Colonnes de la grille", selection: $column.colonnesGrille) {
+                            Text("Automatique").tag(0)
+                            ForEach(1...6, id: \.self) { n in Text(n == 1 ? "1 colonne" : "\(n) colonnes").tag(n) }
+                        }
+                        Divider()
+                    }
                     if column.peutTrier {
                         Picker("Trier par", selection: $column.tri) {
                             ForEach(Tri.allCases, id: \.self) { Text($0.titre).tag($0) }
@@ -2897,6 +2890,7 @@ struct ColumnView: View {
                             Button("Ajouter aux favoris") { store.ajouterFavori(u) }
                         }
                     } else {
+                        Button("Épingler un autre dossier…") { AppDelegate.shared.choisirDossier() }
                         Button("Retirer cette colonne") { store.retirer(column) }
                     }
                 } label: {
@@ -2911,18 +2905,6 @@ struct ColumnView: View {
                 .menuIndicator(.hidden)
                 .fixedSize()
                 .accessibilityLabel("Autres actions")
-                if dernier {
-                    Button { AppDelegate.shared.choisirDossier() } label: {
-                        Image(systemName: "plus")
-                            .font(.system(size: 12, weight: .semibold))
-                            .frame(width: 30, height: 28)
-                            .background(Capsule().fill(Color.primary.opacity(0.09)))
-                            .contentShape(Capsule())
-                    }
-                    .buttonStyle(.plain)
-                    .help("Épingler un autre dossier en colonne")
-                    .accessibilityLabel("Épingler un autre dossier en colonne")
-                }
                 if fixe {
                     Button { store.nouvelOnglet() } label: {
                         Image(systemName: "plus")
@@ -2977,9 +2959,11 @@ struct ColumnView: View {
                 ScrollViewReader { defilement in
                 ScrollView {
                     if column.presentation == .icones {
-                        LazyVGrid(columns: [GridItem(.adaptive(minimum: CGFloat(config.tailleIcones) + (config.texteADroite ? 150 : 56)),
-                                                     spacing: CGFloat(config.espacement))],
-                                  spacing: CGFloat(config.espacement) + 2) {
+                        let grille = column.colonnesGrille > 0
+                            ? Array(repeating: GridItem(.flexible(), spacing: CGFloat(config.espacement)), count: column.colonnesGrille)
+                            : [GridItem(.adaptive(minimum: CGFloat(config.tailleIcones) + (config.texteADroite ? 150 : 56)),
+                                        spacing: CGFloat(config.espacement))]
+                        LazyVGrid(columns: grille, spacing: CGFloat(config.espacement) + 2) {
                             ForEach(column.visibles) { item in
                                 IconView(item: item, column: column)
                             }
@@ -3770,7 +3754,7 @@ struct ReglagesView: View {
                     Button("Réafficher les \(config.appsMasquees.count) apps masquées") { config.appsMasquees = [] }
                 }
             } header: { Text("Mini-Dock") } footer: {
-                note("Un clic passe à l'app. Déposer un fichier sur une icône l'ouvre avec cette app. Pour ajouter une favorite : dépose une app sur le mini-Dock, ou clic droit > « Garder dans le mini-Dock ». Pour retirer une icône : laisse le pointeur dessus un instant et clique la croix, ou glisse-la hors du mini-Dock.")
+                note("Un clic passe à l'app. Déposer un fichier sur une icône l'ouvre avec cette app. Pour ajouter une favorite : dépose une app sur le mini-Dock, ou clic droit > « Garder dans le mini-Dock ». Pour retirer une icône : glisse-la hors du mini-Dock et lâche-la quand la croix apparaît, ou clic droit.")
             }
         case .raccourcis:
             Section {
@@ -3885,6 +3869,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
     /// Les vues qui font partie de Side en plus de la carte : le mini-Dock, et le panneau du presse-papiers.
     let reperes = NSHashTable<NSView>.weakObjects()
     weak var vueLanceur: NSView?
+    weak var vueDock: NSView?
+    /// La petite croix qui suit la souris quand une icône glissée est assez loin du mini-Dock pour être retirée.
+    private var croix: NSPanel?
+    private var sortieDuDock: TimeInterval?   // depuis quand l'icône glissée est hors du mini-Dock
     /// Vrai si ce point de l'écran est dans cette vue.
     private func dans(_ v: NSView?, _ p: NSPoint, marge: CGFloat = 0) -> Bool {
         guard let v, let w = v.window else { return false }
@@ -3897,10 +3885,46 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
     }
     private var battement = 0
 
+    /// Pendant qu'on glisse une icône du mini-Dock : hors du mini-Dock depuis un instant, une croix suit la souris
+    /// pour dire « lâche ici pour retirer ». De retour sur le mini-Dock, elle disparaît.
+    private func suivreIconeGlissee() {
+        let ici = NSEvent.mouseLocation
+        let dehors = !dans(vueDock, ici, marge: 20)
+        let maintenant = ProcessInfo.processInfo.systemUptime
+        if !dehors { sortieDuDock = nil; croix?.orderOut(nil); return }
+        if sortieDuDock == nil { sortieDuDock = maintenant }
+        guard let depuis = sortieDuDock, maintenant - depuis > 0.5 else { return }
+        if croix == nil {
+            let p = NSPanel(contentRect: NSRect(x: 0, y: 0, width: 26, height: 26),
+                            styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
+            p.isOpaque = false
+            p.backgroundColor = .clear
+            p.hasShadow = false
+            p.ignoresMouseEvents = true
+            p.level = NSWindow.Level(rawValue: NSWindow.Level.statusBar.rawValue + 3)
+            p.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .ignoresCycle]
+            p.contentView = NSHostingView(rootView:
+                Image(systemName: "xmark.circle.fill")
+                    .font(.system(size: 20))
+                    .symbolRenderingMode(.palette)
+                    .foregroundStyle(Color.white, Color(white: 0.32))
+                    .background(Circle().fill(Color.black.opacity(0.25)).padding(1))
+                    .frame(width: 26, height: 26))
+            croix = p
+        }
+        guard let croix else { return }
+        // En haut à gauche de l'icône glissée, comme la croix des apps d'iOS.
+        croix.setFrameOrigin(NSPoint(x: ici.x - 34, y: ici.y + 10))
+        if !croix.isVisible {
+            croix.alphaValue = 0
+            croix.orderFrontRegardless()
+            NSAnimationContext.runAnimationGroup { ctx in ctx.duration = 0.15; croix.animator().alphaValue = 1 }
+        }
+    }
+
     /// L'icône Apps est la première du mini-Dock : on la reconnaît à sa place au bout de celui-ci.
     private func surIconeLanceur(_ p: NSPoint) -> Bool {
-        guard let dock = reperes.allObjects.first(where: { $0 !== vueLanceur && $0.bounds.width > 0 && $0.window != nil }),
-              let w = dock.window else { return false }
+        guard let dock = vueDock, let w = dock.window else { return false }
         let r = w.convertToScreen(dock.convert(dock.bounds, to: nil))
         let t = CGFloat(config.tailleDock) + 12
         let vertical = config.dockPosition == "gauche" || config.dockPosition == "droite"
@@ -5675,14 +5699,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
             if compte != dernierGlisser { dernierGlisser = compte; glisserActif = true }
         } else if glisserActif {
             glisserActif = false
-            // Une icône du mini-Dock lâchée en dehors de la carte : on la retire, comme dans le Dock.
+            // Une icône du mini-Dock lâchée pendant que la croix est affichée : on la retire, comme dans le Dock.
+            // Lâchée ailleurs (ou ramenée dans le mini-Dock) : elle reprend sa place.
             if let icone = appGlissee {
                 appGlissee = nil
-                if !cadreCarte.insetBy(dx: -24, dy: -24).contains(NSEvent.mouseLocation) { icone.retirer() }
+                let retirer = croix?.isVisible == true
+                croix?.orderOut(nil)
+                sortieDuDock = nil
+                if retirer { icone.retirer() }
+                store.appEnGlisse = nil
             }
             // Le glisser est fini : on retire les zones restées vides (il en reste toujours une).
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { [weak self] in self?.store.nettoyerZones() }
         }
+        if appGlissee != nil, glisserActif { suivreIconeGlissee() }
         // Side fermé mais une zone de dépôt restée à l'écran : glisser un fichier la réveille aussi.
         let zoneSeule = !visible && depotPanel?.isVisible == true && glisserActif && glisseContientFichier()
         let montrer = (glisserActif && visible && appGlissee == nil) || zoneSeule || forcerGlisse || (visible && store.accueil == 3)
