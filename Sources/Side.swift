@@ -5691,19 +5691,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         if visible, let e = ecran { placer(sur: e, anime: false) }
     }
 
-    /// Position de départ de l'animation : à peine décalée vers le bord d'où vient la carte.
-    /// Comme les panneaux de macOS (Spotlight, Centre de notifications) : un court glissement et un fondu, sans rebond.
-    private var horsChamp: NSPoint {
-        let d: CGFloat = 20
-        switch config.bord {
-        case .haut: return NSPoint(x: repos.x, y: repos.y + d)
-        case .bas: return NSPoint(x: repos.x, y: repos.y - d)
-        case .gauche: return NSPoint(x: repos.x - d, y: repos.y)
-        case .droite: return NSPoint(x: repos.x + d, y: repos.y)
-        case .plein: return repos   // la carte ne bouge pas : elle apparaît et disparaît en fondu
-        }
-    }
-
     /// Carte entièrement cachée derrière son bord d'écran : point de départ du vrai glissement
     /// (raccourci, souris, et surtout quatre doigts, où elle suit le geste).
     private var loin: NSPoint {
@@ -5722,6 +5709,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
     private var suiviDoigts = false
     private var ombreSuivi: TimeInterval = 0
     private var qSuivi: CGFloat = 0   // où en est la carte (0 = cachée, 1 = à sa place)
+    private var zoneSuivie: NSRect?   // place finale de la zone de dépôt quand elle suit les doigts avec la carte
 
     /// Durée et courbe pour finir un trajet en partant à la vitesse donnée (fraction du trajet par seconde),
     /// puis en ralentissant jusqu'à l'arrêt. La pente de départ de la courbe = la vitesse des doigts.
@@ -5743,6 +5731,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
             guard visible else { return }
             journal("déclencheur : quatre doigts (suivi de fermeture)")
             suiviDoigts = true
+            // Cadenas ouvert : la zone de dépôt part avec la carte, au même rythme que les doigts.
+            if let zone = depotPanel, zone.isVisible, !config.depotReste, !store.glisse {
+                zoneSuivie = zone.frame
+                animationDepot = true
+            }
             return
         }
         guard !visible, let e = ecranSous(NSEvent.mouseLocation) else { return }
@@ -5764,6 +5757,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
             host.setFrameOrigin(NSPoint(x: a.x + (b.x - a.x) * q, y: a.y + (b.y - a.y) * q))
             panel.alphaValue = min(1, q * 3)
         }
+        // La zone de dépôt suit, décalée exactement comme la carte, avec la même transparence.
+        if let r = zoneSuivie, let zone = depotPanel {
+            zone.setFrameOrigin(NSPoint(x: r.minX + (a.x - b.x) * (1 - q), y: r.minY + (a.y - b.y) * (1 - q)))
+            zone.alphaValue = panel.alphaValue
+        }
         let maintenant = ProcessInfo.processInfo.systemUptime
         if maintenant - ombreSuivi > 0.05 { ombreSuivi = maintenant; panel.invalidateShadow() }
     }
@@ -5778,13 +5776,27 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         let reste = ouvrir ? abs(1 - qSuivi) : qSuivi          // chemin restant, en fraction du trajet
         let vers = ouvrir ? elan * (qSuivi <= 1 ? 1 : -1) : -elan   // vitesse dans le sens où elle va finir
         let suite = AppDelegate.elan(reste: reste, vitesse: vers)
+        let zoneArrivee = zoneSuivie
+        zoneSuivie = nil
         guard ouvrir else { hide(suite: suite); return }
         NSAnimationContext.runAnimationGroup({ ctx in
             ctx.duration = suite.duree
             ctx.timingFunction = suite.courbe
             host.animator().setFrameOrigin(repos)
             panel.animator().alphaValue = 1
-        }, completionHandler: { [weak self] in self?.panel.invalidateShadow() })
+            if let r = zoneArrivee, let zone = depotPanel {
+                zone.animator().setFrame(r, display: true)
+                zone.animator().alphaValue = 1
+            }
+        }, completionHandler: { [weak self] in
+            guard let self else { return }
+            self.panel.invalidateShadow()
+            if zoneArrivee != nil {
+                self.animationDepot = false
+                self.depotPanel?.invalidateShadow()
+                self.majDepot()
+            }
+        })
     }
 
     private var duree: TimeInterval {
@@ -5991,21 +6003,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
             animationDepot = true
             arrivee = zone.frame
             zone.alphaValue = 0
-            if !reduit { zone.setFrame(zone.frame.offsetBy(dx: horsChamp.x - repos.x, dy: horsChamp.y - repos.y), display: false) }
+            // Elle part du même endroit que la carte, décalée d'autant : les deux arrivent ensemble.
+            if !reduit || suivi { zone.setFrame(zone.frame.offsetBy(dx: host.frame.origin.x - repos.x, dy: host.frame.origin.y - repos.y), display: false) }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) { [weak self] in
-                self?.animationDepot = false
+                guard let self, self.zoneSuivie == nil else { return }   // les doigts la tiennent encore
+                self.animationDepot = false
                 zone.invalidateShadow()
             }
         }
         Doigts.carteOuverte = true
-        if suivi {   // ce sont les doigts qui font avancer la carte ; la zone de dépôt, elle, arrive en fondu
-            if let arrivee, let zone = depotPanel {
-                NSAnimationContext.runAnimationGroup { ctx in
-                    ctx.duration = reduit ? 0.15 : 0.3
-                    zone.animator().setFrame(arrivee, display: true)
-                    zone.animator().alphaValue = 1
-                }
-            }
+        if suivi {   // ce sont les doigts qui font avancer la carte, et la zone de dépôt avec elle
+            zoneSuivie = arrivee
             return
         }
         NSAnimationContext.runAnimationGroup { ctx in
@@ -6043,6 +6051,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         let fondu = config.bord == .plein
         let glisse = !reduit && !fondu
         if ensemble { animationDepot = true }
+        zoneSuivie = nil
+        // La zone fait le même trajet que la carte, jusque derrière le bord : elles partent ensemble.
+        let trajet = NSPoint(x: loin.x - host.frame.origin.x, y: loin.y - host.frame.origin.y)
         NSAnimationContext.runAnimationGroup({ ctx in
             ctx.duration = reduit ? 0.12 : 0.26   // la fermeture est plus brève que l'ouverture
             ctx.timingFunction = CAMediaTimingFunction(controlPoints: 0.5, 0, 0.75, 0.4)
@@ -6052,7 +6063,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
             panel.animator().alphaValue = 0
             if ensemble, let zone {
                 if glisse {
-                    zone.animator().setFrame(zone.frame.offsetBy(dx: horsChamp.x - repos.x, dy: horsChamp.y - repos.y), display: true)
+                    zone.animator().setFrame(zone.frame.offsetBy(dx: trajet.x, dy: trajet.y), display: true)
                 }
                 zone.animator().alphaValue = 0
             }
