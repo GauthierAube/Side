@@ -604,7 +604,7 @@ final class PressePapiers: ObservableObject {
     private struct Ligne: Codable { var date: Date; var texte: String?; var fichiers: [String]; var epingle: Bool }
     private static var fichier: URL {
         let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-        return base.appendingPathComponent("Nook/presse-papiers.json")   // « Nook » : ancien nom du dossier, gardé exprès
+        return base.appendingPathComponent("Side/presse-papiers.json")
     }
     private static func charger() -> [Copie] {
         var copies: [Copie] = []
@@ -2206,7 +2206,7 @@ struct AppIcone: View {
                 AppDelegate.shared.appGlissee = item
                 DispatchQueue.main.async { AppDelegate.shared.store.appEnGlisse = item.url }
                 let colis = NSItemProvider()
-                colis.registerDataRepresentation(forTypeIdentifier: "com.gauthieraube.nook.app", visibility: .ownProcess) { fini in
+                colis.registerDataRepresentation(forTypeIdentifier: "com.gauthieraube.side.app", visibility: .ownProcess) { fini in
                     fini(Data(), nil)
                     return nil
                 }
@@ -4713,8 +4713,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
     /// (vignette de capture d'écran, image glissée depuis une page web…).
     private static let dossierDepot: URL = {
         let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-        // Le dossier garde l'ancien nom « Nook » : les fichiers déjà déposés y sont, on ne les déplace pas.
-        let d = base.appendingPathComponent("Nook/Dépôt", isDirectory: true)
+        let d = base.appendingPathComponent("Side/Dépôt", isDirectory: true)
         try? FileManager.default.createDirectory(at: d, withIntermediateDirectories: true)
         return d
     }()
@@ -6201,6 +6200,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
 enum Main {
     static func main() {
         reprendreAnciensReglages()
+        deplacerAncienDossier()
         let app = NSApplication.shared
         app.delegate = AppDelegate.shared
         app.setActivationPolicy(.accessory)
@@ -6209,6 +6209,17 @@ enum Main {
 
     /// L'app s'appelait « Tiroir » (identifiant com.gauthieraube.tiroir). Au premier lancement sous le nom Side,
     /// on recopie une fois les anciens réglages (favoris, raccourci, position…) pour ne rien perdre.
+    /// Les données (historique du copier-coller, fichiers déposés) étaient rangées dans « Application Support/Nook ».
+    /// On renomme ce dossier une fois en « Side », avant que l'app ne s'en serve.
+    private static func deplacerAncienDossier() {
+        let fm = FileManager.default
+        let base = fm.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+        let ancien = base.appendingPathComponent("Nook", isDirectory: true)
+        let nouveau = base.appendingPathComponent("Side", isDirectory: true)
+        guard fm.fileExists(atPath: ancien.path), !fm.fileExists(atPath: nouveau.path) else { return }
+        try? fm.moveItem(at: ancien, to: nouveau)
+    }
+
     private static func reprendreAnciensReglages() {
         let d = UserDefaults.standard
         guard !d.bool(forKey: "reglagesRepris") else { return }
