@@ -1445,7 +1445,7 @@ struct PresseIcone: View {
                     .transition(.opacity.combined(with: .scale(scale: 0.96, anchor: cote == "bas" ? .bottom : .top)))
             }
         }
-        .animation(.snappy(duration: 0.18), value: ouvert)
+        .animation(.snappy(duration: 0.12), value: ouvert)
         .help("Presse-papiers")
         .accessibilityLabel("Historique du presse-papiers")
         .accessibilityAddTraits(.isButton)
@@ -1453,13 +1453,12 @@ struct PresseIcone: View {
 
     private func fermer() { ouvert = false; filtre = "" }
 
-    /// Un court délai à l'ouverture évite que la liste surgisse quand la souris ne fait que passer ;
-    /// un autre à la fermeture laisse le temps d'aller de l'icône à la liste.
+    /// La liste s'ouvre dès que la souris arrive sur l'icône. À la sortie, un court délai laisse
+    /// le temps d'aller de l'icône à la liste sans qu'elle se referme.
     private func suivre() {
-        let dessus = surIcone || surListe
-        DispatchQueue.main.asyncAfter(deadline: .now() + (dessus ? 0.15 : 0.35)) {
-            guard (surIcone || surListe) == dessus else { return }
-            if dessus { ouvert = true } else if filtre.isEmpty { ouvert = false }
+        if surIcone || surListe { ouvert = true; return }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+            if !surIcone && !surListe && filtre.isEmpty { ouvert = false }
         }
     }
 }
