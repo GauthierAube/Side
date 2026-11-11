@@ -229,7 +229,13 @@ enum Geste {
     /// et à quel point il tourne toujours du même côté (1 = toujours, 0 = autant à gauche qu'à droite).
     static func rotation(_ p: [CGPoint]) -> (degres: CGFloat, constance: CGFloat) {
         // Un point sur deux : les petits tremblements de la main ne comptent pas comme des virages.
-        let r = regulier(p).enumerated().filter { $0.offset % 2 == 0 }.map(\.element)
+        // Chaque point est aussi adouci avec ses deux voisins.
+        let brut = regulier(p)
+        let doux: [CGPoint] = brut.indices.map { i in
+            let a = brut[max(i - 1, 0)], b = brut[i], c = brut[min(i + 1, brut.count - 1)]
+            return CGPoint(x: (a.x + b.x + c.x) / 3, y: (a.y + b.y + c.y) / 3)
+        }
+        let r = doux.enumerated().filter { $0.offset % 2 == 0 }.map(\.element)
         guard r.count >= 3 else { return (0, 0) }
         var somme: CGFloat = 0, absolue: CGFloat = 0
         for i in 1..<(r.count - 1) {
@@ -262,7 +268,7 @@ enum Geste {
         // Une secousse dessine aussi une boucle, mais très aplatie : on exige une forme assez ronde.
         guard rondeur(p) >= 0.45 else { return false }
         let r = rotation(p)
-        return abs(r.degres) >= degres && r.constance >= 0.7
+        return abs(r.degres) >= degres && r.constance >= 0.65
     }
 }
 
@@ -3344,7 +3350,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
             }
             func tour(_ nom: String, _ p: [CGPoint]) {
                 let r = Geste.rotation(p)
-                print(nom, Geste.boucle(p, degres: 270) ? "reconnu" : "refusé ", String(format: "%.0f° constance %.2f", r.degres, r.constance))
+                print(nom, Geste.boucle(p, degres: 240) ? "reconnu" : "refusé ", String(format: "%.0f° constance %.2f", r.degres, r.constance))
             }
             let ligne: [CGPoint] = (0...40).map { (i: Int) -> CGPoint in CGPoint(x: Double(i) * 10, y: 300 + Double(i)) }
             let zigzag: [CGPoint] = (0...60).map { (i: Int) -> CGPoint in CGPoint(x: 400 + 150 * sin(Double(i) / 5), y: 300 + Double(i)) }
@@ -3354,6 +3360,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
             tour("ovale                   ", cercle(1).map { CGPoint(x: $0.x * 1.8, y: $0.y) })
             tour("sens inverse            ", cercle(0, sens: -1))
             tour("trois quarts de tour    ", cercle(0.5, tours: 0.75))
+            tour("deux tiers de tour      ", cercle(0.5, tours: 0.67))
+            tour("demi-tour               ", cercle(0.5, tours: 0.5))
+            tour("3/4 de tour tremblé     ", cercle(2, tours: 0.78, rayon: 40, bruit: 5))
             // Une vraie secousse : des allers-retours le long d'une boucle très fine, ici en diagonale.
             let secousse: [CGPoint] = (0...60).map { (i: Int) -> CGPoint in
                 let a = 4 * Double.pi * Double(i) / 60
@@ -3373,7 +3382,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
                     p.x += 9 * cos(cap); p.y += 9 * sin(cap)
                     trajet.append(p)
                 }
-                if Geste.boucle(trajet, degres: 270) { boucles += 1 }
+                if Geste.boucle(trajet, degres: 240) { boucles += 1 }
             }
             print("2000 mouvements au hasard pris pour un cercle :", boucles)
             exit(0)
@@ -3599,8 +3608,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         trace.append((ici, maintenant))
         trace.removeAll { maintenant - $0.t > 1.8 }
         guard maintenant - derniereSecousse > 0.8 else { return }
-        // Plus c'est sensible, moins le tour a besoin d'être complet : de 300° (presque entier) à 240° (trois quarts).
-        let degres = 300 - 60 * CGFloat(config.sensibilite)
+        // Le cercle n'a pas besoin d'être fermé. Plus c'est sensible, moins il en faut :
+        // de 270° mesurés (environ 8 dixièmes de tour) à 210° (environ les deux tiers).
+        let degres = 270 - 60 * CGFloat(config.sensibilite)
         for duree in [0.45, 0.7, 1.0, 1.4, 1.8] {
             let morceau = trace.filter { maintenant - $0.t <= duree }.map(\.p)
             guard morceau.count >= 10, Geste.boucle(morceau, degres: degres) else { continue }
