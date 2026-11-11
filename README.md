@@ -42,7 +42,7 @@ Le script compile Side, l'installe dans `~/Applications` et le lance. Une icône
 
 - Projet personnel, écrit rapidement avec l'aide d'une IA : il reste sûrement des bugs.
 - L'interface est en français uniquement.
-- Tout le code tient dans un seul fichier, `Sources/Tiroir.swift`. Le fichier et l'identifiant de l'app portent encore le premier nom du projet, « Tiroir ».
+- Tout le code tient dans un seul fichier, `Sources/Side.swift`.
 - La corbeille et AirDrop ne sont pas pris en charge. Pour le réseau, Side repère les ordinateurs mais la première connexion se fait dans le Finder.
 
 ## Licence

@@ -1,13 +1,12 @@
 #!/bin/bash
 # Compile Side, l'installe dans ~/Applications et le relance.
-# (Le dossier du projet et l'identifiant interne gardent l'ancien nom « tiroir » pour conserver les réglages.)
 set -e
 cd "$(dirname "$0")"
 APP=build/Side.app
 rm -rf build
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 swiftc -O -swift-version 5 -parse-as-library -target arm64-apple-macos14.0 \
-  Sources/Tiroir.swift -o "$APP/Contents/MacOS/Side"
+  Sources/Side.swift -o "$APP/Contents/MacOS/Side"
 mkdir -p "$APP/Contents/Resources/fr.lproj"
 cp Info.plist "$APP/Contents/Info.plist"
 cp Icone/Side.icns "$APP/Contents/Resources/Side.icns"

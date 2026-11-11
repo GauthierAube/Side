@@ -13,7 +13,7 @@
 	<key>CFBundleDisplayName</key>
 	<string>Side</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.gauthieraube.tiroir</string>
+	<string>com.gauthieraube.side</string>
 	<key>CFBundleExecutable</key>
 	<string>Side</string>
 	<key>CFBundleIconFile</key>

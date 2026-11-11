@@ -1,4 +1,4 @@
-// Tiroir — un tiroir de fichiers qui descend du haut de l'écran
+// Side — une carte de fichiers qui glisse depuis le bord de l'écran
 // quand la souris touche le coin haut-gauche, même en plein écran.
 
 import AppKit
@@ -20,7 +20,7 @@ enum Reglages {
     static let carreDepot: CGFloat = 150            // côté d'une zone de dépôt flottante
     static let barreApps: CGFloat = 66              // hauteur du mini-Dock, espace compris
     static let debord: CGFloat = 40                 // place laissée au rebond de l'animation
-    static let delaiFermeture: TimeInterval = 0.35  // souris sortie du tiroir
+    static let delaiFermeture: TimeInterval = 0.35  // souris sortie de la carte
     static let joursRecents: Double = 30
     static let nombreRecents = 60
 }
@@ -60,7 +60,7 @@ final class Config: ObservableObject {
 
     @Published var coin: Coin { didSet { d.set(coin.rawValue, forKey: "coin") } }
     @Published var bord: Bord { didSet { d.set(bord.rawValue, forKey: "bord") } }
-    /// Taille du tiroir, en part de l'écran : hauteur (haut/bas) ou largeur (gauche/droite).
+    /// Taille de la carte, en part de l'écran : hauteur (haut/bas) ou largeur (gauche/droite).
     @Published var tailleHauteur: Double { didSet { d.set(tailleHauteur, forKey: "tailleHauteur") } }
     @Published var tailleLargeur: Double { didSet { d.set(tailleLargeur, forKey: "tailleLargeur") } }
     /// Colonnes : vrai = toutes visibles (elles se partagent la place), faux = taille fixe et on fait défiler.
@@ -68,7 +68,7 @@ final class Config: ObservableObject {
     @Published var tailleColonne: Double { didSet { d.set(tailleColonne, forKey: "tailleColonne") } }
     @Published var fermerEnSortant: Bool { didSet { d.set(fermerEnSortant, forKey: "fermerEnSortant") } }
     @Published var fermerAuClic: Bool { didSet { d.set(fermerAuClic, forKey: "fermerAuClic") } }
-    /// Dossier affiché à l'ouverture du tiroir (chemin) ; vide = le dernier consulté.
+    /// Dossier affiché à l'ouverture de la carte (chemin) ; vide = le dernier consulté.
     @Published var ouverture: String { didSet { d.set(ouverture, forKey: "ouverture") } }
     /// Largeur de la grande zone, réglable en glissant le trait à sa droite.
     @Published var largeurZone: Double { didSet { d.set(largeurZone, forKey: "largeurZone") } }
@@ -440,7 +440,8 @@ enum Doigts {
                 let ouvrir = fermeture
                     ? !(progression < 0.6 || vitesse < -0.6 || (progression < 0.85 && vitesse < 0.2))
                     : progression > 0.4 || vitesse > 0.6 || (progression > 0.15 && vitesse > -0.2)
-                DispatchQueue.main.async { AppDelegate.shared.lacherDoigts(ouvrir: ouvrir) }
+                let elan = CGFloat(vitesse / course)   // en « carte par seconde », dans le sens d'ouverture
+                DispatchQueue.main.async { AppDelegate.shared.lacherDoigts(ouvrir: ouvrir, elan: elan) }
                 return true
             }
             guard let m = moyenne(doigts) else { return true }
@@ -1312,7 +1313,7 @@ final class Store: ObservableObject {
         navigateur.reload()
         UserDefaults.standard.set(kind.code, forKey: "dernier")
     }
-    /// Retient où l'on se trouve, pour le retrouver au prochain lancement de Tiroir.
+    /// Retient où l'on se trouve, pour le retrouver au prochain lancement de Side.
     func memoriser() {
         UserDefaults.standard.set(navigateur.kind.code, forKey: "dernier")
         UserDefaults.standard.set(navigateur.pile.map(\.path), forKey: "dernierChemin")
@@ -2815,7 +2816,7 @@ struct LigneBarre: View {
 /// Rend une ligne de la barre latérale glissable : un dossier part comme un vrai dossier,
 /// les autres entrées (Récents, Tags) comme un repère que seul le bouton « + » comprend.
 struct Glissable: ViewModifier {
-    static let prefixe = "tiroir-entree:"
+    static let prefixe = "side-entree:"
     let kind: Column.Kind
     func body(content: Content) -> some View {
         content.onDrag {
@@ -2850,7 +2851,7 @@ struct Reorganisable: ViewModifier {
             content
                 .onDrag {
                     store.glissee = column
-                    return NSItemProvider(object: "tiroir-colonne" as NSString)
+                    return NSItemProvider(object: "side-colonne" as NSString)
                 }
                 .onDrop(of: [UTType.utf8PlainText], delegate: DeplacementColonne(cible: column, store: store))
                 .help("Glisse le titre pour déplacer la colonne")
@@ -4195,8 +4196,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
             self?.secousse()
             return ev
         }
-        // Un clic dans une autre app referme le tiroir. On attend le relâchement du bouton :
-        // si la souris a bougé entre-temps, c'est un glisser-déposer et le tiroir reste ouvert.
+        // Un clic dans une autre app referme la carte. On attend le relâchement du bouton :
+        // si la souris a bougé entre-temps, c'est un glisser-déposer et la carte reste ouverte.
         NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .leftMouseUp]) { [weak self] ev in
             guard let self else { return }
             let p = NSEvent.mouseLocation
@@ -4425,7 +4426,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         }
     }
 
-    /// Tiroir n'a pas de barre des menus visible, mais macOS a besoin d'un menu Édition
+    /// Side n'a pas de barre des menus visible, mais macOS a besoin d'un menu Édition
     /// pour que Commande + A, C, V, X et Z fonctionnent dans le champ « Rechercher ».
     private func installerMenuEdition() {
         let edition = NSMenu(title: "Édition")
@@ -4588,7 +4589,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
 
     // MARK: Secouer le pointeur
 
-    /// Quatre allers-retours rapides de la souris (même pendant qu'on glisse un fichier) ouvrent le tiroir.
+    /// Quatre allers-retours rapides de la souris (même pendant qu'on glisse un fichier) ouvrent la carte.
     /// Le cercle, cherché en continu dans les derniers mouvements de la souris.
     private var trace: [(p: CGPoint, t: TimeInterval)] = []
 
@@ -4667,7 +4668,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         }
     }
 
-    // MARK: Dépôt de fichiers dans le tiroir
+    // MARK: Dépôt de fichiers dans la carte
 
     /// Crée une colonne pour ce qui est déposé sur le bouton « + » :
     /// un dossier, ou une entrée de la barre latérale (Fichiers récents, Dossiers récents, un tag).
@@ -4953,7 +4954,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
 
     // MARK: Actions sur les fichiers
 
-    /// On ferme d'abord le tiroir, puis on ouvre sans attendre la réponse de macOS :
+    /// On ferme d'abord la carte, puis on ouvre sans attendre la réponse de macOS :
     /// certaines ouvertures (app téléchargée d'Internet…) affichent une question et bloqueraient l'app.
     func ouvrir(_ url: URL) {
         hide()
@@ -5428,7 +5429,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         var err: NSDictionary?
         NSAppleScript(source: script)?.executeAndReturnError(&err)
         if let err {
-            erreur("Impossible d'afficher les informations", NSError(domain: "Tiroir", code: 1, userInfo: [
+            erreur("Impossible d'afficher les informations", NSError(domain: "Side", code: 1, userInfo: [
                 NSLocalizedDescriptionKey: (err[NSAppleScript.errorMessage] as? String) ?? "Le Finder n'a pas répondu."]))
         } else { hide() }
     }
@@ -5721,6 +5722,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
 
     private var suiviDoigts = false
     private var ombreSuivi: TimeInterval = 0
+    private var qSuivi: CGFloat = 0   // où en est la carte (0 = cachée, 1 = à sa place)
+
+    /// Durée et courbe pour finir un trajet en partant à la vitesse donnée (fraction du trajet par seconde),
+    /// puis en ralentissant jusqu'à l'arrêt. La pente de départ de la courbe = la vitesse des doigts.
+    static func elan(reste: CGFloat, vitesse: CGFloat) -> (duree: TimeInterval, courbe: CAMediaTimingFunction) {
+        let v = max(0, vitesse)
+        guard reste > 0.001 else { return (0.15, CAMediaTimingFunction(name: .easeOut)) }
+        // Assez de temps pour ralentir en douceur, sans traîner : la durée suit la vitesse.
+        let duree = v > 0.01 ? min(0.4, max(0.18, Double(2.2 * reste / v))) : 0.3
+        let pente = v * CGFloat(duree) / reste        // vitesse de départ, rapportée à la courbe
+        let x1: CGFloat = 0.3
+        let y1 = min(1, pente * x1)
+        return (duree, CAMediaTimingFunction(controlPoints: Float(x1), Float(y1), 0.35, 1))
+    }
 
     /// Quatre doigts commencent à glisser : pour ouvrir, la carte arrive cachée, prête à suivre ;
     /// pour fermer, elle quitte sa place avec eux.
@@ -5742,6 +5757,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
     func suivreDoigts(_ p: CGFloat) {
         guard suiviDoigts, visible else { return }
         let q = p <= 1 ? max(0, p) : 1 + min(0.5, p - 1) * 0.12
+        qSuivi = q
         let a = loin, b = repos
         if config.bord == .plein {
             panel.alphaValue = min(1, q)
@@ -5754,14 +5770,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
     }
 
     /// Doigts levés : la carte finit de s'ouvrir (ou revient à sa place), sinon elle repart derrière le bord.
-    func lacherDoigts(ouvrir: Bool) {
+    /// elan : vitesse de la carte au moment du lâcher (en « carte entière par seconde », sens d'ouverture).
+    /// La suite du mouvement part exactement à cette vitesse, puis ralentit : pas d'à-coup.
+    func lacherDoigts(ouvrir: Bool, elan: CGFloat = 0) {
         guard suiviDoigts else { return }
         suiviDoigts = false
         guard visible else { return }
-        guard ouvrir else { hide(); return }
+        let reste = ouvrir ? abs(1 - qSuivi) : qSuivi          // chemin restant, en fraction du trajet
+        let vers = ouvrir ? elan * (qSuivi <= 1 ? 1 : -1) : -elan   // vitesse dans le sens où elle va finir
+        let suite = AppDelegate.elan(reste: reste, vitesse: vers)
+        guard ouvrir else { hide(suite: suite); return }
         NSAnimationContext.runAnimationGroup({ ctx in
-            ctx.duration = 0.32
-            ctx.timingFunction = CAMediaTimingFunction(controlPoints: 0.2, 0.9, 0.25, 1)
+            ctx.duration = suite.duree
+            ctx.timingFunction = suite.courbe
             host.animator().setFrameOrigin(repos)
             panel.animator().alphaValue = 1
         }, completionHandler: { [weak self] in self?.panel.invalidateShadow() })
@@ -5990,7 +6011,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in self?.panel.invalidateShadow() }
     }
 
-    private func hide(immediat: Bool = false) {
+    private func hide(immediat: Bool = false, suite: (duree: TimeInterval, courbe: CAMediaTimingFunction)? = nil) {
         guard visible else { return }
         journal("fermeture <- " + Thread.callStackSymbols.dropFirst().prefix(3).map { $0.split(separator: " ").dropFirst(3).first.map(String.init) ?? "?" }.joined(separator: " <- "))
         visible = false
@@ -6014,6 +6035,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         NSAnimationContext.runAnimationGroup({ ctx in
             ctx.duration = reduit ? 0.12 : 0.26   // la fermeture est plus brève que l'ouverture
             ctx.timingFunction = CAMediaTimingFunction(controlPoints: 0.5, 0, 0.75, 0.4)
+            // Lâchée par les doigts en pleine course : elle continue sur sa lancée, sans s'arrêter.
+            if let suite, glisse { ctx.duration = suite.duree; ctx.timingFunction = suite.courbe }
             if glisse { host.animator().setFrameOrigin(loin) }
             panel.animator().alphaValue = 0
             if ensemble, let zone {
@@ -6153,14 +6176,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         let suivre = doitSuivre()
         if suivre != suitBureaux { suivreBureaux(suivre) }
 
-        // Revenir dans le coin referme le tiroir.
+        // Revenir dans le coin referme la carte.
         // La souris doit s'être vraiment éloignée du coin (140 points) avant qu'y revenir ne referme :
         // un petit mouvement autour du coin, juste après l'ouverture, ne compte pas.
         if !dansCoin(p, e, marge: 140) { aQuitteCoin = true }
         else if coin && aQuitteCoin && NSEvent.pressedMouseButtons == 0 && !modeTest
                     && ProcessInfo.processInfo.systemUptime - dernierBasculement > 0.5 { hide(); return }
 
-        // Par défaut le tiroir reste ouvert. Avec le réglage « Fermer quand la souris en sort »,
+        // Par défaut la carte reste ouverte. Avec le réglage « Fermer quand la souris en sort »,
         // il se referme une fois que la souris y est entrée puis ressortie.
         guard config.fermerEnSortant else { debutDehors = nil; return }
         if cadreCarte.insetBy(dx: -24, dy: -24).contains(p) {
@@ -6177,9 +6200,21 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
 @main
 enum Main {
     static func main() {
+        reprendreAnciensReglages()
         let app = NSApplication.shared
         app.delegate = AppDelegate.shared
         app.setActivationPolicy(.accessory)
         app.run()
+    }
+
+    /// L'app s'appelait « Tiroir » (identifiant com.gauthieraube.tiroir). Au premier lancement sous le nom Side,
+    /// on recopie une fois les anciens réglages (favoris, raccourci, position…) pour ne rien perdre.
+    private static func reprendreAnciensReglages() {
+        let d = UserDefaults.standard
+        guard !d.bool(forKey: "reglagesRepris") else { return }
+        if let anciens = UserDefaults(suiteName: "com.gauthieraube.tiroir")?.persistentDomain(forName: "com.gauthieraube.tiroir") {
+            for (cle, valeur) in anciens where d.object(forKey: cle) == nil { d.set(valeur, forKey: cle) }
+        }
+        d.set(true, forKey: "reglagesRepris")
     }
 }
