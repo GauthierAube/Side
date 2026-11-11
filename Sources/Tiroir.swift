@@ -5006,7 +5006,35 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         agir("libérer") { try FileManager.default.evictUbiquitousItem(at: $0) }
     }
     @objc private func mCorbeille() {
+        guard let url = cible else { return }
+        // Comme dans le Finder : après la suppression, la sélection passe à l'élément suivant,
+        // ou au précédent si c'était le dernier, ou au dossier qui le contenait s'il ne reste rien.
+        func contient(_ c: Column) -> Bool {
+            c.visibles.contains { $0.url == url } || c.niveaux.contains { $0.contains { $0.url == url } }
+        }
+        let colonne = [Selection.shared.colonne, survoleColonne, store.navigateur].compactMap { $0 }.first(where: contient)
+        var liste: [URL] = [], niveau: Int?
+        if let colonne {
+            if colonne.presentation == .colonnes, let n = colonne.niveaux.firstIndex(where: { $0.contains { $0.url == url } }) {
+                niveau = n
+                liste = colonne.niveaux[n].map(\.url)
+            } else {
+                liste = colonne.visibles.map(\.url)
+            }
+        }
+        let rang = liste.firstIndex(of: url)
         agir("placer dans la corbeille") { try FileManager.default.trashItem(at: $0, resultingItemURL: nil) }
+        guard let colonne, let rang, !FileManager.default.fileExists(atPath: url.path) else { return }
+        // Un dossier supprimé qui était ouvert en colonnes : ses colonnes à droite se referment.
+        if let n = niveau, n < colonne.pile.count, colonne.pile[n] == url { colonne.tronquer(n) }
+        let restants = liste.filter { $0 != url }
+        if !restants.isEmpty {
+            Selection.shared.choisir(restants[min(rang, restants.count - 1)], colonne)
+        } else if let n = niveau, n > 0, n - 1 < colonne.pile.count {
+            Selection.shared.choisir(colonne.pile[n - 1], colonne)
+        } else {
+            Selection.shared.choisir(nil, nil)
+        }
     }
     @objc private func mDupliquer() {
         agir("dupliquer") { try FileManager.default.copyItem(at: $0, to: self.nomLibre($0, suffixe: " copie")) }
