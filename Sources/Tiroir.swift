@@ -799,6 +799,11 @@ enum Etagere {
         ecrire(chemins(i).filter { $0 != url.standardizedFileURL.path && $0 != url.path }, i)
     }
     static func vider(_ i: Int) { ecrire([], i) }
+    /// Oublie les fichiers qui ne sont plus à l'endroit retenu (déplacés ou supprimés depuis).
+    static func purger(_ i: Int) {
+        let restants = chemins(i).filter { FileManager.default.fileExists(atPath: $0) }
+        if restants.count != chemins(i).count { ecrire(restants, i) }
+    }
 }
 
 // MARK: - Colonnes
@@ -1968,7 +1973,7 @@ struct EtagereCompacte: View {
             .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous)
                 .strokeBorder(depot ? Color.accentColor : Color.primary.opacity(0.12), lineWidth: depot ? 2 : 1))
             .contentShape(RoundedRectangle(cornerRadius: 16))
-            .modifier(Depot(action: { AppDelegate.shared.poser($0, column.indexEtagere) }, cible: $depot))
+            .modifier(Depot(action: { AppDelegate.shared.poser($0, column.indexEtagere) }, cible: $depot, deplace: false))
             .contextMenu {
                 Button("Afficher dans le Finder") {
                     NSWorkspace.shared.activateFileViewerSelecting(column.items.map(\.url))
@@ -2098,7 +2103,7 @@ struct EtagereView: View {
         .overlay(RoundedRectangle(cornerRadius: 22).strokeBorder(
             depot ? Color.accentColor : Color.primary.opacity(0.12), lineWidth: depot ? 2 : 1))
         .contentShape(RoundedRectangle(cornerRadius: 22))
-        .modifier(Depot(action: { AppDelegate.shared.poser($0, column.indexEtagere) }, cible: $depot))
+        .modifier(Depot(action: { AppDelegate.shared.poser($0, column.indexEtagere) }, cible: $depot, deplace: false))
         .contextMenu {
             if store.etageres.count > 1 {
                 Button("Supprimer cette zone") { store.supprimerZone(column.indexEtagere) }
@@ -2838,7 +2843,6 @@ struct MillerRow: View {
         .simultaneousGesture(TapGesture(count: 2).onEnded {
             if !item.isFolder { AppDelegate.shared.ouvrir(item.url) }
         })
-        .onDrag { NSItemProvider(object: item.url as NSURL) }
         .modifier(Depot(
             action: item.isFolder ? { AppDelegate.shared.deposer($0, dans: item.url) } : nil,
             cible: $depot))
@@ -2904,7 +2908,6 @@ struct Interactions: ViewModifier {
                 else if column.kind == .etagere { AppDelegate.shared.store.naviguer(.folder(item.url)) }
                 else { column.entrer(item.url) }
             })
-            .onDrag { NSItemProvider(object: item.url as NSURL) }
             .modifier(Depot(
                 action: item.isFolder && !column.estEtagere ? { AppDelegate.shared.deposer($0, dans: item.url) } : nil,
                 cible: $depot))
@@ -2918,16 +2921,50 @@ struct Depot: ViewModifier {
     static let types: [UTType] = [.fileURL, .image, .pdf, .movie, .audio]
     let action: (([NSItemProvider]) -> Void)?
     @Binding var cible: Bool
+    var deplace = true   // faux pour les zones de dépôt : elles ne déplacent jamais le fichier
 
     func body(content: Content) -> some View {
         if let action {
-            content.onDrop(of: Depot.types, isTargeted: $cible) { fournisseurs in
-                action(fournisseurs)
-                return true
-            }
+            content.onDrop(of: Depot.types, delegate: Arrivee(action: action, cible: $cible, deplace: deplace))
         } else {
             content
         }
+    }
+
+    /// Dit à macOS ce que fera le dépôt, pour qu'il montre le bon pointeur :
+    /// un déplacement par défaut, une copie (avec le « + » vert) quand Option est maintenue.
+    struct Arrivee: DropDelegate {
+        let action: ([NSItemProvider]) -> Void
+        @Binding var cible: Bool
+        let deplace: Bool
+
+        func validateDrop(info: DropInfo) -> Bool { info.hasItemsConforming(to: Depot.types) }
+        func dropEntered(info: DropInfo) { cible = true }
+        func dropExited(info: DropInfo) { cible = false }
+        func dropUpdated(info: DropInfo) -> DropProposal? {
+            // Un vrai fichier peut être déplacé ; une image tirée d'une page web ne peut qu'être copiée.
+            let fichier = NSPasteboard(name: .drag).types?.contains(.fileURL) == true
+            let copie = !deplace || !fichier || NSEvent.modifierFlags.contains(.option)
+            return DropProposal(operation: copie ? .copy : .move)
+        }
+        func performDrop(info: DropInfo) -> Bool {
+            cible = false
+            action(info.itemProviders(for: Depot.types))
+            return true
+        }
+    }
+}
+
+/// Le départ d'un glisser de fichier, confié à macOS : la destination choisit entre déplacer et copier,
+/// comme pour un fichier tiré depuis le Finder (déplacer par défaut, copier avec Option).
+final class DepartGlisser: NSObject, NSDraggingSource {
+    static let shared = DepartGlisser()
+    func draggingSession(_ session: NSDraggingSession, sourceOperationMaskFor context: NSDraggingContext) -> NSDragOperation {
+        [.move, .copy, .link, .generic]
+    }
+    func draggingSession(_ session: NSDraggingSession, endedAt screenPoint: NSPoint, operation: NSDragOperation) {
+        // Le fichier est peut-être parti ailleurs : on rafraîchit, et la zone de dépôt oublie ce qui n'est plus là.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { AppDelegate.shared.apresGlisser() }
     }
 }
 
@@ -3657,6 +3694,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
                   hypot(p.x - debut.x, p.y - debut.y) < 12, !self.surSide(p) else { return }
             self.hide()
         }
+        NSEvent.addLocalMonitorForEvents(matching: [.leftMouseDown, .leftMouseDragged, .leftMouseUp]) { [weak self] ev in
+            guard let self else { return ev }
+            return self.suivreGlisser(ev)   // nil : le mouvement devient un glisser-déposer
+        }
         // Même chose quand le clic tombe dans le vide de notre propre fenêtre (à côté du mini-Dock, par exemple).
         NSEvent.addLocalMonitorForEvents(matching: [.leftMouseDown, .leftMouseUp]) { [weak self] ev in
             guard let self, ev.window === self.panel else { return ev }
@@ -4287,6 +4328,40 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
 
     func lacherChamp() {
         if panel.firstResponder is NSTextView { panel.makeFirstResponder(nil) }
+    }
+
+    /// Après un glisser parti de Side : les listes sont relues, et les zones de dépôt oublient les fichiers partis.
+    func apresGlisser() {
+        (0..<Etagere.nombre).forEach(Etagere.purger)
+        store.reloadAll()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { self.store.nettoyerZones(); self.majDepot() }
+    }
+
+    /// Bouton enfoncé sur un fichier, puis souris qui s'éloigne : le fichier part en glisser-déposer.
+    private var departGlisser: (point: NSPoint, item: FileItem, fenetre: NSWindow)?
+    private func suivreGlisser(_ ev: NSEvent) -> NSEvent? {
+        switch ev.type {
+        case .leftMouseDown:
+            departGlisser = nil
+            if let item = survole, let f = ev.window, f === panel || f === depotPanel, !ev.modifierFlags.contains(.control) {
+                departGlisser = (ev.locationInWindow, item, f)
+            }
+        case .leftMouseUp:
+            departGlisser = nil
+        case .leftMouseDragged:
+            guard let d = departGlisser, ev.window === d.fenetre, let vue = d.fenetre.contentView,
+                  hypot(ev.locationInWindow.x - d.point.x, ev.locationInWindow.y - d.point.y) >= 5 else { return ev }
+            departGlisser = nil
+            let element = NSDraggingItem(pasteboardWriter: d.item.url as NSURL)
+            let icone = NSWorkspace.shared.icon(forFile: d.item.url.path)
+            icone.size = NSSize(width: 48, height: 48)
+            let ici = vue.convert(ev.locationInWindow, from: nil)
+            element.setDraggingFrame(NSRect(x: ici.x - 24, y: ici.y - 24, width: 48, height: 48), contents: icone)
+            vue.beginDraggingSession(with: [element], event: ev, source: DepartGlisser.shared)
+            return nil
+        default: break
+        }
+        return ev
     }
 
     func survoler(_ item: FileItem, _ colonne: Column, _ dedans: Bool) {
