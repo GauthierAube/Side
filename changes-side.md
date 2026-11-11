@@ -7,6 +7,14 @@ Il est mis à jour à chaque modification, en même temps que le code.
 
 ## 11/11/2026, fin d'après-midi
 
+### Les captures d'écran arrivent toutes seules dans une zone de dépôt
+- Dès qu'une capture d'écran est enregistrée, Side la range dans une zone de dépôt. Elle est prête à être glissée dans un mail, un message ou un dossier.
+- Les captures se regroupent dans la même zone. Si aucune zone n'est libre, une nouvelle zone apparaît en dessous.
+- Une capture déjà déposée à la main depuis la vignette de macOS n'est pas ajoutée une deuxième fois.
+- Side reconnaît les captures grâce à l'index de recherche du Mac : peu importe le dossier où elles sont enregistrées.
+- Réglage : Réglages, Zones de dépôt, « Ajouter mes captures d'écran à une zone de dépôt ». Activé par défaut.
+- Avec le cadenas ouvert, la zone apparaît à la prochaine ouverture de Side. Avec le cadenas fermé, elle apparaît tout de suite à l'écran.
+
 ### La zone de dépôt bouge avec la carte, comme une seule fenêtre
 - **Le problème :** à l'ouverture par les quatre doigts, la zone de dépôt apparaissait d'un coup alors que la carte suivait encore les doigts. Les deux n'arrivaient pas en même temps.
 - **Maintenant :** la zone suit les doigts avec la carte. Elle part du même endroit, fait le même trajet, à la même vitesse et avec la même transparence, à l'ouverture comme à la fermeture.

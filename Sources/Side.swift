@@ -117,6 +117,8 @@ final class Config: ObservableObject {
     @Published var fermerApresDepot: Bool { didSet { d.set(fermerApresDepot, forKey: "fermerApresDepot") } }
     /// Cadenas des zones de dépôt : fermé = elles restent à l'écran quand Side se ferme.
     @Published var depotReste: Bool { didSet { d.set(depotReste, forKey: "depotReste") } }
+    /// Chaque nouvelle capture d'écran arrive toute seule dans une zone de dépôt.
+    @Published var capturesAuto: Bool { didSet { d.set(capturesAuto, forKey: "capturesAuto") } }
     @Published var secouer: Bool { didSet { d.set(secouer, forKey: "secouer") } }
     /// Glisser quatre doigts vers le haut ou vers le bas sur le trackpad ouvre et ferme Side.
     @Published var quatreDoigts: Bool {
@@ -184,6 +186,7 @@ final class Config: ObservableObject {
         flouForce = d.object(forKey: "flouForce") as? Double ?? 0.85
         fermerApresDepot = d.object(forKey: "fermerApresDepot") as? Bool ?? true
         depotReste = d.object(forKey: "depotReste") as? Bool ?? true
+        capturesAuto = d.object(forKey: "capturesAuto") as? Bool ?? true
         secouer = d.object(forKey: "secouer") as? Bool ?? true
         quatreDoigts = d.bool(forKey: "quatreDoigts")
         sensDoigts = d.string(forKey: "sensDoigts") ?? "bas"
@@ -532,6 +535,46 @@ enum Doigts {
         let source = CFMachPortCreateRunLoopSource(nil, filtre, 0)
         CFRunLoopAddSource(CFRunLoopGetMain(), source, .commonModes)
         CGEvent.tapEnable(tap: filtre, enable: true)
+    }
+}
+
+// MARK: - Captures d'écran
+
+/// Repère chaque nouvelle capture d'écran grâce à l'index du Mac (Spotlight marque les captures comme telles,
+/// où qu'elles soient enregistrées), et la range dans une zone de dépôt.
+final class Captures: NSObject {
+    static let shared = Captures()
+    private let requete = NSMetadataQuery()
+    private var depart = Date()
+    private var vues: Set<String> = []   // captures déjà traitées depuis le lancement
+
+    func demarrer() {
+        depart = Date()
+        requete.predicate = NSPredicate(format: "kMDItemIsScreenCapture == 1 AND kMDItemContentCreationDate >= %@", depart as NSDate)
+        requete.searchScopes = [NSMetadataQueryLocalComputerScope]
+        NotificationCenter.default.addObserver(self, selector: #selector(nouveautes), name: .NSMetadataQueryDidUpdate, object: requete)
+        NotificationCenter.default.addObserver(self, selector: #selector(nouveautes), name: .NSMetadataQueryDidFinishGathering, object: requete)
+        requete.start()
+    }
+
+    @objc private func nouveautes() {
+        requete.disableUpdates()
+        defer { requete.enableUpdates() }
+        let urls = (requete.results as? [NSMetadataItem] ?? []).compactMap { item -> URL? in
+            guard let chemin = item.value(forAttribute: NSMetadataItemPathKey) as? String else { return nil }
+            return URL(fileURLWithPath: chemin)
+        }
+        for url in urls where !vues.contains(url.path) {
+            vues.insert(url.path)
+            guard Config.shared.capturesAuto, FileManager.default.fileExists(atPath: url.path) else { continue }
+            AppDelegate.shared.recevoirCapture(url)
+        }
+    }
+
+    /// Les captures rangées par Side, pour les regrouper dans la même zone.
+    static var rangees: Set<String> {
+        get { Set(UserDefaults.standard.stringArray(forKey: "capturesRangees") ?? []) }
+        set { UserDefaults.standard.set(Array(newValue), forKey: "capturesRangees") }
     }
 }
 
@@ -3849,6 +3892,10 @@ struct ReglagesView: View {
                     note("Pour le garder ouvert cette fois-là : maintiens Option (⌥) en lâchant le fichier, ou ramène tout de suite la souris sur la carte.")
                 }
                 Toggle("Garder les zones remplies à l'écran quand Side est fermé", isOn: $config.depotReste)
+                Toggle("Ajouter mes captures d'écran à une zone de dépôt", isOn: $config.capturesAuto)
+                if config.capturesAuto {
+                    note("Dès qu'une capture d'écran est enregistrée, elle t'attend dans une zone, prête à être glissée ailleurs. Les captures se rangent ensemble dans la même zone.")
+                }
             } header: { Text("Zones de dépôt") } footer: {
                 note("Une zone apparaît en haut à droite de la carte quand tu fais glisser un fichier. Tant qu'elle contient quelque chose, elle reste à l'écran même quand Side est fermé, pour que tu puisses glisser son contenu ailleurs. Secoue le pointeur pendant le glisser pour en ajouter une autre en dessous. Les zones vides disparaissent toutes seules.")
             }
@@ -4243,6 +4290,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         }
         if config.lanceur { Applis.shared.charger() }   // la liste des apps est prête avant le premier clic
         if config.quatreDoigts { Doigts.demarrer(); Doigts.bloquerDefilement() }
+        Captures.shared.demarrer()
         if CommandLine.arguments.contains("--test-doigts") {   // pour les tests : le module des gestes répond-il ?
             print("trackpads trouvés :", Doigts.demarrer())
             // Gestes fabriqués : (numéro du doigt, hauteur) image par image.
@@ -4767,6 +4815,28 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
             guard (try? FileManager.default.copyItem(at: url, to: cible)) != nil else { return }
             DispatchQueue.main.async { suite(cible, true) }
         }
+    }
+
+    /// Une capture d'écran vient d'être enregistrée : elle va dans la zone des captures
+    /// (celle qui en contient déjà), sinon dans une zone vide, sinon dans une nouvelle zone en dessous.
+    func recevoirCapture(_ url: URL) {
+        // Déjà déposée à la main depuis la vignette de macOS (même nom) : on ne la met pas deux fois.
+        let nom = url.lastPathComponent
+        if (0..<store.etageres.count).contains(where: { Etagere.fichiers($0).contains { $0.lastPathComponent == nom } }) { return }
+        let rangees = Captures.rangees
+        let n = store.etageres.count
+        var zone = (0..<n).first { i in
+            let f = Etagere.fichiers(i)
+            return !f.isEmpty && f.allSatisfy { rangees.contains($0.path) }
+        } ?? (0..<n).first { Etagere.items($0).isEmpty }
+        if zone == nil, Etagere.nombre < Etagere.maximum { store.ajouterZone(); zone = store.etageres.count - 1 }
+        let i = zone ?? 0
+        let chemin = url.resolvingSymlinksInPath().standardizedFileURL.path
+        Captures.rangees = rangees.filter { FileManager.default.fileExists(atPath: $0) }.union([chemin])
+        Etagere.ajouter(url, i)
+        journal("capture rangée dans la zone \(i) : \(nom)")
+        store.reloadAll()
+        majDepot()
     }
 
     /// Pose des éléments sur l'étagère. Les vrais fichiers ne sont pas déplacés : seul leur emplacement est retenu.
@@ -5835,7 +5905,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         NotificationCenter.default.addObserver(forName: NSWindow.didMoveNotification, object: p, queue: .main) { [weak self] _ in
             guard let self, !self.placementAuto, !self.animationDepot else { return }
             let coin = NSPoint(x: p.frame.minX, y: p.frame.maxY)
-            self.ancrePerso = coin
+            self.ancrePerso = coin; self.journal("zone déplacée, position retenue : \(coin)")
             UserDefaults.standard.set([Double(coin.x), Double(coin.y)], forKey: "depotPosition")
         }
         // Mise à jour dès que quelque chose change : glisser en cours, zone remplie ou vidée, zone ajoutée.
@@ -5886,7 +5956,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         // Filet de sécurité : une zone affichée n'est jamais laissée transparente (hors animation d'arrivée).
         if !animationDepot && depotPanel.alphaValue < 1 { depotPanel.alphaValue = 1 }
         depotPanel.orderFrontRegardless()
-        journal("zones affichées à \(cadre) | transparence=\(depotPanel.alphaValue)")
+        journal("zones affichées à \(cadre) | transparence=\(depotPanel.alphaValue) animation=\(animationDepot) ancrePerso=\(String(describing: ancrePerso)) visible=\(depotPanel.isVisible)")
         depotPanel.invalidateShadow()
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { depotPanel.invalidateShadow() }
     }
