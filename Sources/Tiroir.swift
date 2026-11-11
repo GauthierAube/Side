@@ -3639,7 +3639,7 @@ struct ReglagesView: View {
                 note("Si macOS utilise déjà ce coin, désactive-le dans Réglages Système > Bureau et Dock > Coins actifs.")
             }
             Section {
-                Toggle("Geste de la souris (ouvre et ferme)", isOn: $config.secouer)
+                Toggle("Geste de la souris", isOn: $config.secouer)
                 Picker("Geste", selection: $config.cercle) {
                     Text("Secouer le pointeur").tag(false)
                     Text("Faire un cercle").tag(true)
@@ -3651,7 +3651,7 @@ struct ReglagesView: View {
                     .disabled(!config.secouer)
             } header: { Text("Geste de la souris") } footer: {
                 if config.cercle {
-                    note("Fais un cercle avec le pointeur, d'un seul mouvement rapide, sans cliquer. Il peut être grossier, petit ou grand, dans un sens ou dans l'autre.")
+                    note("Fais un cercle avec le pointeur, d'un seul mouvement rapide, sans cliquer, pour ouvrir Side. Il peut être grossier, petit ou grand, dans un sens ou dans l'autre. Le cercle ne referme pas Side : utilise un clic à côté, Échap, le coin ou le raccourci.")
                 }
             }
             Section {
@@ -4536,6 +4536,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
     private var trace: [(p: CGPoint, t: TimeInterval)] = []
 
     private func chercherCercle(_ ici: CGPoint) {
+        // Le cercle ouvre Side, mais ne le referme pas : carte ouverte, la souris fait trop de mouvements arrondis
+        // (aller vers un fichier, tourner autour d'un bouton) pour qu'on puisse les distinguer d'un vrai cercle.
+        guard !visible else { trace = []; return }
         let maintenant = ProcessInfo.processInfo.systemUptime
         if let dernier = trace.last {
             guard hypot(ici.x - dernier.p.x, ici.y - dernier.p.y) >= 2 else { return }
@@ -4556,8 +4559,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         for duree in [0.45, 0.7, 1.0, 1.4, 1.8] {
             let morceau = trace.filter { maintenant - $0.t <= duree }.map(\.p)
             guard morceau.count >= 10, Geste.boucle(morceau, degres: degres) else { continue }
-            // Carte ouverte : un tout petit rond fait en bougeant la souris ne doit pas la refermer.
-            if visible { let b = Geste.boite(morceau); guard max(b.width, b.height) >= 50 else { continue } }
             derniereSecousse = maintenant
             trace = []
             attendrePause = true
