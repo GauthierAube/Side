@@ -94,8 +94,13 @@ final class Config: ObservableObject {
     /// Mini-Dock : montrer les apps ouvertes, les apps favorites, ou les deux.
     /// Où flotte le mini-Dock par rapport à la carte : "haut", "bas", "gauche" ou "droite".
     @Published var dockPosition: String { didSet { d.set(dockPosition, forKey: "dockPosition") } }
+    /// Place réservée dans la fenêtre pour que la liste du presse-papiers se déroule à l'opposé de la carte
+    /// (sous le mini-Dock quand la carte vient du haut, au-dessus quand elle vient du bas). 0 = par-dessus la carte.
+    @Published var presseDehors: CGFloat = 0
     /// Taille des icônes du mini-Dock, en points.
     @Published var tailleDock: Double { didSet { d.set(tailleDock, forKey: "tailleDock") } }
+    /// De combien l'icône sous le pointeur grossit dans le mini-Dock (1 = pas du tout, 2 = deux fois plus grande).
+    @Published var grossissement: Double { didSet { d.set(grossissement, forKey: "grossissement") } }
     /// Le bouton « Apps » à gauche du mini-Dock : toutes les applications, avec une recherche.
     @Published var lanceur: Bool { didSet { d.set(lanceur, forKey: "lanceur") } }
     @Published var appsOuvertes: Bool { didSet { d.set(appsOuvertes, forKey: "appsOuvertes") } }
@@ -103,6 +108,8 @@ final class Config: ObservableObject {
     /// Emplacements des apps favorites, et des apps ouvertes qu'on a choisi de masquer.
     @Published var appsFavorites: [String] { didSet { d.set(appsFavorites, forKey: "appsFavorites") } }
     @Published var appsMasquees: [String] { didSet { d.set(appsMasquees, forKey: "appsMasquees") } }
+    /// L'ordre des icônes du mini-Dock, choisi en les glissant. Une app absente de la liste se range à la fin.
+    @Published var appsOrdre: [String] { didSet { d.set(appsOrdre, forKey: "appsOrdre") } }
     /// Raccourcis de l'app « Raccourcis » de macOS affichés dans la barre latérale (par leur nom).
     @Published var raccourcis: [String] { didSet { d.set(raccourcis, forKey: "raccourcis") } }
     /// Historique du copier-coller, et faut-il y garder aussi les mots de passe (affichés masqués).
@@ -134,6 +141,10 @@ final class Config: ObservableObject {
     @Published var extensions: Bool {
         didSet { d.set(extensions, forKey: "extensions"); Fichiers.extensions = extensions; AppDelegate.shared.store.reloadAll() }
     }
+    /// Combien de dossiers la rubrique « Dossiers récents » affiche.
+    @Published var nombreDossiers: Int {
+        didSet { d.set(nombreDossiers, forKey: "nombreDossiers"); Fichiers.nombreDossiers = nombreDossiers; AppDelegate.shared.store.reloadAll() }
+    }
     @Published var dossiersEnHaut: Bool {
         didSet { d.set(dossiersEnHaut, forKey: "dossiersEnHaut"); Fichiers.dossiersEnHaut = dossiersEnHaut; AppDelegate.shared.store.reloadAll() }
     }
@@ -152,46 +163,48 @@ final class Config: ObservableObject {
     @Published var libelle: String { didSet { d.set(libelle, forKey: "raccourciLibelle") } }
 
     private init() {
-        coin = d.string(forKey: "coin").flatMap(Coin.init) ?? .hautGauche
+        coin = d.string(forKey: "coin").flatMap(Coin.init) ?? .basGauche
         bord = d.string(forKey: "bord").flatMap(Bord.init) ?? .haut
-        tailleHauteur = d.object(forKey: "tailleHauteur") as? Double ?? 0.42
+        tailleHauteur = d.object(forKey: "tailleHauteur") as? Double ?? 0.53
         tailleLargeur = d.object(forKey: "tailleLargeur") as? Double ?? 0.25
         ajuster = d.object(forKey: "ajuster") as? Bool ?? true
-        tailleColonne = d.object(forKey: "tailleColonne") as? Double ?? 320
+        tailleColonne = d.object(forKey: "tailleColonne") as? Double ?? 248
         fermerEnSortant = d.bool(forKey: "fermerEnSortant")
         fermerAuClic = d.object(forKey: "fermerAuClic") as? Bool ?? true
         ouverture = d.string(forKey: "ouverture")
             ?? Fichiers.para().first(where: { $0.url.lastPathComponent.hasPrefix("02") })?.url.path ?? ""
-        largeurZone = d.object(forKey: "largeurZone") as? Double ?? 420
-        opacite = d.object(forKey: "opacite") as? Double ?? 0.5
-        tailleCoin = d.object(forKey: "tailleCoin") as? Double ?? 36
-        sensibilite = d.object(forKey: "sensibilite") as? Double ?? 0.5
-        largeurSeule = d.object(forKey: "largeurSeule") as? Double ?? 0.6
+        largeurZone = d.object(forKey: "largeurZone") as? Double ?? 438
+        opacite = d.object(forKey: "opacite") as? Double ?? 0.14
+        tailleCoin = d.object(forKey: "tailleCoin") as? Double ?? 50
+        sensibilite = d.object(forKey: "sensibilite") as? Double ?? 0.67
+        largeurSeule = d.object(forKey: "largeurSeule") as? Double ?? 0.53
         largeurMiller = d.object(forKey: "largeurMiller") as? Double ?? 220
         suivi = d.string(forKey: "suivi") ?? "commande"
-        largeurAvec = d.object(forKey: "largeurAvec") as? Double ?? 1
+        largeurAvec = d.object(forKey: "largeurAvec") as? Double ?? 0.7
         memeLargeur = d.bool(forKey: "memeLargeur")
         apps = d.object(forKey: "apps") as? Bool ?? true
-        dockPosition = d.string(forKey: "dockPosition") ?? "haut"
-        tailleDock = d.object(forKey: "tailleDock") as? Double ?? 40
-        lanceur = d.object(forKey: "lanceur") as? Bool ?? true
+        dockPosition = d.string(forKey: "dockPosition") ?? "bas"
+        tailleDock = d.object(forKey: "tailleDock") as? Double ?? 45
+        grossissement = d.object(forKey: "grossissement") as? Double ?? 1.25
+        lanceur = d.object(forKey: "lanceur") as? Bool ?? false
         appsOuvertes = d.object(forKey: "appsOuvertes") as? Bool ?? true
         appsFavoris = d.object(forKey: "appsFavoris") as? Bool ?? true
         appsFavorites = d.stringArray(forKey: "appsFavorites") ?? []
         appsMasquees = d.stringArray(forKey: "appsMasquees") ?? []
+        appsOrdre = d.stringArray(forKey: "appsOrdre") ?? []
         raccourcis = d.stringArray(forKey: "raccourcis") ?? []
         historique = d.object(forKey: "historique") as? Bool ?? true
         historiqueSecrets = d.object(forKey: "historiqueSecrets") as? Bool ?? true
         flou = d.bool(forKey: "flou")
-        flouForce = d.object(forKey: "flouForce") as? Double ?? 0.85
+        flouForce = d.object(forKey: "flouForce") as? Double ?? 1
         fermerApresDepot = d.object(forKey: "fermerApresDepot") as? Bool ?? true
         depotReste = d.object(forKey: "depotReste") as? Bool ?? true
         capturesAuto = d.object(forKey: "capturesAuto") as? Bool ?? true
-        secouer = d.object(forKey: "secouer") as? Bool ?? true
-        quatreDoigts = d.bool(forKey: "quatreDoigts")
+        secouer = d.object(forKey: "secouer") as? Bool ?? false
+        quatreDoigts = d.object(forKey: "quatreDoigts") as? Bool ?? true
         sensDoigts = d.string(forKey: "sensDoigts") ?? "bas"
-        cercle = d.bool(forKey: "gestePerso")
-        var entrees = d.stringArray(forKey: "barre") ?? ["recents", "dossiers", "icloud", "maison", "applications", "reseau", "tags"]
+        cercle = d.object(forKey: "gestePerso") as? Bool ?? true
+        var entrees = d.stringArray(forKey: "barre") ?? ["recents", "dossiers", "icloud", "maison", "applications", "tags", "disques", "reseau"]
         // La rubrique Réseau est arrivée après coup : on l'ajoute une fois aux réglages déjà enregistrés.
         if !d.bool(forKey: "barreReseauAjoutee") {
             d.set(true, forKey: "barreReseauAjoutee")
@@ -200,6 +213,7 @@ final class Config: ObservableObject {
         barre = entrees
         extensions = Fichiers.extensions
         dossiersEnHaut = Fichiers.dossiersEnHaut
+        nombreDossiers = d.object(forKey: "nombreDossiers") as? Int ?? 6
         rechercheMac = d.bool(forKey: "rechercheMac")
         tailleIcones = d.object(forKey: "tailleIcones") as? Double ?? 64
         espacement = d.object(forKey: "espacement") as? Double ?? 12
@@ -800,6 +814,7 @@ struct FileItem: Identifiable, Hashable {
 enum Fichiers {
     // Copies de deux réglages, lues pendant les tris (les réglages eux-mêmes ne sont pas encore prêts au lancement).
     static var extensions = UserDefaults.standard.object(forKey: "extensions") as? Bool ?? true
+    static var nombreDossiers = UserDefaults.standard.object(forKey: "nombreDossiers") as? Int ?? 6
     static var dossiersEnHaut = UserDefaults.standard.object(forKey: "dossiersEnHaut") as? Bool ?? true
     static let home = FileManager.default.homeDirectoryForCurrentUser
     /// Vrai pour un serveur ou un dossier partagé du réseau, faux pour un disque branché au Mac.
@@ -871,8 +886,17 @@ enum Fichiers {
     }
 
     static func contenu(_ url: URL, tri: Tri) -> [FileItem] {
-        let urls = (try? FileManager.default.contentsOfDirectory(
+        var urls = (try? FileManager.default.contentsOfDirectory(
             at: resoudre(url), includingPropertiesForKeys: cles, options: [.skipsHiddenFiles])) ?? []
+        // Comme le Finder : le dossier Applications montre aussi les apps d'Apple (Mail, Notes, Photos…),
+        // que macOS range à part, dans le dossier Système. Pareil pour Utilitaires.
+        let chemin = resoudre(url).standardizedFileURL.path
+        if chemin == "/Applications" || chemin == "/Applications/Utilities" {
+            let noms = Set(urls.map(\.lastPathComponent))
+            let apple = (try? FileManager.default.contentsOfDirectory(
+                at: URL(fileURLWithPath: "/System" + chemin), includingPropertiesForKeys: cles, options: [.skipsHiddenFiles])) ?? []
+            urls += apple.filter { !noms.contains($0.lastPathComponent) }
+        }
         let items = urls.map(item)
         func parNom(_ a: FileItem, _ b: FileItem) -> Bool {
             a.name.localizedStandardCompare(b.name) == .orderedAscending
@@ -887,6 +911,25 @@ enum Fichiers {
             }
         case .nom:
             return items.sorted { dossiersEnHaut && $0.isFolder != $1.isFolder ? $0.isFolder : parNom($0, $1) }
+        }
+    }
+
+    /// Les dossiers favoris de la barre latérale du Finder, dans son ordre.
+    /// Lus par l'ancien service d'Apple (déconseillé mais toujours là) : le fichier où macOS les range est
+    /// protégé, et le lire directement demanderait l'autorisation « Accès complet au disque ».
+    static func favorisFinder() -> [URL] {
+        guard let liste = LSSharedFileListCreate(nil, kLSSharedFileListFavoriteItems.takeUnretainedValue(), nil)?.takeRetainedValue()
+        else { return [] }
+        var graine: UInt32 = 0
+        let elements = LSSharedFileListCopySnapshot(liste, &graine)?.takeRetainedValue() as? [LSSharedFileListItem] ?? []
+        var vus = Set<String>()
+        return elements.compactMap { e -> URL? in
+            // On ne garde que les vrais dossiers encore présents (pas AirDrop, ni un serveur débranché).
+            guard let url = LSSharedFileListItemCopyResolvedURL(e, 0, nil)?.takeRetainedValue() as URL?, url.isFileURL else { return nil }
+            var dossier: ObjCBool = false
+            guard FileManager.default.fileExists(atPath: url.path, isDirectory: &dossier), dossier.boolValue,
+                  url.pathExtension != "app", vus.insert(url.standardizedFileURL.path).inserted else { return nil }
+            return url.standardizedFileURL
         }
     }
 
@@ -982,7 +1025,7 @@ enum Fichiers {
             let dossier = horsPaquet(f.url.deletingLastPathComponent())
             guard vus.insert(dossier).inserted else { continue }
             resultat.append(FileItem(url: dossier, isFolder: true, date: f.date))
-            if resultat.count >= Reglages.nombreRecents { break }
+            if resultat.count >= nombreDossiers { break }
         }
         return resultat
     }
@@ -1114,11 +1157,13 @@ final class Column: ObservableObject, Identifiable {
     /// `navigateur` : la grande zone garde la même présentation d'un dossier à l'autre.
     init(kind: Kind, navigateur: Bool = false) {
         self.kind = kind
-        cleVue = navigateur ? "vue:navigateur" : "vue:" + kind.code
+        // Les dossiers récents gardent leur propre présentation, même dans la grande zone : en grille par défaut.
+        cleVue = navigateur && kind != .dossiers ? "vue:navigateur" : "vue:" + kind.code
         let d = UserDefaults.standard
         tri = d.string(forKey: "tri2:" + kind.code).flatMap(Tri.init)
             ?? (kind == .folder(Fichiers.downloads) ? .date : .nom)
-        presentation = d.string(forKey: cleVue).flatMap(Presentation.init) ?? .liste
+        presentation = d.string(forKey: cleVue).flatMap(Presentation.init)
+            ?? (cleVue == "vue:navigateur" ? .colonnes : (kind == .dossiers || kind == .recents ? .icones : .liste))
         colonnesGrille = d.integer(forKey: "grille:" + cleVue)
     }
 
@@ -1264,6 +1309,8 @@ final class Store: ObservableObject {
     @Published var largeurDock: CGFloat = 0
     /// L'icône du mini-Dock qu'on est en train de glisser : elle n'est plus affichée dans le mini-Dock.
     @Published var appEnGlisse: URL?
+    /// L'icône glissée est sortie du mini-Dock : elle le quitte, et le lâcher la retirera.
+    @Published var appHorsDock = false
     /// Présentation de bienvenue : numéro de l'étape affichée par-dessus la carte (nil = pas de présentation).
     @Published var accueil: Int?
     func finAccueil() {
@@ -1326,8 +1373,18 @@ final class Store: ObservableObject {
 
     init() {
         let d = UserDefaults.standard
-        favoris = d.stringArray(forKey: "favoris")?.map { URL(fileURLWithPath: $0) }
-            ?? Fichiers.para().map(\.url) + [Fichiers.downloads]
+        if let enregistres = d.stringArray(forKey: "favoris") {
+            favoris = enregistres.map { URL(fileURLWithPath: $0) }
+        } else {
+            // Premier lancement : on reprend les favoris de la barre latérale du Finder. S'il n'y en a pas,
+            // les dossiers classiques. Enregistré tout de suite : ensuite, les favoris de Side vivent leur vie.
+            let finder = Fichiers.favorisFinder()
+            favoris = finder.isEmpty
+                ? [.desktopDirectory, .documentDirectory, .downloadsDirectory].compactMap {
+                    FileManager.default.urls(for: $0, in: .userDomainMask).first }
+                : finder
+            d.set(favoris.map(\.path), forKey: "favoris")
+        }
         // À droite : des dossiers, ou des entrées de la barre latérale qu'on a choisi d'épingler.
         var kinds = (d.stringArray(forKey: cle) ?? []).compactMap { Column.Kind(code: $0) }
         kinds = kinds.filter { $0 != .etagere && $0 != .hub }
@@ -1429,6 +1486,8 @@ struct DrawerView: View {
             }
             if p == "droite" { AppsView(vertical: true).zIndex(1) }
         }
+        // Place vide gardée pour la liste du presse-papiers, du côté opposé à la carte.
+        .padding(config.bord == .bas ? .top : .bottom, config.presseDehors)
     }
 
     private var carte: some View {
@@ -1774,7 +1833,23 @@ final class Apps: ObservableObject {
                                         active: app.processIdentifier == active, favori: false))
             }
         }
-        return resultat
+        // L'ordre choisi à la main passe avant tout ; les apps jamais déplacées restent à la suite.
+        guard !c.appsOrdre.isEmpty else { return resultat }
+        let rang = Dictionary(c.appsOrdre.enumerated().map { ($1, $0) }, uniquingKeysWith: { a, _ in a })
+        return resultat.enumerated().sorted { a, b in
+            let ra = rang[a.element.id] ?? Int.max, rb = rang[b.element.id] ?? Int.max
+            return ra != rb ? ra < rb : a.offset < b.offset
+        }.map(\.element)
+    }
+
+    /// Glisser une icône sur une autre : elle prend sa place, les suivantes se décalent.
+    func deplacer(_ chemin: String, sur cible: String, _ c: Config) {
+        var ordre = elements(c).map(\.id)
+        guard chemin != cible, let de = ordre.firstIndex(of: chemin), let vers = ordre.firstIndex(of: cible) else { return }
+        ordre.remove(at: de)
+        ordre.insert(chemin, at: vers)
+        // Les apps fermées en ce moment gardent leur rang pour plus tard, à la suite.
+        c.appsOrdre = ordre + c.appsOrdre.filter { !ordre.contains($0) }
     }
 }
 
@@ -1791,7 +1866,9 @@ struct AppsView: View {
     var body: some View {
         // La liste des apps n'est recalculée que lorsqu'une app s'ouvre, se ferme ou qu'un réglage change.
         // L'icône qu'on glisse quitte le mini-Dock : elle est sous la souris, pas en double.
-        RangeeDock(items: apps.elements(config).filter { $0.url != store.appEnGlisse }, vertical: vertical)
+        // Tant qu'elle reste au-dessus du mini-Dock, sa place y est gardée vide : on voit où elle va se poser.
+        RangeeDock(items: apps.elements(config).filter { $0.url != store.appEnGlisse || !store.appHorsDock },
+                   fantome: store.appEnGlisse, vertical: vertical)
     }
 }
 
@@ -1816,22 +1893,100 @@ enum Icones {
 /// qui grossit un peu avec l'animation standard de macOS.
 struct RangeeDock: View {
     let items: [AppItem]
+    var fantome: URL? = nil   // l'icône en cours de glisser : sa place reste vide
     @ObservedObject var config = Config.shared
     let vertical: Bool
     @State private var cible = false
+    // La loupe : où est le pointeur le long du mini-Dock, et à quel point elle est « allumée » (0 à 1).
+    @State private var souris: CGFloat = 0
+    @State private var force: CGFloat = 0
+    @State private var longueur: CGFloat = 0   // longueur de la bande où le mini-Dock est centré
+
+    static let marge: CGFloat = 6, ecart: CGFloat = 6
+    static let entre: CGFloat = 8   // espace entre le mini-Dock et la pastille du presse-papiers
+
+    /// Les cases du mini-Dock au repos, dans l'ordre : leur longueur, et si c'est une icône (un trait ne grossit pas).
+    private func cases(_ t: CGFloat) -> [(l: CGFloat, icone: Bool)] {
+        var c: [(l: CGFloat, icone: Bool)] = []
+        if config.lanceur { c += [(t, true), (1, false)] }
+        c += Array(repeating: (t, true), count: max(1, items.count))
+        if !config.raccourcis.isEmpty { c += [(1, false)] + Array(repeating: (t, true), count: config.raccourcis.count) }
+        return c
+    }
+
+    /// Le grossissement de chaque case quand le pointeur vise le point `m` du mini-Dock au repos.
+    /// Comme dans le Dock de macOS : maximal sous le pointeur, il retombe en douceur (courbe en cosinus)
+    /// jusqu'à disparaître à deux icônes et demie de distance.
+    private func echelles(_ c: [(l: CGFloat, icone: Bool)], _ m: CGFloat, _ t: CGFloat, _ f: CGFloat) -> [CGFloat] {
+        let plus = (CGFloat(config.grossissement) - 1) * f, portee = 2.5 * (t + Self.ecart)
+        var debut = Self.marge
+        return c.map { k in
+            defer { debut += k.l + Self.ecart }
+            guard k.icone, plus > 0 else { return 1 }
+            let d = min(1, abs(debut + k.l / 2 - m) / portee)
+            return 1 + plus * 0.5 * (1 + cos(.pi * d))
+        }
+    }
+
+    /// Où se retrouve, dans le mini-Dock grossi, le point `m` du mini-Dock au repos (mesuré depuis le début du
+    /// mini-Dock au repos ; le mini-Dock grossi déborde autant des deux côtés, puisqu'il reste centré).
+    private func position(_ c: [(l: CGFloat, icone: Bool)], _ m: CGFloat, _ t: CGFloat, _ f: CGFloat) -> CGFloat {
+        let e = echelles(c, m, t, f)
+        let enPlus = zip(c, e).reduce(0) { $0 + $1.0.l * ($1.1 - 1) }
+        var repos = Self.marge, grossi = Self.marge
+        for (k, s) in zip(c, e) {
+            if m <= repos { return grossi - (repos - m) - enPlus / 2 }
+            if m <= repos + k.l { return grossi + (m - repos) * s - enPlus / 2 }
+            repos += k.l + Self.ecart; grossi += k.l * s + Self.ecart
+        }
+        return grossi - (repos - m) - enPlus / 2
+    }
+
+    /// La longueur du mini-Dock au repos, et la loupe de chaque case.
+    private func loupe(_ t: CGFloat) -> (CGFloat, [LoupeDock]) {
+        // Le calcul de la loupe. Les icônes se décalent en grossissant : on cherche donc quel point du mini-Dock
+        // au repos se trouve sous le pointeur maintenant (par approches successives), puis on grossit autour de lui.
+        // Sans cela, l'icône visée glisserait sous la souris et tout tremblerait.
+        let c = cases(t)
+        let repos = 2 * Self.marge + c.reduce(0) { $0 + $1.l } + Self.ecart * CGFloat(max(0, c.count - 1))
+        let f = fantome == nil ? force : 0
+        let vise: CGFloat = {
+            guard f > 0 else { return 0 }
+            // Le mini-Dock et la pastille du presse-papiers sont centrés ensemble dans la bande.
+            let annexe = config.historique ? Self.entre + t + 2 * Self.marge : 0
+            let x = souris - (longueur - repos - annexe) / 2
+            var bas: CGFloat = 0, haut = repos
+            for _ in 0..<14 {
+                let milieu = (bas + haut) / 2
+                if position(c, milieu, t, f) < x { bas = milieu } else { haut = milieu }
+            }
+            return (bas + haut) / 2
+        }()
+        let e = echelles(c, vise, t, f)
+        // L'icône grossit vers la carte : le bord du mini-Dock tourné vers l'extérieur ne bouge pas.
+        let ancre: UnitPoint = ["haut": .top, "bas": .bottom, "gauche": .leading, "droite": .trailing][config.dockPosition] ?? .center
+        return (repos, e.map { LoupeDock(echelle: $0, marge: t * ($0 - 1) / 2, vertical: vertical, ancre: ancre) })
+    }
 
     var body: some View {
         let t = CGFloat(config.tailleDock)
         let epaisseur = Disposition.dock - 8
         let forme = RoundedRectangle(cornerRadius: min(22, epaisseur / 2.6), style: .continuous)
+        let (repos, loupes) = loupe(t)
+        let c = cases(t)
+        // Numéro de la première case de chaque groupe.
+        let debutApps = config.lanceur ? 2 : 0
+        let debutRaccourcis = debutApps + max(1, items.count) + 1
         let contenu = Group {
             // Tout à gauche : le bouton « Apps », puis un trait.
             if config.lanceur {
-                LanceurIcone(taille: t)
+                LanceurIcone(taille: t).environment(\.loupeDock, loupes[min(0, loupes.count - 1)])
                 if vertical { Divider().frame(width: t * 0.7) } else { Divider().frame(height: t * 0.7) }
             }
-            ForEach(items) { item in
+            ForEach(Array(items.enumerated()), id: \.element.id) { i, item in
                 AppIcone(item: item, taille: t)
+                    .environment(\.loupeDock, loupes[min(debutApps + i, loupes.count - 1)])
+                    .opacity(item.url == fantome ? 0 : 1)
                     .transition(.scale(scale: 0.2).combined(with: .opacity))   // apparition / disparition animée
             }
             if items.isEmpty {
@@ -1842,53 +1997,92 @@ struct RangeeDock: View {
             // Après un séparateur : les raccourcis macOS choisis dans les réglages.
             if !config.raccourcis.isEmpty {
                 if vertical { Divider().frame(width: t * 0.7) } else { Divider().frame(height: t * 0.7) }
-                ForEach(config.raccourcis, id: \.self) { nom in
+                ForEach(Array(config.raccourcis.enumerated()), id: \.element) { i, nom in
                     RaccourciIcone(nom: nom, taille: t)
+                        .environment(\.loupeDock, loupes[min(debutRaccourcis + i, loupes.count - 1)])
                         .transition(.scale(scale: 0.2).combined(with: .opacity))
                 }
             }
-            // Tout au bout : le presse-papiers, dont la liste se déroule au survol.
-            if config.historique {
-                if vertical { Divider().frame(width: t * 0.7) } else { Divider().frame(height: t * 0.7) }
-                PresseIcone(taille: t)
-            }
         }
-        Group {
-            if vertical { VStack(spacing: 6) { contenu }.padding(6) }
-            else { HStack(spacing: 6) { contenu }.padding(6) }
-        }
-        .background(ZStack {
+        let fond = ZStack {
             VisualEffect()
             Color(nsColor: .windowBackgroundColor).opacity(config.opacite)
-        }.clipShape(forme))
+        }.clipShape(forme)
+        let pastille = Group {
+            if vertical { VStack(spacing: Self.ecart) { contenu }.padding(Self.marge) }
+            else { HStack(spacing: Self.ecart) { contenu }.padding(Self.marge) }
+        }
+        // Le pointeur sur le mini-Dock : la loupe s'allume en douceur, puis le suit sans retard.
+        .onContinuousHover(coordinateSpace: .named("miniDock")) { phase in
+            switch phase {
+            case .active(let p):
+                souris = vertical ? p.y : p.x
+                if force < 1 { withAnimation(.easeOut(duration: 0.16)) { force = 1 } }
+            case .ended:
+                withAnimation(.easeOut(duration: 0.22)) { force = 0 }
+            }
+        }
+        .background(fond)
         .overlay(forme.strokeBorder(cible ? Color.accentColor : Color.primary.opacity(0.14), lineWidth: cible ? 2 : 1))
         .onDrop(of: [UTType.fileURL], isTargeted: $cible) { fournisseurs in
+            AppDelegate.shared.confirmerApp()
             AppDelegate.shared.ajouterApps(fournisseurs)
             return true
         }
         .contextMenu { Button("Masquer le mini-Dock") { config.apps = false } }
         // Side retient la place exacte du mini-Dock : un clic juste à côté de lui compte comme un clic en dehors.
         .background(Repere(dock: true))
+        // À côté, dans sa propre pastille : le presse-papiers, dont la liste se déroule au survol.
+        // Il reste à l'écart de la loupe : son icône ne grossit pas et ne bouge pas quand les apps s'écartent.
+        let annexe = PresseIcone(taille: t)
+            .padding(Self.marge)
+            .background(fond)
+            .overlay(forme.strokeBorder(Color.primary.opacity(0.14), lineWidth: 1))
+            .background(Repere())
+        Group {
+            if !config.historique { pastille }
+            else if vertical { VStack(spacing: Self.entre) { pastille; annexe } }
+            else { HStack(spacing: Self.entre) { pastille; annexe } }
+        }
+        // Largeur du mini-Dock au repos (la loupe ne compte pas) : le panneau des apps s'aligne dessus.
+        .onAppear { AppDelegate.shared.store.largeurDock = vertical ? 0 : repos }
+        .onChange(of: repos) { _, l in AppDelegate.shared.store.largeurDock = vertical ? 0 : l }
+        .frame(maxWidth: vertical ? nil : .infinity, maxHeight: vertical ? .infinity : nil)
         .background(GeometryReader { g in
             Color.clear
-                .onAppear { AppDelegate.shared.store.largeurDock = vertical ? 0 : g.size.width }
-                .onChange(of: g.size.width) { _, l in AppDelegate.shared.store.largeurDock = vertical ? 0 : l }
+                .onAppear { longueur = vertical ? g.size.height : g.size.width }
+                .onChange(of: g.size) { _, n in longueur = vertical ? n.height : n.width }
         })
-        .frame(maxWidth: vertical ? nil : .infinity, maxHeight: vertical ? .infinity : nil)
+        .coordinateSpace(.named("miniDock"))
         .animation(.smooth(duration: 0.3), value: items)
         .animation(.smooth(duration: 0.3), value: config.raccourcis)
         .accessibilityLabel("Mini-Dock")
     }
 }
 
-/// L'effet de survol commun aux icônes du mini-Dock : un léger grossissement, animé par macOS.
+/// La loupe du mini-Dock, vue par une icône : de combien elle grossit, et de quel côté elle s'ancre.
+struct LoupeDock: Equatable {
+    var echelle: CGFloat = 1
+    var marge: CGFloat = 0          // place en plus de chaque côté de l'icône, le long du mini-Dock
+    var vertical = false
+    var ancre: UnitPoint = .center  // le bord qui ne bouge pas : celui du côté opposé à la carte
+}
+private struct CleLoupeDock: EnvironmentKey { static let defaultValue = LoupeDock() }
+extension EnvironmentValues {
+    var loupeDock: LoupeDock {
+        get { self[CleLoupeDock.self] }
+        set { self[CleLoupeDock.self] = newValue }
+    }
+}
+
+/// Le grossissement d'une icône du mini-Dock, façon Dock de macOS : elle grossit d'autant plus que le pointeur
+/// est proche, et prend réellement plus de place — ses voisines s'écartent. Le calcul est fait par RangeeDock.
 struct SurvolDock: ViewModifier {
-    @State private var survol = false
+    @Environment(\.loupeDock) private var loupe
     func body(content: Content) -> some View {
         content
-            .scaleEffect(survol ? 1.16 : 1)
-            .animation(.snappy(duration: 0.18), value: survol)
-            .onHover { survol = $0 }
+            .scaleEffect(loupe.echelle, anchor: loupe.ancre)
+            .padding(loupe.vertical ? .vertical : .horizontal, loupe.marge)
     }
 }
 
@@ -1971,7 +2165,7 @@ struct LanceurIcone: View {
         // Le panneau part de l'icône : vers le bas si le mini-Dock est en haut, vers le haut s'il est en bas…
         let ancre: Alignment = ["haut": .topLeading, "bas": .bottomLeading, "gauche": .topLeading, "droite": .topTrailing][cote] ?? .topLeading
         let pointDepart: UnitPoint = ["haut": .topLeading, "bas": .bottomLeading, "gauche": .topLeading, "droite": .topTrailing][cote] ?? .topLeading
-        let ecart = taille + 16
+        let ecart = taille + 16 + taille * (CGFloat(Config.shared.grossissement) - 1)
         let ouvert = store.lanceurOuvert || ProcessInfo.processInfo.arguments.contains("--lanceur")
         Image(nsImage: Self.icone)
             .resizable().frame(width: taille, height: taille)
@@ -2096,10 +2290,13 @@ struct PresseIcone: View {
     @State private var filtre = ""
 
     var body: some View {
-        let cote = config.dockPosition
         // La liste se déroule vers la carte : sous le Dock s'il est en haut, au-dessus s'il est en bas…
+        // Sauf si la place est libre de l'autre côté : elle part alors à l'opposé, sans cacher la carte.
+        let dehors = config.presseDehors > 0
+        let cote = dehors ? (config.dockPosition == "bas" ? "haut" : "bas") : config.dockPosition
         let ancre: Alignment = ["haut": .top, "bas": .bottom, "gauche": .bottomLeading, "droite": .bottomTrailing][cote] ?? .top
-        let ecart = taille + 14
+        // Vers la carte, l'icône grossit aussi : la liste s'écarte d'autant pour ne pas être recouverte.
+        let ecart = taille + 14 + (dehors ? 0 : taille * (CGFloat(config.grossissement) - 1))
         ZStack {
             RoundedRectangle(cornerRadius: taille * 0.24, style: .continuous)
                 .fill(Color.primary.opacity(ouvert ? 0.22 : 0.12))
@@ -2116,6 +2313,15 @@ struct PresseIcone: View {
         .overlay(alignment: ancre) {
             if ouvert || ProcessInfo.processInfo.arguments.contains("--presse") {
                 PresseListe(filtre: $filtre) { fermer() }
+                    // Un petit triangle relie la liste à son icône.
+                    .overlay(alignment: ancre) {
+                        PointeListe()
+                            .fill(Color(nsColor: .windowBackgroundColor))
+                            .frame(width: 18, height: 9)
+                            .rotationEffect(.degrees(["haut": 0, "bas": 180, "gauche": -90, "droite": 90][cote] ?? 0))
+                            .offset(x: cote == "gauche" ? -13 : (cote == "droite" ? 13 : 0),
+                                    y: cote == "haut" ? -8 : (cote == "bas" ? 8 : -(taille / 2 - 4.5)))
+                    }
                     .onHover { surListe = $0; suivre() }
                     .offset(x: cote == "gauche" ? ecart : (cote == "droite" ? -ecart : 0),
                             y: cote == "haut" ? ecart : (cote == "bas" ? -ecart : 0))
@@ -2123,6 +2329,7 @@ struct PresseIcone: View {
             }
         }
         .animation(.snappy(duration: 0.12), value: ouvert)
+        .onChange(of: ouvert) { _, _ in AppDelegate.shared.rafraichirOmbre() }
         .help("Presse-papiers")
         .accessibilityLabel("Historique du presse-papiers")
         .accessibilityAddTraits(.isButton)
@@ -2140,11 +2347,24 @@ struct PresseIcone: View {
     }
 }
 
+/// Le triangle qui pointe de la liste vers l'icône du presse-papiers (dessiné pointe en haut).
+struct PointeListe: Shape {
+    func path(in r: CGRect) -> Path {
+        var p = Path()
+        p.move(to: CGPoint(x: r.midX, y: r.minY))
+        p.addLine(to: CGPoint(x: r.maxX, y: r.maxY))
+        p.addLine(to: CGPoint(x: r.minX, y: r.maxY))
+        p.closeSubpath()
+        return p
+    }
+}
+
 /// La liste déroulée : une recherche (seulement quand l'historique est long) et les éléments copiés.
 struct PresseListe: View {
     @Binding var filtre: String
     let fermer: () -> Void
     @ObservedObject var presse = PressePapiers.shared
+    @ObservedObject var config = Config.shared
     @State private var recherche = false
     @FocusState private var champ: Bool
 
@@ -2174,12 +2394,16 @@ struct PresseListe: View {
             .background(recherche ? Color.primary.opacity(0.06) : Color.clear)
             PressePapiersView(filtre: filtre, apresCopie: fermer)
         }
-        .frame(width: 320, height: min(400, max(120, CGFloat(presse.elements.count) * 52 + 44)))
+        // Déroulée à l'opposé de la carte, elle ne dépasse pas la place libre de ce côté de l'écran.
+        .frame(width: 320, height: min(config.presseDehors > 0 ? config.presseDehors - 16 : 400,
+                                       max(120, CGFloat(presse.elements.count) * 52 + 44)))
         .background(Repere())
         .background(Color(nsColor: .windowBackgroundColor))
         .clipShape(forme)
         .overlay(forme.strokeBorder(Color.primary.opacity(0.14), lineWidth: 1))
-        .shadow(color: .black.opacity(0.28), radius: 16, y: 6)
+        // Hors de la carte, c'est l'ombre de la fenêtre qui la détache du fond. Garder aussi l'ombre dessinée ici
+        // ferait apparaître un liseré : macOS tracerait le contour de ce halo.
+        .shadow(color: .black.opacity(config.presseDehors > 0 ? 0 : 0.28), radius: 16, y: 6)
         .onDisappear { recherche = false }
     }
 }
@@ -2236,10 +2460,21 @@ struct AppIcone: View {
     @State private var cible = false
 
     var body: some View {
+        let cote = Config.shared.dockPosition
         Image(nsImage: Icones.de(item.url.path))
             .resizable().interpolation(.high)
             .frame(width: taille, height: taille)
             .modifier(SurvolDock())
+            // Comme dans le Dock : un petit point sous les apps ouvertes, sur le bord extérieur du mini-Dock.
+            .overlay(alignment: ["haut": .top, "bas": .bottom, "gauche": .leading, "droite": .trailing][cote] ?? .bottom) {
+                if item.ouverte {
+                    // Juste contre l'icône, à bonne distance du liseré du mini-Dock.
+                    Circle().fill(Color.primary.opacity(0.85)).frame(width: 3.5, height: 3.5)
+                        .offset(x: cote == "gauche" ? -3 : (cote == "droite" ? 3 : 0),
+                                y: cote == "haut" ? -3 : (cote == "bas" ? 3 : 0))
+                        .allowsHitTesting(false)
+                }
+            }
             .background(Circle().fill(Color.accentColor.opacity(cible ? 0.45 : 0)).padding(-3))
             .contentShape(Rectangle())
             .onTapGesture { AppDelegate.shared.allerA(item.url) }
@@ -2255,10 +2490,7 @@ struct AppIcone: View {
                 }
                 return colis
             }
-            .onDrop(of: [UTType.fileURL], isTargeted: $cible) { fournisseurs in
-                AppDelegate.shared.ouvrirAvec(fournisseurs, item.url)
-                return true
-            }
+            .onDrop(of: [UTType.fileURL, DepotIcone.typeApp], delegate: DepotIcone(item: item, cible: $cible))
             .contextMenu {
                 if item.favori {
                     Button("Retirer des favorites") { item.retirer() }
@@ -2272,6 +2504,41 @@ struct AppIcone: View {
             .help(item.nom)
             .accessibilityLabel(item.nom)
             .accessibilityAddTraits(.isButton)
+    }
+}
+
+/// Ce qu'on lâche sur une icône du mini-Dock : un fichier (ouvert avec cette app), ou une autre icône du
+/// mini-Dock (elle prend cette place : c'est ainsi qu'on range les apps dans l'ordre voulu).
+struct DepotIcone: DropDelegate {
+    static let typeApp = UTType(exportedAs: "com.gauthieraube.side.app")
+    let item: AppItem
+    @Binding var cible: Bool
+
+    private var glissee: AppItem? { AppDelegate.shared.appGlissee }
+
+    func dropEntered(info: DropInfo) {
+        if let g = glissee {
+            // L'ordre change dès le survol : les icônes s'écartent pour montrer la nouvelle place.
+            if g.id != item.id {
+                withAnimation(.smooth(duration: 0.25)) { Apps.shared.deplacer(g.id, sur: item.id, Config.shared) }
+            }
+        } else if let app = AppDelegate.appsGlissees().first {
+            // Une app venue d'ailleurs (Finder, carte) : elle se glisse ici, les autres lui font de la place.
+            withAnimation(.smooth(duration: 0.25)) { AppDelegate.shared.previsualiserApp(app, sur: item.id) }
+        } else { cible = true }
+    }
+    func dropExited(info: DropInfo) { cible = false }
+    func dropUpdated(info: DropInfo) -> DropProposal? { DropProposal(operation: glissee != nil ? .move : .copy) }
+    func performDrop(info: DropInfo) -> Bool {
+        cible = false
+        if glissee != nil { return true }   // l'ordre est déjà le bon
+        if !AppDelegate.appsGlissees().isEmpty {   // une app déposée : elle reste là où on l'a lâchée
+            AppDelegate.shared.confirmerApp()
+            AppDelegate.shared.ajouterApps(info.itemProviders(for: [UTType.fileURL]))
+            return true
+        }
+        AppDelegate.shared.ouvrirAvec(info.itemProviders(for: [UTType.fileURL]), item.url)
+        return true
     }
 }
 
@@ -2583,7 +2850,7 @@ struct SidebarView: View {
     @State private var depotFavori = false
     /// Sections repliées (mémorisées). Les tags sont repliés au départ.
     @State private var repliees: Set<String> = Set(
-        UserDefaults.standard.stringArray(forKey: "sectionsRepliees") ?? ["Tags"])
+        UserDefaults.standard.stringArray(forKey: "sectionsRepliees") ?? ["Tags", "Réseau"])
 
     var body: some View {
         ScrollView {
@@ -3844,6 +4111,13 @@ struct ReglagesView: View {
             } header: { Text("Afficher dans la barre latérale") } footer: {
                 note("Tes favoris se gèrent directement dans la barre : glisse un dossier sur « Favoris » pour l'ajouter, clic droit pour le retirer.")
             }
+            Section {
+                Picker("Nombre de dossiers récents", selection: $config.nombreDossiers) {
+                    ForEach([3, 6, 9, 12, 20, 40], id: \.self) { Text("\($0)").tag($0) }
+                }
+            } header: { Text("Dossiers récents") } footer: {
+                note("La rubrique « Dossiers récents » montre les derniers dossiers où tu as travaillé, en grille.")
+            }
             Section("Présentation par icônes") {
                 curseur("Taille des icônes", $config.tailleIcones, 32...128,
                         "\(Int(config.tailleIcones.rounded())) × \(Int(config.tailleIcones.rounded()))")
@@ -3909,6 +4183,9 @@ struct ReglagesView: View {
                 }
                 .disabled(!config.apps)
                 curseur("Taille des icônes", $config.tailleDock, 28...64, "\(Int(config.tailleDock.rounded())) pt")
+                    .disabled(!config.apps)
+                curseur("Grossissement au survol", $config.grossissement, 1...2,
+                        config.grossissement < 1.005 ? "Aucun" : "+ " + pourcent(config.grossissement - 1))
                     .disabled(!config.apps)
                 Toggle("Afficher le bouton « Apps » (toutes les applications, avec une recherche)", isOn: $config.lanceur).disabled(!config.apps)
                 Toggle("Apps ouvertes", isOn: $config.appsOuvertes).disabled(!config.apps)
@@ -4053,6 +4330,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
     private func suivreIconeGlissee() {
         let ici = NSEvent.mouseLocation
         let dehors = !dans(vueDock, ici, marge: 20)
+        if store.appHorsDock != dehors { store.appHorsDock = dehors }
         let maintenant = ProcessInfo.processInfo.systemUptime
         if !dehors { sortieDuDock = nil; croix?.orderOut(nil); return }
         if sortieDuDock == nil { sortieDuDock = maintenant }
@@ -5010,6 +5288,49 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         }
     }
     /// Ajoute aux favorites les apps déposées sur le mini-Dock.
+    // MARK: Déposer une app à un endroit précis du mini-Dock
+
+    /// Les apps que transporte le glisser en cours (lues tout de suite, sans attendre le lâcher).
+    static func appsGlissees() -> [URL] {
+        let urls = NSPasteboard(name: .drag).readObjects(forClasses: [NSURL.self], options: [.urlReadingFileURLsOnly: true]) as? [URL] ?? []
+        return urls.filter { $0.pathExtension == "app" }.map(\.standardizedFileURL)
+    }
+    /// L'app en cours de dépôt, déjà rangée à sa future place (invisible : la place est vide sous la souris).
+    private var apercuApp: String?
+    private var apercuAjoutee = false   // vrai si c'est ce glisser qui l'a mise dans le mini-Dock
+
+    func previsualiserApp(_ url: URL, sur cible: String) {
+        let chemin = url.path
+        if apercuApp != chemin {
+            annulerApercuApp()
+            apercuApp = chemin
+            apercuAjoutee = !Apps.shared.elements(config).contains { $0.id == chemin }
+            if apercuAjoutee {
+                config.appsMasquees.removeAll { $0 == chemin }
+                if !config.appsFavorites.contains(chemin) { config.appsFavorites.append(chemin) }
+            }
+            store.appHorsDock = false
+            store.appEnGlisse = URL(fileURLWithPath: chemin)
+        }
+        Apps.shared.deplacer(chemin, sur: cible, config)
+    }
+    /// L'app a été lâchée dans le mini-Dock : elle y reste, à cette place.
+    func confirmerApp() {
+        guard apercuApp != nil else { return }
+        apercuApp = nil
+        store.appEnGlisse = nil
+    }
+    /// Le glisser est reparti ailleurs : le mini-Dock redevient comme avant.
+    func annulerApercuApp() {
+        guard let chemin = apercuApp else { return }
+        apercuApp = nil
+        store.appEnGlisse = nil
+        if apercuAjoutee {
+            config.appsFavorites.removeAll { $0 == chemin }
+            config.appsOrdre.removeAll { $0 == chemin }
+        }
+    }
+
     func ajouterApps(_ fournisseurs: [NSItemProvider]) {
         for f in fournisseurs {
             _ = f.loadObject(ofClass: URL.self) { url, _ in
@@ -5697,19 +6018,33 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         cadreSeule = NSRect(x: x, y: y, width: lw, height: h)
         // ens = la carte et son mini-Dock
         let ens = NSRect(x: x - dG, y: y - dB, width: lw + dG + dD, height: h + dH + dB)
+        // Carte en haut et mini-Dock dessous (ou l'inverse) : la liste du presse-papiers se déroule à l'opposé
+        // de la carte, si l'écran a la place. La fenêtre s'allonge de ce côté pour la contenir.
+        // S'il reste moins de place que la liste entière, elle raccourcit ; en dessous de 200 points, elle
+        // repasse par-dessus la carte.
+        let liste: CGFloat = 400 + 16   // hauteur maximale de la liste, et son écart avec le mini-Dock
+        var pd: CGFloat = 0
+        if config.historique {
+            var place: CGFloat = 0
+            if config.bord == .haut, p == "bas" { place = ens.minY - v.minY - m }
+            if config.bord == .bas, p == "haut" { place = plafond - ens.maxY - m }
+            if place >= 200 { pd = min(liste, place.rounded(.down)) }
+        }
+        if config.presseDehors != pd { config.presseDehors = pd }
         let fenetre: NSRect
         switch config.bord {
-        case .haut: fenetre = NSRect(x: ens.minX, y: ens.minY - s, width: ens.width, height: f.maxY - ens.minY + s)
-        case .bas: fenetre = NSRect(x: ens.minX, y: f.minY, width: ens.width, height: ens.maxY - f.minY + s)
+        case .haut: fenetre = NSRect(x: ens.minX, y: ens.minY - pd - s, width: ens.width, height: f.maxY - ens.minY + pd + s)
+        case .bas: fenetre = NSRect(x: ens.minX, y: f.minY, width: ens.width, height: ens.maxY - f.minY + pd + s)
         case .gauche: fenetre = NSRect(x: f.minX, y: ens.minY, width: ens.maxX - f.minX + s, height: ens.height)
         case .droite: fenetre = NSRect(x: ens.minX - s, y: ens.minY, width: f.maxX - ens.minX + s, height: ens.height)
         case .plein: fenetre = ens   // pas de glissement : la fenêtre a la taille de la carte
         }
         if store.margeHaut != 0 { store.margeHaut = 0 }
-        repos = NSPoint(x: ens.minX - fenetre.minX, y: ens.minY - fenetre.minY)
+        // La vue contient aussi la place gardée pour la liste : sous la carte si elle vient du haut.
+        repos = NSPoint(x: ens.minX - fenetre.minX, y: ens.minY - fenetre.minY - (config.bord == .haut ? pd : 0))
         cadreCarte = ens
         panel.setFrame(fenetre, display: true)
-        host.setFrameSize(ens.size)
+        host.setFrameSize(NSSize(width: ens.width, height: ens.height + pd))
         if !anime { host.setFrameOrigin(repos) }
         panel.invalidateShadow()
         majDepot()
@@ -6043,6 +6378,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
     }
 
     /// Avec l'argument --journal, note dans la sortie d'erreur chaque ouverture et fermeture (pour diagnostiquer).
+    /// La forme de la fenêtre vient de changer (liste du presse-papiers ouverte ou refermée hors de la carte) :
+    /// macOS recalcule son ombre, tout de suite puis une fois l'animation finie.
+    func rafraichirOmbre() {
+        guard config.presseDehors > 0 else { return }
+        for delai in [0.02, 0.2] {
+            DispatchQueue.main.asyncAfter(deadline: .now() + delai) { [weak self] in self?.panel.invalidateShadow() }
+        }
+    }
+
     private func journal(_ texte: String) {
         guard CommandLine.arguments.contains("--journal") else { return }
         fputs(String(format: "%.1f ", ProcessInfo.processInfo.systemUptime - lancement) + texte + "\n", stderr)
@@ -6213,6 +6557,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
             glisserActif = false
             // Une icône du mini-Dock lâchée pendant que la croix est affichée : on la retire, comme dans le Dock.
             // Lâchée ailleurs (ou ramenée dans le mini-Dock) : elle reprend sa place.
+            // Une app venue d'ailleurs, lâchée : on laisse au mini-Dock un instant pour la recevoir.
+            // S'il ne l'a pas reçue (lâchée à côté), sa place provisoire disparaît.
+            if apercuApp != nil {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { [weak self] in
+                    guard let self else { return }
+                    withAnimation(.smooth(duration: 0.25)) { self.annulerApercuApp() }
+                }
+            }
             if let icone = appGlissee {
                 appGlissee = nil
                 let retirer = croix?.isVisible == true
@@ -6220,11 +6572,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
                 sortieDuDock = nil
                 if retirer { icone.retirer() }
                 store.appEnGlisse = nil
+                store.appHorsDock = false
             }
             // Le glisser est fini : on retire les zones restées vides (il en reste toujours une).
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { [weak self] in self?.store.nettoyerZones() }
         }
         if appGlissee != nil, glisserActif { suivreIconeGlissee() }
+        // Une app en cours de dépôt qui ressort du mini-Dock : sa place provisoire se referme.
+        if apercuApp != nil, glisserActif, !dans(vueDock, NSEvent.mouseLocation, marge: 14) {
+            withAnimation(.smooth(duration: 0.25)) { annulerApercuApp() }
+        }
         // Zone montrée pour une capture : la souris dessus (ou un glisser en cours) la garde, sinon elle part après une minute.
         if captureJusqua > 0 {
             let maintenant = ProcessInfo.processInfo.systemUptime
@@ -6301,7 +6658,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         // Par défaut la carte reste ouverte. Avec le réglage « Fermer quand la souris en sort »,
         // il se referme une fois que la souris y est entrée puis ressortie.
         guard config.fermerEnSortant else { debutDehors = nil; return }
-        if cadreCarte.insetBy(dx: -24, dy: -24).contains(p) {
+        if cadreCarte.insetBy(dx: -24, dy: -24).contains(p) || (config.presseDehors > 0 && surSide(p)) {
             debutDehors = nil
             if epingle && !modeTest { epingle = false }
             return

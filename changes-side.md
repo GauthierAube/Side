@@ -5,6 +5,68 @@ Il est mis à jour à chaque modification, en même temps que le code.
 
 ---
 
+## 11/11/2026, soir
+
+### Une app déposée dans le mini-Dock se pose là où tu la lâches
+- **Le problème :** une app déposée dans le mini-Dock arrivait toujours au bout, à droite. Il fallait la déplacer ensuite.
+- **Maintenant :** pendant le glisser, les icônes s'écartent sous la souris pour lui faire une place. Elle se pose là où tu la lâches.
+- Si tu ressors du mini-Dock sans lâcher, la place se referme et rien ne change.
+- Lâchée dans le vide du mini-Dock (pas sur une icône), elle se range au bout, comme avant.
+
+### Les favoris du Finder sont repris au premier lancement
+- Au tout premier lancement, la rubrique Favoris de Side reprend les dossiers favoris de la barre latérale du Finder, dans le même ordre.
+- Aucune autorisation n'est demandée pour cela.
+- Si le Finder n'a aucun dossier favori : Bureau, Documents et Téléchargements.
+- Ensuite les favoris de Side sont indépendants : en ajouter ou en retirer dans le Finder ne change plus rien dans Side.
+- Avant, Side partait des dossiers de Documents commençant par deux chiffres, plus Téléchargements.
+
+### Les réglages de départ sont ceux de Gauthier
+Sur un Mac où Side n'a jamais été réglé, il démarre maintenant ainsi (tes propres réglages ne changent pas) :
+- **Ouverture :** coin actif en bas à gauche (zone de 50 points), glissement à quatre doigts activé, geste du cercle plutôt que la secousse, secousse désactivée, sensibilité 67 %.
+- **Carte :** hauteur 53 % de l'écran, largeur 53 % seule et 70 % avec colonnes, colonnes épinglées de 248 points, barre latérale de 438 points, fond presque transparent (14 %).
+- **Mini-Dock :** sous la carte, icônes de 45 points, grossissement + 25 %, sans le bouton « Apps ».
+- **Barre latérale :** Fichiers récents, Dossiers récents, iCloud Drive, Maison, Applications, Tags, Disques, Réseau. Tags et Réseau repliés.
+- **Présentation :** grande zone en colonnes, Fichiers récents en grille.
+- Non repris, car personnels : tes apps favorites, masquées et leur ordre, ton raccourci, ta colonne épinglée.
+
+### Un point sous les apps ouvertes
+- Comme dans le Dock de macOS, un petit point marque les apps ouvertes dans le mini-Dock.
+- Il se place sur le bord extérieur du mini-Dock : dessous si le mini-Dock est sous la carte, dessus s'il est au-dessus, sur le côté s'il est à gauche ou à droite.
+- Il est blanc en mode sombre et foncé en mode clair.
+
+### Le mini-Dock grossit comme le Dock de macOS
+- **Avant :** seule l'icône sous la souris grossissait un peu, d'un coup, sans toucher à ses voisines.
+- **Maintenant :** l'icône sous le pointeur grossit le plus, ses voisines un peu moins, et ainsi de suite jusqu'à deux icônes et demie de distance. Les icônes s'écartent pour se faire de la place et l'effet suit la souris en continu.
+- Les icônes grossissent vers la carte : le bord extérieur du mini-Dock ne bouge pas.
+- La loupe s'allume et s'éteint en douceur quand le pointeur entre ou sort. Elle se met en pause pendant qu'on déplace une icône.
+- Réglage : Réglages, mini-Dock, « Grossissement au survol », de « Aucun » à + 100 %. Par défaut + 50 %.
+- Le presse-papiers a sa propre petite pastille, à côté du mini-Dock. Son icône ne grossit pas et ne bouge pas quand les apps s'écartent.
+- Méthode : la courbe en cosinus utilisée par les reproductions connues du Dock. Apple ne publie pas sa formule exacte.
+
+### Les apps d'Apple apparaissent dans Applications
+- **Le problème :** le dossier Applications ne montrait que les apps installées par toi. Mail, Notes, Photos, Calendrier et les autres apps d'Apple manquaient, car macOS les range à part, dans le dossier Système.
+- **Maintenant :** elles sont réunies dans la même liste, comme dans le Finder. Pareil pour le dossier Utilitaires.
+
+### Ranger les apps du mini-Dock dans l'ordre voulu
+- Glisse une icône d'app sur une autre : elle prend sa place et les suivantes se décalent, comme dans le Dock de macOS.
+- Pendant le glisser, la place de l'icône reste vide dans le mini-Dock : on voit où elle va se poser.
+- L'ordre est retenu. Une app ouverte que tu n'as jamais déplacée se range à la fin.
+- Sortir l'icône du mini-Dock et la lâcher la retire toujours, comme avant.
+
+### Le presse-papiers se déroule du côté libre
+- **Le problème :** carte en haut de l'écran et mini-Dock dessous, la liste du presse-papiers montait au-dessus de l'icône et cachait la carte.
+- **Maintenant :** la liste se déroule sous l'icône, dans la place libre. Pareil dans l'autre sens : carte en bas et mini-Dock au-dessus, la liste monte.
+- S'il reste peu de place sous le mini-Dock, la liste raccourcit pour tenir dans l'écran. En dessous de 200 points de libre, elle repasse par-dessus la carte, comme avant.
+- Un liseré apparaissait autour de la liste quand elle sortait de la carte : c'était l'ombre de la fenêtre qui suivait le halo de la liste. Il n'y a plus qu'une seule ombre.
+- Un petit triangle relie la liste à l'icône du presse-papiers.
+
+### Dossiers récents : 6 dossiers, en grille
+- La rubrique « Dossiers récents » montre 6 dossiers au lieu de 60.
+- Elle s'affiche en grille par défaut, et garde sa propre présentation, séparée des autres dossiers.
+- Réglage : Réglages, Finder, « Nombre de dossiers récents » (3, 6, 9, 12, 20 ou 40).
+
+---
+
 ## 11/11/2026, fin d'après-midi
 
 ### Les captures d'écran arrivent toutes seules dans une zone de dépôt
