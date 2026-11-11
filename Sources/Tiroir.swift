@@ -104,7 +104,9 @@ final class Config: ObservableObject {
     /// Raccourcis de l'app « Raccourcis » de macOS affichés dans la barre latérale (par leur nom).
     @Published var raccourcis: [String] { didSet { d.set(raccourcis, forKey: "raccourcis") } }
     /// Historique du copier-coller, et faut-il y garder aussi les mots de passe (affichés masqués).
-    @Published var historique: Bool { didSet { d.set(historique, forKey: "historique") } }
+    @Published var historique: Bool {
+        didSet { d.set(historique, forKey: "historique"); if !historique { PressePapiers.shared.toutEffacer() } }
+    }
     @Published var historiqueSecrets: Bool { didSet { d.set(historiqueSecrets, forKey: "historiqueSecrets") } }
     /// Flouter ce qui se trouve derrière la carte quand elle est ouverte, et avec quelle force.
     @Published var flou: Bool { didSet { d.set(flou, forKey: "flou") } }
@@ -381,7 +383,7 @@ final class Raccourcis: ObservableObject {
 /// Un élément copié. Gardé en mémoire seulement : rien n'est écrit sur le disque.
 struct Copie: Identifiable {
     let id = UUID()
-    let date: Date
+    var date: Date
     var texte: String?
     var fichiers: [URL] = []
     var image: NSImage?
@@ -391,25 +393,59 @@ struct Copie: Identifiable {
 
 final class PressePapiers: ObservableObject {
     static let shared = PressePapiers()
-    static let maximum = 60
-    @Published var elements: [Copie] = PressePapiers.epingles()
+    static let maximum = 300
+    static let duree: TimeInterval = 7 * 86400   // l'historique est gardé sept jours
+    @Published var elements: [Copie] = PressePapiers.charger()
     private var compte = NSPasteboard.general.changeCount
 
     /// Les éléments épinglés d'abord, puis les autres du plus récent au plus ancien.
     var tries: [Copie] { elements.filter(\.epingle) + elements.filter { !$0.epingle } }
 
-    /// Les textes épinglés sont les seuls à être gardés d'un lancement à l'autre (jamais les mots de passe).
-    private static func epingles() -> [Copie] {
-        (UserDefaults.standard.stringArray(forKey: "presseEpingles") ?? [])
-            .map { Copie(date: Date(), texte: $0, epingle: true) }
+    /// Ce qui est écrit sur le disque : les textes et les fichiers copiés, jamais les mots de passe ni les images.
+    private struct Ligne: Codable { var date: Date; var texte: String?; var fichiers: [String]; var epingle: Bool }
+    private static var fichier: URL {
+        let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+        return base.appendingPathComponent("Nook/presse-papiers.json")   // « Nook » : ancien nom du dossier, gardé exprès
+    }
+    private static func charger() -> [Copie] {
+        var copies: [Copie] = []
+        if let data = try? Data(contentsOf: fichier), let lignes = try? JSONDecoder().decode([Ligne].self, from: data) {
+            let limite = Date().addingTimeInterval(-duree)
+            copies = lignes.filter { $0.epingle || $0.date > limite }.map {
+                Copie(date: $0.date, texte: $0.texte, fichiers: $0.fichiers.map { URL(fileURLWithPath: $0) }, epingle: $0.epingle)
+            }
+        } else {
+            // Ancienne version : seuls les textes épinglés étaient gardés, dans les réglages.
+            copies = (UserDefaults.standard.stringArray(forKey: "presseEpingles") ?? []).map { Copie(date: Date(), texte: $0, epingle: true) }
+        }
+        return copies
     }
     private func sauver() {
-        UserDefaults.standard.set(elements.filter { $0.epingle && !$0.secret }.compactMap(\.texte), forKey: "presseEpingles")
+        let lignes = elements.filter { !$0.secret && ($0.texte != nil || !$0.fichiers.isEmpty) }
+            .map { Ligne(date: $0.date, texte: $0.texte, fichiers: $0.fichiers.map(\.path), epingle: $0.epingle) }
+        let url = Self.fichier
+        try? FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+        guard let data = try? JSONEncoder().encode(lignes) else { return }
+        try? data.write(to: url, options: .atomic)
+        // Lisible par toi seul.
+        try? FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: url.path)
+        UserDefaults.standard.removeObject(forKey: "presseEpingles")
+    }
+    /// Oublie ce qui a plus de sept jours (sauf les épinglés).
+    private func purger() {
+        let limite = Date().addingTimeInterval(-Self.duree)
+        elements.removeAll { !$0.epingle && $0.date < limite }
     }
     func epingler(_ c: Copie) {
         guard let i = elements.firstIndex(where: { $0.id == c.id }) else { return }
         elements[i].epingle.toggle()
         sauver()
+    }
+    /// Historique désactivé : tout est effacé, y compris sur le disque.
+    func toutEffacer() {
+        elements = []
+        try? FileManager.default.removeItem(at: Self.fichier)
+        UserDefaults.standard.removeObject(forKey: "presseEpingles")
     }
 
     /// Appelé régulièrement : enregistre ce qui vient d'être copié.
@@ -439,6 +475,8 @@ final class PressePapiers: ObservableObject {
         elements.insert(copie, at: 0)
         // Au-delà de la limite, on oublie les plus anciens — jamais les épinglés.
         while elements.count > Self.maximum, let i = elements.lastIndex(where: { !$0.epingle }) { elements.remove(at: i) }
+        purger()
+        sauver()
     }
 
     /// Remet un élément dans le presse-papiers, prêt à être collé.
@@ -449,11 +487,16 @@ final class PressePapiers: ObservableObject {
         else if let image = c.image { pb.writeObjects([image]) }
         else if let texte = c.texte { pb.setString(texte, forType: .string) }
         compte = pb.changeCount
-        if let i = elements.firstIndex(where: { $0.id == c.id }), i > 0 { elements.insert(elements.remove(at: i), at: 0) }
+        if let i = elements.firstIndex(where: { $0.id == c.id }) {
+            var repris = elements.remove(at: i)
+            repris.date = Date()   // réutilisé : il repart pour sept jours
+            elements.insert(repris, at: 0)
+            sauver()
+        }
     }
 
     func supprimer(_ c: Copie) { elements.removeAll { $0.id == c.id }; sauver() }
-    func vider() { elements.removeAll { !$0.epingle } }
+    func vider() { elements.removeAll { !$0.epingle }; sauver() }
 }
 
 // MARK: - Largeurs de la carte
@@ -1636,30 +1679,41 @@ struct PresseListe: View {
     @Binding var filtre: String
     let fermer: () -> Void
     @ObservedObject var presse = PressePapiers.shared
+    @State private var recherche = false
+    @FocusState private var champ: Bool
 
     var body: some View {
         let forme = RoundedRectangle(cornerRadius: 14, style: .continuous)
         VStack(spacing: 0) {
-            if presse.elements.count > 10 {
-                HStack(spacing: 5) {
+            HStack(spacing: 6) {
+                if recherche {
                     Image(systemName: "magnifyingglass").foregroundStyle(.secondary)
-                    TextField("Rechercher dans le presse-papiers", text: $filtre).textFieldStyle(.plain)
-                    if !filtre.isEmpty {
-                        Button { filtre = "" } label: { Image(systemName: "xmark.circle.fill").foregroundStyle(.secondary) }
-                            .buttonStyle(.plain).accessibilityLabel("Effacer la recherche")
+                    TextField("Rechercher", text: $filtre).textFieldStyle(.plain).focused($champ)
+                    Button { filtre = ""; recherche = false } label: { Image(systemName: "xmark.circle.fill").foregroundStyle(.secondary) }
+                        .buttonStyle(.plain).accessibilityLabel("Fermer la recherche")
+                } else {
+                    Text("Presse-papiers · 7 jours").font(.caption).foregroundStyle(.secondary)
+                    Spacer()
+                    // La petite loupe : un clic ouvre le champ de recherche.
+                    Button { recherche = true; champ = true } label: {
+                        Image(systemName: "magnifyingglass").font(.system(size: 11, weight: .semibold))
+                            .frame(width: 22, height: 22)
+                            .background(Circle().fill(Color.primary.opacity(0.09)))
+                            .contentShape(Circle())
                     }
+                    .buttonStyle(.plain).help("Rechercher dans le presse-papiers").accessibilityLabel("Rechercher dans le presse-papiers")
                 }
-                .padding(.horizontal, 10).frame(height: 28)
-                .background(Capsule().fill(Color.primary.opacity(0.09)))
-                .padding([.horizontal, .top], 8).padding(.bottom, 2)
             }
+            .padding(.horizontal, 10).frame(height: 32)
+            .background(recherche ? Color.primary.opacity(0.06) : Color.clear)
             PressePapiersView(filtre: filtre, apresCopie: fermer)
         }
-        .frame(width: 320, height: min(380, max(110, CGFloat(presse.elements.count) * 52 + (presse.elements.count > 10 ? 54 : 16))))
+        .frame(width: 320, height: min(400, max(120, CGFloat(presse.elements.count) * 52 + 44)))
         .background(Color(nsColor: .windowBackgroundColor))
         .clipShape(forme)
         .overlay(forme.strokeBorder(Color.primary.opacity(0.14), lineWidth: 1))
         .shadow(color: .black.opacity(0.28), radius: 16, y: 6)
+        .onDisappear { recherche = false }
     }
 }
 
@@ -1936,6 +1990,12 @@ struct EtagereView: View {
     var body: some View {
         let vide = column.items.isEmpty
         ZStack {
+            // Le fond de la zone : l'attraper et tirer déplace la zone, comme une petite fenêtre.
+            // (Attraper un fichier, lui, le fait glisser hors de la zone.)
+            Color.clear.contentShape(Rectangle())
+                .gesture(DragGesture(minimumDistance: 5, coordinateSpace: .global)
+                    .onChanged { _ in AppDelegate.shared.deplacerDepot() }
+                    .onEnded { _ in AppDelegate.shared.finDeplacementDepot() })
             if vide {
                 VStack(spacing: 6) {
                     Image(systemName: "tray.and.arrow.down").font(.title2).foregroundStyle(.secondary)
@@ -2005,7 +2065,7 @@ struct EtagereView: View {
             }
         }
         .background(RoundedRectangle(cornerRadius: 22)
-            .fill(depot ? Color.accentColor.opacity(0.28) : Color.primary.opacity(0.09)))
+            .fill(depot ? Color.accentColor.opacity(0.28) : Color.clear))   // même matière que la barre latérale
         .overlay(RoundedRectangle(cornerRadius: 22).strokeBorder(
             depot ? Color.accentColor : Color.primary.opacity(0.12), lineWidth: depot ? 2 : 1))
         .contentShape(RoundedRectangle(cornerRadius: 22))
@@ -3258,11 +3318,11 @@ struct ReglagesView: View {
             }
         case .general:
             Section {
-                Toggle("Garder un historique du copier-coller", isOn: $config.historique)
+                Toggle("Garder un historique du copier-coller (7 jours)", isOn: $config.historique)
                 Toggle("Y garder aussi les mots de passe (affichés masqués)", isOn: $config.historiqueSecrets)
                     .disabled(!config.historique)
             } header: { Text("Presse-papiers") } footer: {
-                note("L'historique se déroule en passant la souris sur l'icône au bout du mini-Dock. Il reste en mémoire et s'efface quand Side se ferme ; seuls les textes que tu épingles (clic droit) sont conservés. Les mots de passe sont masqués à l'écran mais restent recopiables d'un clic.")
+                note("L'historique se déroule en passant la souris sur l'icône au bout du mini-Dock. Les textes et les fichiers copiés sont gardés 7 jours sur ce Mac ; ce que tu épingles (clic droit) est gardé sans limite. Les images et les mots de passe ne sont jamais écrits sur le disque : ils s'effacent quand Side se ferme. Décocher l'historique efface tout.")
             }
             Section("Présentation") {
                 LabeledContent("Les cinq étapes de bienvenue") {
@@ -3286,7 +3346,7 @@ struct ReglagesView: View {
 /// La poignée de la fenêtre des zones de dépôt : une petite barre, comme en haut des cartes d'iOS.
 /// On l'attrape pour déplacer la fenêtre. C'est une vue AppKit à part, pour recevoir le clic à coup sûr.
 final class PoigneeDepot: NSView {
-    static let hauteur: CGFloat = 18
+    static let hauteur: CGFloat = 0   // la poignée n'existe plus : on attrape la zone elle-même
     private let barre = CALayer()
 
     override init(frame: NSRect) {
@@ -3345,6 +3405,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
     private var demiTours: [TimeInterval] = []
     private var pointClic: NSPoint?
     private var pointClicDedans: NSPoint?
+    /// Vrai pendant que la zone de dépôt accompagne l'animation de la carte (ce n'est pas toi qui la déplaces).
+    private var animationDepot = false
     private var depotEnCours: TimeInterval = -10   // moment du dernier lâcher dans une zone de dépôt
     /// La carte seule (sans la bande du mini-Dock), à l'écran, et le mini-Dock tel que la vue le dessine.
     private var cadreSeule: NSRect = .zero
@@ -4684,7 +4746,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
                                                  width: conteneur.bounds.width, height: PoigneeDepot.hauteur))
         poignee.autoresizingMask = [.width, .minYMargin]
         conteneur.addSubview(zones)
-        conteneur.addSubview(poignee)
+        _ = poignee   // plus affichée : la zone se déplace en l'attrapant par son fond
         p.contentView = conteneur
         depotPanel = p
         if let xy = UserDefaults.standard.array(forKey: "depotPosition") as? [Double], xy.count == 2 {
@@ -4692,7 +4754,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         }
         // Quand tu la déplaces, Side retient l'endroit (coin haut-gauche) et ne la replace plus tout seul.
         NotificationCenter.default.addObserver(forName: NSWindow.didMoveNotification, object: p, queue: .main) { [weak self] _ in
-            guard let self, !self.placementAuto else { return }
+            guard let self, !self.placementAuto, !self.animationDepot else { return }
             let coin = NSPoint(x: p.frame.minX, y: p.frame.maxY)
             self.ancrePerso = coin
             UserDefaults.standard.set([Double(coin.x), Double(coin.y)], forKey: "depotPosition")
@@ -4745,6 +4807,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         depotPanel.orderFrontRegardless()
         depotPanel.invalidateShadow()
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { depotPanel.invalidateShadow() }
+    }
+
+    /// La zone de dépôt suit la souris pendant qu'on la tire par son fond ; l'endroit est retenu au passage.
+    private var priseDepot: (souris: NSPoint, origine: NSPoint)?
+    func deplacerDepot() {
+        guard let zone = depotPanel else { return }
+        let ici = NSEvent.mouseLocation
+        if priseDepot == nil { priseDepot = (ici, zone.frame.origin) }
+        guard let prise = priseDepot else { return }
+        zone.setFrameOrigin(NSPoint(x: prise.origine.x + ici.x - prise.souris.x, y: prise.origine.y + ici.y - prise.souris.y))
+    }
+    func finDeplacementDepot() {
+        priseDepot = nil
+        majDepot()   // la garde dans l'écran
     }
 
     /// Oublie l'endroit choisi à la main : la fenêtre des zones revient à côté de la carte.
@@ -4834,11 +4910,27 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         panel.alphaValue = 0
         panel.makeKeyAndOrderFront(nil)
         montrerFlou(sur: e)
+        // Cadenas ouvert : la zone de dépôt arrive avec la carte, dans le même mouvement.
+        var arrivee: NSRect?
+        if let zone = depotPanel, zone.isVisible, !config.depotReste, !store.glisse {
+            animationDepot = true
+            arrivee = zone.frame
+            zone.alphaValue = 0
+            if !reduit { zone.setFrame(zone.frame.offsetBy(dx: horsChamp.x - repos.x, dy: horsChamp.y - repos.y), display: false) }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) { [weak self] in
+                self?.animationDepot = false
+                zone.invalidateShadow()
+            }
+        }
         NSAnimationContext.runAnimationGroup { ctx in
             ctx.duration = reduit ? 0.15 : (fondu ? 0.28 : 0.45)
             // La courbe dépasse légèrement la position finale puis revient : le rebond d'iOS.
             ctx.timingFunction = fondu ? CAMediaTimingFunction(name: .easeOut)
                 : CAMediaTimingFunction(controlPoints: 0.28, 1.32, 0.42, 1)
+            if let arrivee, let zone = depotPanel {
+                zone.animator().setFrame(arrivee, display: true)
+                zone.animator().alphaValue = 1
+            }
             host.animator().setFrameOrigin(repos)
             panel.animator().alphaValue = 1
         }
@@ -4854,18 +4946,36 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         arme = false
         store.memoriser()
         cacherFlou(immediat: immediat)
-        majDepot()
+        // Cadenas ouvert : la zone de dépôt part avec la carte, dans le même mouvement, comme une seule fenêtre.
+        let zone = depotPanel
+        let ensemble = !immediat && !config.depotReste && !store.glisse && zone?.isVisible == true
+        if !ensemble { majDepot() }
         if immediat { panel.orderOut(nil); return }
         let reduit = NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
+        let fondu = config.bord == .plein
+        let glisse = !reduit && !fondu
+        if ensemble { animationDepot = true }
         NSAnimationContext.runAnimationGroup({ ctx in
-            let fondu = self.config.bord == .plein
             ctx.duration = reduit ? 0.15 : (fondu ? 0.22 : 0.26)
             ctx.timingFunction = fondu ? CAMediaTimingFunction(name: .easeIn)
                 : CAMediaTimingFunction(controlPoints: 0.5, 0, 0.9, 0.6)   // part doucement, accélère
-            if !reduit && !fondu { host.animator().setFrameOrigin(horsChamp) }
+            if glisse { host.animator().setFrameOrigin(horsChamp) }
             panel.animator().alphaValue = 0
+            if ensemble, let zone {
+                if glisse {
+                    zone.animator().setFrame(zone.frame.offsetBy(dx: horsChamp.x - repos.x, dy: horsChamp.y - repos.y), display: true)
+                }
+                zone.animator().alphaValue = 0
+            }
         }, completionHandler: { [weak self] in
-            guard let self, !self.visible else { return }
+            guard let self else { return }
+            if ensemble, let zone {
+                if !self.visible { zone.orderOut(nil) }
+                zone.alphaValue = 1
+                self.animationDepot = false
+                self.majDepot()   // la remet à sa place (et l'affiche si la carte a été rouverte entre-temps)
+            }
+            guard !self.visible else { return }
             self.panel.orderOut(nil)
         })
     }

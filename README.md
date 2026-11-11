@@ -36,7 +36,7 @@ Le script compile Side, l'installe dans `~/Applications` et le lance. Une icône
 - macOS demande l'accès aux dossiers que Side affiche (Documents, Téléchargements, Bureau).
 - macOS demande aussi l'accès au réseau local : Side s'en sert uniquement pour repérer les ordinateurs qui partagent des fichiers (rubrique Réseau). On peut refuser ; la rubrique reste alors vide.
 - L'autorisation Accessibilité est facultative ; elle ne sert qu'à rejoindre une app en plein écran depuis le mini-Dock.
-- L'historique du copier-coller reste en mémoire et s'efface quand Side se ferme ; seuls les textes épinglés à la main sont conservés dans les réglages de l'app. Les mots de passe copiés depuis un gestionnaire de mots de passe y sont masqués à l'écran ; un réglage permet de ne pas les garder du tout, ou de couper l'historique.
+- L'historique du copier-coller garde 7 jours de textes et de noms de fichiers copiés, dans un fichier lisible par toi seul (`~/Library/Application Support/Nook/presse-papiers.json`). Les images et les mots de passe copiés depuis un gestionnaire de mots de passe ne sont jamais écrits sur le disque. Un réglage coupe l'historique et efface tout.
 
 ## Limites connues
 
