@@ -3006,7 +3006,7 @@ struct ColumnView: View {
                         .padding(6)
                     }
                 }
-                .onReceive(Selection.shared.$url) { url in
+                .onReceive(Selection.shared.changements) { url in
                     if let url, Selection.shared.colonne === column { defilement.scrollTo(url) }
                 }
                 }
@@ -3074,7 +3074,17 @@ final class Selection: ObservableObject {
     static let shared = Selection()
     /// Le bleu de sélection du Finder (il suit la couleur d'accentuation choisie dans les Réglages Système).
     static let bleu = Color(nsColor: .selectedContentBackgroundColor)
-    @Published var url: URL?
+    /// L'élément sélectionné. L'interface est prévenue APRÈS le changement : prévenue avant (le fonctionnement
+    /// par défaut), elle se redessinait parfois avec l'ancienne valeur, et l'affichage avait une flèche de retard.
+    var url: URL? {
+        didSet {
+            guard url != oldValue else { return }
+            objectWillChange.send()
+            changements.send(url)
+        }
+    }
+    /// Annonce chaque nouvelle sélection (pour faire défiler la liste jusqu'à elle).
+    let changements = PassthroughSubject<URL?, Never>()
     weak var colonne: Column?
     func choisir(_ url: URL?, _ colonne: Column?) {
         self.colonne = colonne
@@ -3116,7 +3126,7 @@ struct MillerView: View {
                 withAnimation(.easeOut(duration: 0.2)) { defilement.scrollTo(n - 1, anchor: .trailing) }
             }
             // Sélectionner un élément dans une colonne à moitié masquée la fait glisser entièrement dans la vue.
-            .onReceive(Selection.shared.$url) { url in
+            .onReceive(Selection.shared.changements) { url in
                 guard let url, Selection.shared.colonne === column,
                       let niveau = column.niveaux.firstIndex(where: { $0.contains { $0.url == url } }) else { return }
                 withAnimation(.easeOut(duration: 0.2)) { defilement.scrollTo(niveau) }
@@ -5034,6 +5044,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
     /// - en colonnes, gauche remonte au dossier parent, droite entre dans le dossier choisi.
     private func fleche(_ touche: UInt16) {
         let sel = Selection.shared
+        journal("flèche \(touche) — sélection avant : \(sel.url?.lastPathComponent ?? "rien"), survol : \(survole?.url.lastPathComponent ?? "rien")")
+        defer { journal("   après : \(Selection.shared.url?.lastPathComponent ?? "rien") (icônes par ligne : \(Selection.shared.colonne?.colonnesVisibles ?? -1))") }
         // Rien de sélectionné, mais la souris est posée sur un élément (il est grisé) : c'est de lui qu'on part,
         // dans SA colonne. Sans cela, les flèches agissaient sur la grande zone, à l'autre bout de la carte.
         if sel.url == nil, let dessous = survole, let c = survoleColonne { sel.choisir(dessous.url, c) }
