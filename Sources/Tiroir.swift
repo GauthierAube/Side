@@ -1430,6 +1430,13 @@ struct RangeeDock: View {
             return true
         }
         .contextMenu { Button("Masquer le mini-Dock") { config.apps = false } }
+        // Side retient la place exacte du mini-Dock : un clic juste à côté de lui compte comme un clic en dehors.
+        .background(GeometryReader { g in
+            let cadre = g.frame(in: .global)
+            Color.clear
+                .onAppear { AppDelegate.shared.cadreDockVue = cadre }
+                .onChange(of: cadre) { _, nouveau in AppDelegate.shared.cadreDockVue = nouveau }
+        })
         .frame(maxWidth: vertical ? nil : .infinity, maxHeight: vertical ? .infinity : nil)
         .animation(.smooth(duration: 0.3), value: items)
         .animation(.smooth(duration: 0.3), value: config.raccourcis)
@@ -3178,6 +3185,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
     private var dernierX: CGFloat = 0, parcours: CGFloat = 0, versDroite = true
     private var demiTours: [TimeInterval] = []
     private var pointClic: NSPoint?
+    private var pointClicDedans: NSPoint?
+    /// La carte seule (sans la bande du mini-Dock), à l'écran, et le mini-Dock tel que la vue le dessine.
+    private var cadreSeule: NSRect = .zero
+    var cadreDockVue: CGRect = .zero
+    /// Vrai si ce point de l'écran est sur la carte ou sur le mini-Dock — et pas dans le vide autour d'eux.
+    private func surSide(_ p: NSPoint) -> Bool {
+        if cadreSeule.contains(p) { return true }
+        guard config.apps, cadreDockVue.width > 0 else { return false }
+        // La vue compte depuis son coin haut-gauche ; l'écran depuis le bas.
+        let f = panel.frame, h = host.frame
+        let dock = NSRect(x: f.minX + h.minX + cadreDockVue.minX, y: f.minY + h.minY + h.height - cadreDockVue.maxY,
+                          width: cadreDockVue.width, height: cadreDockVue.height)
+        return dock.insetBy(dx: -6, dy: -6).contains(p)
+    }
     private var derniereSecousse: TimeInterval = 0
     private var suitBureaux = false
     private var dernierGlisser = NSPasteboard(name: .drag).changeCount
@@ -3323,9 +3344,21 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
             if ev.type == .leftMouseDown { self.pointClic = p; return }
             guard let debut = self.pointClic else { return }
             self.pointClic = nil
+            // Un clic un peu « glissé » reste un clic : on tolère 12 points de mouvement.
             guard self.visible, self.config.fermerAuClic, !self.modeTest,
-                  hypot(p.x - debut.x, p.y - debut.y) < 5, !self.cadreCarte.contains(p) else { return }
+                  hypot(p.x - debut.x, p.y - debut.y) < 12, !self.surSide(p) else { return }
             self.hide()
+        }
+        // Même chose quand le clic tombe dans le vide de notre propre fenêtre (à côté du mini-Dock, par exemple).
+        NSEvent.addLocalMonitorForEvents(matching: [.leftMouseDown, .leftMouseUp]) { [weak self] ev in
+            guard let self, ev.window === self.panel else { return ev }
+            let p = NSEvent.mouseLocation
+            if ev.type == .leftMouseDown { self.pointClicDedans = self.surSide(p) ? nil : p; return ev }
+            guard let debut = self.pointClicDedans else { return ev }
+            self.pointClicDedans = nil
+            if self.visible, self.config.fermerAuClic, !self.modeTest, self.prise == nil, self.store.accueil == nil,
+               hypot(p.x - debut.x, p.y - debut.y) < 12, !self.surSide(p) { self.hide() }
+            return ev
         }
         abonnementBord = config.objectWillChange.receive(on: DispatchQueue.main).sink { [weak self] _ in
             guard let self, self.visible, let e = self.ecran else { return }
@@ -4379,6 +4412,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
             ancreDepot = NSPoint(x: f.maxX - m - g, y: y + h - 56)
         }
         if !store.depotDehors { store.depotDehors = true }
+        cadreSeule = NSRect(x: x, y: y, width: lw, height: h)
         // ens = la carte et son mini-Dock
         let ens = NSRect(x: x - dG, y: y - dB, width: lw + dG + dD, height: h + dH + dB)
         let fenetre: NSRect
@@ -4419,6 +4453,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         let dx = max(f.minX + m - prise.carte.minX, min(ici.x - prise.souris.x, f.maxX - m - prise.carte.maxX))
         let dy = max(f.minY + m - prise.carte.minY, min(ici.y - prise.souris.y, plafond - m - prise.carte.maxY))
         panel.setFrameOrigin(NSPoint(x: prise.fenetre.x + dx, y: prise.fenetre.y + dy))
+        cadreSeule = cadreSeule.offsetBy(dx: prise.carte.minX + dx - cadreCarte.minX, dy: prise.carte.minY + dy - cadreCarte.minY)
         cadreCarte = prise.carte.offsetBy(dx: dx, dy: dy)
     }
 
