@@ -855,11 +855,23 @@ enum Fichiers {
             .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
     }
 
+    /// Si ce dossier est un paquet, ou se trouve à l'intérieur d'un paquet, rend le dossier qui contient le paquet.
+    static func horsPaquet(_ url: URL) -> URL {
+        var resultat = url, u = url
+        while u.path != "/" && u.path != home.path {
+            if (try? u.resourceValues(forKeys: [.isPackageKey]))?.isPackage == true { resultat = u.deletingLastPathComponent() }
+            u = u.deletingLastPathComponent()
+        }
+        return resultat
+    }
+
     /// Les dossiers où il s'est passé quelque chose récemment, du plus récent au plus ancien.
     static func dossiersRecents() -> [FileItem] {
         var vus = Set<URL>(), resultat: [FileItem] = []
         for f in fichiersRecents() {
-            let dossier = f.url.deletingLastPathComponent()
+            // Un projet Logic, une bibliothèque Photos… sont des « paquets » : des dossiers que macOS montre comme
+            // un seul fichier. On ne les liste pas comme des dossiers : on remonte au vrai dossier qui les contient.
+            let dossier = horsPaquet(f.url.deletingLastPathComponent())
             guard vus.insert(dossier).inserted else { continue }
             resultat.append(FileItem(url: dossier, isFolder: true, date: f.date))
             if resultat.count >= Reglages.nombreRecents { break }
@@ -1392,7 +1404,6 @@ struct DrawerView: View {
         .animation(.easeInOut(duration: 0.25), value: store.accueil)
         .clipShape(forme)
         .overlay(forme.strokeBorder(Color.primary.opacity(0.14), lineWidth: 1))
-        .overlay(BordsRedimension())
     }
 
     private var boutonAjout: some View {
@@ -2185,79 +2196,6 @@ struct Poignee: View {
                 .onEnded { _ in depart = nil })
             .help("Glisse pour changer la largeur")
             .accessibilityLabel("Changer la largeur")
-    }
-}
-
-/// Les bords et les coins de la carte : les tirer change sa taille, comme une fenêtre de macOS.
-/// Les bords gauche et droit changent la largeur, le haut et le bas la hauteur, les coins les deux.
-struct BordsRedimension: View {
-    private let e: CGFloat = 10   // épaisseur des bords sensibles
-    private let c: CGFloat = 22   // taille des coins sensibles
-
-    var body: some View {
-        ZStack {
-            // Les quatre bords…
-            Poignée(x: 0, y: 1).frame(height: e).frame(maxHeight: .infinity, alignment: .top)
-            Poignée(x: 0, y: -1).frame(height: e).frame(maxHeight: .infinity, alignment: .bottom)
-            Poignée(x: -1, y: 0).frame(width: e).frame(maxWidth: .infinity, alignment: .leading)
-            Poignée(x: 1, y: 0).frame(width: e).frame(maxWidth: .infinity, alignment: .trailing)
-            // … et les quatre coins par-dessus, plus grands, pour les attraper facilement.
-            Poignée(x: -1, y: 1).frame(width: c, height: c).frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-            Poignée(x: 1, y: 1).frame(width: c, height: c).frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
-            Poignée(x: -1, y: -1).frame(width: c, height: c).frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
-            Poignée(x: 1, y: -1).frame(width: c, height: c).frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
-        }
-    }
-
-    /// Une zone sensible : `x` (-1 gauche, 1 droite) et `y` (1 haut, -1 bas) disent quel bord elle tire.
-    struct Poignée: View {
-        let x: Int, y: Int
-        /// Le pointeur de redimensionnement de macOS, droit ou en diagonale selon le bord.
-        private var curseur: NSCursor {
-            if #available(macOS 15.0, *) {
-                let position: NSCursor.FrameResizePosition
-                switch (x, y) {
-                case (-1, 1): position = .topLeft
-                case (1, 1): position = .topRight
-                case (-1, -1): position = .bottomLeft
-                case (1, -1): position = .bottomRight
-                case (0, 1): position = .top
-                case (0, -1): position = .bottom
-                case (-1, 0): position = .left
-                default: position = .right
-                }
-                return NSCursor.frameResize(position: position, directions: .all)
-            }
-            return x != 0 && y == 0 ? .resizeLeftRight : (x == 0 ? .resizeUpDown : .crosshair)
-        }
-        @State private var depart: (souris: NSPoint, largeur: Double, hauteur: Double)?
-
-        var body: some View {
-            Color.clear
-                .contentShape(Rectangle())
-                .onHover { dedans in if dedans { curseur.push() } else { NSCursor.pop() } }
-                .gesture(DragGesture(minimumDistance: 1, coordinateSpace: .global)
-                    .onChanged { _ in tirer() }
-                    .onEnded { _ in depart = nil })
-                .accessibilityHidden(true)
-        }
-
-        private func tirer() {
-            let config = Config.shared
-            let ici = NSEvent.mouseLocation   // position sur l'écran : juste même si la carte bouge pendant qu'on tire
-            if depart == nil { depart = (ici, config.largeurSeule, config.tailleHauteur) }
-            guard let d = depart, let ecran = NSScreen.screens.first(where: { $0.frame.contains(ici) }) ?? NSScreen.main else { return }
-            // Une carte centrée grandit des deux côtés à la fois : le bord suit alors la souris si on double l'écart.
-            let centreeX = config.bord == .haut || config.bord == .bas, centreeY = config.bord == .gauche || config.bord == .droite
-            if x != 0 {
-                let dx = (ici.x - d.souris.x) * CGFloat(x) * (centreeX ? 2 : 1)
-                config.largeurSeule = min(1, max(0.35, d.largeur + Double(dx / max(ecran.frame.width, 1))))
-            }
-            if y != 0 {
-                let dy = (ici.y - d.souris.y) * CGFloat(y) * (centreeY ? 2 : 1)
-                config.tailleHauteur = min(0.9, max(0.15, d.hauteur + Double(dy / max(ecran.frame.height, 1))))
-            }
-        }
     }
 }
 
@@ -4184,6 +4122,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
                   hypot(p.x - debut.x, p.y - debut.y) < 12, !self.surSide(p) else { return }
             self.hide()
         }
+        // Les bords de la carte passent avant tout le reste : pointeur de redimensionnement, puis tirer pour agrandir.
+        NSEvent.addLocalMonitorForEvents(matching: [.mouseMoved, .leftMouseDown, .leftMouseDragged, .leftMouseUp]) { [weak self] ev in
+            guard let self else { return ev }
+            return self.suivreBords(ev)
+        }
         NSEvent.addLocalMonitorForEvents(matching: [.leftMouseDown, .leftMouseDragged, .leftMouseUp]) { [weak self] ev in
             guard let self else { return ev }
             return self.suivreGlisser(ev)   // nil : le mouvement devient un glisser-déposer
@@ -4937,13 +4880,91 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { self.store.nettoyerZones(); self.majDepot() }
     }
 
+    // MARK: Redimensionner la carte par ses bords
+
+    /// Le bord (ou le coin) de la carte sous ce point de l'écran : x = -1 gauche, 1 droite ; y = 1 haut, -1 bas.
+    /// La bande sensible fait 7 points à partir du bord, vers l'intérieur ; près d'un coin, on tire les deux bords.
+    private func bordSous(_ p: NSPoint) -> (x: Int, y: Int)? {
+        let c = cadreSeule
+        guard visible, store.accueil == nil, c.insetBy(dx: -1, dy: -1).contains(p) else { return nil }
+        let bande: CGFloat = 7, coin: CGFloat = 20
+        let g = p.x - c.minX, d = c.maxX - p.x, b = p.y - c.minY, h = c.maxY - p.y
+        guard min(g, d, b, h) <= bande else { return nil }
+        var x = 0, y = 0
+        if g <= bande { x = -1 } else if d <= bande { x = 1 }
+        if h <= bande { y = 1 } else if b <= bande { y = -1 }
+        // Près d'un coin : on prend aussi l'autre bord.
+        if x != 0, y == 0 { if h <= coin { y = 1 } else if b <= coin { y = -1 } }
+        if y != 0, x == 0 { if g <= coin { x = -1 } else if d <= coin { x = 1 } }
+        return (x, y)
+    }
+    private func curseurBord(_ x: Int, _ y: Int) -> NSCursor {
+        if #available(macOS 15.0, *) {
+            let position: NSCursor.FrameResizePosition
+            switch (x, y) {
+            case (-1, 1): position = .topLeft
+            case (1, 1): position = .topRight
+            case (-1, -1): position = .bottomLeft
+            case (1, -1): position = .bottomRight
+            case (0, 1): position = .top
+            case (0, -1): position = .bottom
+            case (-1, 0): position = .left
+            default: position = .right
+            }
+            return NSCursor.frameResize(position: position, directions: .all)
+        }
+        return y == 0 ? .resizeLeftRight : (x == 0 ? .resizeUpDown : .crosshair)
+    }
+    private var priseBord: (souris: NSPoint, largeur: Double, hauteur: Double, x: Int, y: Int)?
+    private var pointeurBord = false
+
+    /// Souris sur un bord : le pointeur change. Bouton enfoncé puis tiré : la carte change de taille.
+    private func suivreBords(_ ev: NSEvent) -> NSEvent? {
+        let ici = NSEvent.mouseLocation
+        switch ev.type {
+        case .mouseMoved:
+            if let b = bordSous(ici), ev.window === panel || ev.window == nil {
+                curseurBord(b.x, b.y).set()
+                pointeurBord = true
+            } else if pointeurBord {
+                pointeurBord = false
+                NSCursor.arrow.set()
+            }
+        case .leftMouseDown:
+            guard ev.window === panel, let b = bordSous(ici) else { return ev }
+            priseBord = (ici, config.largeurSeule, config.tailleHauteur, b.x, b.y)
+            return nil   // le clic ne descend pas vers un bouton situé juste dessous
+        case .leftMouseDragged:
+            guard let d = priseBord, let e = ecran else { return ev }
+            curseurBord(d.x, d.y).set()
+            // Une carte centrée grandit des deux côtés à la fois : on double l'écart pour que le bord suive la souris.
+            let centreeX = config.bord == .haut || config.bord == .bas, centreeY = config.bord == .gauche || config.bord == .droite
+            if d.x != 0 {
+                let dx = (ici.x - d.souris.x) * CGFloat(d.x) * (centreeX ? 2 : 1)
+                config.largeurSeule = min(1, max(0.35, d.largeur + Double(dx / max(e.frame.width, 1))))
+            }
+            if d.y != 0 {
+                let dy = (ici.y - d.souris.y) * CGFloat(d.y) * (centreeY ? 2 : 1)
+                config.tailleHauteur = min(0.9, max(0.15, d.hauteur + Double(dy / max(e.frame.height, 1))))
+            }
+            return nil
+        case .leftMouseUp:
+            guard priseBord != nil else { return ev }
+            priseBord = nil
+            return nil
+        default: break
+        }
+        return ev
+    }
+
     /// Bouton enfoncé sur un fichier, puis souris qui s'éloigne : le fichier part en glisser-déposer.
     private var departGlisser: (point: NSPoint, item: FileItem, fenetre: NSWindow)?
     private func suivreGlisser(_ ev: NSEvent) -> NSEvent? {
         switch ev.type {
         case .leftMouseDown:
             departGlisser = nil
-            if let item = survole, let f = ev.window, f === panel || f === depotPanel, !ev.modifierFlags.contains(.control) {
+            if let item = survole, let f = ev.window, f === panel || f === depotPanel, !ev.modifierFlags.contains(.control),
+               bordSous(NSEvent.mouseLocation) == nil {   // pas sur un bord de la carte : là, on redimensionne
                 departGlisser = (ev.locationInWindow, item, f)
             }
         case .leftMouseUp:
@@ -5898,6 +5919,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { [weak self] in self?.store.nettoyerZones() }
         }
         if appGlissee != nil, glisserActif { suivreIconeGlissee() }
+        if pointeurBord, priseBord == nil, let b = bordSous(NSEvent.mouseLocation) { curseurBord(b.x, b.y).set() }
         // Side fermé mais une zone de dépôt restée à l'écran : glisser un fichier la réveille aussi.
         let zoneSeule = !visible && depotPanel?.isVisible == true && glisserActif && glisseContientFichier()
         let montrer = (glisserActif && visible && appGlissee == nil) || zoneSeule || forcerGlisse || (visible && store.accueil == 3)
