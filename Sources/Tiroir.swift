@@ -118,6 +118,10 @@ final class Config: ObservableObject {
     /// Cadenas des zones de dépôt : fermé = elles restent à l'écran quand Side se ferme.
     @Published var depotReste: Bool { didSet { d.set(depotReste, forKey: "depotReste") } }
     @Published var secouer: Bool { didSet { d.set(secouer, forKey: "secouer") } }
+    /// Glisser quatre doigts vers le haut ou vers le bas sur le trackpad ouvre et ferme Side.
+    @Published var quatreDoigts: Bool {
+        didSet { d.set(quatreDoigts, forKey: "quatreDoigts"); Doigts.actif = quatreDoigts; if quatreDoigts { Doigts.demarrer() } }
+    }
     /// Geste de la souris : faux = secouer le pointeur, vrai = lui faire faire un cercle.
     @Published var cercle: Bool { didSet { d.set(cercle, forKey: "gestePerso") } }
     // Réglages repris du Finder.
@@ -179,6 +183,7 @@ final class Config: ObservableObject {
         fermerApresDepot = d.object(forKey: "fermerApresDepot") as? Bool ?? true
         depotReste = d.object(forKey: "depotReste") as? Bool ?? true
         secouer = d.object(forKey: "secouer") as? Bool ?? true
+        quatreDoigts = d.bool(forKey: "quatreDoigts")
         cercle = d.bool(forKey: "gestePerso")
         var entrees = d.stringArray(forKey: "barre") ?? ["recents", "dossiers", "icloud", "maison", "applications", "reseau", "tags"]
         // La rubrique Réseau est arrivée après coup : on l'ajoute une fois aux réglages déjà enregistrés.
@@ -336,6 +341,69 @@ final class Reseau: NSObject, ObservableObject, NetServiceBrowserDelegate, NetSe
     }
     func netService(_ sender: NetService, didNotResolve errorDict: [String: NSNumber]) {
         if sender == enAttente { enAttente = nil; NSSound.beep() }
+    }
+}
+
+// MARK: - Geste à quatre doigts sur le trackpad
+
+/// Une touche du trackpad, telle que la décrit le module « MultitouchSupport » de macOS.
+/// (Ce module n'est pas documenté par Apple ; c'est celui qu'utilisent les outils de gestes comme BetterTouchTool.)
+private struct Contact {
+    var frame: Int32; var horodatage: Double; var identifiant: Int32; var etat: Int32
+    var doigt: Int32; var main: Int32
+    var x: Float; var y: Float; var vx: Float; var vy: Float   // position de 0 à 1, et vitesse
+    var taille: Float; var zero1: Int32; var angle: Float; var grandAxe: Float; var petitAxe: Float
+    var ax: Float; var ay: Float; var avx: Float; var avy: Float
+    var zero2: Int32; var zero3: Int32; var densite: Float
+}
+
+/// Repère un glissement à quatre doigts vers le haut ou vers le bas, et ouvre ou ferme Side.
+enum Doigts {
+    static var actif = UserDefaults.standard.bool(forKey: "quatreDoigts")
+    private static var demarre = false
+    private static var departY: Float?       // hauteur moyenne des quatre doigts au début du geste
+    private static var dejaFait = false       // le geste en cours a déjà servi
+
+    private typealias Liste = @convention(c) () -> Unmanaged<CFArray>?
+    private typealias Rappel = @convention(c) (UnsafeMutableRawPointer?, UnsafeMutableRawPointer?, Int32, Double, Int32) -> Int32
+    private typealias Inscrire = @convention(c) (UnsafeMutableRawPointer?, Rappel) -> Void
+    private typealias Lancer = @convention(c) (UnsafeMutableRawPointer?, Int32) -> Void
+
+    /// Nombre de trackpads trouvés (pour le diagnostic) ; -1 si le module de macOS est introuvable.
+    @discardableResult
+    static func demarrer() -> Int {
+        guard !demarre else { return 0 }
+        guard let module = dlopen("/System/Library/PrivateFrameworks/MultitouchSupport.framework/MultitouchSupport", RTLD_NOW),
+              let fListe = dlsym(module, "MTDeviceCreateList"), let fInscrire = dlsym(module, "MTRegisterContactFrameCallback"),
+              let fLancer = dlsym(module, "MTDeviceStart") else { return -1 }
+        let liste = unsafeBitCast(fListe, to: Liste.self), inscrire = unsafeBitCast(fInscrire, to: Inscrire.self)
+        let lancer = unsafeBitCast(fLancer, to: Lancer.self)
+        guard let appareils = liste()?.takeRetainedValue() as? [AnyObject] else { return 0 }
+        for a in appareils {
+            let p = Unmanaged.passUnretained(a).toOpaque()
+            inscrire(p, { _, touches, nombre, _, _ in
+                Doigts.recevoir(touches, Int(nombre))
+                return 0
+            })
+            lancer(p, 0)
+        }
+        demarre = true
+        return appareils.count
+    }
+
+    /// Appelé par macOS à chaque instant où des doigts touchent le trackpad (hors du fil principal).
+    private static func recevoir(_ touches: UnsafeMutableRawPointer?, _ nombre: Int) {
+        guard actif, nombre == 4, let touches else { departY = nil; dejaFait = false; return }
+        let contacts = touches.bindMemory(to: Contact.self, capacity: nombre)
+        var y: Float = 0
+        for i in 0..<nombre { y += contacts[i].y }
+        y /= Float(nombre)
+        guard let depart = departY else { departY = y; return }
+        // Un quart de la hauteur du trackpad, dans un sens ou dans l'autre : le geste est fait, une seule fois.
+        if !dejaFait, abs(y - depart) > 0.22 {
+            dejaFait = true
+            DispatchQueue.main.async { AppDelegate.shared.basculer() }
+        }
     }
 }
 
@@ -3463,6 +3531,20 @@ struct ReglagesView: View {
                     note("Fais un cercle avec le pointeur, d'un seul mouvement rapide, sans cliquer. Il peut être grossier, petit ou grand, dans un sens ou dans l'autre.")
                 }
             }
+            Section {
+                Toggle("Glisser quatre doigts vers le haut ou le bas", isOn: $config.quatreDoigts)
+                if config.quatreDoigts {
+                    LabeledContent("Gestes de macOS") {
+                        Button("Ouvrir les réglages du trackpad") {
+                            if let u = URL(string: "x-apple.systempreferences:com.apple.Trackpad-Settings.extension") {
+                                NSWorkspace.shared.open(u)
+                            }
+                        }
+                    }
+                }
+            } header: { Text("Trackpad") } footer: {
+                note("Attention : macOS utilise déjà ce geste. Vers le haut, il ouvre Mission Control ; vers le bas, Exposé des apps. Si tu actives cette option, les deux se déclencheront en même temps. Pour l'éviter, désactive « Mission Control » et « Exposé des apps » dans Réglages Système > Trackpad > Autres gestes. Side ne change pas ces réglages lui-même.")
+            }
             Section("Clavier") {
                 LabeledContent("Raccourci") {
                     HStack {
@@ -3899,6 +3981,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
             self.montrerFlou(sur: e)   // le réglage du flou s'applique tout de suite
         }
         if config.lanceur { Applis.shared.charger() }   // la liste des apps est prête avant le premier clic
+        if config.quatreDoigts { Doigts.demarrer() }
+        if CommandLine.arguments.contains("--test-doigts") {   // pour les tests : le module des gestes répond-il ?
+            print("trackpads trouvés :", Doigts.demarrer())
+            exit(0)
+        }
         journal("accès Accessibilité : \(AXIsProcessTrusted() ? "accordé" : "refusé")")
         if CommandLine.arguments.contains("--show") { afficherEpingle() }
         if CommandLine.arguments.contains("--ouvrir") {   // pour les tests : ouverture normale, comme avec le raccourci
