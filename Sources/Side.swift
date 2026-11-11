@@ -4836,7 +4836,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         Etagere.ajouter(url, i)
         journal("capture rangée dans la zone \(i) : \(nom)")
         store.reloadAll()
+        // Side fermé : la zone se montre tout de suite, comme la vignette de macOS, mais reste plus longtemps.
+        if !visible { captureJusqua = ProcessInfo.processInfo.systemUptime + 60 }
         majDepot()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in self?.majDepot() }
     }
 
     /// Pose des éléments sur l'étagère. Les vrais fichiers ne sont pas déplacés : seul leur emplacement est retenu.
@@ -5779,6 +5782,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
     private var suiviDoigts = false
     private var ombreSuivi: TimeInterval = 0
     private var qSuivi: CGFloat = 0   // où en est la carte (0 = cachée, 1 = à sa place)
+    /// Une capture vient d'arriver alors que Side est fermé : la zone s'affiche jusqu'à ce moment-là.
+    private var captureJusqua: TimeInterval = 0
+    private var captureVisible: Bool { ProcessInfo.processInfo.systemUptime < captureJusqua }
     private var zoneSuivie: NSRect?   // place finale de la zone de dépôt quand elle suit les doigts avec la carte
 
     /// Durée et courbe pour finir un trajet en partant à la vitesse donnée (fraction du trajet par seconde),
@@ -5922,13 +5928,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         guard let depotPanel else { return }
         // Visibles : pendant un glisser, ou si une zone est remplie — et, cadenas ouvert, seulement tant que Side est ouvert.
         let remplies = store.etageres.filter { !$0.items.isEmpty }.count
-        let visibles = store.glisse ? store.etageres.count : ((visible || config.depotReste) ? remplies : 0)
+        let visibles = store.glisse ? store.etageres.count : ((visible || config.depotReste || captureVisible) ? remplies : 0)
         guard visibles > 0 else {
             // On laisse l'animation de disparition se terminer avant de retirer la fenêtre.
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) { [weak self] in
                 guard let self else { return }
                 let encore = self.store.glisse
-                    || ((self.visible || self.config.depotReste) && self.store.etageres.contains { !$0.items.isEmpty })
+                    || ((self.visible || self.config.depotReste || self.captureVisible) && self.store.etageres.contains { !$0.items.isEmpty })
                 if !encore {
                     depotPanel.orderOut(nil)
                     // Vide et disparue : la prochaine fois, elle revient à sa place, à droite de la carte.
@@ -6049,6 +6055,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         store.reloadAll()
         if visible { placer(sur: e, anime: false); return }
         visible = true
+        captureJusqua = 0   // Side ouvert : la zone suit de nouveau la carte
         dernierBasculement = ProcessInfo.processInfo.systemUptime
         aQuitteCoin = false
         suivreBureaux(doitSuivre())
@@ -6218,6 +6225,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { [weak self] in self?.store.nettoyerZones() }
         }
         if appGlissee != nil, glisserActif { suivreIconeGlissee() }
+        // Zone montrée pour une capture : la souris dessus (ou un glisser en cours) la garde, sinon elle part après une minute.
+        if captureJusqua > 0 {
+            let maintenant = ProcessInfo.processInfo.systemUptime
+            if glisserActif || depotPanel?.frame.contains(NSEvent.mouseLocation) == true {
+                captureJusqua = max(captureJusqua, maintenant + 5)
+            } else if maintenant >= captureJusqua {
+                captureJusqua = 0
+                majDepot()
+            }
+        }
         if pointeurBord, priseBord == nil, let b = bordSous(NSEvent.mouseLocation) { curseurBord(b.x, b.y).set() }
         // Side fermé mais une zone de dépôt restée à l'écran : glisser un fichier la réveille aussi.
         let zoneSeule = !visible && depotPanel?.isVisible == true && glisserActif && glisseContientFichier()

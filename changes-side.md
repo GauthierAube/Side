@@ -13,7 +13,7 @@ Il est mis à jour à chaque modification, en même temps que le code.
 - Une capture déjà déposée à la main depuis la vignette de macOS n'est pas ajoutée une deuxième fois.
 - Side reconnaît les captures grâce à l'index de recherche du Mac : peu importe le dossier où elles sont enregistrées.
 - Réglage : Réglages, Zones de dépôt, « Ajouter mes captures d'écran à une zone de dépôt ». Activé par défaut.
-- Avec le cadenas ouvert, la zone apparaît à la prochaine ouverture de Side. Avec le cadenas fermé, elle apparaît tout de suite à l'écran.
+- La zone apparaît tout de suite à l'écran, même quand Side est fermé et le cadenas ouvert. Elle reste une minute, comme une vignette de macOS qui durerait plus longtemps. Tant que la souris est dessus ou qu'un glisser est en cours, elle ne part pas.
 
 ### La zone de dépôt bouge avec la carte, comme une seule fenêtre
 - **Le problème :** à l'ouverture par les quatre doigts, la zone de dépôt apparaissait d'un coup alors que la carte suivait encore les doigts. Les deux n'arrivaient pas en même temps.
