@@ -96,6 +96,8 @@ final class Config: ObservableObject {
     @Published var dockPosition: String { didSet { d.set(dockPosition, forKey: "dockPosition") } }
     /// Taille des icônes du mini-Dock, en points.
     @Published var tailleDock: Double { didSet { d.set(tailleDock, forKey: "tailleDock") } }
+    /// Le bouton « Apps » à gauche du mini-Dock : toutes les applications, avec une recherche.
+    @Published var lanceur: Bool { didSet { d.set(lanceur, forKey: "lanceur") } }
     @Published var appsOuvertes: Bool { didSet { d.set(appsOuvertes, forKey: "appsOuvertes") } }
     @Published var appsFavoris: Bool { didSet { d.set(appsFavoris, forKey: "appsFavoris") } }
     /// Emplacements des apps favorites, et des apps ouvertes qu'on a choisi de masquer.
@@ -164,6 +166,7 @@ final class Config: ObservableObject {
         apps = d.object(forKey: "apps") as? Bool ?? true
         dockPosition = d.string(forKey: "dockPosition") ?? "haut"
         tailleDock = d.object(forKey: "tailleDock") as? Double ?? 40
+        lanceur = d.object(forKey: "lanceur") as? Bool ?? true
         appsOuvertes = d.object(forKey: "appsOuvertes") as? Bool ?? true
         appsFavoris = d.object(forKey: "appsFavoris") as? Bool ?? true
         appsFavorites = d.stringArray(forKey: "appsFavorites") ?? []
@@ -997,6 +1000,8 @@ final class Store: ObservableObject {
     @Published var etageres: [Column] = Store.zones()
     /// Un glisser-déposer est en cours : c'est le moment de montrer les cibles de dépôt.
     @Published var glisse = false
+    /// Le panneau des applications est ouvert, au centre de la carte.
+    @Published var lanceurOuvert = false
     /// Présentation de bienvenue : numéro de l'étape affichée par-dessus la carte (nil = pas de présentation).
     @Published var accueil: Int?
     func finAccueil() {
@@ -1226,6 +1231,18 @@ struct DrawerView: View {
                 Color(nsColor: .textBackgroundColor)
             }
         })
+        // Le panneau des applications, au centre de la carte, sur un voile : un clic sur le voile le referme.
+        .overlay {
+            if store.lanceurOuvert || ProcessInfo.processInfo.arguments.contains("--lanceur") {
+                ZStack {
+                    Color.black.opacity(0.18).contentShape(Rectangle())
+                        .onTapGesture { store.lanceurOuvert = false }
+                    LanceurPanneau { store.lanceurOuvert = false }
+                }
+                .transition(.opacity)
+            }
+        }
+        .animation(.easeOut(duration: 0.15), value: store.lanceurOuvert)
         .overlay {
             if let etape = store.accueil {
                 AccueilView(store: store, etape: etape).transition(.opacity)
@@ -1545,6 +1562,11 @@ struct RangeeDock: View {
         let epaisseur = Disposition.dock - 8
         let forme = RoundedRectangle(cornerRadius: min(22, epaisseur / 2.6), style: .continuous)
         let contenu = Group {
+            // Tout à gauche : le bouton « Apps », puis un trait.
+            if config.lanceur {
+                LanceurIcone(taille: t)
+                if vertical { Divider().frame(width: t * 0.7) } else { Divider().frame(height: t * 0.7) }
+            }
             ForEach(items) { item in
                 AppIcone(item: item, taille: t)
                     .transition(.scale(scale: 0.2).combined(with: .opacity))   // apparition / disparition animée
@@ -1583,12 +1605,7 @@ struct RangeeDock: View {
         }
         .contextMenu { Button("Masquer le mini-Dock") { config.apps = false } }
         // Side retient la place exacte du mini-Dock : un clic juste à côté de lui compte comme un clic en dehors.
-        .background(GeometryReader { g in
-            let cadre = g.frame(in: .global)
-            Color.clear
-                .onAppear { AppDelegate.shared.cadreDockVue = cadre }
-                .onChange(of: cadre) { _, nouveau in AppDelegate.shared.cadreDockVue = nouveau }
-        })
+        .background(Repere())
         .frame(maxWidth: vertical ? nil : .infinity, maxHeight: vertical ? .infinity : nil)
         .animation(.smooth(duration: 0.3), value: items)
         .animation(.smooth(duration: 0.3), value: config.raccourcis)
@@ -1652,6 +1669,170 @@ struct AvecCroix: ViewModifier {
 
 /// Un raccourci macOS dans le mini-Dock : une tuile colorée avec ses initiales.
 /// Un clic le lance ; déposer des fichiers dessus le lance avec ces fichiers en entrée.
+/// Un repère invisible : la vue qui le porte (mini-Dock, panneau) compte comme une partie de Side pour les clics.
+struct Repere: NSViewRepresentable {
+    func makeNSView(context: Context) -> NSView {
+        let v = NSView()
+        AppDelegate.shared.reperes.add(v)
+        return v
+    }
+    func updateNSView(_ v: NSView, context: Context) {}
+}
+
+/// Toutes les applications installées, lues une fois (puis relues à chaque ouverture du panneau, en arrière-plan).
+final class Applis: ObservableObject {
+    static let shared = Applis()
+    struct Appli: Identifiable, Hashable { let url: URL; let nom: String; var id: URL { url } }
+    @Published var toutes: [Appli] = []
+    private var enCours = false
+
+    func charger() {
+        guard !enCours else { return }
+        enCours = true
+        DispatchQueue.global(qos: .userInitiated).async {
+            let fm = FileManager.default
+            let racines = ["/Applications", "/Applications/Utilities", "/System/Applications", "/System/Applications/Utilities",
+                           fm.homeDirectoryForCurrentUser.appendingPathComponent("Applications").path]
+            var vues = Set<String>(), liste: [Appli] = []
+            func ajouter(_ u: URL) {
+                let chemin = u.resolvingSymlinksInPath().path
+                guard u.pathExtension == "app", vues.insert(chemin).inserted else { return }
+                liste.append(Appli(url: u, nom: fm.displayName(atPath: u.path).replacingOccurrences(of: ".app", with: "")))
+            }
+            for racine in racines {
+                let contenu = (try? fm.contentsOfDirectory(at: URL(fileURLWithPath: racine), includingPropertiesForKeys: [.isDirectoryKey],
+                                                           options: [.skipsHiddenFiles])) ?? []
+                for u in contenu {
+                    if u.pathExtension == "app" { ajouter(u); continue }
+                    // Un dossier d'éditeur (« Adobe… », « Microsoft… ») : on regarde aussi dedans.
+                    if (try? u.resourceValues(forKeys: [.isDirectoryKey]))?.isDirectory == true, u.lastPathComponent != "Utilities" {
+                        ((try? fm.contentsOfDirectory(at: u, includingPropertiesForKeys: nil, options: [.skipsHiddenFiles])) ?? []).forEach(ajouter)
+                    }
+                }
+            }
+            liste.sort { $0.nom.localizedStandardCompare($1.nom) == .orderedAscending }
+            DispatchQueue.main.async { self.toutes = liste; self.enCours = false }
+        }
+    }
+
+    /// Les apps dont le nom contient le texte ; celles dont le nom commence par lui d'abord.
+    func filtrer(_ texte: String) -> [Appli] {
+        let t = texte.trimmingCharacters(in: .whitespaces)
+        guard !t.isEmpty else { return toutes }
+        let trouvees = toutes.filter { $0.nom.localizedStandardContains(t) }
+        let debut = trouvees.filter { $0.nom.lowercased().folding(options: .diacriticInsensitive, locale: nil)
+            .hasPrefix(t.lowercased().folding(options: .diacriticInsensitive, locale: nil)) }
+        return debut + trouvees.filter { !debut.contains($0) }
+    }
+}
+
+/// Le bouton « Apps », tout à gauche du mini-Dock : un clic ouvre la liste de toutes les applications.
+struct LanceurIcone: View {
+    let taille: CGFloat
+    @ObservedObject var store = AppDelegate.shared.store
+
+    private static let icone: NSImage = {
+        let apps = "/System/Applications/Apps.app"
+        return NSWorkspace.shared.icon(forFile: FileManager.default.fileExists(atPath: apps) ? apps : "/Applications")
+    }()
+
+    var body: some View {
+        Image(nsImage: Self.icone)
+            .resizable().frame(width: taille, height: taille)
+            .modifier(SurvolDock())
+            .contentShape(Rectangle())
+            .onTapGesture { store.lanceurOuvert.toggle() }
+            .help("Toutes les applications")
+            .accessibilityLabel("Toutes les applications")
+            .accessibilityAddTraits(.isButton)
+    }
+}
+
+/// Le panneau des applications : une recherche déjà prête à taper, et la grille des apps.
+/// Entrée lance la première trouvée. On peut aussi glisser une app vers le mini-Dock pour l'y garder.
+struct LanceurPanneau: View {
+    let fermer: () -> Void
+    @ObservedObject var applis = Applis.shared
+    @State private var texte = ""
+    @FocusState private var champ: Bool
+
+    var body: some View {
+        let forme = RoundedRectangle(cornerRadius: 16, style: .continuous)
+        let trouvees = applis.filtrer(texte)
+        VStack(spacing: 0) {
+            HStack(spacing: 6) {
+                Image(systemName: "magnifyingglass").foregroundStyle(.secondary)
+                TextField("Rechercher une app", text: $texte)
+                    .textFieldStyle(.plain).focused($champ)
+                    .onSubmit { if let premiere = trouvees.first { lancer(premiere) } }
+                    .onExitCommand { fermer() }
+                if !texte.isEmpty {
+                    Button { texte = "" } label: { Image(systemName: "xmark.circle.fill").foregroundStyle(.secondary) }
+                        .buttonStyle(.plain).accessibilityLabel("Effacer la recherche")
+                }
+            }
+            .padding(.horizontal, 10).frame(height: 30)
+            .background(Capsule().fill(Color.primary.opacity(0.08)))
+            .padding(10)
+            Divider()
+            if trouvees.isEmpty {
+                Text(applis.toutes.isEmpty ? "Chargement…" : "Aucune app").foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                ScrollView {
+                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 84), spacing: 6)], spacing: 10) {
+                        ForEach(Array(trouvees.enumerated()), id: \.element.id) { rang, app in
+                            CaseAppli(app: app, premiere: rang == 0 && !texte.isEmpty) { lancer(app) }
+                        }
+                    }
+                    .padding(10)
+                }
+            }
+        }
+        .frame(width: 440, height: 380)
+        .background(Color(nsColor: .windowBackgroundColor))
+        .clipShape(forme)
+        .overlay(forme.strokeBorder(Color.primary.opacity(0.14), lineWidth: 1))
+        .shadow(color: .black.opacity(0.28), radius: 18, y: 6)
+        .onAppear {
+            applis.charger()
+            DispatchQueue.main.async { champ = true }
+        }
+        .onTapGesture {}   // un clic dans le panneau ne le referme pas
+    }
+
+    private func lancer(_ app: Applis.Appli) {
+        fermer()
+        AppDelegate.shared.allerA(app.url)
+    }
+}
+
+/// Une app dans la grille : un clic la lance ; glissée sur le mini-Dock, elle y reste.
+struct CaseAppli: View {
+    let app: Applis.Appli
+    let premiere: Bool   // celle qu'Entrée lancera
+    let action: () -> Void
+    @State private var survol = false
+
+    var body: some View {
+        VStack(spacing: 4) {
+            Image(nsImage: Icones.de(app.url.path)).resizable().frame(width: 48, height: 48)
+            Text(app.nom).font(.system(size: 11)).lineLimit(2).multilineTextAlignment(.center)
+                .frame(maxWidth: .infinity, minHeight: 28, alignment: .top)
+        }
+        .padding(.vertical, 6).padding(.horizontal, 2)
+        .background(RoundedRectangle(cornerRadius: 10).fill(
+            premiere ? Selection.bleu.opacity(0.22) : (survol ? Color.primary.opacity(0.08) : .clear)))
+        .contentShape(Rectangle())
+        .onHover { survol = $0 }
+        .onTapGesture(perform: action)
+        .onDrag { NSItemProvider(object: app.url as NSURL) }
+        .help(app.nom)
+        .accessibilityLabel(app.nom)
+        .accessibilityAddTraits(.isButton)
+    }
+}
+
 /// Le presse-papiers dans le mini-Dock : passer la souris dessus déroule l'historique,
 /// un clic sur une ligne la recopie. Aucun clic pour regarder, un seul pour reprendre.
 struct PresseIcone: View {
@@ -1743,6 +1924,7 @@ struct PresseListe: View {
             PressePapiersView(filtre: filtre, apresCopie: fermer)
         }
         .frame(width: 320, height: min(400, max(120, CGFloat(presse.elements.count) * 52 + 44)))
+        .background(Repere())
         .background(Color(nsColor: .windowBackgroundColor))
         .clipShape(forme)
         .overlay(forme.strokeBorder(Color.primary.opacity(0.14), lineWidth: 1))
@@ -3408,6 +3590,7 @@ struct ReglagesView: View {
                 .disabled(!config.apps)
                 curseur("Taille des icônes", $config.tailleDock, 28...64, "\(Int(config.tailleDock.rounded())) pt")
                     .disabled(!config.apps)
+                Toggle("Bouton « Apps » (toutes les applications, avec une recherche)", isOn: $config.lanceur).disabled(!config.apps)
                 Toggle("Apps ouvertes", isOn: $config.appsOuvertes).disabled(!config.apps)
                 Toggle("Apps favorites", isOn: $config.appsFavoris).disabled(!config.apps)
                 if !config.appsMasquees.isEmpty {
@@ -3526,7 +3709,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
     private var depotEnCours: TimeInterval = -10   // moment du dernier lâcher dans une zone de dépôt
     /// La carte seule (sans la bande du mini-Dock), à l'écran, et le mini-Dock tel que la vue le dessine.
     private var cadreSeule: NSRect = .zero
-    var cadreDockVue: CGRect = .zero
+    /// Les vues qui font partie de Side en plus de la carte : le mini-Dock, et le panneau du presse-papiers.
+    let reperes = NSHashTable<NSView>.weakObjects()
     /// Demande à iCloud de rapatrier un fichier resté dans le nuage.
     func telecharger(_ url: URL) {
         try? FileManager.default.startDownloadingUbiquitousItem(at: url)
@@ -3534,15 +3718,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
     }
     private var battement = 0
 
-    /// Vrai si ce point de l'écran est sur la carte ou sur le mini-Dock — et pas dans le vide autour d'eux.
+    /// Vrai si ce point de l'écran est sur la carte, le mini-Dock ou un panneau ouvert — pas dans le vide autour.
+    /// La place de chaque vue est lue au moment du clic : toujours juste, même pendant une animation.
     private func surSide(_ p: NSPoint) -> Bool {
         if cadreSeule.contains(p) { return true }
-        guard config.apps, cadreDockVue.width > 0 else { return false }
-        // La vue compte depuis son coin haut-gauche ; l'écran depuis le bas.
-        let f = panel.frame, h = host.frame
-        let dock = NSRect(x: f.minX + h.minX + cadreDockVue.minX, y: f.minY + h.minY + h.height - cadreDockVue.maxY,
-                          width: cadreDockVue.width, height: cadreDockVue.height)
-        return dock.insetBy(dx: -6, dy: -6).contains(p)
+        for v in reperes.allObjects {
+            guard let w = v.window, w.isVisible, !v.isHiddenOrHasHiddenAncestor else { continue }
+            if w.convertToScreen(v.convert(v.bounds, to: nil)).insetBy(dx: -6, dy: -6).contains(p) { return true }
+        }
+        return false
     }
     private var derniereSecousse: TimeInterval = 0
     private var suitBureaux = false
@@ -3714,6 +3898,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
             self.placer(sur: e, anime: false)
             self.montrerFlou(sur: e)   // le réglage du flou s'applique tout de suite
         }
+        if config.lanceur { Applis.shared.charger() }   // la liste des apps est prête avant le premier clic
+        journal("accès Accessibilité : \(AXIsProcessTrusted() ? "accordé" : "refusé")")
         if CommandLine.arguments.contains("--show") { afficherEpingle() }
         if CommandLine.arguments.contains("--ouvrir") {   // pour les tests : ouverture normale, comme avec le raccourci
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { self.basculer() }
@@ -4095,6 +4281,22 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
     }()
 
     /// Transforme ce qu'on dépose en fichier. `temporaire` est vrai quand Side a dû l'enregistrer lui-même.
+    /// Les vrais fichiers du glisser en cours, lus directement là où macOS les note.
+    /// (Ce que l'interface transmet au moment du dépôt est parfois une copie du fichier, pas le fichier :
+    /// le ranger créait alors un doublon « nom 2 », même en le lâchant dans son propre dossier.)
+    private func fichiersGlisses() -> [URL] {
+        let lus = NSPasteboard(name: .drag).readObjects(forClasses: [NSURL.self], options: [.urlReadingFileURLsOnly: true]) as? [URL] ?? []
+        return lus.map { ($0 as NSURL).filePathURL ?? $0 }.filter { FileManager.default.fileExists(atPath: $0.path) }
+    }
+
+    /// Reçoit tout ce qui vient d'être lâché : les vrais fichiers s'il y en a, sinon ce que l'interface fournit
+    /// (une image tirée d'une page web, une capture d'écran…), dont Side enregistre alors une copie.
+    private func recevoirTout(_ fournisseurs: [NSItemProvider], _ suite: @escaping (_ url: URL, _ temporaire: Bool) -> Void) {
+        let directs = fichiersGlisses()
+        if !directs.isEmpty { directs.forEach { suite($0, false) }; return }
+        fournisseurs.forEach { recevoir($0, suite) }
+    }
+
     private func recevoir(_ f: NSItemProvider, _ suite: @escaping (_ url: URL, _ temporaire: Bool) -> Void) {
         if f.hasItemConformingToTypeIdentifier(UTType.fileURL.identifier) {
             _ = f.loadObject(ofClass: URL.self) { url, _ in
@@ -4136,8 +4338,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         // Entre le lâcher et l'arrivée du fichier dans la zone, celle-ci reste affichée (sinon elle clignote).
         depotEnCours = ProcessInfo.processInfo.systemUptime
         if !store.glisse { store.glisse = true }
-        for f in fournisseurs {
-            recevoir(f) { url, temporaire in
+        do {
+            recevoirTout(fournisseurs) { url, temporaire in
                 // Une image ou capture déposée une seconde fois : Side vient d'en enregistrer une copie.
                 // Si la zone contient déjà exactement le même contenu, on jette la copie.
                 if temporaire, Etagere.fichiers(zone).contains(where: { $0.path != url.path
@@ -4158,9 +4360,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
     }
 
     func deposer(_ fournisseurs: [NSItemProvider], dans dossier: URL) {
-        for f in fournisseurs {
-            recevoir(f) { url, _ in self.ranger(url, dans: dossier) }
-        }
+        recevoirTout(fournisseurs) { url, _ in self.ranger(url, dans: dossier) }
     }
 
     /// Comme le Finder : déplace sur le même disque, copie sinon (ou si Option est enfoncée).
@@ -5115,6 +5315,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         journal("fermeture <- " + Thread.callStackSymbols.dropFirst().prefix(3).map { $0.split(separator: " ").dropFirst(3).first.map(String.init) ?? "?" }.joined(separator: " <- "))
         visible = false
         dernierBasculement = ProcessInfo.processInfo.systemUptime
+        store.lanceurOuvert = false   // le panneau des applications part avec la carte
         epingle = false
         arme = false
         store.memoriser()
