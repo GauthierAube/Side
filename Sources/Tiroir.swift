@@ -120,7 +120,7 @@ final class Config: ObservableObject {
     @Published var secouer: Bool { didSet { d.set(secouer, forKey: "secouer") } }
     /// Glisser quatre doigts vers le haut ou vers le bas sur le trackpad ouvre et ferme Side.
     @Published var quatreDoigts: Bool {
-        didSet { d.set(quatreDoigts, forKey: "quatreDoigts"); Doigts.actif = quatreDoigts; if quatreDoigts { Doigts.demarrer() } }
+        didSet { d.set(quatreDoigts, forKey: "quatreDoigts"); Doigts.actif = quatreDoigts; if quatreDoigts { Doigts.demarrer(); Doigts.bloquerDefilement() } }
     }
     /// Sens du geste à quatre doigts : "haut", "bas" ou "deux".
     @Published var sensDoigts: String { didSet { d.set(sensDoigts, forKey: "sensDoigts"); Doigts.sens = sensDoigts } }
@@ -365,7 +365,6 @@ enum Doigts {
     static var actif = UserDefaults.standard.bool(forKey: "quatreDoigts")
     static var sens = UserDefaults.standard.string(forKey: "sensDoigts") ?? "bas"
     private static var demarre = false
-    private static var departY: Float?       // hauteur moyenne des quatre doigts au début du geste
     private static var dejaFait = false       // le geste en cours a déjà servi
 
     private typealias Liste = @convention(c) () -> Unmanaged<CFArray>?
@@ -397,20 +396,65 @@ enum Doigts {
 
     /// Appelé par macOS à chaque instant où des doigts touchent le trackpad (hors du fil principal).
     private static func recevoir(_ touches: UnsafeMutableRawPointer?, _ nombre: Int) {
-        guard actif, nombre == 4, let touches else { departY = nil; dejaFait = false; return }
-        let contacts = touches.bindMemory(to: Contact.self, capacity: nombre)
-        var y: Float = 0
-        for i in 0..<nombre { y += contacts[i].y }
-        y /= Float(nombre)
-        guard let depart = departY else { departY = y; return }
-        // Un quart de la hauteur du trackpad, dans un sens ou dans l'autre : le geste est fait, une seule fois.
-        // Le trackpad compte la hauteur de bas en haut : un geste vers le haut fait grandir y.
-        let ecart = y - depart
-        let bonSens = sens == "haut" ? ecart > 0.22 : (sens == "bas" ? ecart < -0.22 : abs(ecart) > 0.22)
-        if !dejaFait, bonSens {
-            dejaFait = true
-            DispatchQueue.main.async { AppDelegate.shared.basculer() }
+        var doigts: [(Int32, Float)] = []
+        if let touches, nombre > 0 {
+            let contacts = touches.bindMemory(to: Contact.self, capacity: nombre)
+            for i in 0..<nombre { doigts.append((contacts[i].identifiant, contacts[i].y)) }
         }
+        dernierePresence = ProcessInfo.processInfo.systemUptime
+        nombreDoigts = doigts.count
+        if actif, traiter(doigts) { DispatchQueue.main.async { AppDelegate.shared.basculer() } }
+    }
+
+    /// Nombre de doigts posés à l'instant, et moment de la dernière mesure (pour bloquer le défilement parasite).
+    static var nombreDoigts = 0
+    static var dernierePresence: TimeInterval = 0
+    private static var departs: [Int32: Float] = [:]   // hauteur de départ de chaque doigt
+    private static let seuil: Float = 0.12             // un huitième de la hauteur du trackpad suffit
+
+    /// Une image du trackpad : chaque doigt avec son numéro et sa hauteur (0 en bas, 1 en haut).
+    /// Renvoie vrai quand le geste est fait. Le geste ne compte qu'une fois, jusqu'à ce que les doigts se lèvent.
+    static func traiter(_ doigts: [(Int32, Float)]) -> Bool {
+        // Moins de trois doigts : le geste est fini (ou n'a pas commencé).
+        if doigts.count < 3 { departs = [:]; dejaFait = false; return false }
+        // On note la hauteur de départ de chaque doigt la première fois qu'on le voit,
+        // y compris ceux qui se posent un peu en retard : les doigts n'arrivent jamais tous en même temps.
+        for (id, y) in doigts where departs[id] == nil { departs[id] = y }
+        // Il faut quatre doigts (ou cinq) pour le geste ; à trois, on attend le quatrième.
+        guard doigts.count >= 4, !dejaFait else { return false }
+        // Déplacement moyen des doigts présents, chacun mesuré depuis son propre départ :
+        // un doigt qui se lève ou se pose ne fausse plus la mesure.
+        let ecarts = doigts.compactMap { id, y in departs[id].map { y - $0 } }
+        guard ecarts.count >= 4 else { return false }
+        let moyen = ecarts.reduce(0, +) / Float(ecarts.count)
+        // Tous les doigts doivent aller dans le même sens (pas un pincement ni un écartement).
+        let memeSens = ecarts.allSatisfy { moyen > 0 ? $0 > -0.02 : $0 < 0.02 }
+        let bonSens = sens == "haut" ? moyen > seuil : (sens == "bas" ? moyen < -seuil : abs(moyen) > seuil)
+        if memeSens && bonSens { dejaFait = true; return true }
+        return false
+    }
+
+    /// Pendant un geste à trois doigts ou plus, macOS envoie aussi du défilement à l'app sous le pointeur :
+    /// la page bougeait en même temps. Side bloque ce défilement-là, et seulement lui.
+    private static var filtre: CFMachPort?
+    static func bloquerDefilement() {
+        guard filtre == nil else { return }
+        let masque = CGEventMask(1 << CGEventType.scrollWheel.rawValue)
+        filtre = CGEvent.tapCreate(tap: .cgSessionEventTap, place: .headInsertEventTap, options: .defaultTap,
+                                   eventsOfInterest: masque, callback: { _, type, evenement, _ in
+            if type == .tapDisabledByTimeout || type == .tapDisabledByUserInput {
+                if let f = Doigts.filtre { CGEvent.tapEnable(tap: f, enable: true) }
+                return Unmanaged.passUnretained(evenement)
+            }
+            // Seulement si quatre doigts au moins sont posés, mesurés il y a moins d'un dixième de seconde.
+            let recent = ProcessInfo.processInfo.systemUptime - Doigts.dernierePresence < 0.1
+            if Doigts.actif && recent && Doigts.nombreDoigts >= 4 { return nil }
+            return Unmanaged.passUnretained(evenement)
+        }, userInfo: nil)
+        guard let filtre else { return }   // sans l'autorisation Accessibilité, on s'en passe
+        let source = CFMachPortCreateRunLoopSource(nil, filtre, 0)
+        CFRunLoopAddSource(CFRunLoopGetMain(), source, .commonModes)
+        CGEvent.tapEnable(tap: filtre, enable: true)
     }
 }
 
@@ -4039,9 +4083,35 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
             self.montrerFlou(sur: e)   // le réglage du flou s'applique tout de suite
         }
         if config.lanceur { Applis.shared.charger() }   // la liste des apps est prête avant le premier clic
-        if config.quatreDoigts { Doigts.demarrer() }
+        if config.quatreDoigts { Doigts.demarrer(); Doigts.bloquerDefilement() }
         if CommandLine.arguments.contains("--test-doigts") {   // pour les tests : le module des gestes répond-il ?
             print("trackpads trouvés :", Doigts.demarrer())
+            // Gestes fabriqués : (numéro du doigt, hauteur) image par image.
+            func essai(_ nom: String, _ sens: String, _ images: [[(Int32, Float)]]) {
+                Doigts.sens = sens
+                _ = Doigts.traiter([])
+                let fait = images.contains { Doigts.traiter($0) }
+                print(nom, fait ? "reconnu" : "refusé")
+            }
+            func quatre(_ y: Float, decalages: [Float] = [0, 0, 0, 0]) -> [(Int32, Float)] {
+                (0..<4).map { (Int32($0), y + decalages[$0]) }
+            }
+            let descente = stride(from: Float(0.7), through: 0.5, by: -0.02).map { quatre($0) }
+            essai("4 doigts vers le bas, court (0,2)        ", "bas", descente)
+            essai("même geste, réglé sur vers le haut       ", "haut", descente)
+            // Doigts qui se posent un par un pendant la descente.
+            var arrivee: [[(Int32, Float)]] = [[(0, 0.7), (1, 0.7)], [(0, 0.69), (1, 0.69), (2, 0.7)]]
+            arrivee += stride(from: Float(0.68), through: 0.5, by: -0.02).map { quatre($0) }
+            essai("doigts posés un par un                   ", "bas", arrivee)
+            // Un doigt se lève au milieu : la mesure ne doit pas sauter.
+            var leve = stride(from: Float(0.7), through: 0.64, by: -0.02).map { quatre($0) }
+            leve.append([(0, 0.62), (1, 0.62), (2, 0.62)])
+            leve += stride(from: Float(0.6), through: 0.54, by: -0.02).map { quatre($0) }
+            essai("un doigt se lève un instant              ", "bas", leve)
+            essai("pincement (doigts qui se rapprochent)    ", "deux",
+                  (0..<10).map { i in quatre(0.5, decalages: [0.1 - Float(i) * 0.01, 0.1 - Float(i) * 0.01, -0.1 + Float(i) * 0.01, -0.1 + Float(i) * 0.01]) })
+            essai("petit tremblement sur place              ", "deux", (0..<20).map { i in quatre(0.5 + (i % 2 == 0 ? 0.01 : -0.01)) })
+            essai("trois doigts seulement                   ", "bas", stride(from: Float(0.7), through: 0.4, by: -0.03).map { y in (0..<3).map { (Int32($0), y) } })
             exit(0)
         }
         journal("accès Accessibilité : \(AXIsProcessTrusted() ? "accordé" : "refusé")")
