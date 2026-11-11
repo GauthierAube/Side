@@ -587,13 +587,24 @@ enum Fichiers {
 
     static let cles: [URLResourceKey] = [
         .isDirectoryKey, .isPackageKey, .contentModificationDateKey, .addedToDirectoryDateKey, .fileSizeKey,
-        .isUbiquitousItemKey, .ubiquitousItemDownloadingStatusKey, .ubiquitousItemIsDownloadingKey,
+        .isAliasFileKey, .isUbiquitousItemKey, .ubiquitousItemDownloadingStatusKey, .ubiquitousItemIsDownloadingKey,
         .ubiquitousItemIsUploadingKey,
     ]
 
+    /// Si c'est un alias ou un lien vers un dossier, rend ce dossier ; sinon rend l'adresse telle quelle.
+    static func resoudre(_ url: URL) -> URL {
+        guard (try? url.resourceValues(forKeys: [.isAliasFileKey]))?.isAliasFile == true,
+              let cible = try? URL(resolvingAliasFileAt: url, options: [.withoutUI, .withoutMounting]),
+              let v = try? cible.resourceValues(forKeys: [.isDirectoryKey, .isPackageKey]),
+              v.isDirectory == true, v.isPackage != true else { return url }
+        return cible
+    }
+
     static func item(_ url: URL) -> FileItem {
         let v = try? url.resourceValues(forKeys: Set(cles))
-        let dossier = (v?.isDirectory ?? false) && !(v?.isPackage ?? false)
+        var dossier = (v?.isDirectory ?? false) && !(v?.isPackage ?? false)
+        // Un alias (ou un lien) vers un dossier se comporte comme ce dossier : on l'ouvre dans Side, pas dans le Finder.
+        if !dossier, v?.isAliasFile == true { dossier = resoudre(url) != url }
         let date = max(v?.contentModificationDate ?? .distantPast, v?.addedToDirectoryDate ?? .distantPast)
         // iCloud Drive : le fichier est-il vraiment sur le Mac ?
         var nuage = Nuage.aucun
@@ -607,7 +618,7 @@ enum Fichiers {
 
     static func contenu(_ url: URL, tri: Tri) -> [FileItem] {
         let urls = (try? FileManager.default.contentsOfDirectory(
-            at: url, includingPropertiesForKeys: cles, options: [.skipsHiddenFiles])) ?? []
+            at: resoudre(url), includingPropertiesForKeys: cles, options: [.skipsHiddenFiles])) ?? []
         let items = urls.map(item)
         func parNom(_ a: FileItem, _ b: FileItem) -> Bool {
             a.name.localizedStandardCompare(b.name) == .orderedAscending
@@ -671,7 +682,7 @@ enum Fichiers {
         guard !texte.isEmpty else { return [] }
         let p = Process(), sortie = Pipe()
         p.executableURL = URL(fileURLWithPath: "/usr/bin/mdfind")
-        p.arguments = dossier.map { ["-onlyin", $0.path, texte] } ?? [texte]   // sans dossier : tout le Mac
+        p.arguments = dossier.map { ["-onlyin", resoudre($0).path, texte] } ?? [texte]   // sans dossier : tout le Mac
         p.standardOutput = sortie
         p.standardError = Pipe()
         guard (try? p.run()) != nil else { return [] }
@@ -4042,7 +4053,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
 
     /// Comme le Finder : déplace sur le même disque, copie sinon (ou si Option est enfoncée).
     private func ranger(_ source: URL, dans dossier: URL) {
-        let src = source.standardizedFileURL, dst = dossier.standardizedFileURL
+        let src = source.standardizedFileURL, dst = Fichiers.resoudre(dossier).standardizedFileURL   // un alias de dossier : on range dans le vrai dossier
         guard src != dst, src.deletingLastPathComponent() != dst, !dst.path.hasPrefix(src.path + "/") else { return }
         var cible = dst.appendingPathComponent(src.lastPathComponent)
         if FileManager.default.fileExists(atPath: cible.path) { cible = nomLibre(cible, suffixe: " 2") }
