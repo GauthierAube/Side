@@ -4303,6 +4303,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
                                                       characters: "", charactersIgnoringModifiers: "", isARepeat: false, keyCode: code)!
                             print("   touche \(code) prise :", self.touche(ev), "| colonne choisie = celle affichée :", Selection.shared.colonne === col)
                         }
+                        // Comme chez toi : rien de sélectionné, la souris posée sur le 5e élément (Koala-bravo).
+                        Selection.shared.choisir(nil, nil)
+                        self.survoler(col.visibles[4], col, true)
+                        print("--- souris posée sur :", noms[4], "(rien de sélectionné) ---")
+                        for (t, nom) in [(124, "droite"), (126, "haut"), (123, "gauche"), (125, "bas")] { touche(UInt16(t)); print(nom, ":", ou()) }
+                        self.survoler(col.visibles[4], col, false)
                         Selection.shared.choisir(col.visibles.first?.url, col)
                         print("--- par le clavier ---")
                         for (t, nom) in [(124, "droite"), (125, "bas"), (123, "gauche")] { touche(UInt16(t)); print(nom, ":", ou()) }
@@ -5028,6 +5034,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
     /// - en colonnes, gauche remonte au dossier parent, droite entre dans le dossier choisi.
     private func fleche(_ touche: UInt16) {
         let sel = Selection.shared
+        // Rien de sélectionné, mais la souris est posée sur un élément (il est grisé) : c'est de lui qu'on part,
+        // dans SA colonne. Sans cela, les flèches agissaient sur la grande zone, à l'autre bout de la carte.
+        if sel.url == nil, let dessous = survole, let c = survoleColonne { sel.choisir(dessous.url, c) }
         let col = sel.colonne ?? store.navigateur
         let gauche = touche == 123, droite = touche == 124, bas = touche == 125, haut = touche == 126
         if col.presentation == .colonnes && col.resultats == nil {
