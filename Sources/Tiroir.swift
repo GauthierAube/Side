@@ -405,6 +405,7 @@ enum Doigts {
         nombreDoigts = doigts.count
         guard actif else { return }
         let geste = traiter(doigts)
+        if suivre(doigts) { return }
         guard geste != 0 else { return }
         // Le sens choisi ouvre Side, le sens inverse le referme. « Les deux » : chaque geste ouvre ou ferme.
         let ouvrir = sens == "deux" ? nil : (geste > 0) == (sens == "haut")
@@ -416,6 +417,69 @@ enum Doigts {
             case false?: if side.estOuvert { side.basculer() }
             }
         }
+    }
+
+    // MARK: La carte suit les doigts, à l'ouverture comme à la fermeture
+
+    /// Recopié par la carte à chaque ouverture et fermeture (lu ici, hors du fil principal).
+    static var carteOuverte = false
+    private static var suit = false
+    private static var fermeture = false             // le geste en cours referme la carte
+    private static var sensSuivi: Float = 0          // 1 : les doigts montent pour ouvrir, -1 : ils descendent
+    private static var progression: Float = 0
+    private static var vitesse: Float = 0            // en hauteurs de trackpad par seconde, dans le sens d'ouverture
+    private static var instant: TimeInterval = 0
+    private static let course: Float = 0.3           // trajet des doigts pour amener la carte à sa place
+
+    /// Renvoie vrai quand le geste sert à faire suivre la carte (il ne doit alors rien déclencher d'autre).
+    private static func suivre(_ doigts: [(Int32, Float)]) -> Bool {
+        let maintenant = ProcessInfo.processInfo.systemUptime
+        if suit {
+            if doigts.count < 3 {   // doigts levés : on finit le geste selon la distance et l'élan
+                suit = false
+                let ouvrir = fermeture
+                    ? !(progression < 0.6 || vitesse < -0.6 || (progression < 0.85 && vitesse < 0.2))
+                    : progression > 0.4 || vitesse > 0.6 || (progression > 0.15 && vitesse > -0.2)
+                DispatchQueue.main.async { AppDelegate.shared.lacherDoigts(ouvrir: ouvrir) }
+                return true
+            }
+            guard let m = moyenne(doigts) else { return true }
+            let p = max(0, (fermeture ? 1 : 0) + m * sensSuivi / course)
+            let dt = Float(maintenant - instant)
+            if dt > 0.004 { vitesse = vitesse * 0.6 + (p - progression) * course / dt * 0.4; instant = maintenant }
+            progression = p
+            DispatchQueue.main.async { AppDelegate.shared.suivreDoigts(CGFloat(p)) }
+            return true
+        }
+        // Début du geste : quatre doigts qui partent ensemble. Carte fermée : dans le sens d'ouverture ;
+        // carte ouverte : dans le sens inverse (« Les deux » : n'importe quel sens).
+        guard doigts.count >= 4, let m = moyenne(doigts), abs(m) > 0.015 else { return false }
+        let sensGeste: Float = m > 0 ? 1 : -1
+        let sensOuvrir: Float = sens == "deux" ? (carteOuverte ? -sensGeste : sensGeste) : (sens == "haut" ? 1 : -1)
+        let ferme = carteOuverte
+        if (sensGeste == sensOuvrir) == ferme { return false }
+        suit = true
+        fermeture = ferme
+        dejaFait = true   // le geste est pris en charge : pas de bascule en plus
+        sensSuivi = sensOuvrir
+        progression = (ferme ? 1 : 0) + m * sensOuvrir / course
+        vitesse = 0
+        instant = maintenant
+        let p = progression
+        DispatchQueue.main.async {
+            AppDelegate.shared.commencerSuivi(fermeture: ferme)
+            AppDelegate.shared.suivreDoigts(CGFloat(p))
+        }
+        return true
+    }
+
+    /// Déplacement moyen des doigts depuis leur départ, s'ils vont tous dans le même sens.
+    private static func moyenne(_ doigts: [(Int32, Float)]) -> Float? {
+        let ecarts = doigts.compactMap { id, y in departs[id].map { y - $0 } }
+        guard ecarts.count >= 4 else { return nil }
+        let moyen = ecarts.reduce(0, +) / Float(ecarts.count)
+        guard ecarts.allSatisfy({ moyen > 0 ? $0 > -0.03 : $0 < 0.03 }) else { return nil }
+        return moyen
     }
 
     /// Nombre de doigts posés à l'instant, et moment de la dernière mesure (pour bloquer le défilement parasite).
@@ -3184,9 +3248,11 @@ struct MillerRow: View {
             Text(item.name).lineLimit(1).truncationMode(.middle)
             Spacer(minLength: 4)
             NuageIcone(item: item, blanc: choisi)
-            Image(systemName: "chevron.right").font(.caption)
-                .foregroundStyle(choisi ? Color.white.opacity(0.85) : Color.secondary.opacity(0.6))
-                .opacity(item.isFolder ? 1 : 0)
+            // Flèche réservée aux dossiers : sur un fichier, le nuage se cale ainsi au bord droit, comme dans le Finder.
+            if item.isFolder {
+                Image(systemName: "chevron.right").font(.caption)
+                    .foregroundStyle(choisi ? Color.white.opacity(0.85) : Color.secondary.opacity(0.6))
+            }
         }
         .foregroundStyle(choisi ? Color.white : Color.primary)
         .padding(.horizontal, 8)
@@ -3464,9 +3530,11 @@ struct RowView: View {
                 }
                 .font(.caption).foregroundStyle(discret)
             }
-            Image(systemName: "chevron.right").font(.caption)
-                .foregroundStyle(choisi ? Color.white.opacity(0.85) : Color.secondary.opacity(0.6))
-                .opacity(item.isFolder ? 1 : 0)
+            // Flèche réservée aux dossiers : sur un fichier, le nuage se cale ainsi au bord droit, comme dans le Finder.
+            if item.isFolder {
+                Image(systemName: "chevron.right").font(.caption)
+                    .foregroundStyle(choisi ? Color.white.opacity(0.85) : Color.secondary.opacity(0.6))
+            }
         }
         .foregroundStyle(choisi ? Color.white : Color.primary)
         .padding(.horizontal, 8)
@@ -5422,7 +5490,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         }
         appAvantApercu?.activate()
         appAvantApercu = nil
+        // L'app d'avant met un instant à reprendre la main, et prend alors le clavier à la carte :
+        // on le lui redonne une fois ce passage terminé, sinon les flèches ne répondent plus.
         if visible { panel.makeKey() }
+        for delai in [0.05, 0.2, 0.4] {
+            DispatchQueue.main.asyncAfter(deadline: .now() + delai) { [weak self] in
+                guard let self, self.visible, !self.apercuOuvert, !self.panel.isKeyWindow else { return }
+                self.panel.makeKey()
+            }
+        }
     }
     func numberOfPreviewItems(in panel: QLPreviewPanel!) -> Int { apercus.count }
     func previewPanel(_ panel: QLPreviewPanel!, previewItemAt index: Int) -> QLPreviewItem! {
@@ -5628,6 +5704,69 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         }
     }
 
+    /// Carte entièrement cachée derrière son bord d'écran : point de départ du vrai glissement
+    /// (raccourci, souris, et surtout quatre doigts, où elle suit le geste).
+    private var loin: NSPoint {
+        let t = panel.frame.size, c = host.frame.size
+        switch config.bord {
+        case .haut: return NSPoint(x: repos.x, y: t.height)
+        case .bas: return NSPoint(x: repos.x, y: -c.height)
+        case .gauche: return NSPoint(x: -c.width, y: repos.y)
+        case .droite: return NSPoint(x: t.width, y: repos.y)
+        case .plein: return repos
+        }
+    }
+
+    // MARK: Suivre les quatre doigts
+
+    private var suiviDoigts = false
+    private var ombreSuivi: TimeInterval = 0
+
+    /// Quatre doigts commencent à glisser : pour ouvrir, la carte arrive cachée, prête à suivre ;
+    /// pour fermer, elle quitte sa place avec eux.
+    func commencerSuivi(fermeture: Bool = false) {
+        if fermeture {
+            guard visible else { return }
+            journal("déclencheur : quatre doigts (suivi de fermeture)")
+            suiviDoigts = true
+            return
+        }
+        guard !visible, let e = ecranSous(NSEvent.mouseLocation) else { return }
+        journal("déclencheur : quatre doigts (suivi)")
+        epingle = true
+        show(sur: e, suivi: true)
+        suiviDoigts = true
+    }
+
+    /// p : 0 = cachée, 1 = à sa place. Au-delà, elle résiste, comme un élastique.
+    func suivreDoigts(_ p: CGFloat) {
+        guard suiviDoigts, visible else { return }
+        let q = p <= 1 ? max(0, p) : 1 + min(0.5, p - 1) * 0.12
+        let a = loin, b = repos
+        if config.bord == .plein {
+            panel.alphaValue = min(1, q)
+        } else {
+            host.setFrameOrigin(NSPoint(x: a.x + (b.x - a.x) * q, y: a.y + (b.y - a.y) * q))
+            panel.alphaValue = min(1, q * 3)
+        }
+        let maintenant = ProcessInfo.processInfo.systemUptime
+        if maintenant - ombreSuivi > 0.05 { ombreSuivi = maintenant; panel.invalidateShadow() }
+    }
+
+    /// Doigts levés : la carte finit de s'ouvrir (ou revient à sa place), sinon elle repart derrière le bord.
+    func lacherDoigts(ouvrir: Bool) {
+        guard suiviDoigts else { return }
+        suiviDoigts = false
+        guard visible else { return }
+        guard ouvrir else { hide(); return }
+        NSAnimationContext.runAnimationGroup({ ctx in
+            ctx.duration = 0.32
+            ctx.timingFunction = CAMediaTimingFunction(controlPoints: 0.2, 0.9, 0.25, 1)
+            host.animator().setFrameOrigin(repos)
+            panel.animator().alphaValue = 1
+        }, completionHandler: { [weak self] in self?.panel.invalidateShadow() })
+    }
+
     private var duree: TimeInterval {
         NSWorkspace.shared.accessibilityDisplayShouldReduceMotion ? 0 : 0.22
     }
@@ -5798,7 +5937,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         fputs(String(format: "%.1f ", ProcessInfo.processInfo.systemUptime - lancement) + texte + "\n", stderr)
     }
 
-    private func show(sur e: NSScreen) {
+    private func show(sur e: NSScreen, suivi: Bool = false) {
         journal("ouverture (déjà visible : \(visible))")
         ecran = e
         debutDehors = nil
@@ -5817,7 +5956,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         if store.accueil == nil && !UserDefaults.standard.bool(forKey: "accueilVu") { store.accueil = 0 }
         placer(sur: e, anime: true)
         let reduit = NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
-        host.setFrameOrigin(reduit ? repos : horsChamp)   // « Réduire les animations » : fondu seul
+        // La carte part de derrière le bord de l'écran et glisse jusqu'à sa place.
+        // « Réduire les animations » : fondu seul.
+        host.setFrameOrigin(reduit && !suivi ? repos : loin)
         panel.alphaValue = 0
         panel.makeKeyAndOrderFront(nil)
         montrerFlou(sur: e)
@@ -5833,10 +5974,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
                 zone.invalidateShadow()
             }
         }
+        Doigts.carteOuverte = true
+        if suivi { return }   // ce sont les doigts qui la font avancer
         NSAnimationContext.runAnimationGroup { ctx in
-            // Court et sans dépassement, comme les panneaux de macOS : démarre vite, se pose en douceur.
-            ctx.duration = reduit ? 0.15 : 0.22
-            ctx.timingFunction = CAMediaTimingFunction(controlPoints: 0.2, 0.8, 0.2, 1)
+            // Un vrai glissement depuis le bord : part avec élan, puis ralentit longuement pour se poser en douceur.
+            ctx.duration = reduit ? 0.15 : 0.45
+            ctx.timingFunction = CAMediaTimingFunction(controlPoints: 0.16, 1, 0.3, 1)
             if let arrivee, let zone = depotPanel {
                 zone.animator().setFrame(arrivee, display: true)
                 zone.animator().alphaValue = 1
@@ -5851,6 +5994,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         guard visible else { return }
         journal("fermeture <- " + Thread.callStackSymbols.dropFirst().prefix(3).map { $0.split(separator: " ").dropFirst(3).first.map(String.init) ?? "?" }.joined(separator: " <- "))
         visible = false
+        suiviDoigts = false
+        Doigts.carteOuverte = false
         dernierBasculement = ProcessInfo.processInfo.systemUptime
         store.lanceurOuvert = false   // le panneau des applications part avec la carte
         epingle = false
@@ -5867,9 +6012,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         let glisse = !reduit && !fondu
         if ensemble { animationDepot = true }
         NSAnimationContext.runAnimationGroup({ ctx in
-            ctx.duration = reduit ? 0.12 : 0.16   // la fermeture est encore plus brève que l'ouverture
-            ctx.timingFunction = CAMediaTimingFunction(name: .easeIn)
-            if glisse { host.animator().setFrameOrigin(horsChamp) }
+            ctx.duration = reduit ? 0.12 : 0.26   // la fermeture est plus brève que l'ouverture
+            ctx.timingFunction = CAMediaTimingFunction(controlPoints: 0.5, 0, 0.75, 0.4)
+            if glisse { host.animator().setFrameOrigin(loin) }
             panel.animator().alphaValue = 0
             if ensemble, let zone {
                 if glisse {
