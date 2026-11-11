@@ -2191,32 +2191,45 @@ struct Poignee: View {
 /// Les bords et les coins de la carte : les tirer change sa taille, comme une fenêtre de macOS.
 /// Les bords gauche et droit changent la largeur, le haut et le bas la hauteur, les coins les deux.
 struct BordsRedimension: View {
-    private let e: CGFloat = 6   // épaisseur de la zone sensible
+    private let e: CGFloat = 10   // épaisseur des bords sensibles
+    private let c: CGFloat = 22   // taille des coins sensibles
 
     var body: some View {
         ZStack {
-            VStack(spacing: 0) {
-                HStack(spacing: 0) { coin(-1, 1, .topLeading); bord(0, 1); coin(1, 1, .topTrailing) }.frame(height: e)
-                HStack(spacing: 0) { bord(-1, 0); Color.clear.allowsHitTesting(false); bord(1, 0) }
-                HStack(spacing: 0) { coin(-1, -1, .bottomLeading); bord(0, -1); coin(1, -1, .bottomTrailing) }.frame(height: e)
-            }
+            // Les quatre bords…
+            Poignée(x: 0, y: 1).frame(height: e).frame(maxHeight: .infinity, alignment: .top)
+            Poignée(x: 0, y: -1).frame(height: e).frame(maxHeight: .infinity, alignment: .bottom)
+            Poignée(x: -1, y: 0).frame(width: e).frame(maxWidth: .infinity, alignment: .leading)
+            Poignée(x: 1, y: 0).frame(width: e).frame(maxWidth: .infinity, alignment: .trailing)
+            // … et les quatre coins par-dessus, plus grands, pour les attraper facilement.
+            Poignée(x: -1, y: 1).frame(width: c, height: c).frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            Poignée(x: 1, y: 1).frame(width: c, height: c).frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
+            Poignée(x: -1, y: -1).frame(width: c, height: c).frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
+            Poignée(x: 1, y: -1).frame(width: c, height: c).frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
         }
-    }
-
-    private func bord(_ x: Int, _ y: Int) -> some View {
-        Poignée(x: x, y: y, curseur: x != 0 ? .resizeLeftRight : .resizeUpDown)
-            .frame(width: x != 0 ? e : nil, height: y != 0 ? e : nil)
-            .frame(maxWidth: x == 0 ? .infinity : nil, maxHeight: y == 0 ? .infinity : nil)
-    }
-    private func coin(_ x: Int, _ y: Int, _ cote: Alignment) -> some View {
-        // macOS n'a pas de pointeur « diagonal » public : on prend la croix de redimensionnement.
-        Poignée(x: x, y: y, curseur: .crosshair).frame(width: 14, height: e)
     }
 
     /// Une zone sensible : `x` (-1 gauche, 1 droite) et `y` (1 haut, -1 bas) disent quel bord elle tire.
     struct Poignée: View {
         let x: Int, y: Int
-        let curseur: NSCursor
+        /// Le pointeur de redimensionnement de macOS, droit ou en diagonale selon le bord.
+        private var curseur: NSCursor {
+            if #available(macOS 15.0, *) {
+                let position: NSCursor.FrameResizePosition
+                switch (x, y) {
+                case (-1, 1): position = .topLeft
+                case (1, 1): position = .topRight
+                case (-1, -1): position = .bottomLeft
+                case (1, -1): position = .bottomRight
+                case (0, 1): position = .top
+                case (0, -1): position = .bottom
+                case (-1, 0): position = .left
+                default: position = .right
+                }
+                return NSCursor.frameResize(position: position, directions: .all)
+            }
+            return x != 0 && y == 0 ? .resizeLeftRight : (x == 0 ? .resizeUpDown : .crosshair)
+        }
         @State private var depart: (souris: NSPoint, largeur: Double, hauteur: Double)?
 
         var body: some View {
@@ -2871,18 +2884,14 @@ struct ColumnView: View {
     private var contenu: some View {
         VStack(spacing: 0) {
             HStack(spacing: 6) {
-                if fixe {
-                    HStack(spacing: 0) {
-                        navBouton("chevron.left", column.peutRevenir, "Dossier précédent") { column.revenir() }
-                        Divider().frame(height: 14)
-                        navBouton("chevron.right", column.peutAvancer, "Dossier suivant") { column.avancer() }
-                    }
-                    .background(Capsule().fill(Color.primary.opacity(0.09)))
-                } else if column.peutRevenir {
-                    // Colonne épinglée, plus étroite : une simple flèche de retour, pour laisser la place au nom.
-                    navBouton("chevron.left", true, "Dossier précédent") { column.revenir() }
-                        .background(Capsule().fill(Color.primary.opacity(0.09)))
+                // Précédent / Suivant, toujours présents comme dans le Finder (grisés quand ils ne servent pas).
+                // Les colonnes épinglées, plus étroites, ont les mêmes en un peu plus petit.
+                HStack(spacing: 0) {
+                    navBouton("chevron.left", column.peutRevenir, "Dossier précédent", etroit: !fixe) { column.revenir() }
+                    Divider().frame(height: 14)
+                    navBouton("chevron.right", column.peutAvancer, "Dossier suivant", etroit: !fixe) { column.avancer() }
                 }
+                .background(Capsule().fill(Color.primary.opacity(0.09)))
                 if fixe, let ici = column.courant {
                     // Cliquer le nom du dossier déroule le chemin qui y mène, comme Commande-clic sur le titre dans le Finder.
                     Menu {
@@ -3067,12 +3076,13 @@ struct ColumnView: View {
         }
     }
 
-    private func navBouton(_ symbole: String, _ actif: Bool, _ aide: String, _ action: @escaping () -> Void) -> some View {
+    private func navBouton(_ symbole: String, _ actif: Bool, _ aide: String, etroit: Bool = false,
+                           _ action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Image(systemName: symbole)
-                .font(.system(size: 12, weight: .semibold))
+                .font(.system(size: etroit ? 11 : 12, weight: .semibold))
                 .foregroundStyle(actif ? Color.primary : Color.secondary.opacity(0.5))
-                .frame(width: 30, height: 28)
+                .frame(width: etroit ? 24 : 30, height: etroit ? 24 : 28)
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -4316,6 +4326,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
                 store.accueil = Int(CommandLine.arguments[j + 1])   // pour les tests : une étape de la présentation
             }
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
+                // Pour les tests : « --entrer » ouvre le premier dossier de la dernière colonne épinglée.
+                if CommandLine.arguments.contains("--entrer"), let col = self.store.columns.first,
+                   let dossier = col.visibles.first(where: \.isFolder) {
+                    col.entrer(dossier.url)
+                }
                 if let j = CommandLine.arguments.firstIndex(of: "--choisir"), j + 1 < CommandLine.arguments.count,
                    let n = Int(CommandLine.arguments[j + 1]) {
                     let colonne = n == 0 ? self.store.navigateur : self.store.columns[min(n, self.store.columns.count) - 1]
@@ -4338,6 +4353,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
                         }
                         Selection.shared.choisir(col.visibles.first?.url, col)
                         print("départ        :", ou())
+                        // Vraies touches, passées par le même chemin que le clavier.
+                        func touche(_ code: UInt16) {
+                            let ev = NSEvent.keyEvent(with: .keyDown, location: .zero, modifierFlags: [.function, .numericPad],
+                                                      timestamp: 0, windowNumber: 0, context: nil,
+                                                      characters: "", charactersIgnoringModifiers: "", isARepeat: false, keyCode: code)!
+                            print("   touche \(code) prise :", self.touche(ev), "| colonne choisie = celle affichée :", Selection.shared.colonne === col)
+                        }
+                        Selection.shared.choisir(col.visibles.first?.url, col)
+                        print("--- par le clavier ---")
+                        for (t, nom) in [(124, "droite"), (125, "bas"), (123, "gauche")] { touche(UInt16(t)); print(nom, ":", ou()) }
+                        Selection.shared.choisir(col.visibles.first?.url, col)
+                        print("--- par la fonction ---")
                         for (t, nom) in [(124, "droite"), (125, "bas"), (123, "gauche"), (125, "bas"), (126, "haut"), (124, "droite"), (124, "droite (bord)"), (123, "gauche"), (123, "gauche (bord)")] {
                             self.fleche(UInt16(t))
                             print(nom.padding(toLength: 14, withPad: " ", startingAt: 0), ":", ou())
