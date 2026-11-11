@@ -13,6 +13,12 @@ Il est mis à jour à chaque modification, en même temps que le code.
 - Si tu ressors du mini-Dock sans lâcher, la place se referme et rien ne change.
 - Lâchée dans le vide du mini-Dock (pas sur une icône), elle se range au bout, comme avant.
 
+### Le mini-Dock reprend les apps du Dock au premier lancement
+- Au tout premier lancement, le mini-Dock affiche les apps gardées dans le Dock de macOS, dans le même ordre.
+- Aucune autorisation n'est demandée pour cela.
+- Ensuite le mini-Dock est indépendant : modifier le Dock de macOS ne change plus rien dans Side.
+- Avant, le mini-Dock partait vide, avec seulement les apps ouvertes.
+
 ### Les favoris du Finder sont repris au premier lancement
 - Au tout premier lancement, la rubrique Favoris de Side reprend les dossiers favoris de la barre latérale du Finder, dans le même ordre.
 - Aucune autorisation n'est demandée pour cela.

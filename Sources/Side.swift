@@ -162,6 +162,22 @@ final class Config: ObservableObject {
     @Published var mods: Int { didSet { d.set(mods, forKey: "raccourciMods") } }
     @Published var libelle: String { didSet { d.set(libelle, forKey: "raccourciLibelle") } }
 
+    /// Les apps gardées dans le Dock de macOS, dans l'ordre (lues dans ses réglages, sans autorisation à demander).
+    static func appsDuDock() -> [String] {
+        let tuiles = UserDefaults(suiteName: "com.apple.dock")?.array(forKey: "persistent-apps") as? [[String: Any]] ?? []
+        var vues = Set<String>()
+        return tuiles.compactMap { tuile -> String? in
+            guard let donnees = tuile["tile-data"] as? [String: Any],
+                  let fichier = donnees["file-data"] as? [String: Any],
+                  let adresse = fichier["_CFURLString"] as? String,
+                  let url = URL(string: adresse) ?? URL(string: adresse.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? ""),
+                  url.isFileURL else { return nil }
+            let chemin = url.standardizedFileURL.path
+            guard chemin.hasSuffix(".app"), FileManager.default.fileExists(atPath: chemin), vues.insert(chemin).inserted else { return nil }
+            return chemin
+        }
+    }
+
     private init() {
         coin = d.string(forKey: "coin").flatMap(Coin.init) ?? .basGauche
         bord = d.string(forKey: "bord").flatMap(Bord.init) ?? .haut
@@ -189,7 +205,15 @@ final class Config: ObservableObject {
         lanceur = d.object(forKey: "lanceur") as? Bool ?? false
         appsOuvertes = d.object(forKey: "appsOuvertes") as? Bool ?? true
         appsFavoris = d.object(forKey: "appsFavoris") as? Bool ?? true
-        appsFavorites = d.stringArray(forKey: "appsFavorites") ?? []
+        if let enregistrees = d.stringArray(forKey: "appsFavorites") {
+            appsFavorites = enregistrees
+        } else {
+            // Premier lancement : le mini-Dock reprend les apps du Dock de macOS, dans le même ordre.
+            // Enregistré tout de suite : ensuite, le mini-Dock vit sa vie.
+            let duDock = Config.appsDuDock()
+            appsFavorites = duDock
+            if !duDock.isEmpty { d.set(duDock, forKey: "appsFavorites") }
+        }
         appsMasquees = d.stringArray(forKey: "appsMasquees") ?? []
         appsOrdre = d.stringArray(forKey: "appsOrdre") ?? []
         raccourcis = d.stringArray(forKey: "raccourcis") ?? []
