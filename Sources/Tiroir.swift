@@ -2907,6 +2907,7 @@ struct ColumnView: View {
                     }
                     Divider()
                     if fixe {
+                        Button("Nouvel onglet (⌘T)") { store.nouvelOnglet() }
                         if let u = column.courant {
                             Button("Épingler ce dossier en colonne") { store.ajouter(.folder(u)) }
                             Button("Épingler un autre dossier…") { AppDelegate.shared.choisirDossier() }
@@ -2928,18 +2929,6 @@ struct ColumnView: View {
                 .menuIndicator(.hidden)
                 .fixedSize()
                 .accessibilityLabel("Autres actions")
-                if fixe {
-                    Button { store.nouvelOnglet() } label: {
-                        Image(systemName: "plus")
-                            .font(.system(size: 12, weight: .semibold))
-                            .frame(width: 30, height: 28)
-                            .background(Capsule().fill(Color.primary.opacity(0.09)))
-                            .contentShape(Capsule())
-                    }
-                    .buttonStyle(.plain)
-                    .help("Nouvel onglet (Commande + T)")
-                    .accessibilityLabel("Nouvel onglet")
-                }
                 if fixe {
                     if recherche || !column.filtre.isEmpty {
                         // Le champ ne s'ouvre que sur demande ; fermé, il laisse la place au nom du dossier.
