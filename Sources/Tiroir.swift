@@ -983,6 +983,8 @@ final class Column: ObservableObject, Identifiable {
     @Published var presentation: Presentation {
         didSet { UserDefaults.standard.set(presentation.rawValue, forKey: cleVue); reload() }
     }
+    /// Nombre de colonnes que la grille affiche en ce moment (pour les flèches haut et bas).
+    var colonnesVisibles = 1
     /// Présentation en icônes : nombre de colonnes de la grille (0 = autant que la place le permet).
     @Published var colonnesGrille: Int = 0 {
         didSet { UserDefaults.standard.set(colonnesGrille, forKey: "grille:" + cleVue) }
@@ -2969,6 +2971,13 @@ struct ColumnView: View {
                             }
                         }
                         .padding(8)
+                        // On retient combien d'icônes tiennent par ligne : la flèche du bas descend d'une ligne entière.
+                        .background(GeometryReader { g in
+                            let place = g.size.width - 16, pas = CGFloat(config.espacement)
+                            let mini = CGFloat(config.tailleIcones) + (config.texteADroite ? 150 : 56)
+                            let n = column.colonnesGrille > 0 ? column.colonnesGrille : max(1, Int((place + pas) / (mini + pas)))
+                            Color.clear.onAppear { column.colonnesVisibles = n }.onChange(of: n) { _, v in column.colonnesVisibles = v }
+                        })
                     } else {
                         LazyVStack(spacing: 1) {
                             ForEach(column.visibles) { item in
@@ -4854,8 +4863,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         case (17, true): store.nouvelOnglet()                       // Commande + T
         case (13, true):                                            // Commande + W
             if store.onglets.count > 1 { store.fermerOnglet(store.ongletActif) } else { hide() }
-        case (125, false): deplacerSelection(1)
-        case (126, false): deplacerSelection(-1)
+        case (123, false), (124, false), (125, false), (126, false): fleche(ev.keyCode)
         case (36, false), (76, false):
             guard let u = sel.url else { return false }
             cible = u
@@ -4870,19 +4878,67 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         return true
     }
 
-    private func deplacerSelection(_ pas: Int) {
+    /// Les flèches, comme dans le Finder :
+    /// - en icônes, gauche et droite passent à l'élément voisin, haut et bas à la ligne du dessus ou du dessous ;
+    /// - en liste, haut et bas passent à l'élément voisin ;
+    /// - en colonnes, gauche remonte au dossier parent, droite entre dans le dossier choisi.
+    private func fleche(_ touche: UInt16) {
         let sel = Selection.shared
-        guard let col = sel.colonne ?? Optional(store.navigateur), !col.items.isEmpty else { return }
-        let i = col.items.firstIndex { $0.url == sel.url }
-        let suivant = i.map { min(max($0 + pas, 0), col.items.count - 1) } ?? 0
-        let url = col.items[suivant].url
-        sel.choisir(url, col)
+        let col = sel.colonne ?? store.navigateur
+        let gauche = touche == 123, droite = touche == 124, bas = touche == 125, haut = touche == 126
+        if col.presentation == .colonnes && col.resultats == nil {
+            // La colonne (de la présentation en colonnes) où se trouve la sélection.
+            let niveau = sel.url.flatMap { u in col.niveaux.firstIndex { $0.contains { $0.url == u } } } ?? 0
+            guard col.niveaux.indices.contains(niveau) else { return }
+            let liste = col.niveaux[niveau]
+            if gauche {
+                guard niveau > 0, niveau - 1 < col.pile.count else { return }
+                let parent = col.pile[niveau - 1]
+                col.tronquer(niveau)
+                choisirEtSuivre(parent, col)
+            } else if droite {
+                guard let u = sel.url, let it = liste.first(where: { $0.url == u }), it.isFolder else { return }
+                col.ouvrirNiveau(u, niveau)
+                // Le contenu arrive un instant plus tard : on choisit alors son premier élément.
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+                    if col.niveaux.indices.contains(niveau + 1), let premier = col.niveaux[niveau + 1].first {
+                        self.choisirEtSuivre(premier.url, col)
+                    }
+                }
+            } else {
+                deplacer(dans: liste.map(\.url), pas: bas ? 1 : -1, col)
+            }
+            return
+        }
+        let liste = col.visibles.map(\.url)
+        if col.presentation == .icones {
+            let n = max(1, col.colonnesVisibles)
+            deplacer(dans: liste, pas: gauche ? -1 : (droite ? 1 : (bas ? n : -n)), col)
+        } else if bas || haut {
+            deplacer(dans: liste, pas: bas ? 1 : -1, col)
+        }
+    }
+
+    /// Avance de `pas` éléments dans la liste ; sans sélection, prend le premier. On ne sort pas de la liste.
+    private func deplacer(dans liste: [URL], pas: Int, _ col: Column) {
+        guard !liste.isEmpty else { return }
+        guard let i = Selection.shared.url.flatMap({ liste.firstIndex(of: $0) }) else { choisirEtSuivre(liste[0], col); return }
+        let j = i + pas
+        guard liste.indices.contains(j) else { return }
+        choisirEtSuivre(liste[j], col)
+    }
+
+    private func choisirEtSuivre(_ url: URL, _ col: Column) {
+        Selection.shared.choisir(url, col)
         if QLPreviewPanel.sharedPreviewPanelExists(), let ql = QLPreviewPanel.shared(), ql.isVisible,
            let i = apercus.firstIndex(of: url) {   // l'aperçu suit la sélection
             apercu = url
             ql.currentPreviewItemIndex = i
         }
     }
+
+    /// Ancien nom, encore utilisé par l'aperçu : flèches haut et bas.
+    private func deplacerSelection(_ pas: Int) { fleche(pas > 0 ? 125 : 126) }
 
     // MARK: Menu contextuel (clic droit), calqué sur celui du Finder
 
@@ -5036,7 +5092,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         func contient(_ c: Column) -> Bool {
             c.visibles.contains { $0.url == url } || c.niveaux.contains { $0.contains { $0.url == url } }
         }
-        let colonne = [Selection.shared.colonne, survoleColonne, store.navigateur].compactMap { $0 }.first(where: contient)
+        let partout: [Column?] = [Selection.shared.colonne, survoleColonne, store.navigateur]
+            + store.columns.map { $0 } + store.etageres.map { $0 }
+        let colonne = partout.compactMap { $0 }.first(where: contient)
         var liste: [URL] = [], niveau: Int?
         if let colonne {
             if colonne.presentation == .colonnes, let n = colonne.niveaux.firstIndex(where: { $0.contains { $0.url == url } }) {
