@@ -243,10 +243,24 @@ enum Geste {
         }
         return (somme * 180 / .pi, absolue > 0 ? abs(somme) / absolue : 0)
     }
+    /// Rondeur d'un tracé : 1 pour un cercle, proche de 0 pour un aller-retour, quel que soit son angle.
+    /// (Rapport entre l'étalement des points dans leur direction la plus courte et dans la plus longue.)
+    static func rondeur(_ p: [CGPoint]) -> CGFloat {
+        let r = regulier(p), n = CGFloat(r.count)
+        guard n > 2 else { return 0 }
+        let mx = r.reduce(0) { $0 + $1.x } / n, my = r.reduce(0) { $0 + $1.y } / n
+        var xx: CGFloat = 0, yy: CGFloat = 0, xy: CGFloat = 0
+        for q in r { xx += (q.x - mx) * (q.x - mx); yy += (q.y - my) * (q.y - my); xy += (q.x - mx) * (q.y - my) }
+        let moitie = (xx + yy) / 2, ecart = (((xx - yy) / 2) * ((xx - yy) / 2) + xy * xy).squareRoot()
+        let grand = moitie + ecart, petit = max(0, moitie - ecart)
+        return grand > 0 ? (petit / grand).squareRoot() : 0
+    }
     /// Un tour à peu près complet, dans un sens ou dans l'autre, pas trop aplati.
     static func boucle(_ p: [CGPoint], degres: CGFloat) -> Bool {
-        let b = boite(p), grand = max(b.width, b.height), petit = min(b.width, b.height)
-        guard grand >= 24, petit >= grand * 0.35 else { return false }   // 24 points : un petit rond du poignet suffit
+        let b = boite(p)
+        guard max(b.width, b.height) >= 24 else { return false }   // 24 points : un petit rond du poignet suffit
+        // Une secousse dessine aussi une boucle, mais très aplatie : on exige une forme assez ronde.
+        guard rondeur(p) >= 0.45 else { return false }
         let r = rotation(p)
         return abs(r.degres) >= degres && r.constance >= 0.7
     }
@@ -3028,6 +3042,9 @@ struct ReglagesView: View {
             Section {
                 LabeledContent("Zones affichées", value: "\(store.etageres.count)")
                 Toggle("Refermer Side après un dépôt", isOn: $config.fermerApresDepot)
+                if config.fermerApresDepot {
+                    note("Pour le garder ouvert cette fois-là : maintiens Option (⌥) en lâchant le fichier, ou ramène tout de suite la souris sur la carte.")
+                }
                 Toggle("Garder les zones remplies à l'écran quand Side est fermé", isOn: $config.depotReste)
             } header: { Text("Zones de dépôt") } footer: {
                 note("Une zone apparaît en haut à droite de la carte quand tu fais glisser un fichier. Tant qu'elle contient quelque chose, elle reste à l'écran même quand Side est fermé, pour que tu puisses glisser son contenu ailleurs. Secoue le pointeur pendant le glisser pour en ajouter une autre en dessous. Les zones vides disparaissent toutes seules.")
@@ -3337,6 +3354,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
             tour("ovale                   ", cercle(1).map { CGPoint(x: $0.x * 1.8, y: $0.y) })
             tour("sens inverse            ", cercle(0, sens: -1))
             tour("trois quarts de tour    ", cercle(0.5, tours: 0.75))
+            // Une vraie secousse : des allers-retours le long d'une boucle très fine, ici en diagonale.
+            let secousse: [CGPoint] = (0...60).map { (i: Int) -> CGPoint in
+                let a = 4 * Double.pi * Double(i) / 60
+                let u = 120 * cos(a), v = 14 * sin(a)
+                return CGPoint(x: 500 + (u - v) * 0.707, y: 400 + (u + v) * 0.707)
+            }
+            tour("secousse en diagonale   ", secousse)
+            tour("secousse, un seul tour  ", Array(secousse.prefix(31)))
+            tour("ovale très allongé (3:1)", cercle(1).map { CGPoint(x: $0.x * 3, y: $0.y) })
             tour("ligne droite            ", ligne)
             tour("zigzag (secousse)       ", zigzag)
             var boucles = 0
@@ -3710,6 +3736,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
 
     /// Pose des éléments sur l'étagère. Les vrais fichiers ne sont pas déplacés : seul leur emplacement est retenu.
     func poser(_ fournisseurs: [NSItemProvider], _ zone: Int) {
+        // Option maintenue au moment de lâcher : Side reste ouvert, pour enchaîner.
+        let garder = NSEvent.modifierFlags.contains(.option)
         for f in fournisseurs {
             recevoir(f) { url, temporaire in
                 // Une image ou capture déposée une seconde fois : Side vient d'en enregistrer une copie.
@@ -3721,7 +3749,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
                     try? FileManager.default.removeItem(at: url)
                 }
                 self.store.reloadAll()
-                if self.config.fermerApresDepot { self.hide() }
+                guard self.config.fermerApresDepot, !garder else { return }
+                // Un court instant avant de fermer : si la souris est revenue sur la carte, c'est qu'on n'a pas fini.
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    if !self.cadreCarte.contains(NSEvent.mouseLocation) { self.hide() }
+                }
             }
         }
     }
