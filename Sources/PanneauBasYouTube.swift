@@ -3,6 +3,7 @@
 // et on peut y déposer un lien de vidéo glissé depuis Safari, ou coller un lien copié.
 import AppKit
 import WebKit
+import Combine
 
 /// Transforme n'importe quel lien YouTube (youtube.com, youtu.be, lien intégré) en lien pour le site téléphone. Sinon : rien.
 func lienYouTubeBas(_ url: URL) -> URL? {
@@ -126,7 +127,9 @@ final class LecteurYouTubeBas: NSView, WKNavigationDelegate, WKUIDelegate, WKScr
         estYouTube = youtube
         super.init(frame: .zero)
         wantsLayer = true
-        layer?.cornerRadius = 10
+        // L'arrondi des fenêtres de macOS : grand, et « continu » (la courbe s'adoucit, comme sur l'iPhone).
+        layer?.cornerRadius = 20
+        layer?.cornerCurve = .continuous
         layer?.masksToBounds = true
         layer?.borderWidth = 1
         layer?.backgroundColor = NSColor(white: 0.06, alpha: 1).cgColor
@@ -404,6 +407,9 @@ final class LecteurYouTubeBas: NSView, WKNavigationDelegate, WKUIDelegate, WKScr
           // La vidéo a des coins arrondis, comme sur le site de YouTube (sauf en plein écran).
           // (Une découpe, et non un « overflow » : la vidéo est dessinée à part par le Mac, et l'overflow la faisait disparaître.)
           + 'html:not(.side-plein) ytd-watch-flexy #movie_player{clip-path:inset(0 round 12px)!important}'
+          // Dans la tuile, YouTube colle la vidéo aux bords quand la page est étroite : on lui rend les mêmes marges qu'au reste de la page.
+          + 'html:not(.side-plein) ytd-watch-flexy:not([is-two-columns_]) #player-container-outer{padding:0 24px!important;box-sizing:border-box!important}'
+          + 'html:not(.side-plein) ytd-watch-flexy:not([is-two-columns_]) #full-bleed-container{padding:0 24px!important;box-sizing:border-box!important}'
           // Les Shorts, masqués quand le réglage le demande (la classe se pose et se retire sans recharger la page).
           + 'html.side-sans-shorts ytd-reel-shelf-renderer,html.side-sans-shorts ytd-rich-shelf-renderer[is-shorts],html.side-sans-shorts ytd-rich-section-renderer:has(ytd-rich-shelf-renderer[is-shorts]),'
           + 'html.side-sans-shorts ytd-rich-section-renderer:has(ytm-shorts-lockup-view-model),html.side-sans-shorts grid-shelf-view-model:has(ytm-shorts-lockup-view-model),'
@@ -669,11 +675,35 @@ final class ChoixMediaBas: NSView {
     private var decalage: CGFloat = 0
     private var glisse = false
 
+    /// Le fond de la piste : le même que celui du Finder de Side (flou, puis la teinte de fenêtre à l'opacité choisie
+    /// dans Réglages › Apparence). Il suit le mode clair ou sombre, et le réglage d'opacité.
+    private let flou = NSVisualEffectView()
+    private let teinte = TeinteBas()
+    private var suivi: AnyCancellable?
+
     override init(frame: NSRect) {
         super.init(frame: frame)
+        // Comme un contrôle segmenté de macOS : une piste en gélule, et le lecteur choisi en pastille claire dessus.
         wantsLayer = true
-        layer?.cornerRadius = 10
-        layer?.backgroundColor = NSColor(white: 0.07, alpha: 1).cgColor
+        layer?.cornerCurve = .continuous
+        layer?.masksToBounds = true
+        layer?.borderWidth = 0.5
+        flou.material = .popover
+        flou.blendingMode = .behindWindow
+        flou.state = .active
+        flou.autoresizingMask = [.width, .height]
+        teinte.wantsLayer = true
+        teinte.autoresizingMask = [.width, .height]
+        addSubview(flou)
+        addSubview(teinte)
+        suivi = Config.shared.$opacite.sink { [weak self] _ in
+            DispatchQueue.main.async { self?.teinte.needsDisplay = true }
+        }
+        peindre()
+    }
+    override func viewDidChangeEffectiveAppearance() {
+        super.viewDidChangeEffectiveAppearance()
+        peindre()
     }
     required init?(coder: NSCoder) { fatalError() }
 
@@ -686,7 +716,10 @@ final class ChoixMediaBas: NSView {
                 let b = BoutonBas(title: e.nom, target: nil, action: nil)
                 b.isBordered = false
                 b.wantsLayer = true
-                b.layer?.cornerRadius = 7
+                b.layer?.cornerCurve = .continuous
+                b.layer?.shadowColor = NSColor.black.cgColor
+                b.layer?.shadowOffset = CGSize(width: 0, height: -1)
+                b.layer?.shadowRadius = 3
                 b.identifier = NSUserInterfaceItemIdentifier(e.cle)
                 addSubview(b)
                 return (e.cle, b)
@@ -697,22 +730,32 @@ final class ChoixMediaBas: NSView {
     }
 
     private func peindre() {
+        // Les couleurs suivent le mode clair ou sombre (celui du Mac), comme le Finder de Side.
+        let sombre = effectiveAppearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
+        var bord = NSColor.clear.cgColor
+        effectiveAppearance.performAsCurrentDrawingAppearance { bord = NSColor.separatorColor.cgColor }
+        layer?.borderColor = bord
         for (cle, b) in boutons {
             let actif = cle == choisi
-            b.layer?.backgroundColor = actif ? NSColor(white: 1, alpha: 0.16).cgColor : NSColor.clear.cgColor
+            b.layer?.backgroundColor = actif ? (sombre ? NSColor(white: 1, alpha: 0.22) : NSColor.white).cgColor : NSColor.clear.cgColor
+            b.layer?.shadowOpacity = actif ? (sombre ? 0.25 : 0.15) : 0
             b.attributedTitle = NSAttributedString(string: b.title, attributes: [
-                .foregroundColor: actif ? NSColor.white : NSColor(white: 1, alpha: 0.55),
-                .font: NSFont.systemFont(ofSize: 12, weight: .semibold)])
+                .foregroundColor: actif ? NSColor.labelColor : NSColor.secondaryLabelColor,
+                .font: NSFont.systemFont(ofSize: 13, weight: actif ? .semibold : .medium)])
         }
     }
 
-    private var largeurBouton: CGFloat { (bounds.width - 4 * (CGFloat(boutons.count) + 1)) / CGFloat(max(boutons.count, 1)) }
+    private var largeurBouton: CGFloat { (bounds.width - 3 * (CGFloat(boutons.count) + 1)) / CGFloat(max(boutons.count, 1)) }
     private func cadre(_ i: Int) -> NSRect {
-        NSRect(x: 4 + CGFloat(i) * (largeurBouton + 4), y: 4, width: largeurBouton, height: bounds.height - 8)
+        NSRect(x: 3 + CGFloat(i) * (largeurBouton + 3), y: 3, width: largeurBouton, height: bounds.height - 6)
     }
 
     override func layout() {
         super.layout()
+        layer?.cornerRadius = bounds.height / 2
+        flou.frame = bounds
+        teinte.frame = bounds
+        for (_, b) in boutons { b.layer?.cornerRadius = (bounds.height - 6) / 2 }
         // Le lecteur qu'on glisse suit la souris ; les autres tiennent leur rang.
         for (i, (_, b)) in boutons.enumerated() where !(glisse && i == prise) { b.frame = cadre(i) }
     }

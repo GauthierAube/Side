@@ -2143,12 +2143,32 @@
         }
       }
     },
+    "Impossible de coller certains éléments": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Some items couldn't be pasted"
+          }
+        }
+      }
+    },
     "Impossible de compresser « %@ »": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Couldn't Compress “%@”"
+          }
+        }
+      }
+    },
+    "Impossible de créer le dossier": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The folder couldn't be created"
           }
         }
       }
@@ -2199,6 +2219,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Couldn't Change the Tags of “%@”"
+          }
+        }
+      }
+    },
+    "Impossible de placer certains éléments dans la corbeille": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Some items couldn't be moved to the Trash"
           }
         }
       }
@@ -2609,6 +2639,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Swiping the other way closes the Finder. Note: macOS already uses these gestures, up for Mission Control and down for App Exposé. So that both don't trigger together, set them to “Off” in System Settings > Trackpad > More Gestures. Side doesn't change these settings itself."
+          }
+        }
+      }
+    },
+    "Le même fond flou sert au Finder de Side, au volet du presse-papiers et aux onglets du coin multimédia du tiroir : cette opacité vaut pour tous.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The same blurred background is used by Side's Finder, the clipboard panel and the media tabs in the drawer: this opacity applies to all of them."
           }
         }
       }
@@ -3399,6 +3439,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Move to Trash"
+          }
+        }
+      }
+    },
+    "Placer les %lld éléments dans la corbeille": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Move %lld Items to Trash"
           }
         }
       }
@@ -4959,6 +5009,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "copy"
+          }
+        }
+      }
+    },
+    "dossier sans titre": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "untitled folder"
           }
         }
       }

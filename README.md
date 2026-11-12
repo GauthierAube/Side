@@ -12,6 +12,7 @@ On les fait venir d'un geste, on s'en sert, on les referme. Pas besoin de quitte
 
 - **S'ouvre d'un geste** : un coin de l'écran, un geste de souris, quatre doigts sur le trackpad ou un raccourci clavier (⌘@ par défaut).
 - **Un vrai navigateur de fichiers** : barre latérale (favoris, récents, tags, disques et serveurs connectés), onglets, présentations en icônes, liste ou colonnes, recherche Spotlight, menu du clic droit, aperçu avec Espace.
+- **Les raccourcis du Finder** : sélection multiple (⌘-clic, Maj-clic, Maj + flèches, ⌘A), ⌘C, ⌘V, ⌥⌘V, ⌘D, ⌘I, ⇧⌘N, ⌘⌫, ⌘O, ⌘↑, ⌘[ ⌘], ⌘1 à ⌘3, ⌘F, et ⇧⌘H, ⇧⌘D, ⇧⌘O, ⌥⌘L, ⇧⌘A, ⇧⌘U pour aller aux dossiers.
 - **Une zone de dépôt** : pendant un glisser, une case apparaît à côté de la carte. Ce qu'on y pose reste sous la main, même Side fermé, pour le glisser ailleurs plus tard.
 - **Des colonnes épinglées** : glisser un dossier sur le bord droit de la carte le garde affiché en colonne.
 - **Un historique du copier-coller**, gardé 7 jours : un volet glisse depuis le bord droit de l'écran, par un coin (en bas à droite par défaut) ou un raccourci clavier (⌃⌥V par défaut). Chaque élément copié y est une carte selon sa nature (image, lien, couleur, fichier…) ; un clic la recopie. Un second onglet, « Enregistrés », garde pour toujours, par groupes, les liens qu'on colle souvent : il suffit d'y glisser un élément.

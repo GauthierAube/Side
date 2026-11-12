@@ -390,7 +390,24 @@ final class PanneauBas: NSObject {
         let c = cadreBrut
         let bord = ConfigTiroir.enHaut ? c.maxY : c.minY                   // le bord tourné vers le milieu de l'écran
         let dedans = ConfigTiroir.enHaut ? bord - p.y : p.y - bord
-        return p.x >= c.minX && p.x <= c.maxX && dedans >= -8 && dedans <= 18
+        guard p.x >= c.minX && p.x <= c.maxX && dedans >= -8 && dedans <= 18 else { return false }
+        // Une autre fenêtre est posée là, par-dessus le tiroir (les réglages de Side, la liste du « + », une autre application) :
+        // le pointeur est sur elle, pas sur le bord du tiroir.
+        return tiroirSous(p)
+    }
+    /// Les numéros de la fenêtre du tiroir et de celles de ses tuiles (tenus à jour par le tiroir).
+    static var numerosDuTiroir: Set<Int> = []
+    /// La fenêtre la plus en avant sous ce point (coordonnées de l'écran, origine en haut à gauche) est-elle le tiroir ou une de ses tuiles ?
+    static func tiroirSous(_ p: CGPoint) -> Bool {
+        let infos = (CGWindowListCopyWindowInfo([.optionOnScreenOnly, .excludeDesktopElements], kCGNullWindowID) as? [[String: Any]]) ?? []
+        for w in infos {
+            let couche = (w[kCGWindowLayer as String] as? Int) ?? 0
+            guard couche < 24, ((w[kCGWindowAlpha as String] as? Double) ?? 1) > 0.05,     // ni barre des menus, ni pointeur, ni fenêtre invisible
+                  let d = w[kCGWindowBounds as String] as? NSDictionary, let r = CGRect(dictionaryRepresentation: d), r.contains(p),
+                  let n = w[kCGWindowNumber as String] as? Int else { continue }
+            return numerosDuTiroir.contains(n)
+        }
+        return false
     }
     static var tirageHauteur = false            // on est en train de tirer le bord du tiroir (suivi par le filtre d'événements)
     static var departHauteur: CGFloat = 0
@@ -495,6 +512,7 @@ final class PanneauBas: NSObject {
     /// Les numéros des fenêtres rangées dans le tiroir, pour Square : il ne les met ni dans sa grille ni dans son carrousel.
     private func publierFenêtres() {
         let ids = emprunts.filter { $0.nom != enGrand }.compactMap { numéros[$0.nom] }.map { Int($0) }.sorted()
+        PanneauBas.numerosDuTiroir = Set(ids + [panneau?.windowNumber ?? -1])
         let d = UserDefaults.standard
         if (d.array(forKey: "fenetresDuTiroir") as? [Int]) != ids { d.set(ids, forKey: "fenetresDuTiroir") }
     }     // le numéro de la fenêtre de chaque tuile, pour savoir tout de suite si elle a été fermée
@@ -932,7 +950,8 @@ final class PanneauBas: NSObject {
             v.image = photo(e, taille: r.size, fraîche: fraîches && àLÉcran.contains(e.nom))
             v.imageScaling = .scaleAxesIndependently
             v.wantsLayer = true
-            v.layer?.cornerRadius = 10
+            v.layer?.cornerRadius = 20
+            v.layer?.cornerCurve = .continuous
             v.layer?.masksToBounds = true
             v.auClic = { [weak self] in self?.montrerTuile(i) }
             bandeVue.addSubview(v)
@@ -1051,6 +1070,7 @@ final class PanneauBas: NSObject {
         pidAvant = NSWorkspace.shared.frontmostApplication?.processIdentifier ?? 0
         let p = panneau ?? construire()
         panneau = p
+        publierFenêtres()                          // le tiroir lui-même compte parmi « ses » fenêtres (double flèche du bord)
         let fin = cadre(ecran)
         p.setFrame(fin, display: false)
         disposerLeFond(fin)

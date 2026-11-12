@@ -455,7 +455,8 @@ final class LecteurSpotifyBas: NSView, NSSearchFieldDelegate {
         super.init(frame: frame)
         appearance = NSAppearance(named: .darkAqua)
         wantsLayer = true
-        layer?.cornerRadius = 12
+        layer?.cornerRadius = 20
+        layer?.cornerCurve = .continuous
         layer?.cornerCurve = .continuous
         layer?.borderWidth = 0.5
         layer?.masksToBounds = true

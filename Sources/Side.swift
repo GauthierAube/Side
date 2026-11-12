@@ -1354,6 +1354,8 @@ final class Column: ObservableObject, Identifiable {
 }
 
 final class Store: ObservableObject {
+    /// ⌘F : le champ « Rechercher » de la grande zone s'ouvre (chaque demande incrémente ce nombre).
+    @Published var demandeRecherche = 0
     @Published var columns: [Column] = []
     @Published var largeurMax: CGFloat = 1400   // largeur disponible sur l'écran de la carte
     @Published var margeHaut: CGFloat = 0   // place laissée à l'encoche de l'écran
@@ -3382,6 +3384,11 @@ struct ColumnView: View {
             .contentShape(Rectangle())
             .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(Color.accentColor, lineWidth: depot ? 2 : 0).padding(2))
             .modifier(Depot(action: actionDepot, cible: $depot))
+            .onReceive(store.$demandeRecherche.dropFirst()) { _ in
+                guard fixe else { return }                    // la grande zone seulement
+                recherche = true
+                DispatchQueue.main.async { champRecherche = true }
+            }
     }
 
     /// Sur l'étagère, on pose une référence ; dans un dossier, on range le fichier.
@@ -3666,24 +3673,77 @@ final class Selection: ObservableObject {
     static let shared = Selection()
     /// Le bleu de sélection du Finder (il suit la couleur d'accentuation choisie dans les Réglages Système).
     static let bleu = Color(nsColor: .selectedContentBackgroundColor)
-    /// L'élément sélectionné. L'interface est prévenue APRÈS le changement : prévenue avant (le fonctionnement
-    /// par défaut), elle se redessinait parfois avec l'ancienne valeur, et l'affichage avait une flèche de retard.
+    /// L'élément « au focus » : le dernier choisi (c'est de lui que partent les flèches, l'aperçu, Entrée pour renommer).
+    /// L'interface est prévenue APRÈS le changement : prévenue avant (le fonctionnement par défaut), elle se redessinait
+    /// parfois avec l'ancienne valeur, et l'affichage avait une flèche de retard.
     var url: URL? {
         didSet {
             guard url != oldValue else { return }
+            // Changé directement (sans passer par les fonctions ci-dessous) : la sélection se réduit à lui.
+            if let u = url { if !urls.contains(u) { urls = [u]; ancre = u } } else { urls = []; ancre = nil }
             objectWillChange.send()
             changements.send(url)
         }
     }
+    /// Tous les éléments sélectionnés, comme dans le Finder (⌘-clic, Maj-clic, ⌘A, Maj + flèches).
+    private(set) var urls: Set<URL> = []
+    /// L'élément d'où part une sélection étendue avec Maj.
+    private(set) var ancre: URL?
     /// Annonce chaque nouvelle sélection (pour faire défiler la liste jusqu'à elle).
     let changements = PassthroughSubject<URL?, Never>()
     weak var colonne: Column?
+
+    func contient(_ u: URL) -> Bool { urls.contains(u) }
+    var nombre: Int { urls.count }
+
+    /// Un clic simple : cet élément seul.
     func choisir(_ url: URL?, _ colonne: Column?) {
         self.colonne = colonne
+        urls = url.map { [$0] } ?? []
+        ancre = url
+        let avant = self.url
         self.url = url
+        if avant == url { objectWillChange.send() }
         // Sélectionner un élément sort du champ « Rechercher » : Espace sert alors au Coup d'œil,
         // au lieu d'ajouter un espace au texte recherché.
         if url != nil { AppDelegate.shared.lacherChamp() }
+    }
+    /// ⌘-clic : ajoute l'élément à la sélection, ou l'en retire.
+    func basculer(_ u: URL, _ colonne: Column?) {
+        if self.colonne !== colonne { choisir(u, colonne); return }
+        if urls.contains(u) {
+            urls.remove(u)
+            if url == u { let reste = urls.first; ancre = reste; changerFocus(reste) } else { objectWillChange.send() }
+        } else {
+            urls.insert(u)
+            ancre = u
+            changerFocus(u)
+        }
+        AppDelegate.shared.lacherChamp()
+    }
+    /// Maj-clic ou Maj + flèche : tout ce qui va de l'ancre à cet élément, dans l'ordre de la liste affichée.
+    func etendre(jusqua u: URL, dans liste: [URL], _ colonne: Column?) {
+        guard self.colonne === colonne, let a = ancre, let i = liste.firstIndex(of: a), let j = liste.firstIndex(of: u) else {
+            choisir(u, colonne); return
+        }
+        urls = Set(liste[min(i, j)...max(i, j)])
+        changerFocus(u)
+        AppDelegate.shared.lacherChamp()
+    }
+    /// ⌘A : tout ce qui est affiché.
+    func toutChoisir(_ liste: [URL], _ colonne: Column?) {
+        guard !liste.isEmpty else { return }
+        self.colonne = colonne
+        urls = Set(liste)
+        ancre = liste.first
+        changerFocus(url.flatMap { liste.contains($0) ? $0 : nil } ?? liste.first)
+    }
+    /// Les éléments sélectionnés, dans l'ordre de la liste donnée (les autres à la fin).
+    func dansLOrdre(_ liste: [URL]) -> [URL] {
+        liste.filter { urls.contains($0) } + urls.filter { !liste.contains($0) }.sorted { $0.path < $1.path }
+    }
+    private func changerFocus(_ u: URL?) {
+        if url == u { objectWillChange.send() } else { url = u }
     }
 }
 
@@ -3891,7 +3951,7 @@ struct MillerRow: View {
 
     var body: some View {
         let ouvert = niveau < column.pile.count && column.pile[niveau] == item.url
-        let choisi = selection.url == item.url
+        let choisi = selection.contient(item.url)
         HStack(spacing: 8) {
             Image(nsImage: NSWorkspace.shared.icon(forFile: item.url.path))
                 .resizable().frame(width: 18, height: 18)
@@ -3915,7 +3975,8 @@ struct MillerRow: View {
         .onHover { survol = $0; AppDelegate.shared.survoler(item, column, $0) }
         // Un clic sur un dossier l'ouvre dans la colonne suivante ; sur un fichier, il le sélectionne.
         .onTapGesture {
-            selection.choisir(item.url, column)
+            // Avec ⌘ ou Maj, le clic ajoute à la sélection, sans ouvrir de dossier.
+            guard !AppDelegate.shared.cliquer(item.url, column, liste: column.niveaux.indices.contains(niveau) ? column.niveaux[niveau].map(\.url) : []) else { return }
             if item.isFolder { column.ouvrirNiveau(item.url, niveau) } else { column.tronquer(niveau) }
         }
         .simultaneousGesture(TapGesture(count: 2).onEnded {
@@ -3975,12 +4036,12 @@ struct Interactions: ViewModifier {
         content
             .background(RoundedRectangle(cornerRadius: 6).fill(
                 depot ? Color.accentColor.opacity(0.35)
-                    : (fond && selection.url == item.url ? Selection.bleu
-                        : (survol && selection.url != item.url ? Color.primary.opacity(0.1) : .clear))))
+                    : (fond && selection.contient(item.url) ? Selection.bleu
+                        : (survol && !selection.contient(item.url) ? Color.primary.opacity(0.1) : .clear))))
             .contentShape(Rectangle())
             .onHover { survol = $0; AppDelegate.shared.survoler(item, column, $0) }
             // Comme dans le Finder : un clic sélectionne, un double-clic ouvre.
-            .onTapGesture { selection.choisir(item.url, column) }
+            .onTapGesture { _ = AppDelegate.shared.cliquer(item.url, column, liste: column.visibles.map(\.url)) }
             .simultaneousGesture(TapGesture(count: 2).onEnded {
                 if !item.isFolder { AppDelegate.shared.ouvrir(item.url) }
                 else if column.kind == .etagere { AppDelegate.shared.store.naviguer(.folder(item.url)) }
@@ -4062,7 +4123,7 @@ struct IconView: View {
     @ObservedObject private var config = Config.shared
 
     var body: some View {
-        let choisi = selection.url == item.url
+        let choisi = selection.contient(item.url)
         let cote = taille ?? CGFloat(config.tailleIcones)
         let droite = legende && config.texteADroite
         let image = Image(nsImage: (config.apercus ? vignette : nil) ?? NSWorkspace.shared.icon(forFile: item.url.path))
@@ -4158,7 +4219,7 @@ struct RowView: View {
 
     var body: some View {
         // Ligne choisie : fond bleu du Finder, textes en blanc.
-        let choisi = selection.url == item.url
+        let choisi = selection.contient(item.url)
         let discret = choisi ? Color.white.opacity(0.85) : Color.secondary
         return HStack(spacing: 8) {
             Image(nsImage: NSWorkspace.shared.icon(forFile: item.url.path))
@@ -4306,20 +4367,30 @@ struct ReglagesView: View {
 
     var body: some View {
         HStack(spacing: 0) {
-            VStack(alignment: .leading, spacing: 2) {
-                ForEach(Array(Volet.groupes.enumerated()), id: \.offset) { _, groupe in
-                    if let nom = groupe.0 {
-                        Text(nom).font(.caption.weight(.semibold)).foregroundStyle(.secondary)
-                            .padding(.leading, 8).padding(.top, 12).padding(.bottom, 2)
+            // La barre latérale défile quand elle ne tient pas en hauteur, et commence sous les boutons de la fenêtre
+            // (rouge, jaune, vert), comme dans les Réglages Système.
+            ScrollView(.vertical) {
+                VStack(alignment: .leading, spacing: 2) {
+                    ForEach(Array(Volet.groupes.enumerated()), id: \.offset) { _, groupe in
+                        if let nom = groupe.0 {
+                            Text(nom).font(.caption.weight(.semibold)).foregroundStyle(.secondary)
+                                .padding(.leading, 8).padding(.top, 12).padding(.bottom, 2)
+                        }
+                        ForEach(groupe.1) { ligne($0) }
                     }
-                    ForEach(groupe.1) { ligne($0) }
                 }
-                Spacer()
+                .padding(.horizontal, 10)
+                .padding(.top, 4)
+                .padding(.bottom, 10)
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .padding(.horizontal, 10)
-            .padding(.top, 48)
-            .padding(.bottom, 10)
+            .scrollIndicators(.automatic)
+            // Pas de marge automatique sous la barre de titre : la barre latérale commence exactement sous les boutons.
+            .contentMargins(.top, 0, for: .scrollContent)
+            .ignoresSafeArea(.container, edges: .top)
+            .padding(.top, 50)
             .frame(width: 230)
+            .frame(maxHeight: .infinity, alignment: .top)
             .background(ZStack {
                 Color(nsColor: .windowBackgroundColor)
                 Color.primary.opacity(0.05)
@@ -4522,8 +4593,10 @@ struct ReglagesView: View {
                 curseur("Hauteur du Finder", $config.tailleHauteur, 0.15...0.9, pourcent(config.tailleHauteur))
                 curseur("Largeur (sans les colonnes épinglées)", $config.largeurSeule, 0.35...1, pourcent(config.largeurSeule))
             }
-            Section("Fond") {
+            Section {
                 curseur("Opacité", $config.opacite, 0...1, pourcent(config.opacite))
+            } header: { Text("Fond") } footer: {
+                note("Le même fond flou sert au Finder de Side, au volet du presse-papiers et aux onglets du coin multimédia du tiroir : cette opacité vaut pour tous.")
             }
             Section {
                 Toggle("Flouter l'arrière-plan quand le Finder est ouvert", isOn: $config.flou)
@@ -4924,7 +4997,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
             self.hide(immediat: true)   // déjà hors de vue : on la range sans animation
         }
         NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] ev in
-            self?.toucheApercu(ev) == true ? nil : ev
+            guard let self else { return ev }
+            if self.toucheApercu(ev) { return nil }
+            if ev.modifierFlags.contains(.command) {
+                self.journal("touche ⌘ code \(ev.keyCode) lettre \(ev.charactersIgnoringModifiers ?? "?") — visible \(self.visible), fenêtre de la carte \(ev.window === self.panel), champ de texte \(self.panel.firstResponder is NSTextView), sélection \(Selection.shared.nombre), colonne \(Selection.shared.colonne != nil)")
+            }
+            // Les raccourcis avec ⌘ du Finder de Side passent avant les menus de l'application : après un clic sur un fichier,
+            // « Édition › Tout sélectionner » attrapait ⌘A (pour une liste interne) et la sélection ne changeait pas.
+            if ev.modifierFlags.contains(.command), self.visible, ev.window === self.panel,
+               !(self.panel.firstResponder is NSTextView), self.touche(ev) { return nil }
+            return ev
         }
         NSEvent.addGlobalMonitorForEvents(matching: [.mouseMoved, .leftMouseDragged]) { [weak self] _ in self?.secousse() }
         NSEvent.addLocalMonitorForEvents(matching: [.mouseMoved, .leftMouseDragged]) { [weak self] ev in
@@ -5305,7 +5387,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
             w.styleMask = [.titled, .closable, .fullSizeContentView]
             w.titlebarAppearsTransparent = true
             w.titleVisibility = .hidden
-            w.setContentSize(NSSize(width: 760, height: 500))   // sinon une bande vide reste en bas
+            w.setContentSize(NSSize(width: 800, height: 680))   // assez haut pour toute la barre latérale ; elle défile sinon
+            w.styleMask.insert(.resizable)
             w.isReleasedWhenClosed = false
             w.center()
             fenetreReglages = w
@@ -5912,47 +5995,204 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         if dedans { survole = item; survoleColonne = colonne } else if survole == item { survole = nil }
     }
 
+    // MARK: Sélection à la souris, comme dans le Finder
+
+    /// Un clic sur un élément : seul (clic), ajouté ou retiré (⌘-clic), ou toute la plage depuis l'ancre (Maj-clic).
+    /// Renvoie vrai si le clic a seulement modifié la sélection (avec ⌘ ou Maj) : rien d'autre ne doit alors se passer.
+    @discardableResult
+    func cliquer(_ url: URL, _ colonne: Column, liste: [URL]) -> Bool {
+        let f = NSEvent.modifierFlags, sel = Selection.shared
+        if f.contains(.command) { sel.basculer(url, colonne); return true }
+        if f.contains(.shift), sel.colonne === colonne, sel.ancre != nil { sel.etendre(jusqua: url, dans: liste, colonne); return true }
+        sel.choisir(url, colonne)
+        return false
+    }
+
+    /// La liste affichée où se trouve la sélection : la colonne (en présentation en colonnes) ou toute la vue.
+    private func listeCourante(_ col: Column) -> [URL] {
+        if col.presentation == .colonnes && col.resultats == nil {
+            let u = Selection.shared.url
+            let niveau = u.flatMap { u in col.niveaux.firstIndex { $0.contains { $0.url == u } } } ?? max(0, col.niveaux.count - 1)
+            return col.niveaux.indices.contains(niveau) ? col.niveaux[niveau].map(\.url) : []
+        }
+        return col.visibles.map(\.url)
+    }
+    /// Le dossier où coller ou créer : celui qui contient la sélection, sinon celui qui est affiché.
+    private func dossierCourant(_ col: Column) -> URL? {
+        if let u = Selection.shared.url, Selection.shared.colonne === col { return u.deletingLastPathComponent() }
+        return col.courant
+    }
+    /// Les éléments sélectionnés, dans l'ordre affiché.
+    private var selectionnes: [URL] {
+        let sel = Selection.shared
+        return sel.dansLOrdre(sel.colonne.map(listeCourante) ?? [])
+    }
+
     // MARK: Clavier, comme dans le Finder
 
-    /// Espace : Coup d'œil. Flèches haut/bas : élément suivant. Commande + bas ou Commande + O : ouvrir.
-    /// Entrée : renommer. Commande + Effacer : corbeille. Renvoie vrai si la touche a servi.
+    /// Les raccourcis du Finder : Espace (Coup d'œil), flèches (avec Maj pour étendre), ⌘A, ⌘C, ⌘V, ⌥⌘V, ⌘D, ⌘I,
+    /// ⇧⌘N, ⌘⌫, ⌘O et ⌘↓ (ouvrir), ⌘↑ (dossier parent), ⌘[ et ⌘] (précédent, suivant), ⌘1 à ⌘3 (présentation), ⌘F,
+    /// et les dossiers du Finder (⇧⌘H, ⇧⌘D, ⇧⌘O, ⌥⌘L, ⇧⌘A, ⇧⌘U). Entrée : renommer. Renvoie vrai si la touche a servi.
     func touche(_ ev: NSEvent) -> Bool {
-        let cmd = ev.modifierFlags.contains(.command)
+        let f = ev.modifierFlags.intersection(.deviceIndependentFlagsMask)
+        let cmd = f.contains(.command), maj = f.contains(.shift), opt = f.contains(.option)
         let sel = Selection.shared
-        switch (ev.keyCode, cmd) {
-        case (49, false):
+        let col = sel.colonne ?? store.navigateur
+        // Maj + flèches : la sélection s'étend, comme dans le Finder.
+        if maj, !cmd, [123, 124, 125, 126].contains(ev.keyCode) { fleche(ev.keyCode, etendre: true); return true }
+        // La touche est reconnue à sa LETTRE (celle du clavier utilisé : AZERTY, QWERTY…), jamais à son emplacement :
+        // sur un clavier français, la touche A est là où un clavier américain a son Q.
+        let lettre = (ev.charactersIgnoringModifiers ?? "").lowercased()
+        // Les touches sans lettre, et les chiffres (rangée du haut, quel que soit le clavier), par leur emplacement.
+        let touche: String = [126: "haut", 125: "bas", 51: "suppr", 18: "1", 19: "2", 20: "3", 33: "[", 30: "]"][Int(ev.keyCode)] ?? lettre
+        if cmd && maj {
+            switch lettre {
+            case "n": nouveauDossier(col)                                            // ⇧⌘N
+            case "h": store.naviguer(.folder(Fichiers.home))                          // ⇧⌘H : départ
+            case "d": store.naviguer(.folder(Fichiers.home.appendingPathComponent("Desktop")))      // ⇧⌘D : bureau
+            case "o": store.naviguer(.folder(Fichiers.documents))                    // ⇧⌘O : documents
+            case "a": store.naviguer(.folder(URL(fileURLWithPath: "/Applications")))  // ⇧⌘A : applications
+            case "u": store.naviguer(.folder(URL(fileURLWithPath: "/Applications/Utilities")))     // ⇧⌘U : utilitaires
+            default: return false
+            }
+            return true
+        }
+        if cmd && opt {
+            switch lettre {
+            case "l": store.naviguer(.folder(Fichiers.downloads))                    // ⌥⌘L : téléchargements
+            case "v": coller(col, deplacer: true)                                     // ⌥⌘V : déplacer ici
+            default: return false
+            }
+            return true
+        }
+        if cmd {
+            switch touche {
+            case "a":                                                               // ⌘A
+                sel.toutChoisir(listeCourante(col), col)
+                journal("tout sélectionner : \(sel.nombre) élément(s)")
+            case "c":                                                             // ⌘C
+                let l = selectionnes
+                guard !l.isEmpty else { return false }
+                NSPasteboard.general.clearContents()
+                NSPasteboard.general.writeObjects(l.map { $0 as NSURL })
+            case "v": coller(col, deplacer: false)                                    // ⌘V
+            case "d":                                                             // ⌘D : dupliquer
+                let l = selectionnes
+                guard !l.isEmpty else { return false }
+                for u in l { cible = u; mDupliquer() }
+            case "i":                                                              // ⌘I : lire les informations
+                guard let u = sel.url else { return false }
+                cible = u; mInfos()
+            case "f": DispatchQueue.main.async { self.store.demandeRecherche += 1 }   // ⌘F
+            case "haut":                                                             // ⌘↑ : dossier parent
+                if col.presentation == .colonnes, !col.pile.isEmpty {
+                    let parent = col.pile.last!
+                    col.tronquer(col.pile.count - 1)
+                    sel.choisir(parent, col)
+                } else if col.peutRevenir { col.revenir() }
+            case "[": if col.peutRevenir { col.revenir() }                          // ⌘[
+            case "]": if col.peutAvancer { col.avancer() }                          // ⌘]
+            case "1": col.presentation = .icones                                     // ⌘1
+            case "2": col.presentation = .liste                                      // ⌘2
+            case "3": col.presentation = .colonnes                                   // ⌘3
+            case "bas", "o":                                                           // ⌘↓, ⌘O : ouvrir
+                let l = selectionnes
+                guard let u = sel.url else { return false }
+                if l.count == 1, let it = sel.colonne?.items.first(where: { $0.url == u }), it.isFolder { sel.colonne?.entrer(u) }
+                else { hide(); l.forEach { NSWorkspace.shared.open($0, configuration: NSWorkspace.OpenConfiguration(), completionHandler: nil) } }
+            case "t": store.nouvelOnglet()                                           // ⌘T
+            case "w":                                                              // ⌘W
+                if store.onglets.count > 1 { store.fermerOnglet(store.ongletActif) } else { hide() }
+            case "suppr":                                                             // ⌘⌫ : corbeille
+                let l = selectionnes
+                guard !l.isEmpty else { return false }
+                if l.count == 1 { cible = l[0]; sel.url = nil; mCorbeille() } else { mettreALaCorbeille(l) }
+            default: return false
+            }
+            return true
+        }
+        switch ev.keyCode {
+        case 49:
             guard let u = sel.url ?? survole?.url else { return false }
             coupDOeil(u)
-        case (125, true), (31, true):
-            guard let u = sel.url else { return false }
-            if let it = sel.colonne?.items.first(where: { $0.url == u }), it.isFolder { sel.colonne?.entrer(u) }
-            else { ouvrir(u) }
-        case (17, true): store.nouvelOnglet()                       // Commande + T
-        case (13, true):                                            // Commande + W
-            if store.onglets.count > 1 { store.fermerOnglet(store.ongletActif) } else { hide() }
-        case (123, false), (124, false), (125, false), (126, false): fleche(ev.keyCode)
-        case (36, false), (76, false):
+        case 123, 124, 125, 126: fleche(ev.keyCode)
+        case 36, 76:
             guard let u = sel.url else { return false }
             cible = u
             mRenommer()
-        case (51, true):
-            guard let u = sel.url else { return false }
-            cible = u
-            sel.url = nil
-            mCorbeille()
         default: return false
         }
         return true
+    }
+
+    /// Plusieurs éléments à la corbeille d'un coup ; la sélection passe à l'élément qui suivait le dernier.
+    private func mettreALaCorbeille(_ l: [URL]) {
+        let sel = Selection.shared, col = sel.colonne
+        let liste = col.map(listeCourante) ?? []
+        let apres = liste.lastIndex { l.contains($0) }.flatMap { i in liste.dropFirst(i + 1).first { !l.contains($0) } }
+            ?? liste.last { !l.contains($0) }
+        var echecs: [String] = []
+        for u in l { do { try FileManager.default.trashItem(at: u, resultingItemURL: nil) } catch { echecs.append(u.lastPathComponent) } }
+        store.reloadAll()
+        sel.choisir(apres, col)
+        if !echecs.isEmpty {
+            erreur(String(localized: "Impossible de placer certains éléments dans la corbeille"),
+                   NSError(domain: "Side", code: 2, userInfo: [NSLocalizedDescriptionKey: echecs.joined(separator: ", ")]))
+        }
+    }
+
+    /// ⌘V : les fichiers copiés arrivent dans le dossier courant (copiés, ou déplacés avec ⌥⌘V). Un nom déjà pris devient « nom 2 ».
+    private func coller(_ col: Column, deplacer: Bool) {
+        guard let dossier = dossierCourant(col),
+              let fichiers = NSPasteboard.general.readObjects(forClasses: [NSURL.self], options: [.urlReadingFileURLsOnly: true]) as? [URL],
+              !fichiers.isEmpty else { NSSound.beep(); return }
+        var arrives: [URL] = [], echecs: [String] = []
+        for f in fichiers {
+            var dest = dossier.appendingPathComponent(f.lastPathComponent)
+            if dest.standardizedFileURL == f.standardizedFileURL && deplacer { continue }
+            if FileManager.default.fileExists(atPath: dest.path) { dest = nomLibre(dest, suffixe: deplacer ? "" : " " + String(localized: "copie")) }
+            do {
+                if deplacer { try FileManager.default.moveItem(at: f, to: dest) } else { try FileManager.default.copyItem(at: f, to: dest) }
+                arrives.append(dest)
+            } catch { echecs.append(f.lastPathComponent) }
+        }
+        store.reloadAll()
+        // Les éléments collés sont sélectionnés, comme dans le Finder.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            guard let premier = arrives.first else { return }
+            Selection.shared.choisir(premier, col)
+            if arrives.count > 1 { Selection.shared.toutChoisir(arrives, col) }
+        }
+        if !echecs.isEmpty {
+            erreur(String(localized: "Impossible de coller certains éléments"),
+                   NSError(domain: "Side", code: 3, userInfo: [NSLocalizedDescriptionKey: echecs.joined(separator: ", ")]))
+        }
+    }
+
+    /// ⇧⌘N : un nouveau dossier dans le dossier courant, aussitôt prêt à être renommé.
+    private func nouveauDossier(_ col: Column) {
+        guard let dossier = dossierCourant(col) else { NSSound.beep(); return }
+        let nouveau = nomLibre(dossier.appendingPathComponent(String(localized: "dossier sans titre")), suffixe: "", ext: "")
+        do { try FileManager.default.createDirectory(at: nouveau, withIntermediateDirectories: false) }
+        catch { erreur(String(localized: "Impossible de créer le dossier"), error); return }
+        store.reloadAll()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+            Selection.shared.choisir(nouveau, col)
+            self.cible = nouveau
+            self.mRenommer()
+        }
     }
 
     /// Les flèches, comme dans le Finder :
     /// - en icônes, gauche et droite passent à l'élément voisin, haut et bas à la ligne du dessus ou du dessous ;
     /// - en liste, haut et bas passent à l'élément voisin ;
     /// - en colonnes, gauche remonte au dossier parent, droite entre dans le dossier choisi.
-    private func fleche(_ touche: UInt16) {
+    private func fleche(_ touche: UInt16, etendre: Bool = false) {
+        etendreFleche = etendre
+        defer { etendreFleche = false }
         let sel = Selection.shared
         journal("flèche \(touche) — sélection avant : \(sel.url?.lastPathComponent ?? "rien"), survol : \(survole?.url.lastPathComponent ?? "rien")")
-        defer { journal("   après : \(Selection.shared.url?.lastPathComponent ?? "rien") (icônes par ligne : \(Selection.shared.colonne?.colonnesVisibles ?? -1))") }
+        defer { journal("   après : \(Selection.shared.url?.lastPathComponent ?? "rien"), \(Selection.shared.nombre) sélectionné(s) (icônes par ligne : \(Selection.shared.colonne?.colonnesVisibles ?? -1))") }
         // Rien de sélectionné, mais la souris est posée sur un élément (il est grisé) : c'est de lui qu'on part,
         // dans SA colonne. Sans cela, les flèches agissaient sur la grande zone, à l'autre bout de la carte.
         if sel.url == nil, let dessous = survole, let c = survoleColonne { sel.choisir(dessous.url, c) }
@@ -5996,12 +6236,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         }
     }
 
+    private var etendreFleche = false
     /// Avance de `pas` éléments dans la liste ; sans sélection, prend le premier. On ne sort pas de la liste.
+    /// Avec Maj, la sélection s'étend de l'ancre jusque-là.
     private func deplacer(dans liste: [URL], pas: Int, _ col: Column) {
         guard !liste.isEmpty else { return }
         guard let i = Selection.shared.url.flatMap({ liste.firstIndex(of: $0) }) else { choisirEtSuivre(liste[0], col); return }
         let j = i + pas
         guard liste.indices.contains(j) else { return }
+        if etendreFleche {
+            Selection.shared.etendre(jusqua: liste[j], dans: liste, col)
+            return
+        }
         choisirEtSuivre(liste[j], col)
     }
 
@@ -6024,7 +6270,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
     func menuContextuel(_ item: FileItem, event: NSEvent) {
         let url = item.url
         cible = url
-        Selection.shared.choisir(url, survoleColonne)
+        if !Selection.shared.contient(url) { Selection.shared.choisir(url, survoleColonne) }
         let m = NSMenu()
         @discardableResult
         func ajouter(_ titre: String, _ action: Selector, symbole: String? = nil, dans menu: NSMenu? = nil) -> NSMenuItem {
@@ -6060,7 +6306,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
             }
         }
         m.addItem(.separator())
-        ajouter(String(localized: "Placer dans la corbeille"), #selector(mCorbeille), symbole: "trash")
+        if Selection.shared.nombre > 1, Selection.shared.contient(url) {
+            ajouter(String(localized: "Placer les \(Selection.shared.nombre) éléments dans la corbeille"), #selector(mCorbeilleTous), symbole: "trash")
+        } else {
+            ajouter(String(localized: "Placer dans la corbeille"), #selector(mCorbeille), symbole: "trash")
+        }
         m.addItem(.separator())
         ajouter(String(localized: "Lire les informations"), #selector(mInfos))
         ajouter(String(localized: "Renommer"), #selector(mRenommer))
@@ -6214,9 +6464,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
     }
     @objc private func mCopier() {
         guard let u = cible else { return }
+        // Plusieurs éléments sélectionnés, dont celui-ci : ils sont tous copiés.
+        let l = Selection.shared.contient(u) && Selection.shared.nombre > 1 ? selectionnes : [u]
         NSPasteboard.general.clearContents()
-        NSPasteboard.general.writeObjects([u as NSURL])
+        NSPasteboard.general.writeObjects(l.map { $0 as NSURL })
     }
+    @objc private func mCorbeilleTous() { mettreALaCorbeille(selectionnes) }
     @objc private func mTag(_ sender: NSMenuItem) {
         guard let nom = sender.representedObject as? String else { return }
         agir({ String(localized: "Impossible de modifier les tags de « \($0) »") }) {

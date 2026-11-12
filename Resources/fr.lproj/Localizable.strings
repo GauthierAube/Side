@@ -434,8 +434,12 @@
 	<string>Image</string>
 	<key>Impossible d'afficher les informations</key>
 	<string>Impossible d'afficher les informations</string>
+	<key>Impossible de coller certains éléments</key>
+	<string>Impossible de coller certains éléments</string>
 	<key>Impossible de compresser « %@ »</key>
 	<string>Impossible de compresser « %@ »</string>
+	<key>Impossible de créer le dossier</key>
+	<string>Impossible de créer le dossier</string>
 	<key>Impossible de créer un alias de « %@ »</key>
 	<string>Impossible de créer un alias de « %@ »</string>
 	<key>Impossible de dupliquer « %@ »</key>
@@ -446,6 +450,8 @@
 	<string>Impossible de modifier l'ouverture automatique</string>
 	<key>Impossible de modifier les tags de « %@ »</key>
 	<string>Impossible de modifier les tags de « %@ »</string>
+	<key>Impossible de placer certains éléments dans la corbeille</key>
+	<string>Impossible de placer certains éléments dans la corbeille</string>
 	<key>Impossible de placer « %@ » dans la corbeille</key>
 	<string>Impossible de placer « %@ » dans la corbeille</string>
 	<key>Impossible de ranger « %@ »</key>
@@ -528,6 +534,8 @@
 	<string>Le dossier de départ et les colonnes épinglées du Finder de Side.</string>
 	<key>Le geste dans l'autre sens referme le Finder. Attention : macOS utilise déjà ces gestes, vers le haut pour Mission Control et vers le bas pour « Exposé des apps ». Pour que les deux ne se déclenchent pas ensemble, mets-les sur « Désactivé » dans Réglages Système &gt; Trackpad &gt; Autres gestes. Side ne change pas ces réglages lui-même.</key>
 	<string>Le geste dans l'autre sens referme le Finder. Attention : macOS utilise déjà ces gestes, vers le haut pour Mission Control et vers le bas pour « Exposé des apps ». Pour que les deux ne se déclenchent pas ensemble, mets-les sur « Désactivé » dans Réglages Système &gt; Trackpad &gt; Autres gestes. Side ne change pas ces réglages lui-même.</string>
+	<key>Le même fond flou sert au Finder de Side, au volet du presse-papiers et aux onglets du coin multimédia du tiroir : cette opacité vaut pour tous.</key>
+	<string>Le même fond flou sert au Finder de Side, au volet du presse-papiers et aux onglets du coin multimédia du tiroir : cette opacité vaut pour tous.</string>
 	<key>Le port 8765 du Mac est déjà pris. Fermez l'application qui l'utilise et réessayez.</key>
 	<string>Le port 8765 du Mac est déjà pris. Fermez l'application qui l'utilise et réessayez.</string>
 	<key>Le presse-papiers</key>
@@ -686,6 +694,8 @@
 	<string>Petite image</string>
 	<key>Placer dans la corbeille</key>
 	<string>Placer dans la corbeille</string>
+	<key>Placer les %lld éléments dans la corbeille</key>
+	<string>Placer les %lld éléments dans la corbeille</string>
 	<key>Playlist</key>
 	<string>Playlist</string>
 	<key>Playlists</key>
@@ -998,6 +1008,8 @@
 	<string>Zones de dépôt</string>
 	<key>copie</key>
 	<string>copie</string>
+	<key>dossier sans titre</key>
+	<string>dossier sans titre</string>
 	<key>et %lld de plus</key>
 	<string>et %lld de plus</string>
 	<key>https://…</key>

@@ -8,6 +8,30 @@ Il est mis à jour à chaque modification, en même temps que le code.
 
 ## 13/11/2026
 
+### Finder : les raccourcis sur un clavier français
+- **La vraie cause du ⌘A qui ne marchait pas :** les raccourcis étaient repérés par l'emplacement des touches d'un clavier américain. Sur un clavier AZERTY, la touche A est ailleurs : ⌘A n'était jamais reconnu (et ⌘W réagissait à ⌘Z).
+- **Maintenant :** chaque raccourci est reconnu à sa lettre, quel que soit le clavier (AZERTY, QWERTY…).
+
+### Finder : ⌘A après un clic, et la double flèche du tiroir
+- **⌘A après un clic sur un fichier :** le menu « Édition › Tout sélectionner » de Side attrapait le raccourci avant le Finder. Les raccourcis avec ⌘ du Finder passent maintenant en premier.
+- **Double flèche du tiroir :** elle n'apparaît plus quand une autre fenêtre (les réglages de Side, la liste du « + », une autre application) est par-dessus le bord du tiroir.
+
+### Réglages : la barre latérale défile
+- **Avant :** avec la rubrique « Presse-papiers » en plus, la barre latérale dépassait de la fenêtre : on ne pouvait pas la faire défiler, et « Général » passait sous les boutons rouge, jaune et vert.
+- **Maintenant :** elle commence sous ces boutons et défile si besoin. La fenêtre est plus haute au départ (tout y tient) et peut être agrandie.
+
+### Finder : sélection multiple et raccourcis du Finder
+- **Avant :** un seul fichier pouvait être sélectionné ; ⌘A, Maj-clic et ⌘-clic ne faisaient rien.
+- **Maintenant, comme dans le Finder :** ⌘-clic ajoute ou retire un élément ; Maj-clic sélectionne toute la plage depuis le dernier clic ; Maj + flèches étendent la sélection ; ⌘A sélectionne tout ce qui est affiché. Un clic droit sur un élément sélectionné garde la sélection.
+- **Raccourcis ajoutés :** ⌘C (copier les fichiers), ⌘V (coller dans le dossier), ⌥⌘V (déplacer ici), ⌘D (dupliquer), ⌘I (informations), ⇧⌘N (nouveau dossier, prêt à être renommé), ⌘⌫ (corbeille, pour toute la sélection), ⌘O et ⌘↓ (ouvrir), ⌘↑ (dossier parent), ⌘[ et ⌘] (précédent, suivant), ⌘1, ⌘2, ⌘3 (icônes, liste, colonnes), ⌘F (rechercher), et les dossiers : ⇧⌘H (départ), ⇧⌘D (bureau), ⇧⌘O (documents), ⌥⌘L (téléchargements), ⇧⌘A (applications), ⇧⌘U (utilitaires). Restent : Espace (Coup d'œil), Entrée (renommer), ⌘T et ⌘W (onglets).
+
+### Tiroir : la vidéo a ses marges
+- Dans la tuile YouTube, la vidéo n'est plus collée aux bords : elle a les mêmes marges que le reste de la page.
+
+### Tiroir : le coin multimédia aux couleurs de macOS
+- Les lecteurs (YouTube, Spotify, sites) et les photos des tuiles ont le grand arrondi « continu » des fenêtres de macOS, au lieu d'un petit arrondi simple.
+- Les onglets des lecteurs ressemblent à un contrôle segmenté de macOS : une piste en gélule et le lecteur choisi en pastille claire. Leur fond est celui du Finder de Side (flou, puis teinte de fenêtre) : il suit le mode clair ou sombre, et le réglage Apparence › Fond › Opacité, qui vaut désormais pour le Finder, le volet du presse-papiers et le tiroir.
+
 ### Tiroir : le clavier reste à Side, Square ignore les tuiles
 - **Avant :** pour faire passer les tuiles devant, le tiroir activait leurs applications ; la dernière gardait le clavier (le champ de recherche de Mots de passe prenait la main), et un clic droit sur la barre des lecteurs se refermait aussitôt.
 - **Maintenant :** une fois les tuiles en place, Side reprend le clavier et repasse sous elles. Pendant qu'un menu de Side est ouvert, le tiroir n'active plus aucune application.
