@@ -453,6 +453,7 @@ final class PanneauBas: NSObject {
     private var images: [String: ImageTuileBas] = [:]   // photo de chaque tuile, pendant qu'elle glisse, défile ou attend sur le côté
     private var veille: Timer?                          // regarde si vous avez fermé une fenêtre (bouton rouge)
     private var absences: [String: Int] = [:]
+    private var numéros: [String: CGWindowID] = [:]     // le numéro de la fenêtre de chaque tuile, pour savoir tout de suite si elle a été fermée
     private var tic = 0
     private var enMain: String?                         // la tuile que vous êtes en train d'élargir ou de déplacer
     private var enMainRetaillée = false
@@ -735,10 +736,10 @@ final class PanneauBas: NSObject {
             if self.ouvert, self.panneau != nil { self.recharger(versLaFin: false) } else { self.placerLecteurs(hauteur: self.bandeVue.bounds.height, animé: false) }
         }
         plus.isBordered = false
-        plus.image = NSImage(systemSymbolName: "plus.circle.fill", accessibilityDescription: "Ajouter une application")?
+        plus.image = NSImage(systemSymbolName: "plus.circle.fill", accessibilityDescription: String(localized: "Ajouter une application"))?
             .withSymbolConfiguration(.init(pointSize: 30, weight: .regular))
         plus.contentTintColor = .secondaryLabelColor
-        plus.toolTip = "Ajouter ou retirer une application du panneau"
+        plus.toolTip = String(localized: "Ajouter ou retirer une application du panneau")
         plus.target = self
         plus.action = #selector(ouvrirMenu(_:))
         bandeVue.addSubview(plus)                // la case « + » ferme la bande, après la dernière tuile
@@ -749,7 +750,7 @@ final class PanneauBas: NSObject {
         let message = messageBanniere
         message.font = .systemFont(ofSize: 13, weight: .medium)
         message.textColor = .white
-        let sortie = BoutonBas(title: "Passer en faux plein écran", target: self, action: #selector(sortirDuPleinÉcran))
+        let sortie = BoutonBas(title: String(localized: "Passer en faux plein écran"), target: self, action: #selector(sortirDuPleinÉcran))
         sortie.bezelStyle = .rounded
         sortie.controlSize = .regular
         boutonBanniere = sortie
@@ -774,10 +775,10 @@ final class PanneauBas: NSObject {
             return ev
         }
         roue.isBordered = false
-        roue.image = NSImage(systemSymbolName: "gearshape.fill", accessibilityDescription: "Réglages")?
+        roue.image = NSImage(systemSymbolName: "gearshape.fill", accessibilityDescription: String(localized: "Réglages"))?
             .withSymbolConfiguration(.init(pointSize: 26, weight: .regular))      // la même taille que la case « + »
         roue.contentTintColor = .secondaryLabelColor
-        roue.toolTip = "Réglages de Side"
+        roue.toolTip = String(localized: "Réglages de Side")
         roue.target = self
         roue.action = #selector(ouvrirLesRéglages)
         bandeVue.addSubview(roue)                // au bout de la bande, sous la case « + », alignée sur le bas des tuiles
@@ -985,8 +986,8 @@ final class PanneauBas: NSObject {
         banniere.isHidden = !sansFenêtres && ailleursNoms.isEmpty
         boutonBanniere?.isHidden = !sansFenêtres
         messageBanniere.stringValue = sansFenêtres
-            ? "Plein écran d'Apple : macOS empêche d'y afficher les tuiles."
-            : "En photo : " + ailleursNoms.sorted().joined(separator: ", ") + " — fenêtre ouverte sur un autre bureau."
+            ? String(localized: "Plein écran d'Apple : macOS empêche d'y afficher les tuiles.")
+            : String(localized: "En photo : \(ailleursNoms.sorted().joined(separator: ", ")) — fenêtre ouverte sur un autre bureau.")
         if sansFenêtres { journalBas("ouvert par-dessus un plein écran d'Apple : tuiles en photo") }
         if !ailleursNoms.isEmpty { journalBas("sur un autre bureau, laissées en photo : %@", ailleursNoms.sorted().joined(separator: ", ")) }
         défilement = min(défilement, arrêts(fin).maxi)
@@ -1040,6 +1041,8 @@ final class PanneauBas: NSObject {
         glissé = true
         glisséÀ = Date()
         panneau?.invalidateShadow()
+        // Une note seule dans le tiroir : la grande fenêtre de Notes ne doit pas rester derrière elle.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) { [weak self] in self?.fermerLeResteDeNotes() }
         if let i = tuileÀMontrer, let p = panneau, emprunts.indices.contains(i),
            !entières(p.frame).contains(where: { $0.0.nom == emprunts[i].nom }) { montrerTuile(i) }
         tuileÀMontrer = nil
@@ -1285,8 +1288,8 @@ final class PanneauBas: NSObject {
         défilement = cible ?? ([0, a.maxi] + a.débuts).min(by: { abs($0 - défilement) < abs($1 - défilement) }) ?? 0
         défilement = min(max(0, défilement), a.maxi)
         NSAnimationContext.runAnimationGroup({ ctx in
-            ctx.duration = 0.2
-            ctx.timingFunction = CAMediaTimingFunction(name: .easeOut)
+            ctx.duration = 0.32
+            ctx.timingFunction = CAMediaTimingFunction(controlPoints: 0.2, 0.9, 0.3, 1)
             déplacerImages(animé: true)
         }, completionHandler: { [weak self] in
             guard let self, self.ouvert, self.défile else { return }
@@ -1328,7 +1331,11 @@ final class PanneauBas: NSObject {
             guard app(e) != nil, let f = fenetre(e) else {
                 // Absente depuis plus d'une demi-seconde : la fenêtre a bien été fermée (et pas seulement en train de se recréer).
                 absences[e.nom, default: 0] += 1
-                if absences[e.nom, default: 0] >= 5, let i = emprunts.firstIndex(where: { $0.nom == e.nom }) {
+                // Sa fenêtre n'existe plus du tout pour macOS : c'est sûr, elle a été fermée. On n'attend pas davantage.
+                let disparue = numéros[e.nom].map { n in
+                    ((CGWindowListCopyWindowInfo([.optionIncludingWindow], n) as? [[String: Any]]) ?? []).isEmpty
+                } ?? false
+                if absences[e.nom, default: 0] >= (disparue ? 2 : 5), let i = emprunts.firstIndex(where: { $0.nom == e.nom }) {
                     journalBas("%@ fermée par son bouton rouge", e.nom)
                     if enMain == e.nom { enMain = nil }
                     retirer(i)
@@ -1337,6 +1344,8 @@ final class PanneauBas: NSObject {
                 continue
             }
             absences[e.nom] = 0
+            var numéro: CGWindowID = 0
+            if _AXUIElementGetWindow(f, &numéro) == .success, numéro != 0 { numéros[e.nom] = numéro }
             guard let c = AXBas.cadre(f) else { continue }
             let retaillée = abs(c.width - zone.width) > 3
             // La hauteur d'une tuile est celle du panneau : étirée à la main, elle y revient au lâcher.
@@ -1472,21 +1481,33 @@ final class PanneauBas: NSObject {
 
     // MARK: Ajouter et retirer des applications
 
-    /// « Une seule note… » : on demande son titre, puis sa tuile remplace celle de toute l'application Notes.
+    /// « Une seule note… » : la liste des notes de l'application Notes s'affiche, on clique sur celle qu'on veut.
+    /// Sa tuile remplace alors celle de toute l'application Notes.
     private func demanderUneNote() {
-        fermer(rendreLaMain: false)
-        NSApp.activate(ignoringOtherApps: true)
-        let alerte = NSAlert()
-        alerte.messageText = "Quelle note afficher dans le tiroir ?"
-        alerte.informativeText = "Tape son titre, exactement comme dans Notes. Elle s'ouvrira seule, dans sa propre fenêtre."
-        let champ = NSTextField(frame: NSRect(x: 0, y: 0, width: 280, height: 24))
-        champ.placeholderString = "Titre de la note"
-        alerte.accessoryView = champ
-        alerte.addButton(withTitle: "Ajouter")
-        alerte.addButton(withTitle: "Annuler")
-        alerte.window.initialFirstResponder = champ
-        guard alerte.runModal() == .alertFirstButtonReturn else { return }
-        ajouterNote(champ.stringValue.trimmingCharacters(in: .whitespacesAndNewlines))
+        guard let fenetre = plus.window else { return }
+        let ancre = fenetre.convertToScreen(plus.convert(plus.bounds, to: nil))
+        DispatchQueue.global().async { [weak self] in
+            // Les titres des notes, dans l'ordre de Notes (les plus récentes d'abord). Rien d'autre n'est lu.
+            var erreur: NSDictionary?
+            let reponse = NSAppleScript(source: "tell application \"Notes\" to get name of every note")?.executeAndReturnError(&erreur)
+            var titres: [String] = []
+            if let reponse, reponse.numberOfItems > 0 {
+                for i in 1...reponse.numberOfItems {
+                    if let t = reponse.atIndex(i)?.stringValue, !t.isEmpty, !titres.contains(t) { titres.append(t) }
+                    if titres.count >= 40 { break }
+                }
+            }
+            if let erreur { journalBas("Notes a répondu %@", "\(erreur[NSAppleScript.errorMessage] ?? erreur)") }
+            DispatchQueue.main.async {
+                guard let self, self.ouvert else { return }
+                let icone = NSWorkspace.shared.icon(forFile: "/System/Applications/Notes.app")
+                let lignes = titres.map { t in
+                    SelecteurTuilesBas.Ligne(icone: icone, nom: t, signe: "plus.circle.fill", couleur: .systemGreen) { [weak self] in self?.ajouterNote(t) }
+                }
+                let vide = [SelecteurTuilesBas.Ligne(icone: nil, nom: String(localized: "Aucune note trouvée dans Notes"), signe: nil, couleur: .clear, action: nil)]
+                self.selecteur.montrer(pres: ancre, [(String(localized: "Choisir une note"), lignes.isEmpty ? vide : lignes)])
+            }
+        }
     }
 
     /// Range une note précise dans le tiroir (par son titre). Aussi appelé depuis les réglages.
@@ -1495,7 +1516,7 @@ final class PanneauBas: NSObject {
         // La tuile de toute l'application Notes ferait double emploi (et prendrait la fenêtre de la note pour la sienne).
         for e in emprunts where e.bundle == "com.apple.Notes" && e.note == nil { rendreLaFenêtre(e) }
         emprunts.removeAll { $0.bundle == "com.apple.Notes" && $0.note == nil }
-        emprunts.append(EmpruntBas(nom: "Note " + titre, bundle: "com.apple.Notes", chemin: "/System/Applications/Notes.app", note: titre))
+        emprunts.append(EmpruntBas(nom: String(localized: "Note \(titre)"), bundle: "com.apple.Notes", chemin: "/System/Applications/Notes.app", note: titre))
         journalBas("tuile ajoutée : une note")
         recharger(versLaFin: true)
     }
@@ -1539,24 +1560,24 @@ final class PanneauBas: NSObject {
             }
         }
         let autre = [
-            SelecteurTuilesBas.Ligne(icone: nil, nom: "Choisir une autre application…", signe: nil, couleur: .clear) { [weak self] in
+            SelecteurTuilesBas.Ligne(icone: nil, nom: String(localized: "Choisir une autre application…"), signe: nil, couleur: .clear) { [weak self] in
                 self?.choisirApplication()
             },
             // Une seule note, dans sa propre petite fenêtre, plutôt que toute l'application Notes.
-            SelecteurTuilesBas.Ligne(icone: icone("/System/Applications/Notes.app"), nom: "Une seule note…", signe: nil, couleur: .clear) { [weak self] in
+            SelecteurTuilesBas.Ligne(icone: icone("/System/Applications/Notes.app"), nom: String(localized: "Une seule note…"), signe: nil, couleur: .clear) { [weak self] in
                 self?.demanderUneNote()
             },
         ]
         guard let fenetre = bouton.window else { return }
         let ancre = fenetre.convertToScreen(bouton.convert(bouton.bounds, to: nil))
         journalBas("liste + ouverte")
-        selecteur.montrer(pres: ancre, [("Dans le panneau", presentes), ("Ajouter une application ouverte", aAjouter), ("", autre)])
+        selecteur.montrer(pres: ancre, [(String(localized: "Dans le panneau"), presentes), (String(localized: "Ajouter une application ouverte"), aAjouter), ("", autre)])
     }
 
     @objc private func choisirApplication() {
         let p = NSOpenPanel()
-        p.title = "Ajouter au panneau"
-        p.prompt = "Ajouter"
+        p.title = String(localized: "Ajouter au panneau")
+        p.prompt = String(localized: "Ajouter")
         p.allowedContentTypes = [.applicationBundle]
         p.allowsMultipleSelection = true
         p.directoryURL = URL(fileURLWithPath: "/Applications")
@@ -1591,7 +1612,11 @@ final class PanneauBas: NSObject {
         guard let p = panneau, ouvert else { return }
         if enPlace, !suiviDoigts {
             if !défile { défile = true; serie += 1; retenir(); ranger(sauf: []) }
+            // La case « + » et la roue dentée ne sautent pas : elles glissent vers leur nouvelle place, au bord de la dernière tuile.
+            let plusAvant = plus.frame, roueAvant = roue.frame
             poserImages()
+            plus.frame = plusAvant
+            roue.frame = roueAvant
             finDéfilement?.cancel()
             finirDéfilement(vers: versLaFin ? arrêts(p.frame).maxi : min(défilement, arrêts(p.frame).maxi))
         } else {
@@ -1648,28 +1673,90 @@ final class PanneauBas: NSObject {
             return
         }
         // Notes : on affiche la note, puis on demande « Ouvrir la note dans une nouvelle fenêtre » dans le menu Fenêtre.
+        // La grande fenêtre de Notes ne sert que d'intermédiaire : elle est tenue hors de l'écran pendant toute l'opération.
+        écarterLaGrandeFenêtreDeNotes(pendant: 4.5)
         let maSerie = serie
-        DispatchQueue.global().async { [weak self] in
+        // Notes pas encore lancée : on la lance masquée, le temps de garer sa grande fenêtre, pour qu'elle ne passe pas à l'écran.
+        let lancée = NSWorkspace.shared.runningApplications.contains { $0.bundleIdentifier == "com.apple.Notes" }
+        if !lancée {
+            let config = NSWorkspace.OpenConfiguration()
+            config.hides = true
+            config.activates = false
+            NSWorkspace.shared.openApplication(at: URL(fileURLWithPath: e.chemin), configuration: config, completionHandler: nil)
+        }
+        DispatchQueue.global().asyncAfter(deadline: .now() + (lancée ? 0 : 1.2)) { [weak self] in
             var erreur: NSDictionary?
             _ = NSAppleScript(source: "tell application \"Notes\" to show (first note whose name is \"\(note)\")")?
                 .executeAndReturnError(&erreur)
             if let erreur { journalBas("Notes a répondu %@", "\(erreur[NSAppleScript.errorMessage] ?? erreur)") }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
                 guard let self, self.ouvert, self.serie == maSerie, let a = self.app(e) else { return }
-                let ok = self.presserMenu(a, "Ouvrir la note dans une nouvelle fenêtre")
+                // Le menu de Notes est dans la langue de Notes (celle du Mac), pas dans celle de Side : on cherche les deux.
+                let ok = self.presserMenu(a, ["Ouvrir la note dans une nouvelle fenêtre", "Open Note in New Window"])
                 journalBas("menu de Notes %@", ok ? "pressé" : "introuvable")
+                // La note a maintenant sa fenêtre à elle : la grande fenêtre de Notes, qui a servi à l'ouvrir, se referme.
+                for attente in [0.7, 1.5] {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + attente) { [weak self] in self?.fermerLeResteDeNotes() }
+                }
             }
         }
     }
 
-    private func presserMenu(_ a: NSRunningApplication, _ intitulé: String) -> Bool {
+    /// Pendant qu'une note s'ouvre dans sa propre fenêtre : toute autre fenêtre de Notes est repoussée hors de l'écran
+    /// dès qu'elle apparaît (on regarde cinquante fois par seconde), pour qu'on ne la voie pas passer.
+    private var écartNotes: Timer?
+    private func écarterLaGrandeFenêtreDeNotes(pendant durée: TimeInterval) {
+        écartNotes?.invalidate()
+        let fin = Date().addingTimeInterval(durée)
+        let pousser: () -> Void = { [weak self] in
+            guard let self, let ecran = NSScreen.screens.first,
+                  let a = NSWorkspace.shared.runningApplications.first(where: { $0.bundleIdentifier == "com.apple.Notes" }) else { return }
+            let notes = Set(self.emprunts.compactMap { $0.note })
+            var v: CFTypeRef?
+            AXUIElementCopyAttributeValue(AXUIElementCreateApplication(a.processIdentifier), kAXWindowsAttribute as CFString, &v)
+            for f in (v as? [AXUIElement]) ?? [] where !notes.contains(self.titre(f)) {
+                guard let c = AXBas.cadre(f), c.minX < ecran.frame.maxX - 2 else { continue }
+                AXBas.placer(f, CGRect(x: ecran.frame.maxX - 1, y: ecran.frame.height - 1, width: c.width, height: c.height))
+            }
+        }
+        pousser()      // tout de suite : si Notes est déjà ouverte, sa fenêtre part avant même d'être appelée
+        écartNotes = Timer.scheduledTimer(withTimeInterval: 0.02, repeats: true) { [weak self] t in
+            if Date() > fin { t.invalidate(); self?.écartNotes = nil; return }
+            pousser()
+        }
+    }
+
+    /// Quand le tiroir montre une note seule : la grande fenêtre de Notes reste garée hors de l'écran, au lieu d'être refermée.
+    /// Ainsi, la prochaine fois qu'on a besoin d'elle pour ouvrir une note, elle n'a pas à réapparaître : rien ne clignote.
+    /// Elle revient à l'écran dès qu'on appelle Notes normalement (voir appActivée).
+    private func fermerLeResteDeNotes() {
+        guard ouvert, emprunts.contains(where: { $0.note != nil }),
+              !emprunts.contains(where: { $0.bundle == "com.apple.Notes" && $0.note == nil }) else { return }
+        écarterLaGrandeFenêtreDeNotes(pendant: 0.2)
+    }
+
+    /// Notes appelée normalement (Dock, raccourci) alors que sa grande fenêtre est garée hors de l'écran : on la lui rend.
+    private func rendreLaGrandeFenêtreDeNotes(_ a: NSRunningApplication) {
+        guard let ecran = NSScreen.screens.first, let visible = NSScreen.main?.visibleFrame else { return }
+        let notes = Set(emprunts.compactMap { $0.note })
+        var v: CFTypeRef?
+        AXUIElementCopyAttributeValue(AXUIElementCreateApplication(a.processIdentifier), kAXWindowsAttribute as CFString, &v)
+        for f in (v as? [AXUIElement]) ?? [] where !notes.contains(titre(f)) {
+            guard let c = AXBas.cadre(f), c.minX >= ecran.frame.maxX - 2 else { continue }
+            let milieu = CGPoint(x: visible.midX, y: ecran.frame.height - visible.midY)
+            AXBas.placer(f, CGRect(x: milieu.x - c.width / 2, y: milieu.y - c.height / 2, width: c.width, height: c.height))
+            journalBas("grande fenêtre de Notes rendue")
+        }
+    }
+
+    private func presserMenu(_ a: NSRunningApplication, _ intitulés: [String]) -> Bool {
         let el = AXUIElementCreateApplication(a.processIdentifier)
         var v: CFTypeRef?
         AXUIElementCopyAttributeValue(el, kAXMenuBarAttribute as CFString, &v)
         guard let v, CFGetTypeID(v) == AXUIElementGetTypeID() else { return false }
         for rubrique in enfants(v as! AXUIElement) {
             for menu in enfants(rubrique) {
-                for ligne in enfants(menu) where titre(ligne) == intitulé {
+                for ligne in enfants(menu) where intitulés.contains(titre(ligne)) {
                     return AXUIElementPerformAction(ligne, kAXPressAction as CFString) == .success
                 }
             }
@@ -1800,6 +1887,7 @@ final class PanneauBas: NSObject {
     @objc private func appActivée(_ note: Notification) {
         guard let a = note.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication else { return }
         if !ouvert {
+            if a.bundleIdentifier == "com.apple.Notes", emprunts.contains(where: { $0.note != nil }) { rendreLaGrandeFenêtreDeNotes(a) }
             // Une application empruntée rouverte normalement (Dock, raccourci) pendant que le panneau est fermé :
             // on lui rend sa fenêtre. Pas pour la note, qui ne sert que dans le panneau.
             // Une application du panneau appelée normalement (Dock, raccourci, Square) pendant que le panneau est fermé :

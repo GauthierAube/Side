@@ -1,0 +1,4598 @@
+{
+  "sourceLanguage": "fr",
+  "strings": {
+    "": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": ""
+          }
+        }
+      }
+    },
+    "%@, section ouverte": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@, section expanded"
+          }
+        }
+      }
+    },
+    "%@, section repliée": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@, section collapsed"
+          }
+        }
+      }
+    },
+    "%lld": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld"
+          }
+        }
+      }
+    },
+    "%lld %%": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld%%"
+          }
+        }
+      }
+    },
+    "%lld colonnes": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld columns"
+          }
+        }
+      }
+    },
+    "%lld fichiers : %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld files: %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "new",
+            "value": "%1$lld fichiers : %2$@"
+          }
+        }
+      }
+    },
+    "%lld sur %lld": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld of %lld"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "new",
+            "value": "%1$lld sur %2$lld"
+          }
+        }
+      }
+    },
+    "%lld éléments": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld items"
+          }
+        }
+      }
+    },
+    ", ou ": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": ", or "
+          }
+        }
+      }
+    },
+    "1 colonne": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 column"
+          }
+        }
+      }
+    },
+    "1 élément": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 item"
+          }
+        }
+      }
+    },
+    "1. Ouvrez le site développeur de Spotify et connectez-vous.\n2. « Create app » : un nom au choix, et dans « Redirect URIs » : %@. Cochez « Web API ».\n3. Copiez le « Client ID » de cette app et collez-le ci-dessous.\n4. « Se connecter », puis « Accepter » dans la page Spotify qui s'ouvre.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1. Open the Spotify developer site and log in.\n2. “Create app”: any name, and under “Redirect URIs”: %@. Check “Web API”.\n3. Copy this app’s “Client ID” and paste it below.\n4. Click “Connect”, then “Agree” on the Spotify page that opens."
+          }
+        }
+      }
+    },
+    "Accueil": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Home"
+          }
+        }
+      }
+    },
+    "Accueil de YouTube": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "YouTube Home"
+          }
+        }
+      }
+    },
+    "Accède à tes fichiers et dossiers": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get to Your Files and Folders"
+          }
+        }
+      }
+    },
+    "Actions de l'étagère": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shelf Actions"
+          }
+        }
+      }
+    },
+    "Adresse": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Address"
+          }
+        }
+      }
+    },
+    "Adresse copiée : collez-la dans « Redirect URIs ».": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Address copied: paste it into “Redirect URIs”."
+          }
+        }
+      }
+    },
+    "Afficher Side": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show Side"
+          }
+        }
+      }
+    },
+    "Afficher dans la barre latérale": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show in the sidebar"
+          }
+        }
+      }
+    },
+    "Afficher dans le Finder": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show in Finder"
+          }
+        }
+      }
+    },
+    "Afficher en colonnes": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "View as Columns"
+          }
+        }
+      }
+    },
+    "Afficher en icônes": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "View as Icons"
+          }
+        }
+      }
+    },
+    "Afficher en liste": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "View as List"
+          }
+        }
+      }
+    },
+    "Afficher la corbeille": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show the Trash"
+          }
+        }
+      }
+    },
+    "Afficher le chemin de ce dossier": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show the path of this folder"
+          }
+        }
+      }
+    },
+    "Afficher les informations": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show item info"
+          }
+        }
+      }
+    },
+    "Afficher toutes les extensions de fichiers": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show all filename extensions"
+          }
+        }
+      }
+    },
+    "Ajouter": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add"
+          }
+        }
+      }
+    },
+    "Ajouter au panneau": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add to the Drawer"
+          }
+        }
+      }
+    },
+    "Ajouter aux favoris": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add to Favorites"
+          }
+        }
+      }
+    },
+    "Ajouter ce site": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add This Site"
+          }
+        }
+      }
+    },
+    "Ajouter mes captures d'écran à une zone de dépôt": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add my screenshots to a drop zone"
+          }
+        }
+      }
+    },
+    "Ajouter ou retirer une application du panneau": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add or remove an app from the drawer"
+          }
+        }
+      }
+    },
+    "Ajouter un dossier…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add a Folder…"
+          }
+        }
+      }
+    },
+    "Ajouter une application": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add an App"
+          }
+        }
+      }
+    },
+    "Ajouter une application ouverte": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add an Open App"
+          }
+        }
+      }
+    },
+    "Ajouter une application…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add an App…"
+          }
+        }
+      }
+    },
+    "Ajouter…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add…"
+          }
+        }
+      }
+    },
+    "Album": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Album"
+          }
+        }
+      }
+    },
+    "Albums": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Albums"
+          }
+        }
+      }
+    },
+    "Amener le pointeur dans un coin de l'écran ouvre le Finder ou le tiroir.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Moving the pointer to a corner of the screen opens the Finder or the drawer."
+          }
+        }
+      }
+    },
+    "Annuler": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancel"
+          }
+        }
+      }
+    },
+    "Aperçu": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quick Look"
+          }
+        }
+      }
+    },
+    "Apparence": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Appearance"
+          }
+        }
+      }
+    },
+    "Applications": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Applications"
+          }
+        }
+      }
+    },
+    "Applications compagnes": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Companion Apps"
+          }
+        }
+      }
+    },
+    "Arrière-plan": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Background"
+          }
+        }
+      }
+    },
+    "Artiste": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Artist"
+          }
+        }
+      }
+    },
+    "Artistes": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Artists"
+          }
+        }
+      }
+    },
+    "Attention : si le tiroir arrive du haut, le Finder arrivera du bas.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Note: if the drawer comes in from the top, the Finder will come in from the bottom."
+          }
+        }
+      }
+    },
+    "Au changement de bureau ou d'app plein écran": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "When switching desktops or full-screen apps"
+          }
+        }
+      }
+    },
+    "Au lancement de Side, afficher": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "When Side starts, show"
+          }
+        }
+      }
+    },
+    "Aucun": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "None"
+          }
+        }
+      }
+    },
+    "Aucun lecteur : cette partie n'apparaît pas dans le tiroir.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No players: this part doesn’t appear in the drawer."
+          }
+        }
+      }
+    },
+    "Aucun ordinateur repéré": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No computers found"
+          }
+        }
+      }
+    },
+    "Aucun résultat": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No results"
+          }
+        }
+      }
+    },
+    "Aucun résultat pour « %@ ».": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No results for “%@”."
+          }
+        }
+      }
+    },
+    "Aucun élément": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No items"
+          }
+        }
+      }
+    },
+    "Aucune app": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No apps"
+          }
+        }
+      }
+    },
+    "Aucune application.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No apps."
+          }
+        }
+      }
+    },
+    "Aucune note trouvée dans Notes": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No notes found in Notes"
+          }
+        }
+      }
+    },
+    "Automatique": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatic"
+          }
+        }
+      }
+    },
+    "Automatique (langue du Mac)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatic (Mac language)"
+          }
+        }
+      }
+    },
+    "Autres actions": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More actions"
+          }
+        }
+      }
+    },
+    "Avancer de 10 secondes": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skip forward 10 seconds"
+          }
+        }
+      }
+    },
+    "Barre latérale et fichiers": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sidebar and Files"
+          }
+        }
+      }
+    },
+    "Bibliothèque": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Library"
+          }
+        }
+      }
+    },
+    "Bientôt sur GitHub": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Coming soon on GitHub"
+          }
+        }
+      }
+    },
+    "Bienvenue dans Side": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Welcome to Side"
+          }
+        }
+      }
+    },
+    "Bienvenue dans le tiroir": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Welcome to the Drawer"
+          }
+        }
+      }
+    },
+    "Bureau": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desktop"
+          }
+        }
+      }
+    },
+    "Ce que le Finder de Side affiche, et comment.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What Side's Finder shows, and how."
+          }
+        }
+      }
+    },
+    "Ce que tu copies apparaîtra ici.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What you copy will appear here."
+          }
+        }
+      }
+    },
+    "Ce qui vaut pour tout Side.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Settings for all of Side."
+          }
+        }
+      }
+    },
+    "Cercle": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Circle"
+          }
+        }
+      }
+    },
+    "Changer la largeur": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change the width"
+          }
+        }
+      }
+    },
+    "Changer…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change…"
+          }
+        }
+      }
+    },
+    "Chaque geste, vers le haut ou vers le bas, ouvre ou ferme le Finder. Attention : macOS utilise déjà ces gestes, vers le haut pour Mission Control et vers le bas pour « Exposé des apps ». Pour que les deux ne se déclenchent pas ensemble, mets-les sur « Désactivé » dans Réglages Système > Trackpad > Autres gestes. Side ne change pas ces réglages lui-même.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Each swipe, up or down, opens or closes the Finder. Note: macOS already uses these gestures, up for Mission Control and down for App Exposé. So that both don't trigger together, set them to “Off” in System Settings > Trackpad > More Gestures. Side doesn't change these settings itself."
+          }
+        }
+      }
+    },
+    "Chargement…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Loading…"
+          }
+        }
+      }
+    },
+    "Chemin du dossier %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Path of folder %@"
+          }
+        }
+      }
+    },
+    "Choisir une autre application…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose Another App…"
+          }
+        }
+      }
+    },
+    "Choisir une note": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose a Note"
+          }
+        }
+      }
+    },
+    "Choisis comment l'ouvrir dans les réglages.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose how to open it in Settings."
+          }
+        }
+      }
+    },
+    "Choisis le dossier à épingler dans Side": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose the folder to pin in Side"
+          }
+        }
+      }
+    },
+    "Choisis pour chaque coin ce qu'il ouvre : le Finder, le tiroir, ou rien. Revenir dans le coin referme. Si macOS utilise déjà ce coin, désactive-le dans Réglages Système > Bureau et Dock > Coins actifs.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose what each corner opens: the Finder, the drawer, or nothing. Going back to the corner closes it. If macOS already uses that corner, turn it off in System Settings > Desktop & Dock > Hot Corners."
+          }
+        }
+      }
+    },
+    "Clic : recopier. Clic droit : épingler. On peut aussi le glisser ailleurs.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click: copy again. Right-click: pin. You can also drag it elsewhere."
+          }
+        }
+      }
+    },
+    "Clique pour replier. Glisse un dossier ici pour l'ajouter aux favoris.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click to collapse. Drag a folder here to add it to Favorites."
+          }
+        }
+      }
+    },
+    "Clique sur un raccourci, puis tape la nouvelle combinaison : elle doit contenir Commande, Contrôle ou Option. Échap annule. La touche Échap referme toujours le Finder comme le tiroir.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click a shortcut, then type the new combination: it must include Command, Control or Option. Escape cancels. The Escape key always closes both the Finder and the drawer."
+          }
+        }
+      }
+    },
+    "Coin": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Corner"
+          }
+        }
+      }
+    },
+    "Coins actifs": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hot Corners"
+          }
+        }
+      }
+    },
+    "Coller": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paste"
+          }
+        }
+      }
+    },
+    "Collez d'abord l'identifiant (Client ID).": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paste the Client ID first."
+          }
+        }
+      }
+    },
+    "Colonnes de la grille": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Grid Columns"
+          }
+        }
+      }
+    },
+    "Colonnes épinglées": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pinned columns"
+          }
+        }
+      }
+    },
+    "Compresser « %@ »": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compress “%@”"
+          }
+        }
+      }
+    },
+    "Compris": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Got It"
+          }
+        }
+      }
+    },
+    "Compte": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Account"
+          }
+        }
+      }
+    },
+    "Connecter Spotify": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connect Spotify"
+          }
+        }
+      }
+    },
+    "Connecté": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connected"
+          }
+        }
+      }
+    },
+    "Connexion réussie. Vous pouvez fermer cette page et revenir au panneau.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connected. You can close this page and go back to the drawer."
+          }
+        }
+      }
+    },
+    "Contraire aux conditions d'utilisation de YouTube : à activer en connaissance de cause. Pris en compte au prochain lancement de Side.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Against YouTube’s terms of service: turn on at your own discretion. Takes effect the next time Side opens."
+          }
+        }
+      }
+    },
+    "Copier": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy"
+          }
+        }
+      }
+    },
+    "Copier l'adresse de redirection": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy Redirect Address"
+          }
+        }
+      }
+    },
+    "Copier « %@ » en tant que chemin d'accès": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy “%@” as Pathname"
+          }
+        }
+      }
+    },
+    "Copié — prêt à coller": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copied — ready to paste"
+          }
+        }
+      }
+    },
+    "Corbeille": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trash"
+          }
+        }
+      }
+    },
+    "Coup d'œil": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quick Look"
+          }
+        }
+      }
+    },
+    "Couper": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cut"
+          }
+        }
+      }
+    },
+    "Couper les publicités": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Block ads"
+          }
+        }
+      }
+    },
+    "Créer un alias": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Make Alias"
+          }
+        }
+      }
+    },
+    "Créé le": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Created"
+          }
+        }
+      }
+    },
+    "Dans iCloud, pas encore sur ce Mac. Clique pour le télécharger.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In iCloud, not yet on this Mac. Click to download it."
+          }
+        }
+      }
+    },
+    "Dans le panneau": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In the Drawer"
+          }
+        }
+      }
+    },
+    "Date (les plus récents d'abord)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Date (newest first)"
+          }
+        }
+      }
+    },
+    "De la droite": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "From the right"
+          }
+        }
+      }
+    },
+    "De la gauche": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "From the left"
+          }
+        }
+      }
+    },
+    "Dimensions": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dimensions"
+          }
+        }
+      }
+    },
+    "Disques externes et serveurs connectés": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "External disks and connected servers"
+          }
+        }
+      }
+    },
+    "Documents": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Documents"
+          }
+        }
+      }
+    },
+    "Dossier précédent": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Previous folder"
+          }
+        }
+      }
+    },
+    "Dossier suivant": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Next folder"
+          }
+        }
+      }
+    },
+    "Dossiers et colonnes": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Folders and Columns"
+          }
+        }
+      }
+    },
+    "Dossiers récents": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recent Folders"
+          }
+        }
+      }
+    },
+    "Double-clic : ouvrir": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Double-click: open"
+          }
+        }
+      }
+    },
+    "Du bas": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "From the Bottom"
+          }
+        }
+      }
+    },
+    "Du haut": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "From the Top"
+          }
+        }
+      }
+    },
+    "Dupliquer": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Duplicate"
+          }
+        }
+      }
+    },
+    "Durée": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Duration"
+          }
+        }
+      }
+    },
+    "Dès qu'une capture d'écran est enregistrée, elle t'attend dans une zone, prête à être glissée ailleurs. Les captures se rangent ensemble dans la même zone.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "As soon as a screenshot is saved, it waits for you in a zone, ready to be dragged elsewhere. Screenshots are gathered together in the same zone."
+          }
+        }
+      }
+    },
+    "Déconnecter": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disconnect"
+          }
+        }
+      }
+    },
+    "Déconnecter le compte Spotify": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disconnect Spotify Account"
+          }
+        }
+      }
+    },
+    "Dépose ici": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drop here"
+          }
+        }
+      }
+    },
+    "Dépose ici des fichiers pour les garder sous la main, puis glisse-les où tu veux.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drop files here to keep them at hand, then drag them wherever you want."
+          }
+        }
+      }
+    },
+    "Dépose une app ici pour l'ajouter au mini-Dock": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drop an app here to add it to the mini Dock"
+          }
+        }
+      }
+    },
+    "Désépingler": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unpin"
+          }
+        }
+      }
+    },
+    "Déverrouillée : se cache quand Side se ferme. Clique pour la garder à l'écran.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlocked: hides when Side closes. Click to keep it on screen."
+          }
+        }
+      }
+    },
+    "Effacer": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear"
+          }
+        }
+      }
+    },
+    "Effacer l'historique (sauf les épinglés)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear History (Except Pinned)"
+          }
+        }
+      }
+    },
+    "Effacer la recherche": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear search"
+          }
+        }
+      }
+    },
+    "Emplacements": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Locations"
+          }
+        }
+      }
+    },
+    "En bas": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bottom"
+          }
+        }
+      }
+    },
+    "En bas à droite": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bottom Right"
+          }
+        }
+      }
+    },
+    "En bas à gauche": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bottom Left"
+          }
+        }
+      }
+    },
+    "En effectuant une recherche": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "When performing a search"
+          }
+        }
+      }
+    },
+    "En haut à droite": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Top Right"
+          }
+        }
+      }
+    },
+    "En haut à gauche": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Top Left"
+          }
+        }
+      }
+    },
+    "En photo : %@ — fenêtre ouverte sur un autre bureau.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shown as a snapshot: %@ — window open on another desktop."
+          }
+        }
+      }
+    },
+    "Envoi vers iCloud en cours": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uploading to iCloud"
+          }
+        }
+      }
+    },
+    "Envoi vers iCloud en cours…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uploading to iCloud…"
+          }
+        }
+      }
+    },
+    "Espace": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Space"
+          }
+        }
+      }
+    },
+    "Espace : aperçu": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Space: Quick Look"
+          }
+        }
+      }
+    },
+    "Espacement de la grille": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Grid spacing"
+          }
+        }
+      }
+    },
+    "Faible": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Low"
+          }
+        }
+      }
+    },
+    "Faire un cercle": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Draw a circle"
+          }
+        }
+      }
+    },
+    "Fais un cercle avec le pointeur, d'un seul mouvement rapide, sans cliquer, pour ouvrir le Finder. Il peut être grossier, petit ou grand, dans un sens ou dans l'autre. Le cercle ne referme pas le Finder : utilise un clic à côté, Échap, le coin ou le raccourci.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Draw a circle with the pointer, in one quick movement, without clicking, to open the Finder. It can be rough, small or large, in either direction. The circle doesn't close the Finder: click outside it, or use Escape, the corner or the shortcut."
+          }
+        }
+      }
+    },
+    "Favoris": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Favorites"
+          }
+        }
+      }
+    },
+    "Fermer d'un clic en dehors": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Close with a click outside"
+          }
+        }
+      }
+    },
+    "Fermer l'onglet": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Close tab"
+          }
+        }
+      }
+    },
+    "Fermer la recherche": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Close search"
+          }
+        }
+      }
+    },
+    "Fermer quand la souris en sort": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Close when the pointer leaves"
+          }
+        }
+      }
+    },
+    "Fermer, sauf si Commande est maintenue": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Close, unless Command is held"
+          }
+        }
+      }
+    },
+    "Fermeture": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Closing"
+          }
+        }
+      }
+    },
+    "Fichiers récents": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recent Files"
+          }
+        }
+      }
+    },
+    "Finder": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finder"
+          }
+        }
+      }
+    },
+    "Flouter l'arrière-plan quand le Finder est ouvert": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Blur the background when the Finder is open"
+          }
+        }
+      }
+    },
+    "Fond": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Background"
+          }
+        }
+      }
+    },
+    "Garder dans le mini-Dock": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep in Mini Dock"
+          }
+        }
+      }
+    },
+    "Garder les zones remplies à l'écran quand Side est fermé": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep filled zones on screen when Side is closed"
+          }
+        }
+      }
+    },
+    "Garder un historique du copier-coller (7 jours)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep a copy-and-paste history (7 days)"
+          }
+        }
+      }
+    },
+    "Geste": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gesture"
+          }
+        }
+      }
+    },
+    "Geste de la souris": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mouse gesture"
+          }
+        }
+      }
+    },
+    "Gestes de macOS": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS gestures"
+          }
+        }
+      }
+    },
+    "Glisse le titre pour déplacer la colonne": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drag the title to move the column"
+          }
+        }
+      }
+    },
+    "Glisse pour changer la largeur": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drag to change the width"
+          }
+        }
+      }
+    },
+    "Glisse pour déplacer la zone de dépôt": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drag to move the drop zone"
+          }
+        }
+      }
+    },
+    "Glisse un dossier sur « Favoris » pour l'ajouter.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drag a folder onto “Favorites” to add it."
+          }
+        }
+      }
+    },
+    "Glisse un fichier : elle apparaît ici. Ce que tu y poses reste sous la main, même Side fermé.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drag a file: it appears here. What you drop in it stays at hand, even with Side closed."
+          }
+        }
+      }
+    },
+    "Glisser quatre doigts %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Swipe four fingers %@"
+          }
+        }
+      }
+    },
+    "Glisser quatre doigts sur le trackpad": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Swipe four fingers on the trackpad"
+          }
+        }
+      }
+    },
+    "Grande zone": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Main Area"
+          }
+        }
+      }
+    },
+    "Général": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "General"
+          }
+        }
+      }
+    },
+    "Hauteur du Finder": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finder height"
+          }
+        }
+      }
+    },
+    "Historique du presse-papiers": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clipboard history"
+          }
+        }
+      }
+    },
+    "Icônes": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Icons"
+          }
+        }
+      }
+    },
+    "Image": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Image"
+          }
+        }
+      }
+    },
+    "Impossible d'afficher les informations": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't Show Info"
+          }
+        }
+      }
+    },
+    "Impossible de compresser « %@ »": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't Compress “%@”"
+          }
+        }
+      }
+    },
+    "Impossible de créer un alias de « %@ »": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't Make an Alias of “%@”"
+          }
+        }
+      }
+    },
+    "Impossible de dupliquer « %@ »": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't Duplicate “%@”"
+          }
+        }
+      }
+    },
+    "Impossible de libérer « %@ »": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't Remove the Download of “%@”"
+          }
+        }
+      }
+    },
+    "Impossible de modifier l'ouverture automatique": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't Change Open at Login"
+          }
+        }
+      }
+    },
+    "Impossible de modifier les tags de « %@ »": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't Change the Tags of “%@”"
+          }
+        }
+      }
+    },
+    "Impossible de placer « %@ » dans la corbeille": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't Move “%@” to the Trash"
+          }
+        }
+      }
+    },
+    "Impossible de ranger « %@ »": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't Move “%@”"
+          }
+        }
+      }
+    },
+    "Impossible de renommer « %@ »": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't Rename “%@”"
+          }
+        }
+      }
+    },
+    "Impossible de télécharger « %@ »": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't Download “%@”"
+          }
+        }
+      }
+    },
+    "Informations": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Information"
+          }
+        }
+      }
+    },
+    "Installer depuis GitHub": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Install from GitHub"
+          }
+        }
+      }
+    },
+    "Installée": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Installed"
+          }
+        }
+      }
+    },
+    "Intensité": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Intensity"
+          }
+        }
+      }
+    },
+    "L'écran derrière la carte s'estompe en fondu. On peut toujours cliquer et glisser des fichiers au travers.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The screen behind the card fades out. You can still click and drag files through it."
+          }
+        }
+      }
+    },
+    "L'élément qu'elle contient sera supprimé définitivement. Cette action est irréversible.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The item it contains will be deleted permanently. You can't undo this action."
+          }
+        }
+      }
+    },
+    "La carte apparaît au centre. Tire-la par sa barre du haut pour la déplacer : Side retient l'endroit.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The card appears in the center. Drag it by its top bar to move it: Side remembers the spot."
+          }
+        }
+      }
+    },
+    "La case « + » range une application dans le tiroir : elle y reste, à portée de main.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The “+” tile puts an app in the drawer: it stays there, within reach."
+          }
+        }
+      }
+    },
+    "La connexion n'a pas abouti. Vous pouvez fermer cette page et réessayer depuis le panneau.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The connection didn’t go through. You can close this page and try again from the drawer."
+          }
+        }
+      }
+    },
+    "La musique et les petites applis : un coup d'œil, et on referme.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Music and small apps: take a quick look, then close it."
+          }
+        }
+      }
+    },
+    "La page de Spotify s'ouvre dans votre navigateur…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The Spotify page is opening in your browser…"
+          }
+        }
+      }
+    },
+    "La roue dentée, sous la case « + », ouvre les réglages.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The gear, below the “+” tile, opens Settings."
+          }
+        }
+      }
+    },
+    "La rubrique « Dossiers récents » montre les derniers dossiers où tu as travaillé, en grille.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The “Recent Folders” section shows the last folders you worked in, as a grid."
+          }
+        }
+      }
+    },
+    "La vidéo remplit la tuile (ou reprend sa place)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The video fills the tile (or goes back to its place)"
+          }
+        }
+      }
+    },
+    "La visite guidée de Side, en quatre étapes": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The guided tour of Side, in four steps"
+          }
+        }
+      }
+    },
+    "La zone de dépôt": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The Drop Zone"
+          }
+        }
+      }
+    },
+    "Laisser les dossiers en haut lors du tri par nom": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep folders on top when sorting by name"
+          }
+        }
+      }
+    },
+    "Lancer « %@ ». Dépose un fichier pour le lui passer.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Run “%@”. Drop a file to pass it along."
+          }
+        }
+      }
+    },
+    "Langue": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Language"
+          }
+        }
+      }
+    },
+    "Largeur (sans les colonnes épinglées)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Width (without pinned columns)"
+          }
+        }
+      }
+    },
+    "Largeur d'une colonne": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Column width"
+          }
+        }
+      }
+    },
+    "Le Finder": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The Finder"
+          }
+        }
+      }
+    },
+    "Le Finder arrive": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The Finder comes in"
+          }
+        }
+      }
+    },
+    "Le Finder de Side : d'où il arrive, sa taille, son fond.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Side's Finder: where it comes from, its size, its background."
+          }
+        }
+      }
+    },
+    "Le Finder n'a pas répondu.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The Finder didn't respond."
+          }
+        }
+      }
+    },
+    "Le Finder se ferme toujours avec le raccourci clavier, la touche Échap, une secousse ou en revenant dans le coin actif.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The Finder always closes with the keyboard shortcut, the Escape key, a shake, or by going back to the hot corner."
+          }
+        }
+      }
+    },
+    "Le bouton lecture l'ouvre": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The play button opens it"
+          }
+        }
+      }
+    },
+    "Le coin %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The %@ corner"
+          }
+        }
+      }
+    },
+    "Le compte Spotify n'est pas connecté.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The Spotify account isn’t connected."
+          }
+        }
+      }
+    },
+    "Le dernier dossier consulté": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The last folder viewed"
+          }
+        }
+      }
+    },
+    "Le dossier de départ et les colonnes épinglées du Finder de Side.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The starting folder and the pinned columns of Side's Finder."
+          }
+        }
+      }
+    },
+    "Le geste dans l'autre sens referme le Finder. Attention : macOS utilise déjà ces gestes, vers le haut pour Mission Control et vers le bas pour « Exposé des apps ». Pour que les deux ne se déclenchent pas ensemble, mets-les sur « Désactivé » dans Réglages Système > Trackpad > Autres gestes. Side ne change pas ces réglages lui-même.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Swiping the other way closes the Finder. Note: macOS already uses these gestures, up for Mission Control and down for App Exposé. So that both don't trigger together, set them to “Off” in System Settings > Trackpad > More Gestures. Side doesn't change these settings itself."
+          }
+        }
+      }
+    },
+    "Le port 8765 du Mac est déjà pris. Fermez l'application qui l'utilise et réessayez.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Port 8765 on this Mac is already in use. Quit the app using it and try again."
+          }
+        }
+      }
+    },
+    "Le tiroir": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The Drawer"
+          }
+        }
+      }
+    },
+    "Le tiroir arrive": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The drawer comes in"
+          }
+        }
+      }
+    },
+    "Le tiroir arrive du bas de l'écran : son geste est quatre doigts %@. Il n'est libre que si le Finder s'ouvre, lui, avec quatre doigts « Vers le bas ».": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The drawer comes in from the bottom of the screen: its gesture is four fingers %@. It's only available if the Finder itself opens with four fingers “Down”."
+          }
+        }
+      }
+    },
+    "Le tiroir arrive du bas de l'écran, à l'opposé du Finder : quatre doigts %@ l'ouvrent, dans l'autre sens le referment. Il suit les doigts.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The drawer comes in from the bottom of the screen, opposite the Finder: four fingers %@ open it, the other way closes it. It follows your fingers."
+          }
+        }
+      }
+    },
+    "Le tiroir arrive du haut de l'écran : son geste est quatre doigts %@. Il n'est libre que si le Finder s'ouvre, lui, avec quatre doigts « Vers le haut ».": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The drawer comes in from the top of the screen: its gesture is four fingers %@. It's only available if the Finder itself opens with four fingers “Up”."
+          }
+        }
+      }
+    },
+    "Le tiroir arrive du haut de l'écran, à l'opposé du Finder : quatre doigts %@ l'ouvrent, dans l'autre sens le referment. Il suit les doigts.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The drawer comes in from the top of the screen, opposite the Finder: four fingers %@ open it, the other way closes it. It follows your fingers."
+          }
+        }
+      }
+    },
+    "Le tiroir prend toujours le bord opposé au Finder : du haut quand le Finder vient du bas, du bas dans tous les autres cas. Le geste à quatre doigts s'inverse avec lui.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The drawer always takes the edge opposite the Finder: from the top when the Finder comes from the bottom, from the bottom in all other cases. The four-finger gesture flips with it."
+          }
+        }
+      }
+    },
+    "Le tiroir, second panneau de Side.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The drawer, Side's second panel."
+          }
+        }
+      }
+    },
+    "Lecteurs affichés": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Players Shown"
+          }
+        }
+      }
+    },
+    "Lecture": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Now Playing"
+          }
+        }
+      }
+    },
+    "Lecture / pause": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Play / Pause"
+          }
+        }
+      }
+    },
+    "Les %lld éléments qu'elle contient seront supprimés définitivement. Cette action est irréversible.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The %lld items it contains will be deleted permanently. You can't undo this action."
+          }
+        }
+      }
+    },
+    "Les applications rangées dans le tiroir.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The apps kept in the drawer."
+          }
+        }
+      }
+    },
+    "Les boutons et les gestes de la souris MX Master, sans le logiciel de Logitech.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The buttons and gestures of the MX Master mouse, without Logitech’s software."
+          }
+        }
+      }
+    },
+    "Les deux": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Both"
+          }
+        }
+      }
+    },
+    "Les textes et les fichiers copiés sont gardés 7 jours sur ce Mac ; ce que tu épingles (clic droit) est gardé sans limite. Les images et les mots de passe ne sont jamais écrits sur le disque : ils s'effacent quand Side se ferme. Décocher l'historique efface tout.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copied text and files are kept for 7 days on this Mac; what you pin (right-click) is kept with no limit. Images and passwords are never written to disk: they're erased when Side closes. Turning off the history erases everything."
+          }
+        }
+      }
+    },
+    "Les zones où poser des fichiers en attente, à côté du Finder de Side.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The zones where you can leave files waiting, next to Side's Finder."
+          }
+        }
+      }
+    },
+    "Lire les informations": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get Info"
+          }
+        }
+      }
+    },
+    "Liste": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "List"
+          }
+        }
+      }
+    },
+    "Masquer cette app": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hide This App"
+          }
+        }
+      }
+    },
+    "Masquer le bouton Apps": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hide the Apps Button"
+          }
+        }
+      }
+    },
+    "Masquer le mini-Dock": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hide the Mini Dock"
+          }
+        }
+      }
+    },
+    "Mini-Dock": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mini Dock"
+          }
+        }
+      }
+    },
+    "Modifié le": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modified"
+          }
+        }
+      }
+    },
+    "Mon site": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "My site"
+          }
+        }
+      }
+    },
+    "Moyenne": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Medium"
+          }
+        }
+      }
+    },
+    "Multimédia": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Media"
+          }
+        }
+      }
+    },
+    "Musique et vidéo, au début du tiroir.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Music and video, at the start of the drawer."
+          }
+        }
+      }
+    },
+    "Nom": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Name"
+          }
+        }
+      }
+    },
+    "Nombre de dossiers récents": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Number of recent folders"
+          }
+        }
+      }
+    },
+    "Non connecté": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not connected"
+          }
+        }
+      }
+    },
+    "Note %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Note %@"
+          }
+        }
+      }
+    },
+    "Nouvel onglet (⌘T)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New Tab (⌘T)"
+          }
+        }
+      }
+    },
+    "Opacité": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opacity"
+          }
+        }
+      }
+    },
+    "Options avancées": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Advanced"
+          }
+        }
+      }
+    },
+    "Ouvert le": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Last opened"
+          }
+        }
+      }
+    },
+    "Ouverture et fermeture": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opening and Closing"
+          }
+        }
+      }
+    },
+    "Ouvre Spotify en grand pour regarder la vidéo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opens Spotify full size to watch the video"
+          }
+        }
+      }
+    },
+    "Ouvrir": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open"
+          }
+        }
+      }
+    },
+    "Ouvrir Side à l'ouverture de session": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open Side at login"
+          }
+        }
+      }
+    },
+    "Ouvrir avec": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open With"
+          }
+        }
+      }
+    },
+    "Ouvrir dans le Finder": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open in Finder"
+          }
+        }
+      }
+    },
+    "Ouvrir et fermer": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open and Close"
+          }
+        }
+      }
+    },
+    "Ouvrir et fermer le Finder": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open and close the Finder"
+          }
+        }
+      }
+    },
+    "Ouvrir et fermer le tiroir": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open and close the drawer"
+          }
+        }
+      }
+    },
+    "Ouvrir le Finder et le tiroir d'un geste, à la souris ou au trackpad.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the Finder and the drawer with a gesture, using the mouse or the trackpad."
+          }
+        }
+      }
+    },
+    "Ouvrir le lien YouTube copié": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the copied YouTube link"
+          }
+        }
+      }
+    },
+    "Ouvrir le réglage": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open Settings"
+          }
+        }
+      }
+    },
+    "Ouvrir le site Spotify": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the Spotify Site"
+          }
+        }
+      }
+    },
+    "Ouvrir les réglages d'accessibilité": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open Accessibility Settings"
+          }
+        }
+      }
+    },
+    "Ouvrir les réglages du trackpad": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open Trackpad Settings"
+          }
+        }
+      }
+    },
+    "Ouvrir à l'ouverture de session": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open at Login"
+          }
+        }
+      }
+    },
+    "Page précédente": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Previous page"
+          }
+        }
+      }
+    },
+    "Pages": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pages"
+          }
+        }
+      }
+    },
+    "Partager…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Share…"
+          }
+        }
+      }
+    },
+    "Passer": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skip"
+          }
+        }
+      }
+    },
+    "Passer en faux plein écran": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fill the Screen Instead"
+          }
+        }
+      }
+    },
+    "Passer la publicité (quand YouTube le propose)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skip the ad (when YouTube allows it)"
+          }
+        }
+      }
+    },
+    "Placer dans la corbeille": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Move to Trash"
+          }
+        }
+      }
+    },
+    "Playlist": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Playlist"
+          }
+        }
+      }
+    },
+    "Playlists": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Playlists"
+          }
+        }
+      }
+    },
+    "Plein écran d'Apple : macOS empêche d'y afficher les tuiles.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS full screen: macOS doesn’t allow the tiles to show here."
+          }
+        }
+      }
+    },
+    "Plus tard": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Later"
+          }
+        }
+      }
+    },
+    "Podcast": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Podcast"
+          }
+        }
+      }
+    },
+    "Podcasts": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Podcasts"
+          }
+        }
+      }
+    },
+    "Position du texte": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Label position"
+          }
+        }
+      }
+    },
+    "Position et taille": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Position and Size"
+          }
+        }
+      }
+    },
+    "Position libre, en fondu": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Free position, fading in"
+          }
+        }
+      }
+    },
+    "Pour l'ouvrir et le fermer : %@.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "To open and close it: %@."
+          }
+        }
+      }
+    },
+    "Pour le garder ouvert cette fois-là : maintiens Option (⌥) en lâchant le fichier, ou ramène tout de suite la souris sur la carte.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "To keep it open that time: hold Option (⌥) while dropping the file, or move the pointer straight back onto the card."
+          }
+        }
+      }
+    },
+    "Pour ouvrir": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "To open"
+          }
+        }
+      }
+    },
+    "Pour ouvrir et fermer le Finder :": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "To open and close the Finder:"
+          }
+        }
+      }
+    },
+    "Pour ranger des applications, Side a besoin de l'autorisation Accessibilité.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "To keep apps in the drawer, Side needs Accessibility permission."
+          }
+        }
+      }
+    },
+    "Pour épingler un dossier : glisse-le vers le bord droit de la carte, ou utilise le bouton + de la dernière colonne.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "To pin a folder: drag it to the right edge of the card, or use the + button in the last column."
+          }
+        }
+      }
+    },
+    "Presse-papiers": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clipboard"
+          }
+        }
+      }
+    },
+    "Presse-papiers · 7 jours": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clipboard · 7 days"
+          }
+        }
+      }
+    },
+    "Précédent": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Back"
+          }
+        }
+      }
+    },
+    "Présentation": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Presentation"
+          }
+        }
+      }
+    },
+    "Présentation par icônes": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Icon View"
+          }
+        }
+      }
+    },
+    "Quand la place manque": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "When space runs out"
+          }
+        }
+      }
+    },
+    "Quand le Finder de Side se referme.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "When Side's Finder closes."
+          }
+        }
+      }
+    },
+    "Quatre doigts %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Four fingers %@"
+          }
+        }
+      }
+    },
+    "Quitter Side": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quit Side"
+          }
+        }
+      }
+    },
+    "Raccourci %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shortcut %@"
+          }
+        }
+      }
+    },
+    "Raccourci « %@ ». Dépose un fichier pour le lui passer.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shortcut “%@”. Drop a file to pass it along."
+          }
+        }
+      }
+    },
+    "Raccourcis clavier": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keyboard Shortcuts"
+          }
+        }
+      }
+    },
+    "Recentrer": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recenter"
+          }
+        }
+      }
+    },
+    "Recherche": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search"
+          }
+        }
+      }
+    },
+    "Rechercher": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search"
+          }
+        }
+      }
+    },
+    "Rechercher dans le dossier affiché": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search the current folder"
+          }
+        }
+      }
+    },
+    "Rechercher dans le presse-papiers": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search the clipboard"
+          }
+        }
+      }
+    },
+    "Rechercher sur ce Mac": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search this Mac"
+          }
+        }
+      }
+    },
+    "Rechercher une app": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search for an app"
+          }
+        }
+      }
+    },
+    "Recherche…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Searching…"
+          }
+        }
+      }
+    },
+    "Reculer de 10 secondes": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skip back 10 seconds"
+          }
+        }
+      }
+    },
+    "Refermer Side après un dépôt": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Close Side after a drop"
+          }
+        }
+      }
+    },
+    "Renommer": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rename"
+          }
+        }
+      }
+    },
+    "Renommer « %@ »": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rename “%@”"
+          }
+        }
+      }
+    },
+    "Replacer à côté de Side": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Move Back Next to Side"
+          }
+        }
+      }
+    },
+    "Reste sous la main": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stays at hand"
+          }
+        }
+      }
+    },
+    "Retirer": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove"
+          }
+        }
+      }
+    },
+    "Retirer cette colonne": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove This Column"
+          }
+        }
+      }
+    },
+    "Retirer de l'étagère": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove from Shelf"
+          }
+        }
+      }
+    },
+    "Retirer des favoris": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove from Favorites"
+          }
+        }
+      }
+    },
+    "Retirer des favorites": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove from Favorites"
+          }
+        }
+      }
+    },
+    "Retirer du mini-Dock": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove from Mini Dock"
+          }
+        }
+      }
+    },
+    "Revenir au dossier précédent": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Go back to the previous folder"
+          }
+        }
+      }
+    },
+    "Revoir la présentation": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Replay the Tour"
+          }
+        }
+      }
+    },
+    "Rien dans cette rubrique.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nothing here."
+          }
+        }
+      }
+    },
+    "Rien en lecture": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nothing playing"
+          }
+        }
+      }
+    },
+    "Rien à afficher pour l'instant.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nothing to show yet."
+          }
+        }
+      }
+    },
+    "Récents": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recents"
+          }
+        }
+      }
+    },
+    "Réglages": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Settings"
+          }
+        }
+      }
+    },
+    "Réglages : icône Side, barre des menus": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Settings: Side icon, menu bar"
+          }
+        }
+      }
+    },
+    "Réglages de Side": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Side Settings"
+          }
+        }
+      }
+    },
+    "Réglages…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Settings…"
+          }
+        }
+      }
+    },
+    "Réseau": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Network"
+          }
+        }
+      }
+    },
+    "Réseau (ordinateurs qui partagent des fichiers)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Network (computers sharing files)"
+          }
+        }
+      }
+    },
+    "Rétablir": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Redo"
+          }
+        }
+      }
+    },
+    "Rétrécir pour tout afficher": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shrink to show everything"
+          }
+        }
+      }
+    },
+    "Se connecter": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connect"
+          }
+        }
+      }
+    },
+    "Se connecter à %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connect to %@"
+          }
+        }
+      }
+    },
+    "Se connecter à « %@ » dans le Finder. Une fois connecté, il apparaît ici et se parcourt dans Side.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connect to “%@” in the Finder. Once connected, it appears here and can be browsed in Side."
+          }
+        }
+      }
+    },
+    "Secouer le pointeur": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shake the pointer"
+          }
+        }
+      }
+    },
+    "Secousse": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shake"
+          }
+        }
+      }
+    },
+    "Sensibilité": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sensitivity"
+          }
+        }
+      }
+    },
+    "Side a aussi un tiroir, pour tes applications à usage rapide. Il va s'ouvrir pour se présenter.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Side also has a drawer, for the apps you use for quick tasks. It will open now to introduce itself."
+          }
+        }
+      }
+    },
+    "Side n'a pas le droit de lire la corbeille": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Side Isn't Allowed to Read the Trash"
+          }
+        }
+      }
+    },
+    "Side redémarre pour changer de langue.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Side restarts to change the language."
+          }
+        }
+      }
+    },
+    "Side, Square et Mulot sont trois petites applications gratuites, faites pour aller ensemble.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Side, Square and Mulot are three small free apps made to work together."
+          }
+        }
+      }
+    },
+    "Souris : ouvrir le Finder": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mouse: open the Finder"
+          }
+        }
+      }
+    },
+    "Souris et trackpad": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mouse and Trackpad"
+          }
+        }
+      }
+    },
+    "Spotify": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spotify"
+          }
+        }
+      }
+    },
+    "Spotify est fermé": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spotify is closed"
+          }
+        }
+      }
+    },
+    "Spotify n'a pas renvoyé d'autorisation.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spotify didn’t return an authorization."
+          }
+        }
+      }
+    },
+    "Spotify n'a pas répondu.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spotify didn’t respond."
+          }
+        }
+      }
+    },
+    "Spotify ne répond pas (%@).": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spotify isn’t responding (%@)."
+          }
+        }
+      }
+    },
+    "Spotify refuse cet accès (%@).": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spotify denied this access (%@)."
+          }
+        }
+      }
+    },
+    "Square n'agrandit jamais ces applications.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Square never makes these apps fill the screen."
+          }
+        }
+      }
+    },
+    "Suivant": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Next"
+          }
+        }
+      }
+    },
+    "Supprimer cette zone": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete This Zone"
+          }
+        }
+      }
+    },
+    "Supprimer de l'historique": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove from History"
+          }
+        }
+      }
+    },
+    "Supprimer le téléchargement": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove Download"
+          }
+        }
+      }
+    },
+    "Tags": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tags"
+          }
+        }
+      }
+    },
+    "Taille": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Size"
+          }
+        }
+      }
+    },
+    "Taille des coins": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Corner size"
+          }
+        }
+      }
+    },
+    "Taille des icônes": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Icon size"
+          }
+        }
+      }
+    },
+    "Taille du texte": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Text size"
+          }
+        }
+      }
+    },
+    "Taille fixe, à faire défiler": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fixed size, scrolling"
+          }
+        }
+      }
+    },
+    "Tape le raccourci…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Type the shortcut…"
+          }
+        }
+      }
+    },
+    "Tapez pour chercher dans Spotify.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Type to search Spotify."
+          }
+        }
+      }
+    },
+    "Terminer": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Done"
+          }
+        }
+      }
+    },
+    "Tes applications en plein écran, en grille, et un Dock.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your apps full screen, in a grid, plus a Dock."
+          }
+        }
+      }
+    },
+    "Tes dossiers": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your Folders"
+          }
+        }
+      }
+    },
+    "Tes favoris se gèrent directement dans la barre : glisse un dossier sur « Favoris » pour l'ajouter, clic droit pour le retirer.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Manage your favorites right in the sidebar: drag a folder onto “Favorites” to add it, right-click to remove it."
+          }
+        }
+      }
+    },
+    "Tes fichiers": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your Files"
+          }
+        }
+      }
+    },
+    "Tiroir": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drawer"
+          }
+        }
+      }
+    },
+    "Titres": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Songs"
+          }
+        }
+      }
+    },
+    "Titres, artistes, albums, playlists": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Songs, artists, albums, playlists"
+          }
+        }
+      }
+    },
+    "Toujours fermer": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Always close"
+          }
+        }
+      }
+    },
+    "Toujours rester affichée": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Always stay visible"
+          }
+        }
+      }
+    },
+    "Tout sélectionner": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Select All"
+          }
+        }
+      }
+    },
+    "Toutes les applications": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All Applications"
+          }
+        }
+      }
+    },
+    "Trackpad : ouvrir le Finder": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trackpad: open the Finder"
+          }
+        }
+      }
+    },
+    "Trackpad : ouvrir le tiroir": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trackpad: open the drawer"
+          }
+        }
+      }
+    },
+    "Trier par": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sort By"
+          }
+        }
+      }
+    },
+    "Type": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kind"
+          }
+        }
+      }
+    },
+    "Téléchargement en cours": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloading"
+          }
+        }
+      }
+    },
+    "Téléchargement en cours…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloading…"
+          }
+        }
+      }
+    },
+    "Téléchargements": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloads"
+          }
+        }
+      }
+    },
+    "Télécharger": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Download Now"
+          }
+        }
+      }
+    },
+    "Télécharger depuis iCloud": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Download from iCloud"
+          }
+        }
+      }
+    },
+    "Un autre site web": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Another Website"
+          }
+        }
+      }
+    },
+    "Un cercle avec la souris": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A circle with the mouse"
+          }
+        }
+      }
+    },
+    "Un raccourci pour le Finder, un autre pour le tiroir.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "One shortcut for the Finder, another for the drawer."
+          }
+        }
+      }
+    },
+    "Une application du Mac se range plutôt dans « Applications ».": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A Mac app goes in “Applications” instead."
+          }
+        }
+      }
+    },
+    "Une secousse de souris": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A shake of the mouse"
+          }
+        }
+      }
+    },
+    "Une seule note…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A Single Note…"
+          }
+        }
+      }
+    },
+    "Une zone apparaît en haut à droite de la carte quand tu fais glisser un fichier. Tant qu'elle contient quelque chose, elle reste à l'écran même quand Side est fermé, pour que tu puisses glisser son contenu ailleurs. Side fermé, secoue le pointeur pendant que tu glisses un fichier : la zone apparaît seule, à côté de la souris. Secoue encore pour en ajouter une autre. Si la carte vient du haut, la zone se place en bas de la carte et les suivantes s'empilent au-dessus. Les zones vides disparaissent toutes seules.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A zone appears at the top right of the card when you drag a file. As long as it holds something, it stays on screen even when Side is closed, so you can drag its contents elsewhere. With Side closed, shake the pointer while dragging a file: the zone appears on its own, next to the pointer. Shake again to add another one. If the card comes from the top, the zone sits at the bottom of the card and the next ones stack above it. Empty zones disappear on their own."
+          }
+        }
+      }
+    },
+    "Utiliser un aperçu comme icône": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show icon preview"
+          }
+        }
+      }
+    },
+    "Verrouillée : reste à l'écran quand Side se ferme. Clique pour qu'elle se cache avec Side.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Locked: stays on screen when Side closes. Click to have it hide with Side."
+          }
+        }
+      }
+    },
+    "Vers le bas": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Down"
+          }
+        }
+      }
+    },
+    "Vers le haut": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Up"
+          }
+        }
+      }
+    },
+    "Vide": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empty"
+          }
+        }
+      }
+    },
+    "Vider": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empty"
+          }
+        }
+      }
+    },
+    "Vider l'étagère": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empty the Shelf"
+          }
+        }
+      }
+    },
+    "Vider la corbeille": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empty Trash"
+          }
+        }
+      }
+    },
+    "Vider la corbeille ?": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empty the Trash?"
+          }
+        }
+      }
+    },
+    "Vider la zone": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empty the Zone"
+          }
+        }
+      }
+    },
+    "Voir la vidéo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Watch Video"
+          }
+        }
+      }
+    },
+    "Voir le tiroir": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "See the Drawer"
+          }
+        }
+      }
+    },
+    "Vos artistes du moment": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your Top Artists"
+          }
+        }
+      }
+    },
+    "Vos titres du moment": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your Top Songs"
+          }
+        }
+      }
+    },
+    "Vous avez refusé l'autorisation dans Spotify.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You declined authorization in Spotify."
+          }
+        }
+      }
+    },
+    "Y garder aussi les mots de passe (affichés masqués)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep passwords there too (shown hidden)"
+          }
+        }
+      }
+    },
+    "YouTube": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "YouTube"
+          }
+        }
+      }
+    },
+    "Zone de dépôt : glisse ces fichiers où tu veux": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drop zone: drag these files wherever you want"
+          }
+        }
+      }
+    },
+    "Zone qui se cache avec Side": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zone hides with Side"
+          }
+        }
+      }
+    },
+    "Zone verrouillée à l'écran": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zone locked on screen"
+          }
+        }
+      }
+    },
+    "Zones affichées": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zones shown"
+          }
+        }
+      }
+    },
+    "Zones de dépôt": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drop Zones"
+          }
+        }
+      }
+    },
+    "copie": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "copy"
+          }
+        }
+      }
+    },
+    "https://…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://…"
+          }
+        }
+      }
+    },
+    "le coin %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "the %@ corner"
+          }
+        }
+      }
+    },
+    "macOS réserve le contenu de la corbeille aux applications qui ont l'« Accès complet au disque ». Ouvre le réglage, active Side dans la liste, puis relance Side : la corbeille s'affichera dans la carte.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS only lets apps with Full Disk Access see what's in the Trash. Open the setting, turn on Side in the list, then reopen Side: the Trash will show in the card."
+          }
+        }
+      }
+    },
+    "pas de réponse": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "no response"
+          }
+        }
+      }
+    },
+    "quatre doigts %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "four fingers %@"
+          }
+        }
+      }
+    },
+    "vers le bas": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "down"
+          }
+        }
+      }
+    },
+    "vers le haut": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "up"
+          }
+        }
+      }
+    },
+    "À droite": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Right"
+          }
+        }
+      }
+    },
+    "À gauche, la musique et la vidéo : YouTube, Spotify ou le site de ton choix.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On the left, music and video: YouTube, Spotify or a site of your choice."
+          }
+        }
+      }
+    },
+    "Écoutés récemment": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recently Played"
+          }
+        }
+      }
+    },
+    "Édition": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edit"
+          }
+        }
+      }
+    },
+    "Élargir ou rétrécir le lecteur": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Widen or narrow the player"
+          }
+        }
+      }
+    },
+    "Élevée": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "High"
+          }
+        }
+      }
+    },
+    "Élément déposé": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dropped Item"
+          }
+        }
+      }
+    },
+    "Épingler": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pin"
+          }
+        }
+      }
+    },
+    "Épingler ce dossier en colonne": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pin This Folder as a Column"
+          }
+        }
+      }
+    },
+    "Épingler en colonne": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pin as Column"
+          }
+        }
+      }
+    },
+    "Épingler en haut de la liste": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pin to Top of List"
+          }
+        }
+      }
+    },
+    "Épingler un autre dossier…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pin Another Folder…"
+          }
+        }
+      }
+    },
+    "Épingler un dossier en colonne": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pin a folder as a column"
+          }
+        }
+      }
+    },
+    "Épingler un dossier en colonne (clique, ou dépose un dossier ici)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pin a folder as a column (click, or drop a folder here)"
+          }
+        }
+      }
+    },
+    "Étagère": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shelf"
+          }
+        }
+      }
+    },
+    "–": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "–"
+          }
+        }
+      }
+    },
+    "••••••••••  (mot de passe)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "••••••••••  (password)"
+          }
+        }
+      }
+    },
+    "⌃⌥Espace": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⌃⌥Space"
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

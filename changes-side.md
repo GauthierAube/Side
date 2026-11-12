@@ -5,10 +5,19 @@ Il est mis à jour à chaque modification, en même temps que le code.
 
 ---
 
+
+## 12/11/2026, nuit
+
+### Side en anglais
+- **Avant :** Side n'existait qu'en français.
+- **Maintenant :** Side s'affiche en anglais sur tout Mac qui n'est pas réglé en français, et reste en français sinon. Réglages › Général › Langue permet de choisir : automatique (langue du Mac), français ou English ; Side redémarre pour changer de langue.
+- Les textes viennent d'un catalogue de traduction Apple (`Localizable.xcstrings`), mis à jour à chaque compilation quand Xcode est installé ; les fichiers compilés (`Resources/en.lproj`) sont gardés dans le dépôt, pour compiler sans Xcode. Les demandes d'autorisation de macOS sont traduites aussi.
+- Les dates suivent la langue de Side au lieu d'être toujours en français.
+- Le tiroir retrouve le menu « Ouvrir la note dans une nouvelle fenêtre » de Notes, que Notes soit en français ou en anglais.
 ## 12/11/2026, soir
 
 ### Tiroir : une seule note, et des tuiles qui restent visibles
-- La liste « + » propose « Une seule note… » : on tape le titre d'une note, elle s'ouvre seule dans sa propre fenêtre au lieu de toute l'application Notes.
+- La liste « + » propose « Une seule note… » : on choisit une note dans la liste de ses notes, elle s'ouvre seule dans sa propre fenêtre au lieu de toute l'application Notes.
 - **Avant :** un clic dans le tiroir pouvait le faire passer devant les fenêtres de ses tuiles, qui semblaient disparaître. **Maintenant :** après chaque clic, le tiroir se replace sous ses tuiles.
 
 ### Tiroir : fermer une application qui quitte avec sa fenêtre

@@ -1,0 +1,102 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "NSAppleEventsUsageDescription": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Side asks the Finder to show a file's Get Info window, controls Spotify, and opens your notes from the drawer."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Side demande au Finder d'afficher la fenêtre d'informations d'un fichier, pilote Spotify et ouvre tes notes depuis le tiroir."
+          }
+        }
+      }
+    },
+    "NSDesktopFolderUsageDescription": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Side shows your folders."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Side affiche tes dossiers."
+          }
+        }
+      }
+    },
+    "NSDocumentsFolderUsageDescription": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Side shows your folders."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Side affiche tes dossiers."
+          }
+        }
+      }
+    },
+    "NSDownloadsFolderUsageDescription": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Side shows your Downloads folder."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Side affiche ton dossier Téléchargements."
+          }
+        }
+      }
+    },
+    "NSLocalNetworkUsageDescription": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Side finds the computers on your network that share files, to show them in its sidebar."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Side repère les ordinateurs du réseau qui partagent des fichiers, pour les afficher dans sa barre latérale."
+          }
+        }
+      }
+    },
+    "Side mini Dock icon": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Side mini Dock icon"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Icône du mini-Dock de Side"
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

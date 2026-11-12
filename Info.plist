@@ -3,9 +3,10 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
-	<string>fr</string>
+	<string>en</string>
 	<key>CFBundleLocalizations</key>
 	<array>
+		<string>en</string>
 		<string>fr</string>
 	</array>
 	<key>CFBundleName</key>
@@ -32,7 +33,7 @@
 			<key>UTTypeIdentifier</key>
 			<string>com.gauthieraube.side.app</string>
 			<key>UTTypeDescription</key>
-			<string>Icône du mini-Dock de Side</string>
+			<string>Side mini Dock icon</string>
 			<key>UTTypeConformsTo</key>
 			<array>
 				<string>public.data</string>
@@ -44,19 +45,19 @@
 	<key>NSHighResolutionCapable</key>
 	<true/>
 	<key>NSLocalNetworkUsageDescription</key>
-	<string>Side repère les ordinateurs du réseau qui partagent des fichiers, pour les afficher dans sa barre latérale.</string>
+	<string>Side finds the computers on your network that share files, to show them in its sidebar.</string>
 	<key>NSBonjourServices</key>
 	<array>
 		<string>_smb._tcp</string>
 		<string>_afpovertcp._tcp</string>
 	</array>
 	<key>NSAppleEventsUsageDescription</key>
-	<string>Side demande au Finder d'afficher la fenêtre d'informations d'un fichier, pilote Spotify et ouvre votre note dans Notes depuis le panneau du bas.</string>
+	<string>Side asks the Finder to show a file's Get Info window, controls Spotify, and opens your notes from the drawer.</string>
 	<key>NSDocumentsFolderUsageDescription</key>
-	<string>Side affiche vos dossiers.</string>
+	<string>Side shows your folders.</string>
 	<key>NSDownloadsFolderUsageDescription</key>
-	<string>Side affiche votre dossier Téléchargements.</string>
+	<string>Side shows your Downloads folder.</string>
 	<key>NSDesktopFolderUsageDescription</key>
-	<string>Side affiche vos dossiers.</string>
+	<string>Side shows your folders.</string>
 </dict>
 </plist>

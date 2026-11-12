@@ -57,7 +57,7 @@ final class ConfigTiroir: ObservableObject {
         coin = d.string(forKey: "tiroirCoin").flatMap(Coin.init) ?? .aucun
         touche = d.object(forKey: "tiroirTouche") as? Int ?? kVK_Space
         mods = d.object(forKey: "tiroirMods") as? Int ?? (controlKey | optionKey)
-        libelle = d.string(forKey: "tiroirLibelle") ?? "⌃⌥Espace"
+        libelle = d.string(forKey: "tiroirLibelle") ?? String(localized: "⌃⌥Espace")
         quatreDoigts = d.object(forKey: "tiroirQuatreDoigts") as? Bool ?? true
         fermerAuClic = d.object(forKey: "tiroirFermerAuClic") as? Bool ?? true
         couperPubs = d.bool(forKey: "tiroirCouperPubs")
@@ -74,7 +74,7 @@ final class ConfigTiroir: ObservableObject {
     /// Vrai : le tiroir descend du haut de l'écran (le Finder vient du bas). Faux : il monte du bas.
     static var enHaut: Bool { Config.shared.bord == .bas }
     /// Le geste du tiroir, en toutes lettres.
-    static var sensGeste: String { enHaut ? "vers le bas" : "vers le haut" }
+    static var sensGeste: String { enHaut ? String(localized: "vers le bas") : String(localized: "vers le haut") }
     /// Le geste du tiroir n'est libre que si le Finder s'ouvre avec quatre doigts dans l'autre sens.
     /// Choisir d'où arrive le Finder règle tout le reste : le tiroir prend le bord opposé, et les gestes à quatre doigts suivent
     /// (un panneau qui vient du bas s'ouvre en glissant vers le haut, et inversement).
@@ -109,7 +109,7 @@ final class ConfigTiroir: ObservableObject {
             if f.contains(.option) { mods |= optionKey; texte += "⌥" }
             if f.contains(.shift) { mods |= shiftKey; texte += "⇧" }
             if f.contains(.command) { mods |= cmdKey; texte += "⌘" }
-            texte += ev.keyCode == UInt16(kVK_Space) ? "Espace" : (ev.charactersIgnoringModifiers ?? "?").uppercased()
+            texte += ev.keyCode == UInt16(kVK_Space) ? String(localized: "Espace") : (ev.charactersIgnoringModifiers ?? "?").uppercased()
             self.definirRaccourci(touche: Int(ev.keyCode), mods: mods, libelle: texte)
             fin()
             return nil
@@ -186,11 +186,11 @@ struct RaccourciTiroirLigne: View {
     var body: some View {
         LabeledContent("Ouvrir et fermer le tiroir") {
             HStack {
-                Button(ecoute ? "Tape le raccourci…" : tiroir.libelle) {
+                Button(ecoute ? String(localized: "Tape le raccourci…") : tiroir.libelle) {
                     ecoute = true
                     tiroir.ecouterRaccourci { ecoute = false }
                 }
-                Button("Effacer") { tiroir.definirRaccourci(touche: -1, mods: 0, libelle: "Aucun") }
+                Button("Effacer") { tiroir.definirRaccourci(touche: -1, mods: 0, libelle: String(localized: "Aucun")) }
                     .disabled(tiroir.touche == -1)
             }
         }
@@ -225,7 +225,7 @@ struct SectionsTiroir: View {
                     Text("Du haut").tag(true)
                 }
                 .pickerStyle(.segmented)
-            } footer: { note("Attention : si le tiroir arrive du haut, le Finder arrivera du bas.") }
+            } footer: { note(String(localized: "Attention : si le tiroir arrive du haut, le Finder arrivera du bas.")) }
             Section {
                 Toggle("Fermer d'un clic en dehors", isOn: $tiroir.fermerAuClic)
             }
@@ -260,20 +260,20 @@ struct SectionsTiroir: View {
                 }
                 .disabled(nomSite.isEmpty || adresseSite.isEmpty)
             } header: { Text("Un autre site web") } footer: {
-                note("Une application du Mac se range plutôt dans « Applications ».")
+                note(String(localized: "Une application du Mac se range plutôt dans « Applications »."))
             }
             if tiroir.medias.contains(where: { $0.genre == "youtube" }) {
                 Section {
                     Toggle("Couper les publicités", isOn: $tiroir.couperPubs)
                 } header: { Text("YouTube") } footer: {
-                    note("Contraire aux conditions d'utilisation de YouTube : à activer en connaissance de cause. Pris en compte au prochain lancement de Side.")
+                    note(String(localized: "Contraire aux conditions d'utilisation de YouTube : à activer en connaissance de cause. Pris en compte au prochain lancement de Side."))
                 }
             }
             if tiroir.medias.contains(where: { $0.genre == "spotify" }) {
                 Section {
                     LabeledContent("Spotify") {
                         HStack {
-                            Text(spotify ? "Connecté" : "Non connecté").foregroundStyle(.secondary)
+                            Text(spotify ? String(localized: "Connecté") : String(localized: "Non connecté")).foregroundStyle(.secondary)
                             Button("Déconnecter") { SpotifyCompte.commun.deconnecter(); spotify = false }.disabled(!spotify)
                         }
                     }
@@ -303,7 +303,7 @@ struct SectionsTiroir: View {
                         tuiles = PanneauBas.commun.tuiles
                     }
                 }
-            } footer: { note("Square n'agrandit jamais ces applications.") }
+            } footer: { note(String(localized: "Square n'agrandit jamais ces applications.")) }
         }
     }
 }
@@ -326,29 +326,29 @@ final class BienvenueTiroirBas: NSView {
         layer?.shadowRadius = 16
         layer?.shadowOffset = CGSize(width: 0, height: -5)
 
-        let titre = NSTextField(labelWithString: "Bienvenue dans le tiroir")
+        let titre = NSTextField(labelWithString: String(localized: "Bienvenue dans le tiroir"))
         titre.font = .systemFont(ofSize: 17, weight: .semibold)
         // Les façons de l'ouvrir qui sont réglées en ce moment.
         let t = ConfigTiroir.commun
         var facons: [String] = []
         if t.touche != -1 { facons.append(t.libelle) }
-        if t.quatreDoigts && ConfigTiroir.gestePossible { facons.append("quatre doigts " + ConfigTiroir.sensGeste) }
-        if t.coin != .aucun { facons.append("le coin " + t.coin.titre.lowercased()) }
+        if t.quatreDoigts && ConfigTiroir.gestePossible { facons.append(String(localized: "quatre doigts \(ConfigTiroir.sensGeste)")) }
+        if t.coin != .aucun { facons.append(String(localized: "le coin \(t.coin.titre.lowercased())")) }
         var lignes: [NSView] = [titre,
-            ligne("keyboard", facons.isEmpty ? "Choisis comment l'ouvrir dans les réglages."
-                                             : "Pour l'ouvrir et le fermer : " + facons.joined(separator: ", ou ") + "."),
-            ligne("play.rectangle.fill", "À gauche, la musique et la vidéo : YouTube, Spotify ou le site de ton choix."),
-            ligne("plus.circle.fill", "La case « + » range une application dans le tiroir : elle y reste, à portée de main."),
-            ligne("gearshape.fill", "La roue dentée, sous la case « + », ouvre les réglages."),
+            ligne("keyboard", facons.isEmpty ? String(localized: "Choisis comment l'ouvrir dans les réglages.")
+                                             : String(localized: "Pour l'ouvrir et le fermer : \(facons.joined(separator: String(localized: ", ou "))).")),
+            ligne("play.rectangle.fill", String(localized: "À gauche, la musique et la vidéo : YouTube, Spotify ou le site de ton choix.")),
+            ligne("plus.circle.fill", String(localized: "La case « + » range une application dans le tiroir : elle y reste, à portée de main.")),
+            ligne("gearshape.fill", String(localized: "La roue dentée, sous la case « + », ouvre les réglages.")),
         ]
         // Sans l'autorisation Accessibilité, Side ne peut pas déplacer la fenêtre d'une autre application.
         if !AXIsProcessTrusted() {
-            lignes.append(ligne("hand.raised.fill", "Pour ranger des applications, Side a besoin de l'autorisation Accessibilité."))
-            let acces = BoutonBas(title: "Ouvrir les réglages d'accessibilité", target: self, action: #selector(ouvrirAccessibilite))
+            lignes.append(ligne("hand.raised.fill", String(localized: "Pour ranger des applications, Side a besoin de l'autorisation Accessibilité.")))
+            let acces = BoutonBas(title: String(localized: "Ouvrir les réglages d'accessibilité"), target: self, action: #selector(ouvrirAccessibilite))
             acces.bezelStyle = .rounded
             lignes.append(acces)
         }
-        let compris = BoutonBas(title: "Compris", target: self, action: #selector(compris))
+        let compris = BoutonBas(title: String(localized: "Compris"), target: self, action: #selector(compris))
         compris.bezelStyle = .rounded
         compris.keyEquivalent = "\r"
         lignes.append(compris)
@@ -396,9 +396,9 @@ struct SectionCompagnes: View {
         var installee: Bool { NSWorkspace.shared.urlForApplication(withBundleIdentifier: id) != nil }
     }
     private let compagnes = [
-        Compagne(id: "com.gauthieraube.square", nom: "Square", role: "Tes applications en plein écran, en grille, et un Dock.",
+        Compagne(id: "com.gauthieraube.square", nom: "Square", role: String(localized: "Tes applications en plein écran, en grille, et un Dock."),
                  adresse: ""),      // pas encore publié : mettre ici https://github.com/GauthierAube/Square le jour venu
-        Compagne(id: "app.mulot", nom: "Mulot", role: "Les boutons et les gestes de la souris MX Master, sans le logiciel de Logitech.",
+        Compagne(id: "app.mulot", nom: "Mulot", role: String(localized: "Les boutons et les gestes de la souris MX Master, sans le logiciel de Logitech."),
                  adresse: "https://github.com/GauthierAube/Mulot"),
     ]
 

@@ -31,11 +31,11 @@ enum Coin: String, CaseIterable {
     case aucun, hautGauche, hautDroite, basGauche, basDroite
     var titre: String {
         switch self {
-        case .aucun: return "Aucun"
-        case .hautGauche: return "En haut à gauche"
-        case .hautDroite: return "En haut à droite"
-        case .basGauche: return "En bas à gauche"
-        case .basDroite: return "En bas à droite"
+        case .aucun: return String(localized: "Aucun")
+        case .hautGauche: return String(localized: "En haut à gauche")
+        case .hautDroite: return String(localized: "En haut à droite")
+        case .basGauche: return String(localized: "En bas à gauche")
+        case .basDroite: return String(localized: "En bas à droite")
         }
     }
 }
@@ -44,11 +44,11 @@ enum Bord: String, CaseIterable {
     case haut, bas, gauche, droite, plein
     var titre: String {
         switch self {
-        case .haut: return "Du haut"
-        case .bas: return "Du bas"
-        case .gauche: return "De la gauche"
-        case .droite: return "De la droite"
-        case .plein: return "Position libre, en fondu"
+        case .haut: return String(localized: "Du haut")
+        case .bas: return String(localized: "Du bas")
+        case .gauche: return String(localized: "De la gauche")
+        case .droite: return String(localized: "De la droite")
+        case .plein: return String(localized: "Position libre, en fondu")
         }
     }
     var lateral: Bool { self == .gauche || self == .droite }
@@ -814,10 +814,10 @@ enum Tri: String, CaseIterable {
     case nom, date, taille, type
     var titre: String {
         switch self {
-        case .nom: return "Nom"
-        case .date: return "Date (les plus récents d'abord)"
-        case .taille: return "Taille"
-        case .type: return "Type"
+        case .nom: return String(localized: "Nom")
+        case .date: return String(localized: "Date (les plus récents d'abord)")
+        case .taille: return String(localized: "Taille")
+        case .type: return String(localized: "Type")
         }
     }
 }
@@ -868,7 +868,7 @@ enum Fichiers {
 
     /// Nom affiché d'un dossier (le dossier Téléchargements d'iCloud s'appelle « Downloads » sur le disque).
     static func nom(_ url: URL) -> String {
-        if url.standardizedFileURL == downloads.standardizedFileURL { return "Téléchargements" }
+        if url.standardizedFileURL == downloads.standardizedFileURL { return String(localized: "Téléchargements") }
         if url.standardizedFileURL == icloud.standardizedFileURL { return "iCloud Drive" }
         return FileManager.default.displayName(atPath: url.path)
     }
@@ -1208,13 +1208,13 @@ final class Column: ObservableObject, Identifiable {
         if let u = pile.last { return FileManager.default.displayName(atPath: u.path) }
         switch kind {
         case .hub: return "Inbox & PARA"
-        case .recents: return "Fichiers récents"
-        case .etagere: return "Étagère"
-        case .dossiers: return "Dossiers récents"
-        case .presse: return "Presse-papiers"
+        case .recents: return String(localized: "Fichiers récents")
+        case .etagere: return String(localized: "Étagère")
+        case .dossiers: return String(localized: "Dossiers récents")
+        case .presse: return String(localized: "Presse-papiers")
         case .tag(let nom): return nom
         case .folder(let u):
-            return u == Fichiers.downloads ? "Téléchargements" : FileManager.default.displayName(atPath: u.path)
+            return u == Fichiers.downloads ? String(localized: "Téléchargements") : FileManager.default.displayName(atPath: u.path)
         }
     }
     var symbole: String {
@@ -1712,7 +1712,8 @@ struct AccueilView: View {
     }
 
     private var titre: String {
-        ["Bienvenue dans Side", "Tes dossiers", "Tes fichiers", "La zone de dépôt", "Le tiroir"][min(etape, 4)]
+        [String(localized: "Bienvenue dans Side"), String(localized: "Tes dossiers"), String(localized: "Tes fichiers"),
+         String(localized: "La zone de dépôt"), String(localized: "Le tiroir")][min(etape, 4)]
     }
 
     private var fleche: String? {
@@ -1732,9 +1733,9 @@ struct AccueilView: View {
         case 0:
             VStack(alignment: .leading, spacing: 7) {
                 Text("Pour ouvrir et fermer le Finder :").foregroundStyle(.secondary)
-                if config.coin != .aucun { geste("arrow.up.left.and.arrow.down.right", "Le coin " + config.coin.titre.lowercased()) }
+                if config.coin != .aucun { geste("arrow.up.left.and.arrow.down.right", String(localized: "Le coin \(config.coin.titre.lowercased())")) }
                 if config.secouer {
-                    geste("cursorarrow.motionlines", config.cercle ? "Un cercle avec la souris" : "Une secousse de souris")
+                    geste("cursorarrow.motionlines", config.cercle ? String(localized: "Un cercle avec la souris") : String(localized: "Une secousse de souris"))
                 }
                 if config.touche != -1 { geste("keyboard", config.libelle) }
             }
@@ -1742,15 +1743,15 @@ struct AccueilView: View {
             Text("Glisse un dossier sur « Favoris » pour l'ajouter.")
         case 2:
             VStack(alignment: .leading, spacing: 7) {
-                geste("space", "Espace : aperçu")
-                geste("cursorarrow.click.2", "Double-clic : ouvrir")
+                geste("space", String(localized: "Espace : aperçu"))
+                geste("cursorarrow.click.2", String(localized: "Double-clic : ouvrir"))
             }
         case 3:
             Text("Glisse un fichier : elle apparaît ici. Ce que tu y poses reste sous la main, même Side fermé.")
         default:
             VStack(alignment: .leading, spacing: 7) {
                 Text("Side a aussi un tiroir, pour tes applications à usage rapide. Il va s'ouvrir pour se présenter.").foregroundStyle(.secondary)
-                geste("menubar.arrow.up.rectangle", "Réglages : icône Side, barre des menus")
+                geste("menubar.arrow.up.rectangle", String(localized: "Réglages : icône Side, barre des menus"))
             }
         }
     }
@@ -2824,7 +2825,7 @@ struct EtagereView: View {
         }
         .overlay(alignment: .bottom) {
             if !vide {
-                Text(column.items.count == 1 ? column.items[0].name : "\(column.items.count) éléments")
+                Text(column.items.count == 1 ? column.items[0].name : String(localized: "\(column.items.count) éléments"))
                     .font(.caption).lineLimit(1).truncationMode(.middle)
                     .padding(.horizontal, 10).padding(.vertical, 4)
                     .background(Capsule().fill(Color.primary.opacity(0.14)))
@@ -2894,10 +2895,10 @@ struct SidebarView: View {
                 if b.contains("recents") || b.contains("dossiers") { titre("Récents") }
                 if ouverte("Récents") {
                     if b.contains("recents") {
-                        LigneBarre(store: store, kind: .recents, nom: "Fichiers récents", symbole: "clock")
+                        LigneBarre(store: store, kind: .recents, nom: String(localized: "Fichiers récents"), symbole: "clock")
                     }
                     if b.contains("dossiers") {
-                        LigneBarre(store: store, kind: .dossiers, nom: "Dossiers récents", symbole: "clock.arrow.circlepath")
+                        LigneBarre(store: store, kind: .dossiers, nom: String(localized: "Dossiers récents"), symbole: "clock.arrow.circlepath")
                     }
                 }
                 titre("Favoris")
@@ -2919,16 +2920,16 @@ struct SidebarView: View {
                         LigneBarre(store: store, kind: .folder(Fichiers.home), nom: NSUserName(), symbole: "house")
                     }
                     if b.contains("applications") {
-                        LigneBarre(store: store, kind: .folder(URL(fileURLWithPath: "/Applications")), nom: "Applications", symbole: "square.grid.3x3")
+                        LigneBarre(store: store, kind: .folder(URL(fileURLWithPath: "/Applications")), nom: String(localized: "Applications"), symbole: "square.grid.3x3")
                     }
                     if b.contains("bureau") {
-                        LigneBarre(store: store, kind: .folder(Fichiers.desktop), nom: "Bureau", symbole: "menubar.dock.rectangle")
+                        LigneBarre(store: store, kind: .folder(Fichiers.desktop), nom: String(localized: "Bureau"), symbole: "menubar.dock.rectangle")
                     }
                     if b.contains("documents") {
-                        LigneBarre(store: store, kind: .folder(Fichiers.documents), nom: "Documents", symbole: "doc")
+                        LigneBarre(store: store, kind: .folder(Fichiers.documents), nom: String(localized: "Documents"), symbole: "doc")
                     }
                     if b.contains("telechargements") {
-                        LigneBarre(store: store, kind: .folder(Fichiers.downloads), nom: "Téléchargements", symbole: "arrow.down.circle")
+                        LigneBarre(store: store, kind: .folder(Fichiers.downloads), nom: String(localized: "Téléchargements"), symbole: "arrow.down.circle")
                     }
                     if b.contains("disques") {
                         ForEach(Fichiers.disques(), id: \.self) { disque in
@@ -2970,10 +2971,22 @@ struct SidebarView: View {
 
     private func ouverte(_ section: String) -> Bool { !repliees.contains(section) }
 
+    /// Le nom affiché d'une section. Le nom français reste la clé enregistrée des sections repliées.
+    private func libelle(_ section: String) -> String {
+        switch section {
+        case "Récents": return String(localized: "Récents")
+        case "Favoris": return String(localized: "Favoris")
+        case "Emplacements": return String(localized: "Emplacements")
+        case "Réseau": return String(localized: "Réseau")
+        case "Tags": return String(localized: "Tags")
+        default: return section
+        }
+    }
+
     /// Titre de section : un clic la replie ou la déplie, comme dans le Finder.
     private func titre(_ texte: String) -> some View {
         HStack(spacing: 4) {
-            Text(texte).font(.subheadline).fontWeight(.semibold)
+            Text(libelle(texte)).font(.subheadline).fontWeight(.semibold)
             Image(systemName: "chevron.right")
                 .font(.system(size: 9, weight: .bold))
                 .rotationEffect(.degrees(ouverte(texte) ? 90 : 0))
@@ -2989,7 +3002,8 @@ struct SidebarView: View {
             UserDefaults.standard.set(Array(repliees), forKey: "sectionsRepliees")
         }
         .accessibilityAddTraits(.isButton)
-        .accessibilityLabel(texte + (ouverte(texte) ? ", section ouverte" : ", section repliée"))
+        .accessibilityLabel(ouverte(texte) ? String(localized: "\(libelle(texte)), section ouverte")
+                                           : String(localized: "\(libelle(texte)), section repliée"))
     }
 }
 
@@ -3039,7 +3053,7 @@ struct PressePapiersView: View {
 
     private static let dates: RelativeDateTimeFormatter = {
         let f = RelativeDateTimeFormatter()
-        f.locale = Locale(identifier: "fr_FR")
+        f.locale = Locale.current   // la langue de Side : français ou anglais
         f.unitsStyle = .short
         return f
     }()
@@ -3077,7 +3091,7 @@ struct PressePapiersView: View {
             .frame(width: 34)
             VStack(alignment: .leading, spacing: 2) {
                 Text(apercu(c)).lineLimit(2).truncationMode(.tail)
-                Text(copie == c.id ? "Copié — prêt à coller" : Self.dates.localizedString(for: c.date, relativeTo: Date()))
+                Text(copie == c.id ? String(localized: "Copié — prêt à coller") : Self.dates.localizedString(for: c.date, relativeTo: Date()))
                     .font(.caption).foregroundStyle(copie == c.id ? Color.accentColor : .secondary)
             }
             Spacer(minLength: 0)
@@ -3115,12 +3129,12 @@ struct PressePapiersView: View {
     }
 
     private func apercu(_ c: Copie) -> String {
-        if c.secret { return "••••••••••  (mot de passe)" }
+        if c.secret { return String(localized: "••••••••••  (mot de passe)") }
         if !c.fichiers.isEmpty {
             let noms = c.fichiers.map { FileManager.default.displayName(atPath: $0.path) }
-            return noms.count == 1 ? noms[0] : "\(noms.count) fichiers : " + noms.prefix(3).joined(separator: ", ")
+            return noms.count == 1 ? noms[0] : String(localized: "\(noms.count) fichiers : \(noms.prefix(3).joined(separator: ", "))")
         }
-        if c.image != nil { return "Image" }
+        if c.image != nil { return String(localized: "Image") }
         return (c.texte ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }
@@ -3167,12 +3181,12 @@ enum Corbeille {
         guard !aSupprimer.isEmpty else { NSSound.beep(); return }
         let alerte = NSAlert()
         alerte.alertStyle = .warning
-        alerte.messageText = "Vider la corbeille ?"
+        alerte.messageText = String(localized: "Vider la corbeille ?")
         alerte.informativeText = aSupprimer.count == 1
-            ? "L'élément qu'elle contient sera supprimé définitivement. Cette action est irréversible."
-            : "Les \(aSupprimer.count) éléments qu'elle contient seront supprimés définitivement. Cette action est irréversible."
-        alerte.addButton(withTitle: "Vider la corbeille")
-        alerte.addButton(withTitle: "Annuler")
+            ? String(localized: "L'élément qu'elle contient sera supprimé définitivement. Cette action est irréversible.")
+            : String(localized: "Les \(aSupprimer.count) éléments qu'elle contient seront supprimés définitivement. Cette action est irréversible.")
+        alerte.addButton(withTitle: String(localized: "Vider la corbeille"))
+        alerte.addButton(withTitle: String(localized: "Annuler"))
         guard Devant.alerte(alerte) == .alertFirstButtonReturn else { return }
         var rates = 0
         for u in aSupprimer { do { try FileManager.default.removeItem(at: u) } catch { rates += 1 } }
@@ -3185,10 +3199,10 @@ enum Corbeille {
         guard let d = dossier else { return }
         if lisible { AppDelegate.shared.store.naviguer(.folder(d)); return }
         let alerte = NSAlert()
-        alerte.messageText = "Side n'a pas le droit de lire la corbeille"
-        alerte.informativeText = "macOS réserve le contenu de la corbeille aux applications qui ont l'« Accès complet au disque ». Ouvre le réglage, active Side dans la liste, puis relance Side : la corbeille s'affichera dans la carte."
-        alerte.addButton(withTitle: "Ouvrir le réglage")
-        alerte.addButton(withTitle: "Plus tard")
+        alerte.messageText = String(localized: "Side n'a pas le droit de lire la corbeille")
+        alerte.informativeText = String(localized: "macOS réserve le contenu de la corbeille aux applications qui ont l'« Accès complet au disque ». Ouvre le réglage, active Side dans la liste, puis relance Side : la corbeille s'affichera dans la carte.")
+        alerte.addButton(withTitle: String(localized: "Ouvrir le réglage"))
+        alerte.addButton(withTitle: String(localized: "Plus tard"))
         if Devant.alerte(alerte) == .alertFirstButtonReturn,
            let u = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles") {
             NSWorkspace.shared.open(u)
@@ -3332,9 +3346,9 @@ struct ColumnView: View {
                 // Précédent / Suivant, toujours présents comme dans le Finder (grisés quand ils ne servent pas).
                 // Les colonnes épinglées, plus étroites, ont les mêmes en un peu plus petit.
                 HStack(spacing: 0) {
-                    navBouton("chevron.left", column.peutRevenir, "Dossier précédent", etroit: !fixe) { column.revenir() }
+                    navBouton("chevron.left", column.peutRevenir, String(localized: "Dossier précédent"), etroit: !fixe) { column.revenir() }
                     Divider().frame(height: 14)
-                    navBouton("chevron.right", column.peutAvancer, "Dossier suivant", etroit: !fixe) { column.avancer() }
+                    navBouton("chevron.right", column.peutAvancer, String(localized: "Dossier suivant"), etroit: !fixe) { column.avancer() }
                 }
                 .background(Capsule().fill(Color.primary.opacity(0.09)))
                 if fixe, let ici = column.courant {
@@ -3366,16 +3380,16 @@ struct ColumnView: View {
                     Text(column.titre).font(fixe ? .title3.weight(.semibold) : .headline).layoutPriority(1).lineLimit(1).truncationMode(.middle)
                         .contentShape(Rectangle())
                         .onTapGesture { if column.peutRevenir { column.revenir() } }   // cliquer le nom = revenir en arrière
-                        .help(column.peutRevenir ? "Revenir au dossier précédent" : column.titre)
+                        .help(column.peutRevenir ? String(localized: "Revenir au dossier précédent") : column.titre)
                 }
                 Spacer(minLength: 4)
                 // Colonnes épinglées, plus étroites : les boutons de présentation passent dans le menu « … »,
                 // pour laisser toute la place au nom du dossier.
                 if fixe {
                     HStack(spacing: 2) {
-                        boutonVue(.icones, "square.grid.2x2", "Afficher en icônes")
-                        boutonVue(.liste, "list.bullet", "Afficher en liste")
-                        boutonVue(.colonnes, "rectangle.split.3x1", "Afficher en colonnes")
+                        boutonVue(.icones, "square.grid.2x2", String(localized: "Afficher en icônes"))
+                        boutonVue(.liste, "list.bullet", String(localized: "Afficher en liste"))
+                        boutonVue(.colonnes, "rectangle.split.3x1", String(localized: "Afficher en colonnes"))
                     }
                     .padding(3)
                     .background(Capsule().fill(Color.primary.opacity(0.09)))
@@ -3709,22 +3723,22 @@ struct InfosFichier {
         let dates = DateFormatter()
         dates.dateStyle = .full
         dates.timeStyle = .short
-        if let d = v?.creationDate { infos.lignes.append(("Créé le", dates.string(from: d))) }
-        if let d = v?.contentModificationDate { infos.lignes.append(("Modifié le", dates.string(from: d))) }
+        if let d = v?.creationDate { infos.lignes.append((String(localized: "Créé le"), dates.string(from: d))) }
+        if let d = v?.contentModificationDate { infos.lignes.append((String(localized: "Modifié le"), dates.string(from: d))) }
         // Le reste vient de Spotlight, comme dans le Finder : dernière ouverture, dimensions, durée.
         if let md = MDItemCreateWithURL(nil, url as CFURL) {
             func valeur(_ cle: CFString) -> Any? { MDItemCopyAttribute(md, cle) }
-            if let d = valeur(kMDItemLastUsedDate) as? Date { infos.lignes.append(("Ouvert le", dates.string(from: d))) }
+            if let d = valeur(kMDItemLastUsedDate) as? Date { infos.lignes.append((String(localized: "Ouvert le"), dates.string(from: d))) }
             if let l = valeur(kMDItemPixelWidth) as? Int, let h = valeur(kMDItemPixelHeight) as? Int {
-                infos.lignes.append(("Dimensions", "\(l) × \(h)"))
+                infos.lignes.append((String(localized: "Dimensions"), "\(l) × \(h)"))
             }
             if let s = valeur(kMDItemDurationSeconds) as? Double, s > 0 {
                 let f = DateComponentsFormatter()
                 f.allowedUnits = s >= 3600 ? [.hour, .minute, .second] : [.minute, .second]
                 f.zeroFormattingBehavior = .pad
-                if let texte = f.string(from: s) { infos.lignes.append(("Durée", texte)) }
+                if let texte = f.string(from: s) { infos.lignes.append((String(localized: "Durée"), texte)) }
             }
-            if let n = valeur(kMDItemNumberOfPages) as? Int { infos.lignes.append(("Pages", "\(n)")) }
+            if let n = valeur(kMDItemNumberOfPages) as? Int { infos.lignes.append((String(localized: "Pages"), "\(n)")) }
         }
         return infos
     }
@@ -4065,7 +4079,7 @@ struct IconView: View {
         let url = item.url
         DispatchQueue.global(qos: .utility).async {
             let n = ((try? FileManager.default.contentsOfDirectory(atPath: url.path)) ?? []).filter { !$0.hasPrefix(".") }.count
-            DispatchQueue.main.async { info = n == 0 ? "Vide" : (n == 1 ? "1 élément" : "\(n) éléments") }
+            DispatchQueue.main.async { info = n == 0 ? String(localized: "Vide") : (n == 1 ? String(localized: "1 élément") : String(localized: "\(n) éléments")) }
         }
     }
 }
@@ -4080,13 +4094,13 @@ struct RowView: View {
 
     private static let jour: DateFormatter = {
         let f = DateFormatter()
-        f.locale = Locale(identifier: "fr_FR")
+        f.locale = Locale.current   // la langue de Side : français ou anglais
         f.dateFormat = "d MMM yyyy"
         return f
     }()
     private static let dates: RelativeDateTimeFormatter = {
         let f = RelativeDateTimeFormatter()
-        f.locale = Locale(identifier: "fr_FR")
+        f.locale = Locale.current   // la langue de Side : français ou anglais
         f.unitsStyle = .short
         return f
     }()
@@ -4130,7 +4144,7 @@ struct RowView: View {
     private var detail: String {
         let parent = item.url.deletingLastPathComponent()
         let dossier = parent.standardizedFileURL == Fichiers.downloads.standardizedFileURL
-            ? "Téléchargements" : FileManager.default.displayName(atPath: parent.path)
+            ? String(localized: "Téléchargements") : FileManager.default.displayName(atPath: parent.path)
         return dossier + " · " + Self.dates.localizedString(for: item.date, relativeTo: Date())
     }
 }
@@ -4151,42 +4165,42 @@ enum Volet: String, CaseIterable, Identifiable {
     /// Les rubriques de la barre latérale, avec leur intitulé.
     static let groupes: [(String?, [Volet])] = [
         (nil, [.general]),
-        ("Ouvrir et fermer", [.coins, .clavier, .gestes]),
+        (String(localized: "Ouvrir et fermer"), [.coins, .clavier, .gestes]),
         ("Finder", [.apparence, .fermeture, .fichiers, .colonnes, .depot]),
-        ("Tiroir", [.tiroir, .multimedia, .applications]),      // le second panneau de Side, au bord opposé au Finder
+        (String(localized: "Tiroir"), [.tiroir, .multimedia, .applications]),     // le second panneau de Side, au bord opposé au Finder
     ]
 
     var titre: String {
         switch self {
-        case .general: return "Général"
-        case .coins: return "Coins actifs"
-        case .clavier: return "Raccourcis clavier"
-        case .gestes: return "Souris et trackpad"
-        case .apparence: return "Apparence"
-        case .fermeture: return "Fermeture"
-        case .fichiers: return "Barre latérale et fichiers"
-        case .colonnes: return "Dossiers et colonnes"
-        case .depot: return "Zones de dépôt"
-        case .tiroir: return "Ouverture et fermeture"
-        case .multimedia: return "Multimédia"
-        case .applications: return "Applications"
+        case .general: return String(localized: "Général")
+        case .coins: return String(localized: "Coins actifs")
+        case .clavier: return String(localized: "Raccourcis clavier")
+        case .gestes: return String(localized: "Souris et trackpad")
+        case .apparence: return String(localized: "Apparence")
+        case .fermeture: return String(localized: "Fermeture")
+        case .fichiers: return String(localized: "Barre latérale et fichiers")
+        case .colonnes: return String(localized: "Dossiers et colonnes")
+        case .depot: return String(localized: "Zones de dépôt")
+        case .tiroir: return String(localized: "Ouverture et fermeture")
+        case .multimedia: return String(localized: "Multimédia")
+        case .applications: return String(localized: "Applications")
         }
     }
     /// Une phrase sous le titre du volet, pour dire de quoi il s'agit.
     var resume: String {
         switch self {
-        case .general: return "Ce qui vaut pour tout Side."
-        case .coins: return "Amener le pointeur dans un coin de l'écran ouvre le Finder ou le tiroir."
-        case .clavier: return "Un raccourci pour le Finder, un autre pour le tiroir."
-        case .gestes: return "Ouvrir le Finder et le tiroir d'un geste, à la souris ou au trackpad."
-        case .apparence: return "Le Finder de Side : d'où il arrive, sa taille, son fond."
-        case .fermeture: return "Quand le Finder de Side se referme."
-        case .fichiers: return "Ce que le Finder de Side affiche, et comment."
-        case .colonnes: return "Le dossier de départ et les colonnes épinglées du Finder de Side."
-        case .depot: return "Les zones où poser des fichiers en attente, à côté du Finder de Side."
-        case .tiroir: return "Le tiroir, second panneau de Side."
-        case .multimedia: return "Musique et vidéo, au début du tiroir."
-        case .applications: return "Les applications rangées dans le tiroir."
+        case .general: return String(localized: "Ce qui vaut pour tout Side.")
+        case .coins: return String(localized: "Amener le pointeur dans un coin de l'écran ouvre le Finder ou le tiroir.")
+        case .clavier: return String(localized: "Un raccourci pour le Finder, un autre pour le tiroir.")
+        case .gestes: return String(localized: "Ouvrir le Finder et le tiroir d'un geste, à la souris ou au trackpad.")
+        case .apparence: return String(localized: "Le Finder de Side : d'où il arrive, sa taille, son fond.")
+        case .fermeture: return String(localized: "Quand le Finder de Side se referme.")
+        case .fichiers: return String(localized: "Ce que le Finder de Side affiche, et comment.")
+        case .colonnes: return String(localized: "Le dossier de départ et les colonnes épinglées du Finder de Side.")
+        case .depot: return String(localized: "Les zones où poser des fichiers en attente, à côté du Finder de Side.")
+        case .tiroir: return String(localized: "Le tiroir, second panneau de Side.")
+        case .multimedia: return String(localized: "Musique et vidéo, au début du tiroir.")
+        case .applications: return String(localized: "Les applications rangées dans le tiroir.")
         }
     }
     var symbole: String {
@@ -4288,9 +4302,9 @@ struct ReglagesView: View {
         .accessibilityAddTraits(choisi ? [.isButton, .isSelected] : .isButton)
     }
 
-    private func pourcent(_ x: Double) -> String { "\(Int((x * 100).rounded())) %" }
+    private func pourcent(_ x: Double) -> String { String(localized: "\(Int((x * 100).rounded())) %") }
 
-    private func curseur(_ titre: String, _ valeur: Binding<Double>, _ plage: ClosedRange<Double>, _ texte: String) -> some View {
+    private func curseur(_ titre: LocalizedStringKey, _ valeur: Binding<Double>, _ plage: ClosedRange<Double>, _ texte: String) -> some View {
         LabeledContent(titre) {
             HStack {
                 Slider(value: valeur, in: plage).frame(width: 190)
@@ -4299,7 +4313,7 @@ struct ReglagesView: View {
         }
     }
 
-    private func note(_ texte: String) -> some View {
+    private func note(_ texte: LocalizedStringKey) -> some View {
         Text(texte).font(.caption).foregroundStyle(.secondary)
     }
 
@@ -4319,6 +4333,13 @@ struct ReglagesView: View {
         switch volet {
         case .general:
             Section {
+                Picker("Langue", selection: Binding(get: { Langue.choisie }, set: { Langue.choisir($0) })) {
+                    ForEach(Langue.allCases) { Text($0.nom).tag($0) }
+                }
+            } header: { Text("Langue") } footer: {
+                note("Side redémarre pour changer de langue.")
+            }
+            Section {
                 Toggle("Garder un historique du copier-coller (7 jours)", isOn: $config.historique)
                 Toggle("Y garder aussi les mots de passe (affichés masqués)", isOn: $config.historiqueSecrets)
                     .disabled(!config.historique)
@@ -4327,7 +4348,7 @@ struct ReglagesView: View {
             }
             SectionCompagnes()
             Section("Présentation") {
-                LabeledContent("La visite guidée de Side, en cinq étapes") {
+                LabeledContent("La visite guidée de Side, en quatre étapes") {
                     Button("Revoir la présentation") { AppDelegate.shared.revoirAccueil() }
                 }
             }
@@ -4351,7 +4372,8 @@ struct ReglagesView: View {
             Section("Finder") {
                 LabeledContent("Ouvrir et fermer le Finder") {
                     HStack {
-                        Button(ecoute ? "Tape le raccourci…" : config.libelle) {
+                        Button(ecoute ? String(localized: "Tape le raccourci…")
+                               : (config.touche == -1 ? String(localized: "Aucun") : config.libelle)) {
                             ecoute = true
                             AppDelegate.shared.ecouterRaccourci { ecoute = false }
                         }
@@ -4375,7 +4397,8 @@ struct ReglagesView: View {
                 .pickerStyle(.segmented)
                 .disabled(!config.secouer)
                 curseur("Sensibilité", $config.sensibilite, 0...1,
-                        config.sensibilite > 0.66 ? "Élevée" : (config.sensibilite > 0.33 ? "Moyenne" : "Faible"))
+                        config.sensibilite > 0.66 ? String(localized: "Élevée")
+                            : (config.sensibilite > 0.33 ? String(localized: "Moyenne") : String(localized: "Faible")))
                     .disabled(!config.secouer)
             } header: { Text("Souris : ouvrir le Finder") } footer: {
                 if config.cercle {
@@ -4401,18 +4424,26 @@ struct ReglagesView: View {
                     }
                 }
             } header: { Text("Trackpad : ouvrir le Finder") } footer: {
-                note((config.sensDoigts == "deux"
-                      ? "Chaque geste, vers le haut ou vers le bas, ouvre ou ferme le Finder. "
-                      : "Le geste dans l'autre sens referme le Finder. ")
-                     + "Attention : macOS utilise déjà ces gestes, vers le haut pour Mission Control et vers le bas pour « Exposé des apps ». Pour que les deux ne se déclenchent pas ensemble, mets-les sur « Désactivé » dans Réglages Système > Trackpad > Autres gestes. Side ne change pas ces réglages lui-même.")
+                if config.sensDoigts == "deux" {
+                    note("Chaque geste, vers le haut ou vers le bas, ouvre ou ferme le Finder. Attention : macOS utilise déjà ces gestes, vers le haut pour Mission Control et vers le bas pour « Exposé des apps ». Pour que les deux ne se déclenchent pas ensemble, mets-les sur « Désactivé » dans Réglages Système > Trackpad > Autres gestes. Side ne change pas ces réglages lui-même.")
+                } else {
+                    note("Le geste dans l'autre sens referme le Finder. Attention : macOS utilise déjà ces gestes, vers le haut pour Mission Control et vers le bas pour « Exposé des apps ». Pour que les deux ne se déclenchent pas ensemble, mets-les sur « Désactivé » dans Réglages Système > Trackpad > Autres gestes. Side ne change pas ces réglages lui-même.")
+                }
             }
             Section {
-                Toggle("Glisser quatre doigts " + ConfigTiroir.sensGeste, isOn: $tiroir.quatreDoigts)
+                Toggle(String(localized: "Glisser quatre doigts \(ConfigTiroir.sensGeste)"), isOn: $tiroir.quatreDoigts)
                     .disabled(!ConfigTiroir.gestePossible)
             } header: { Text("Trackpad : ouvrir le tiroir") } footer: {
-                note(ConfigTiroir.gestePossible
-                     ? "Le tiroir arrive du \(ConfigTiroir.enHaut ? "haut" : "bas") de l'écran, à l'opposé du Finder : quatre doigts \(ConfigTiroir.sensGeste) l'ouvrent, dans l'autre sens le referment. Il suit les doigts."
-                     : "Le tiroir arrive du \(ConfigTiroir.enHaut ? "haut" : "bas") de l'écran : son geste est quatre doigts \(ConfigTiroir.sensGeste). Il n'est libre que si le Finder s'ouvre, lui, avec quatre doigts « \(ConfigTiroir.enHaut ? "Vers le haut" : "Vers le bas") ».")
+                switch (ConfigTiroir.gestePossible, ConfigTiroir.enHaut) {
+                case (true, true):
+                    note("Le tiroir arrive du haut de l'écran, à l'opposé du Finder : quatre doigts \(ConfigTiroir.sensGeste) l'ouvrent, dans l'autre sens le referment. Il suit les doigts.")
+                case (true, false):
+                    note("Le tiroir arrive du bas de l'écran, à l'opposé du Finder : quatre doigts \(ConfigTiroir.sensGeste) l'ouvrent, dans l'autre sens le referment. Il suit les doigts.")
+                case (false, true):
+                    note("Le tiroir arrive du haut de l'écran : son geste est quatre doigts \(ConfigTiroir.sensGeste). Il n'est libre que si le Finder s'ouvre, lui, avec quatre doigts « Vers le haut ».")
+                case (false, false):
+                    note("Le tiroir arrive du bas de l'écran : son geste est quatre doigts \(ConfigTiroir.sensGeste). Il n'est libre que si le Finder s'ouvre, lui, avec quatre doigts « Vers le bas ».")
+                }
             }
         case .apparence:
             Section("Position et taille") {
@@ -4458,18 +4489,18 @@ struct ReglagesView: View {
             }
         case .fichiers:
             Section {
-                entree("Fichiers récents", "clock", "recents")
-                entree("Dossiers récents", "clock.arrow.circlepath", "dossiers")
+                entree(String(localized: "Fichiers récents"), "clock", "recents")
+                entree(String(localized: "Dossiers récents"), "clock.arrow.circlepath", "dossiers")
                 entree("iCloud Drive", "icloud", "icloud")
                 entree(NSUserName(), "house", "maison")
-                entree("Applications", "square.grid.3x3", "applications")
-                entree("Bureau", "menubar.dock.rectangle", "bureau")
-                entree("Documents", "doc", "documents")
-                entree("Téléchargements", "arrow.down.circle", "telechargements")
-                entree("Corbeille", "trash", "corbeille")
-                entree("Disques externes et serveurs connectés", "externaldrive", "disques")
-                entree("Réseau (ordinateurs qui partagent des fichiers)", "network", "reseau")
-                entree("Tags", "circle.fill", "tags")
+                entree(String(localized: "Applications"), "square.grid.3x3", "applications")
+                entree(String(localized: "Bureau"), "menubar.dock.rectangle", "bureau")
+                entree(String(localized: "Documents"), "doc", "documents")
+                entree(String(localized: "Téléchargements"), "arrow.down.circle", "telechargements")
+                entree(String(localized: "Corbeille"), "trash", "corbeille")
+                entree(String(localized: "Disques externes et serveurs connectés"), "externaldrive", "disques")
+                entree(String(localized: "Réseau (ordinateurs qui partagent des fichiers)"), "network", "reseau")
+                entree(String(localized: "Tags"), "circle.fill", "tags")
             } header: { Text("Afficher dans la barre latérale") } footer: {
                 note("Tes favoris se gèrent directement dans la barre : glisse un dossier sur « Favoris » pour l'ajouter, clic droit pour le retirer.")
             }
@@ -4562,7 +4593,7 @@ final class PoigneeDepot: NSView {
         barre.shadowRadius = 2
         barre.shadowOffset = .zero
         layer?.addSublayer(barre)
-        toolTip = "Glisse pour déplacer la zone de dépôt"
+        toolTip = String(localized: "Glisse pour déplacer la zone de dépôt")
     }
     required init?(coder: NSCoder) { fatalError() }
 
@@ -5076,17 +5107,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
     /// Side n'a pas de barre des menus visible, mais macOS a besoin d'un menu Édition
     /// pour que Commande + A, C, V, X et Z fonctionnent dans le champ « Rechercher ».
     private func installerMenuEdition() {
-        let edition = NSMenu(title: "Édition")
-        edition.addItem(withTitle: "Annuler", action: Selector(("undo:")), keyEquivalent: "z")
-        let retablir = edition.addItem(withTitle: "Rétablir", action: Selector(("redo:")), keyEquivalent: "z")
+        let edition = NSMenu(title: String(localized: "Édition"))
+        edition.addItem(withTitle: String(localized: "Annuler"), action: Selector(("undo:")), keyEquivalent: "z")
+        let retablir = edition.addItem(withTitle: String(localized: "Rétablir"), action: Selector(("redo:")), keyEquivalent: "z")
         retablir.keyEquivalentModifierMask = [.command, .shift]
         edition.addItem(.separator())
-        edition.addItem(withTitle: "Couper", action: #selector(NSText.cut(_:)), keyEquivalent: "x")
-        edition.addItem(withTitle: "Copier", action: #selector(NSText.copy(_:)), keyEquivalent: "c")
-        edition.addItem(withTitle: "Coller", action: #selector(NSText.paste(_:)), keyEquivalent: "v")
-        edition.addItem(withTitle: "Tout sélectionner", action: #selector(NSText.selectAll(_:)), keyEquivalent: "a")
+        edition.addItem(withTitle: String(localized: "Couper"), action: #selector(NSText.cut(_:)), keyEquivalent: "x")
+        edition.addItem(withTitle: String(localized: "Copier"), action: #selector(NSText.copy(_:)), keyEquivalent: "c")
+        edition.addItem(withTitle: String(localized: "Coller"), action: #selector(NSText.paste(_:)), keyEquivalent: "v")
+        edition.addItem(withTitle: String(localized: "Tout sélectionner"), action: #selector(NSText.selectAll(_:)), keyEquivalent: "a")
         let principal = NSMenu()
-        let entree = NSMenuItem(title: "Édition", action: nil, keyEquivalent: "")
+        let entree = NSMenuItem(title: String(localized: "Édition"), action: nil, keyEquivalent: "")
         entree.submenu = edition
         principal.addItem(NSMenuItem(title: "Side", action: nil, keyEquivalent: ""))
         principal.addItem(entree)
@@ -5097,18 +5128,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
 
     func menuNeedsUpdate(_ menu: NSMenu) {
         menu.removeAllItems()
-        menu.addItem(withTitle: "Afficher Side", action: #selector(afficherEpingle), keyEquivalent: "").target = self
-        menu.addItem(withTitle: "Ajouter un dossier…", action: #selector(choisirDossier), keyEquivalent: "").target = self
+        menu.addItem(withTitle: String(localized: "Afficher Side"), action: #selector(afficherEpingle), keyEquivalent: "").target = self
+        menu.addItem(withTitle: String(localized: "Ajouter un dossier…"), action: #selector(choisirDossier), keyEquivalent: "").target = self
         menu.addItem(.separator())
-        menu.addItem(withTitle: "Réglages…", action: #selector(ouvrirReglages), keyEquivalent: ",").target = self
+        menu.addItem(withTitle: String(localized: "Réglages…"), action: #selector(ouvrirReglages), keyEquivalent: ",").target = self
         // « Revoir la présentation » n'est plus dans ce menu : elle se relance depuis Réglages > Général.
         menu.addItem(.separator())
         let demarrage = menu.addItem(
-            withTitle: "Ouvrir à l'ouverture de session", action: #selector(basculerDemarrage), keyEquivalent: "")
+            withTitle: String(localized: "Ouvrir à l'ouverture de session"), action: #selector(basculerDemarrage), keyEquivalent: "")
         demarrage.target = self
         demarrage.state = SMAppService.mainApp.status == .enabled ? .on : .off
         menu.addItem(.separator())
-        menu.addItem(withTitle: "Quitter Side", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
+        menu.addItem(withTitle: String(localized: "Quitter Side"), action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
     }
 
     @objc func basculerDemarrage() {
@@ -5117,7 +5148,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
             else { try SMAppService.mainApp.register() }
         } catch {
             let a = NSAlert()
-            a.messageText = "Impossible de modifier l'ouverture automatique"
+            a.messageText = String(localized: "Impossible de modifier l'ouverture automatique")
             a.informativeText = error.localizedDescription
             Devant.alerte(a)
         }
@@ -5205,7 +5236,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         hide()
         if fenetreReglages == nil {
             let w = NSWindow(contentViewController: NSHostingController(rootView: ReglagesView()))
-            w.title = "Réglages de Side"
+            w.title = String(localized: "Réglages de Side")
             // Comme les Réglages Système : barre de titre fondue dans le contenu, barre latérale à gauche.
             w.styleMask = [.titled, .closable, .fullSizeContentView]
             w.titlebarAppearsTransparent = true
@@ -5423,7 +5454,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
             guard let url else { return }
             let ext = url.pathExtension.isEmpty ? (UTType(type)?.preferredFilenameExtension ?? "") : url.pathExtension
             var nom = nomPropose ?? url.deletingPathExtension().lastPathComponent
-            if nom.isEmpty { nom = "Élément déposé" }
+            if nom.isEmpty { nom = String(localized: "Élément déposé") }
             var cible = Self.dossierDepot.appendingPathComponent(nom).appendingPathExtension(ext)
             var n = 2
             while FileManager.default.fileExists(atPath: cible.path) {
@@ -5516,7 +5547,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
             } else {
                 try FileManager.default.moveItem(at: src, to: cible)
             }
-        } catch { erreur("Impossible de ranger « \(src.lastPathComponent) »", error) }
+        } catch { erreur(String(localized: "Impossible de ranger « \(src.lastPathComponent) »"), error) }
         store.reloadAll()
     }
 
@@ -5532,8 +5563,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         p.canChooseDirectories = true
         p.canChooseFiles = false
         p.allowsMultipleSelection = false
-        p.prompt = "Ajouter"
-        p.message = "Choisis le dossier à épingler dans Side"
+        p.prompt = String(localized: "Ajouter")
+        p.message = String(localized: "Choisis le dossier à épingler dans Side")
         if Devant.panneau(p) == .OK, let url = p.url {
             store.ajouter(.folder(url.standardizedFileURL))
             afficherEpingle()
@@ -5940,10 +5971,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         }
 
         if survoleColonne?.estEtagere == true {
-            ajouter("Retirer de l'étagère", #selector(mRetirerEtagere))
+            ajouter(String(localized: "Retirer de l'étagère"), #selector(mRetirerEtagere))
             m.addItem(.separator())
         }
-        ajouter("Ouvrir", #selector(mOuvrir))
+        ajouter(String(localized: "Ouvrir"), #selector(mOuvrir))
         let apps = NSWorkspace.shared.urlsForApplications(toOpen: url)
         if !item.isFolder, !apps.isEmpty {
             let sous = NSMenu()
@@ -5954,32 +5985,32 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
                 it.image = icone
                 it.representedObject = app
             }
-            m.addItem(withTitle: "Ouvrir avec", action: nil, keyEquivalent: "").submenu = sous
+            m.addItem(withTitle: String(localized: "Ouvrir avec"), action: nil, keyEquivalent: "").submenu = sous
         }
         let v = try? url.resourceValues(forKeys: [.isUbiquitousItemKey, .ubiquitousItemDownloadingStatusKey])
         if v?.isUbiquitousItem == true {
             if v?.ubiquitousItemDownloadingStatus == .current {
-                ajouter("Supprimer le téléchargement", #selector(mLiberer))
+                ajouter(String(localized: "Supprimer le téléchargement"), #selector(mLiberer))
             } else {
-                ajouter("Télécharger", #selector(mTelecharger))
+                ajouter(String(localized: "Télécharger"), #selector(mTelecharger))
             }
         }
         m.addItem(.separator())
-        ajouter("Placer dans la corbeille", #selector(mCorbeille), symbole: "trash")
+        ajouter(String(localized: "Placer dans la corbeille"), #selector(mCorbeille), symbole: "trash")
         m.addItem(.separator())
-        ajouter("Lire les informations", #selector(mInfos))
-        ajouter("Renommer", #selector(mRenommer))
-        ajouter("Compresser « \(url.lastPathComponent) »", #selector(mCompresser))
-        ajouter("Dupliquer", #selector(mDupliquer))
-        ajouter("Créer un alias", #selector(mAlias))
-        ajouter("Coup d'œil", #selector(mCoupDOeil))
-        ajouter("Copier", #selector(mCopier))
+        ajouter(String(localized: "Lire les informations"), #selector(mInfos))
+        ajouter(String(localized: "Renommer"), #selector(mRenommer))
+        ajouter(String(localized: "Compresser « \(url.lastPathComponent) »"), #selector(mCompresser))
+        ajouter(String(localized: "Dupliquer"), #selector(mDupliquer))
+        ajouter(String(localized: "Créer un alias"), #selector(mAlias))
+        ajouter(String(localized: "Coup d'œil"), #selector(mCoupDOeil))
+        ajouter(String(localized: "Copier"), #selector(mCopier))
         // Comme dans le Finder : avec la touche Option, « Copier » devient « Copier le chemin ».
-        let chemin = ajouter("Copier « \(url.lastPathComponent) » en tant que chemin d'accès", #selector(mCopierChemin))
+        let chemin = ajouter(String(localized: "Copier « \(url.lastPathComponent) » en tant que chemin d'accès"), #selector(mCopierChemin))
         chemin.isAlternate = true
         chemin.keyEquivalentModifierMask = [.option]
         m.addItem(.separator())
-        ajouter("Partager…", #selector(mPartager), symbole: "square.and.arrow.up")
+        ajouter(String(localized: "Partager…"), #selector(mPartager), symbole: "square.and.arrow.up")
         m.addItem(.separator())
 
         let tags = NSMenu()
@@ -5996,14 +6027,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
                 return true
             }
         }
-        let itTags = m.addItem(withTitle: "Tags", action: nil, keyEquivalent: "")
+        let itTags = m.addItem(withTitle: String(localized: "Tags"), action: nil, keyEquivalent: "")
         itTags.image = NSImage(systemSymbolName: "tag", accessibilityDescription: nil)
         itTags.submenu = tags
         m.addItem(.separator())
-        ajouter("Afficher dans le Finder", #selector(mReveler))
+        ajouter(String(localized: "Afficher dans le Finder"), #selector(mReveler))
         if item.isFolder {
-            ajouter("Épingler en colonne", #selector(mEpingler))
-            ajouter("Ajouter aux favoris", #selector(mFavori))
+            ajouter(String(localized: "Épingler en colonne"), #selector(mEpingler))
+            ajouter(String(localized: "Ajouter aux favoris"), #selector(mFavori))
         }
 
         NSMenu.popUpContextMenu(m, with: event, for: host)
@@ -6027,9 +6058,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
     }
 
     /// Fait une action sur le fichier visé, affiche l'erreur éventuelle, puis rafraîchit les colonnes.
-    private func agir(_ quoi: String, _ action: (URL) throws -> Void) {
+    /// `quoi` donne le titre de l'erreur à partir du nom du fichier.
+    private func agir(_ quoi: (String) -> String, _ action: (URL) throws -> Void) {
         guard let url = cible else { return }
-        do { try action(url) } catch { erreur("Impossible de \(quoi) « \(url.lastPathComponent) »", error) }
+        do { try action(url) } catch { erreur(quoi(url.lastPathComponent), error) }
         store.reloadAll()
     }
 
@@ -6062,10 +6094,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         NSWorkspace.shared.open([u], withApplicationAt: app, configuration: NSWorkspace.OpenConfiguration())
     }
     @objc private func mTelecharger() {
-        agir("télécharger") { try FileManager.default.startDownloadingUbiquitousItem(at: $0) }
+        agir({ String(localized: "Impossible de télécharger « \($0) »") }) { try FileManager.default.startDownloadingUbiquitousItem(at: $0) }
     }
     @objc private func mLiberer() {
-        agir("libérer") { try FileManager.default.evictUbiquitousItem(at: $0) }
+        agir({ String(localized: "Impossible de libérer « \($0) »") }) { try FileManager.default.evictUbiquitousItem(at: $0) }
     }
     @objc private func mCorbeille() {
         guard let url = cible else { return }
@@ -6087,7 +6119,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
             }
         }
         let rang = liste.firstIndex(of: url)
-        agir("placer dans la corbeille") { try FileManager.default.trashItem(at: $0, resultingItemURL: nil) }
+        agir({ String(localized: "Impossible de placer « \($0) » dans la corbeille") }) { try FileManager.default.trashItem(at: $0, resultingItemURL: nil) }
         guard let colonne, let rang, !FileManager.default.fileExists(atPath: url.path) else { return }
         // Un dossier supprimé qui était ouvert en colonnes : ses colonnes à droite se referment.
         if let n = niveau, n < colonne.pile.count, colonne.pile[n] == url { colonne.tronquer(n) }
@@ -6101,10 +6133,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         }
     }
     @objc private func mDupliquer() {
-        agir("dupliquer") { try FileManager.default.copyItem(at: $0, to: self.nomLibre($0, suffixe: " copie")) }
+        agir({ String(localized: "Impossible de dupliquer « \($0) »") }) {
+            try FileManager.default.copyItem(at: $0, to: self.nomLibre($0, suffixe: " " + String(localized: "copie")))
+        }
     }
     @objc private func mAlias() {
-        agir("créer un alias de") {
+        agir({ String(localized: "Impossible de créer un alias de « \($0) »") }) {
             let data = try $0.bookmarkData(options: .suitableForBookmarkFile, includingResourceValuesForKeys: nil, relativeTo: nil)
             try URL.writeBookmarkData(data, to: self.nomLibre($0, suffixe: " alias", ext: ""))
         }
@@ -6121,7 +6155,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
     }
     @objc private func mTag(_ sender: NSMenuItem) {
         guard let nom = sender.representedObject as? String else { return }
-        agir("modifier les tags de") {
+        agir({ String(localized: "Impossible de modifier les tags de « \($0) »") }) {
             var tags = self.tagsDe($0)
             if let i = tags.firstIndex(of: nom) { tags.remove(at: i) } else { tags.append(nom) }
             try ($0 as NSURL).setResourceValue(tags, forKey: .tagNamesKey)
@@ -6134,14 +6168,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         p.executableURL = URL(fileURLWithPath: "/usr/bin/ditto")
         p.arguments = ["-c", "-k", "--sequesterRsrc", "--keepParent", u.path, zip.path]
         p.terminationHandler = { [weak self] _ in DispatchQueue.main.async { self?.store.reloadAll() } }
-        do { try p.run() } catch { erreur("Impossible de compresser « \(u.lastPathComponent) »", error) }
+        do { try p.run() } catch { erreur(String(localized: "Impossible de compresser « \(u.lastPathComponent) »"), error) }
     }
     @objc private func mRenommer() {
         guard let u = cible else { return }
         let a = NSAlert()
-        a.messageText = "Renommer « \(u.lastPathComponent) »"
-        a.addButton(withTitle: "Renommer")
-        a.addButton(withTitle: "Annuler")
+        a.messageText = String(localized: "Renommer « \(u.lastPathComponent) »")
+        a.addButton(withTitle: String(localized: "Renommer"))
+        a.addButton(withTitle: String(localized: "Annuler"))
         let champ = NSTextField(string: u.lastPathComponent)
         champ.frame = NSRect(x: 0, y: 0, width: 320, height: 24)
         a.accessoryView = champ
@@ -6152,7 +6186,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         guard a.runModal() == .alertFirstButtonReturn else { return }
         let nom = champ.stringValue.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !nom.isEmpty, nom != u.lastPathComponent, !nom.contains("/") else { return }
-        agir("renommer") { try FileManager.default.moveItem(at: $0, to: $0.deletingLastPathComponent().appendingPathComponent(nom)) }
+        agir({ String(localized: "Impossible de renommer « \($0) »") }) { try FileManager.default.moveItem(at: $0, to: $0.deletingLastPathComponent().appendingPathComponent(nom)) }
     }
     @objc private func mInfos() {
         guard let u = cible else { return }
@@ -6161,8 +6195,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         var err: NSDictionary?
         NSAppleScript(source: script)?.executeAndReturnError(&err)
         if let err {
-            erreur("Impossible d'afficher les informations", NSError(domain: "Side", code: 1, userInfo: [
-                NSLocalizedDescriptionKey: (err[NSAppleScript.errorMessage] as? String) ?? "Le Finder n'a pas répondu."]))
+            erreur(String(localized: "Impossible d'afficher les informations"), NSError(domain: "Side", code: 1, userInfo: [
+                NSLocalizedDescriptionKey: (err[NSAppleScript.errorMessage] as? String) ?? String(localized: "Le Finder n'a pas répondu.")]))
         } else { hide() }
     }
     @objc private func mPartager() {

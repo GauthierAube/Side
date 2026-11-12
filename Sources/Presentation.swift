@@ -397,10 +397,10 @@ struct PresentationVue: View {
             }
             .padding(.top, 4)
             VStack(spacing: 4) {
-                Text(["Le Finder", "Accède à tes fichiers et dossiers", "La zone de dépôt", "Le tiroir"][min(etape, 3)])
+                Text([String(localized: "Le Finder"), String(localized: "Accède à tes fichiers et dossiers"), String(localized: "La zone de dépôt"), String(localized: "Le tiroir")][min(etape, 3)])
                     .font(.title2.weight(.semibold))
                 // Une ligne d'explication, seulement là où le dessin ne suffit pas : à quoi sert le tiroir.
-                Text(etape == 3 ? "La musique et les petites applis : un coup d'œil, et on referme." : " ")
+                Text(etape == 3 ? String(localized: "La musique et les petites applis : un coup d'œil, et on referme.") : " ")
                     .font(.callout).foregroundStyle(.secondary)
             }
             TimelineView(.animation) { horloge in
@@ -416,7 +416,7 @@ struct PresentationVue: View {
                     Button("Réglages…") { fermer(); AppDelegate.shared.ouvrirReglages() }
                 }
                 if etape > 0 { Button("Précédent") { etape -= 1 } }
-                Button(etape < Self.nombre - 1 ? "Suivant" : "Terminer") {
+                Button(etape < Self.nombre - 1 ? String(localized: "Suivant") : String(localized: "Terminer")) {
                     if etape < Self.nombre - 1 { etape += 1 } else { fermer() }
                 }
                 .buttonStyle(.borderedProminent)
@@ -442,23 +442,23 @@ struct PresentationVue: View {
         switch etape {
         case 0:
             if config.quatreDoigts {
-                PastilleP(symbole: "hand.draw", texte: "Quatre doigts " + (config.sensDoigts == "haut" ? "↑" : (config.sensDoigts == "bas" ? "↓" : "↑ ↓")))
+                PastilleP(symbole: "hand.draw", texte: String(localized: "Quatre doigts \(config.sensDoigts == "haut" ? "↑" : (config.sensDoigts == "bas" ? "↓" : "↑ ↓"))"))
             }
-            if config.coin != .aucun { PastilleP(symbole: symbole(config.coin), texte: "Coin") }
-            if config.secouer { PastilleP(symbole: "cursorarrow.motionlines", texte: config.cercle ? "Cercle" : "Secousse") }
+            if config.coin != .aucun { PastilleP(symbole: symbole(config.coin), texte: String(localized: "Coin")) }
+            if config.secouer { PastilleP(symbole: "cursorarrow.motionlines", texte: config.cercle ? String(localized: "Cercle") : String(localized: "Secousse")) }
             if config.touche != -1 { PastilleP(symbole: "keyboard", texte: config.libelle) }
         case 1:
-            PastilleP(symbole: "star", texte: "Favoris")
-            PastilleP(symbole: "space", texte: "Aperçu")
-            PastilleP(symbole: "cursorarrow.click.2", texte: "Ouvrir")
+            PastilleP(symbole: "star", texte: String(localized: "Favoris"))
+            PastilleP(symbole: "space", texte: String(localized: "Aperçu"))
+            PastilleP(symbole: "cursorarrow.click.2", texte: String(localized: "Ouvrir"))
         case 2:
-            PastilleP(symbole: "tray.and.arrow.down", texte: "Reste sous la main")
+            PastilleP(symbole: "tray.and.arrow.down", texte: String(localized: "Reste sous la main"))
         default:
             if ConfigTiroir.commun.quatreDoigts && ConfigTiroir.gestePossible {
-                PastilleP(symbole: "hand.draw", texte: "Quatre doigts " + (ConfigTiroir.enHaut ? "↓" : "↑"))
+                PastilleP(symbole: "hand.draw", texte: String(localized: "Quatre doigts \(ConfigTiroir.enHaut ? "↓" : "↑")"))
             }
             if ConfigTiroir.commun.touche != -1 { PastilleP(symbole: "keyboard", texte: ConfigTiroir.commun.libelle) }
-            if ConfigTiroir.commun.coin != .aucun { PastilleP(symbole: symbole(ConfigTiroir.commun.coin), texte: "Coin") }
+            if ConfigTiroir.commun.coin != .aucun { PastilleP(symbole: symbole(ConfigTiroir.commun.coin), texte: String(localized: "Coin")) }
         }
     }
 }
@@ -470,7 +470,7 @@ enum PresentationSide {
     static func montrer() {
         if fenetre == nil {
             let w = NSWindow(contentViewController: NSHostingController(rootView: PresentationVue(fermer: { PresentationSide.fermer() })))
-            w.title = "Bienvenue dans Side"
+            w.title = String(localized: "Bienvenue dans Side")
             w.styleMask = [.titled, .closable, .fullSizeContentView]
             w.titlebarAppearsTransparent = true
             w.titleVisibility = .hidden

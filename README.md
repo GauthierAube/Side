@@ -56,11 +56,11 @@ Le script compile Side, l'installe dans `~/Applications` et le lance. Une icône
 ## Limites connues
 
 - Projet personnel, écrit rapidement avec l'aide d'une IA : il reste sûrement des bugs.
-- L'interface est en français uniquement.
+- L'interface existe en français et en anglais : elle suit la langue du Mac (anglais si le Mac n'est pas en français), et se choisit dans les réglages.
 - Le Finder tient dans un seul fichier, `Sources/Side.swift` ; le tiroir dans les fichiers `Sources/PanneauBas*.swift`.
 - Le tiroir déplace les fenêtres d'autres applications : certaines s'y prêtent mal (taille minimale, plusieurs bureaux, plein écran d'Apple).
 - YouTube change souvent sa page : les réglages propres à YouTube peuvent demander une mise à jour.
-- La corbeille et AirDrop ne sont pas pris en charge. Pour le réseau, Side repère les ordinateurs mais la première connexion se fait dans le Finder.
+- AirDrop n'est pas pris en charge. La corbeille s'affiche dans la carte, mais demande l'« Accès complet au disque ». Pour le réseau, Side repère les ordinateurs mais la première connexion se fait dans le Finder.
 
 ## Les applications compagnes
 

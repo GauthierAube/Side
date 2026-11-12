@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>NSAppleEventsUsageDescription</key>
+	<string>Side demande au Finder d'afficher la fenêtre d'informations d'un fichier, pilote Spotify et ouvre tes notes depuis le tiroir.</string>
+	<key>NSDesktopFolderUsageDescription</key>
+	<string>Side affiche tes dossiers.</string>
+	<key>NSDocumentsFolderUsageDescription</key>
+	<string>Side affiche tes dossiers.</string>
+	<key>NSDownloadsFolderUsageDescription</key>
+	<string>Side affiche ton dossier Téléchargements.</string>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>Side repère les ordinateurs du réseau qui partagent des fichiers, pour les afficher dans sa barre latérale.</string>
+	<key>Side mini Dock icon</key>
+	<string>Icône du mini-Dock de Side</string>
+</dict>
+</plist>

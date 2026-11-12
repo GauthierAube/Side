@@ -1,0 +1,928 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key></key>
+	<string></string>
+	<key>%@, section ouverte</key>
+	<string>%@, section ouverte</string>
+	<key>%@, section repliée</key>
+	<string>%@, section repliée</string>
+	<key>%lld</key>
+	<string>%lld</string>
+	<key>%lld %%</key>
+	<string>%lld %%</string>
+	<key>%lld colonnes</key>
+	<string>%lld colonnes</string>
+	<key>%lld fichiers : %@</key>
+	<string>%lld fichiers : %@</string>
+	<key>%lld sur %lld</key>
+	<string>%lld sur %lld</string>
+	<key>%lld éléments</key>
+	<string>%lld éléments</string>
+	<key>, ou </key>
+	<string>, ou </string>
+	<key>1 colonne</key>
+	<string>1 colonne</string>
+	<key>1 élément</key>
+	<string>1 élément</string>
+	<key>1. Ouvrez le site développeur de Spotify et connectez-vous.
+2. « Create app » : un nom au choix, et dans « Redirect URIs » : %@. Cochez « Web API ».
+3. Copiez le « Client ID » de cette app et collez-le ci-dessous.
+4. « Se connecter », puis « Accepter » dans la page Spotify qui s'ouvre.</key>
+	<string>1. Ouvrez le site développeur de Spotify et connectez-vous.
+2. « Create app » : un nom au choix, et dans « Redirect URIs » : %@. Cochez « Web API ».
+3. Copiez le « Client ID » de cette app et collez-le ci-dessous.
+4. « Se connecter », puis « Accepter » dans la page Spotify qui s'ouvre.</string>
+	<key>Accueil</key>
+	<string>Accueil</string>
+	<key>Accueil de YouTube</key>
+	<string>Accueil de YouTube</string>
+	<key>Accède à tes fichiers et dossiers</key>
+	<string>Accède à tes fichiers et dossiers</string>
+	<key>Actions de l'étagère</key>
+	<string>Actions de l'étagère</string>
+	<key>Adresse</key>
+	<string>Adresse</string>
+	<key>Adresse copiée : collez-la dans « Redirect URIs ».</key>
+	<string>Adresse copiée : collez-la dans « Redirect URIs ».</string>
+	<key>Afficher Side</key>
+	<string>Afficher Side</string>
+	<key>Afficher dans la barre latérale</key>
+	<string>Afficher dans la barre latérale</string>
+	<key>Afficher dans le Finder</key>
+	<string>Afficher dans le Finder</string>
+	<key>Afficher en colonnes</key>
+	<string>Afficher en colonnes</string>
+	<key>Afficher en icônes</key>
+	<string>Afficher en icônes</string>
+	<key>Afficher en liste</key>
+	<string>Afficher en liste</string>
+	<key>Afficher la corbeille</key>
+	<string>Afficher la corbeille</string>
+	<key>Afficher le chemin de ce dossier</key>
+	<string>Afficher le chemin de ce dossier</string>
+	<key>Afficher les informations</key>
+	<string>Afficher les informations</string>
+	<key>Afficher toutes les extensions de fichiers</key>
+	<string>Afficher toutes les extensions de fichiers</string>
+	<key>Ajouter</key>
+	<string>Ajouter</string>
+	<key>Ajouter au panneau</key>
+	<string>Ajouter au panneau</string>
+	<key>Ajouter aux favoris</key>
+	<string>Ajouter aux favoris</string>
+	<key>Ajouter ce site</key>
+	<string>Ajouter ce site</string>
+	<key>Ajouter mes captures d'écran à une zone de dépôt</key>
+	<string>Ajouter mes captures d'écran à une zone de dépôt</string>
+	<key>Ajouter ou retirer une application du panneau</key>
+	<string>Ajouter ou retirer une application du panneau</string>
+	<key>Ajouter un dossier…</key>
+	<string>Ajouter un dossier…</string>
+	<key>Ajouter une application</key>
+	<string>Ajouter une application</string>
+	<key>Ajouter une application ouverte</key>
+	<string>Ajouter une application ouverte</string>
+	<key>Ajouter une application…</key>
+	<string>Ajouter une application…</string>
+	<key>Ajouter…</key>
+	<string>Ajouter…</string>
+	<key>Album</key>
+	<string>Album</string>
+	<key>Albums</key>
+	<string>Albums</string>
+	<key>Amener le pointeur dans un coin de l'écran ouvre le Finder ou le tiroir.</key>
+	<string>Amener le pointeur dans un coin de l'écran ouvre le Finder ou le tiroir.</string>
+	<key>Annuler</key>
+	<string>Annuler</string>
+	<key>Aperçu</key>
+	<string>Aperçu</string>
+	<key>Apparence</key>
+	<string>Apparence</string>
+	<key>Applications</key>
+	<string>Applications</string>
+	<key>Applications compagnes</key>
+	<string>Applications compagnes</string>
+	<key>Arrière-plan</key>
+	<string>Arrière-plan</string>
+	<key>Artiste</key>
+	<string>Artiste</string>
+	<key>Artistes</key>
+	<string>Artistes</string>
+	<key>Attention : si le tiroir arrive du haut, le Finder arrivera du bas.</key>
+	<string>Attention : si le tiroir arrive du haut, le Finder arrivera du bas.</string>
+	<key>Au changement de bureau ou d'app plein écran</key>
+	<string>Au changement de bureau ou d'app plein écran</string>
+	<key>Au lancement de Side, afficher</key>
+	<string>Au lancement de Side, afficher</string>
+	<key>Aucun</key>
+	<string>Aucun</string>
+	<key>Aucun lecteur : cette partie n'apparaît pas dans le tiroir.</key>
+	<string>Aucun lecteur : cette partie n'apparaît pas dans le tiroir.</string>
+	<key>Aucun ordinateur repéré</key>
+	<string>Aucun ordinateur repéré</string>
+	<key>Aucun résultat</key>
+	<string>Aucun résultat</string>
+	<key>Aucun résultat pour « %@ ».</key>
+	<string>Aucun résultat pour « %@ ».</string>
+	<key>Aucun élément</key>
+	<string>Aucun élément</string>
+	<key>Aucune app</key>
+	<string>Aucune app</string>
+	<key>Aucune application.</key>
+	<string>Aucune application.</string>
+	<key>Aucune note trouvée dans Notes</key>
+	<string>Aucune note trouvée dans Notes</string>
+	<key>Automatique</key>
+	<string>Automatique</string>
+	<key>Automatique (langue du Mac)</key>
+	<string>Automatique (langue du Mac)</string>
+	<key>Autres actions</key>
+	<string>Autres actions</string>
+	<key>Avancer de 10 secondes</key>
+	<string>Avancer de 10 secondes</string>
+	<key>Barre latérale et fichiers</key>
+	<string>Barre latérale et fichiers</string>
+	<key>Bibliothèque</key>
+	<string>Bibliothèque</string>
+	<key>Bientôt sur GitHub</key>
+	<string>Bientôt sur GitHub</string>
+	<key>Bienvenue dans Side</key>
+	<string>Bienvenue dans Side</string>
+	<key>Bienvenue dans le tiroir</key>
+	<string>Bienvenue dans le tiroir</string>
+	<key>Bureau</key>
+	<string>Bureau</string>
+	<key>Ce que le Finder de Side affiche, et comment.</key>
+	<string>Ce que le Finder de Side affiche, et comment.</string>
+	<key>Ce que tu copies apparaîtra ici.</key>
+	<string>Ce que tu copies apparaîtra ici.</string>
+	<key>Ce qui vaut pour tout Side.</key>
+	<string>Ce qui vaut pour tout Side.</string>
+	<key>Cercle</key>
+	<string>Cercle</string>
+	<key>Changer la largeur</key>
+	<string>Changer la largeur</string>
+	<key>Changer…</key>
+	<string>Changer…</string>
+	<key>Chaque geste, vers le haut ou vers le bas, ouvre ou ferme le Finder. Attention : macOS utilise déjà ces gestes, vers le haut pour Mission Control et vers le bas pour « Exposé des apps ». Pour que les deux ne se déclenchent pas ensemble, mets-les sur « Désactivé » dans Réglages Système &gt; Trackpad &gt; Autres gestes. Side ne change pas ces réglages lui-même.</key>
+	<string>Chaque geste, vers le haut ou vers le bas, ouvre ou ferme le Finder. Attention : macOS utilise déjà ces gestes, vers le haut pour Mission Control et vers le bas pour « Exposé des apps ». Pour que les deux ne se déclenchent pas ensemble, mets-les sur « Désactivé » dans Réglages Système &gt; Trackpad &gt; Autres gestes. Side ne change pas ces réglages lui-même.</string>
+	<key>Chargement…</key>
+	<string>Chargement…</string>
+	<key>Chemin du dossier %@</key>
+	<string>Chemin du dossier %@</string>
+	<key>Choisir une autre application…</key>
+	<string>Choisir une autre application…</string>
+	<key>Choisir une note</key>
+	<string>Choisir une note</string>
+	<key>Choisis comment l'ouvrir dans les réglages.</key>
+	<string>Choisis comment l'ouvrir dans les réglages.</string>
+	<key>Choisis le dossier à épingler dans Side</key>
+	<string>Choisis le dossier à épingler dans Side</string>
+	<key>Choisis pour chaque coin ce qu'il ouvre : le Finder, le tiroir, ou rien. Revenir dans le coin referme. Si macOS utilise déjà ce coin, désactive-le dans Réglages Système &gt; Bureau et Dock &gt; Coins actifs.</key>
+	<string>Choisis pour chaque coin ce qu'il ouvre : le Finder, le tiroir, ou rien. Revenir dans le coin referme. Si macOS utilise déjà ce coin, désactive-le dans Réglages Système &gt; Bureau et Dock &gt; Coins actifs.</string>
+	<key>Clic : recopier. Clic droit : épingler. On peut aussi le glisser ailleurs.</key>
+	<string>Clic : recopier. Clic droit : épingler. On peut aussi le glisser ailleurs.</string>
+	<key>Clique pour replier. Glisse un dossier ici pour l'ajouter aux favoris.</key>
+	<string>Clique pour replier. Glisse un dossier ici pour l'ajouter aux favoris.</string>
+	<key>Clique sur un raccourci, puis tape la nouvelle combinaison : elle doit contenir Commande, Contrôle ou Option. Échap annule. La touche Échap referme toujours le Finder comme le tiroir.</key>
+	<string>Clique sur un raccourci, puis tape la nouvelle combinaison : elle doit contenir Commande, Contrôle ou Option. Échap annule. La touche Échap referme toujours le Finder comme le tiroir.</string>
+	<key>Coin</key>
+	<string>Coin</string>
+	<key>Coins actifs</key>
+	<string>Coins actifs</string>
+	<key>Coller</key>
+	<string>Coller</string>
+	<key>Collez d'abord l'identifiant (Client ID).</key>
+	<string>Collez d'abord l'identifiant (Client ID).</string>
+	<key>Colonnes de la grille</key>
+	<string>Colonnes de la grille</string>
+	<key>Colonnes épinglées</key>
+	<string>Colonnes épinglées</string>
+	<key>Compresser « %@ »</key>
+	<string>Compresser « %@ »</string>
+	<key>Compris</key>
+	<string>Compris</string>
+	<key>Compte</key>
+	<string>Compte</string>
+	<key>Connecter Spotify</key>
+	<string>Connecter Spotify</string>
+	<key>Connecté</key>
+	<string>Connecté</string>
+	<key>Connexion réussie. Vous pouvez fermer cette page et revenir au panneau.</key>
+	<string>Connexion réussie. Vous pouvez fermer cette page et revenir au panneau.</string>
+	<key>Contraire aux conditions d'utilisation de YouTube : à activer en connaissance de cause. Pris en compte au prochain lancement de Side.</key>
+	<string>Contraire aux conditions d'utilisation de YouTube : à activer en connaissance de cause. Pris en compte au prochain lancement de Side.</string>
+	<key>Copier</key>
+	<string>Copier</string>
+	<key>Copier l'adresse de redirection</key>
+	<string>Copier l'adresse de redirection</string>
+	<key>Copier « %@ » en tant que chemin d'accès</key>
+	<string>Copier « %@ » en tant que chemin d'accès</string>
+	<key>Copié — prêt à coller</key>
+	<string>Copié — prêt à coller</string>
+	<key>Corbeille</key>
+	<string>Corbeille</string>
+	<key>Coup d'œil</key>
+	<string>Coup d'œil</string>
+	<key>Couper</key>
+	<string>Couper</string>
+	<key>Couper les publicités</key>
+	<string>Couper les publicités</string>
+	<key>Créer un alias</key>
+	<string>Créer un alias</string>
+	<key>Créé le</key>
+	<string>Créé le</string>
+	<key>Dans iCloud, pas encore sur ce Mac. Clique pour le télécharger.</key>
+	<string>Dans iCloud, pas encore sur ce Mac. Clique pour le télécharger.</string>
+	<key>Dans le panneau</key>
+	<string>Dans le panneau</string>
+	<key>Date (les plus récents d'abord)</key>
+	<string>Date (les plus récents d'abord)</string>
+	<key>De la droite</key>
+	<string>De la droite</string>
+	<key>De la gauche</key>
+	<string>De la gauche</string>
+	<key>Dimensions</key>
+	<string>Dimensions</string>
+	<key>Disques externes et serveurs connectés</key>
+	<string>Disques externes et serveurs connectés</string>
+	<key>Documents</key>
+	<string>Documents</string>
+	<key>Dossier précédent</key>
+	<string>Dossier précédent</string>
+	<key>Dossier suivant</key>
+	<string>Dossier suivant</string>
+	<key>Dossiers et colonnes</key>
+	<string>Dossiers et colonnes</string>
+	<key>Dossiers récents</key>
+	<string>Dossiers récents</string>
+	<key>Double-clic : ouvrir</key>
+	<string>Double-clic : ouvrir</string>
+	<key>Du bas</key>
+	<string>Du bas</string>
+	<key>Du haut</key>
+	<string>Du haut</string>
+	<key>Dupliquer</key>
+	<string>Dupliquer</string>
+	<key>Durée</key>
+	<string>Durée</string>
+	<key>Dès qu'une capture d'écran est enregistrée, elle t'attend dans une zone, prête à être glissée ailleurs. Les captures se rangent ensemble dans la même zone.</key>
+	<string>Dès qu'une capture d'écran est enregistrée, elle t'attend dans une zone, prête à être glissée ailleurs. Les captures se rangent ensemble dans la même zone.</string>
+	<key>Déconnecter</key>
+	<string>Déconnecter</string>
+	<key>Déconnecter le compte Spotify</key>
+	<string>Déconnecter le compte Spotify</string>
+	<key>Dépose ici</key>
+	<string>Dépose ici</string>
+	<key>Dépose ici des fichiers pour les garder sous la main, puis glisse-les où tu veux.</key>
+	<string>Dépose ici des fichiers pour les garder sous la main, puis glisse-les où tu veux.</string>
+	<key>Dépose une app ici pour l'ajouter au mini-Dock</key>
+	<string>Dépose une app ici pour l'ajouter au mini-Dock</string>
+	<key>Désépingler</key>
+	<string>Désépingler</string>
+	<key>Déverrouillée : se cache quand Side se ferme. Clique pour la garder à l'écran.</key>
+	<string>Déverrouillée : se cache quand Side se ferme. Clique pour la garder à l'écran.</string>
+	<key>Effacer</key>
+	<string>Effacer</string>
+	<key>Effacer l'historique (sauf les épinglés)</key>
+	<string>Effacer l'historique (sauf les épinglés)</string>
+	<key>Effacer la recherche</key>
+	<string>Effacer la recherche</string>
+	<key>Emplacements</key>
+	<string>Emplacements</string>
+	<key>En bas</key>
+	<string>En bas</string>
+	<key>En bas à droite</key>
+	<string>En bas à droite</string>
+	<key>En bas à gauche</key>
+	<string>En bas à gauche</string>
+	<key>En effectuant une recherche</key>
+	<string>En effectuant une recherche</string>
+	<key>En haut à droite</key>
+	<string>En haut à droite</string>
+	<key>En haut à gauche</key>
+	<string>En haut à gauche</string>
+	<key>En photo : %@ — fenêtre ouverte sur un autre bureau.</key>
+	<string>En photo : %@ — fenêtre ouverte sur un autre bureau.</string>
+	<key>Envoi vers iCloud en cours</key>
+	<string>Envoi vers iCloud en cours</string>
+	<key>Envoi vers iCloud en cours…</key>
+	<string>Envoi vers iCloud en cours…</string>
+	<key>Espace</key>
+	<string>Espace</string>
+	<key>Espace : aperçu</key>
+	<string>Espace : aperçu</string>
+	<key>Espacement de la grille</key>
+	<string>Espacement de la grille</string>
+	<key>Faible</key>
+	<string>Faible</string>
+	<key>Faire un cercle</key>
+	<string>Faire un cercle</string>
+	<key>Fais un cercle avec le pointeur, d'un seul mouvement rapide, sans cliquer, pour ouvrir le Finder. Il peut être grossier, petit ou grand, dans un sens ou dans l'autre. Le cercle ne referme pas le Finder : utilise un clic à côté, Échap, le coin ou le raccourci.</key>
+	<string>Fais un cercle avec le pointeur, d'un seul mouvement rapide, sans cliquer, pour ouvrir le Finder. Il peut être grossier, petit ou grand, dans un sens ou dans l'autre. Le cercle ne referme pas le Finder : utilise un clic à côté, Échap, le coin ou le raccourci.</string>
+	<key>Favoris</key>
+	<string>Favoris</string>
+	<key>Fermer d'un clic en dehors</key>
+	<string>Fermer d'un clic en dehors</string>
+	<key>Fermer l'onglet</key>
+	<string>Fermer l'onglet</string>
+	<key>Fermer la recherche</key>
+	<string>Fermer la recherche</string>
+	<key>Fermer quand la souris en sort</key>
+	<string>Fermer quand la souris en sort</string>
+	<key>Fermer, sauf si Commande est maintenue</key>
+	<string>Fermer, sauf si Commande est maintenue</string>
+	<key>Fermeture</key>
+	<string>Fermeture</string>
+	<key>Fichiers récents</key>
+	<string>Fichiers récents</string>
+	<key>Finder</key>
+	<string>Finder</string>
+	<key>Flouter l'arrière-plan quand le Finder est ouvert</key>
+	<string>Flouter l'arrière-plan quand le Finder est ouvert</string>
+	<key>Fond</key>
+	<string>Fond</string>
+	<key>Garder dans le mini-Dock</key>
+	<string>Garder dans le mini-Dock</string>
+	<key>Garder les zones remplies à l'écran quand Side est fermé</key>
+	<string>Garder les zones remplies à l'écran quand Side est fermé</string>
+	<key>Garder un historique du copier-coller (7 jours)</key>
+	<string>Garder un historique du copier-coller (7 jours)</string>
+	<key>Geste</key>
+	<string>Geste</string>
+	<key>Geste de la souris</key>
+	<string>Geste de la souris</string>
+	<key>Gestes de macOS</key>
+	<string>Gestes de macOS</string>
+	<key>Glisse le titre pour déplacer la colonne</key>
+	<string>Glisse le titre pour déplacer la colonne</string>
+	<key>Glisse pour changer la largeur</key>
+	<string>Glisse pour changer la largeur</string>
+	<key>Glisse pour déplacer la zone de dépôt</key>
+	<string>Glisse pour déplacer la zone de dépôt</string>
+	<key>Glisse un dossier sur « Favoris » pour l'ajouter.</key>
+	<string>Glisse un dossier sur « Favoris » pour l'ajouter.</string>
+	<key>Glisse un fichier : elle apparaît ici. Ce que tu y poses reste sous la main, même Side fermé.</key>
+	<string>Glisse un fichier : elle apparaît ici. Ce que tu y poses reste sous la main, même Side fermé.</string>
+	<key>Glisser quatre doigts %@</key>
+	<string>Glisser quatre doigts %@</string>
+	<key>Glisser quatre doigts sur le trackpad</key>
+	<string>Glisser quatre doigts sur le trackpad</string>
+	<key>Grande zone</key>
+	<string>Grande zone</string>
+	<key>Général</key>
+	<string>Général</string>
+	<key>Hauteur du Finder</key>
+	<string>Hauteur du Finder</string>
+	<key>Historique du presse-papiers</key>
+	<string>Historique du presse-papiers</string>
+	<key>Icônes</key>
+	<string>Icônes</string>
+	<key>Image</key>
+	<string>Image</string>
+	<key>Impossible d'afficher les informations</key>
+	<string>Impossible d'afficher les informations</string>
+	<key>Impossible de compresser « %@ »</key>
+	<string>Impossible de compresser « %@ »</string>
+	<key>Impossible de créer un alias de « %@ »</key>
+	<string>Impossible de créer un alias de « %@ »</string>
+	<key>Impossible de dupliquer « %@ »</key>
+	<string>Impossible de dupliquer « %@ »</string>
+	<key>Impossible de libérer « %@ »</key>
+	<string>Impossible de libérer « %@ »</string>
+	<key>Impossible de modifier l'ouverture automatique</key>
+	<string>Impossible de modifier l'ouverture automatique</string>
+	<key>Impossible de modifier les tags de « %@ »</key>
+	<string>Impossible de modifier les tags de « %@ »</string>
+	<key>Impossible de placer « %@ » dans la corbeille</key>
+	<string>Impossible de placer « %@ » dans la corbeille</string>
+	<key>Impossible de ranger « %@ »</key>
+	<string>Impossible de ranger « %@ »</string>
+	<key>Impossible de renommer « %@ »</key>
+	<string>Impossible de renommer « %@ »</string>
+	<key>Impossible de télécharger « %@ »</key>
+	<string>Impossible de télécharger « %@ »</string>
+	<key>Informations</key>
+	<string>Informations</string>
+	<key>Installer depuis GitHub</key>
+	<string>Installer depuis GitHub</string>
+	<key>Installée</key>
+	<string>Installée</string>
+	<key>Intensité</key>
+	<string>Intensité</string>
+	<key>L'écran derrière la carte s'estompe en fondu. On peut toujours cliquer et glisser des fichiers au travers.</key>
+	<string>L'écran derrière la carte s'estompe en fondu. On peut toujours cliquer et glisser des fichiers au travers.</string>
+	<key>L'élément qu'elle contient sera supprimé définitivement. Cette action est irréversible.</key>
+	<string>L'élément qu'elle contient sera supprimé définitivement. Cette action est irréversible.</string>
+	<key>La carte apparaît au centre. Tire-la par sa barre du haut pour la déplacer : Side retient l'endroit.</key>
+	<string>La carte apparaît au centre. Tire-la par sa barre du haut pour la déplacer : Side retient l'endroit.</string>
+	<key>La case « + » range une application dans le tiroir : elle y reste, à portée de main.</key>
+	<string>La case « + » range une application dans le tiroir : elle y reste, à portée de main.</string>
+	<key>La connexion n'a pas abouti. Vous pouvez fermer cette page et réessayer depuis le panneau.</key>
+	<string>La connexion n'a pas abouti. Vous pouvez fermer cette page et réessayer depuis le panneau.</string>
+	<key>La musique et les petites applis : un coup d'œil, et on referme.</key>
+	<string>La musique et les petites applis : un coup d'œil, et on referme.</string>
+	<key>La page de Spotify s'ouvre dans votre navigateur…</key>
+	<string>La page de Spotify s'ouvre dans votre navigateur…</string>
+	<key>La roue dentée, sous la case « + », ouvre les réglages.</key>
+	<string>La roue dentée, sous la case « + », ouvre les réglages.</string>
+	<key>La rubrique « Dossiers récents » montre les derniers dossiers où tu as travaillé, en grille.</key>
+	<string>La rubrique « Dossiers récents » montre les derniers dossiers où tu as travaillé, en grille.</string>
+	<key>La vidéo remplit la tuile (ou reprend sa place)</key>
+	<string>La vidéo remplit la tuile (ou reprend sa place)</string>
+	<key>La visite guidée de Side, en quatre étapes</key>
+	<string>La visite guidée de Side, en quatre étapes</string>
+	<key>La zone de dépôt</key>
+	<string>La zone de dépôt</string>
+	<key>Laisser les dossiers en haut lors du tri par nom</key>
+	<string>Laisser les dossiers en haut lors du tri par nom</string>
+	<key>Lancer « %@ ». Dépose un fichier pour le lui passer.</key>
+	<string>Lancer « %@ ». Dépose un fichier pour le lui passer.</string>
+	<key>Langue</key>
+	<string>Langue</string>
+	<key>Largeur (sans les colonnes épinglées)</key>
+	<string>Largeur (sans les colonnes épinglées)</string>
+	<key>Largeur d'une colonne</key>
+	<string>Largeur d'une colonne</string>
+	<key>Le Finder</key>
+	<string>Le Finder</string>
+	<key>Le Finder arrive</key>
+	<string>Le Finder arrive</string>
+	<key>Le Finder de Side : d'où il arrive, sa taille, son fond.</key>
+	<string>Le Finder de Side : d'où il arrive, sa taille, son fond.</string>
+	<key>Le Finder n'a pas répondu.</key>
+	<string>Le Finder n'a pas répondu.</string>
+	<key>Le Finder se ferme toujours avec le raccourci clavier, la touche Échap, une secousse ou en revenant dans le coin actif.</key>
+	<string>Le Finder se ferme toujours avec le raccourci clavier, la touche Échap, une secousse ou en revenant dans le coin actif.</string>
+	<key>Le bouton lecture l'ouvre</key>
+	<string>Le bouton lecture l'ouvre</string>
+	<key>Le coin %@</key>
+	<string>Le coin %@</string>
+	<key>Le compte Spotify n'est pas connecté.</key>
+	<string>Le compte Spotify n'est pas connecté.</string>
+	<key>Le dernier dossier consulté</key>
+	<string>Le dernier dossier consulté</string>
+	<key>Le dossier de départ et les colonnes épinglées du Finder de Side.</key>
+	<string>Le dossier de départ et les colonnes épinglées du Finder de Side.</string>
+	<key>Le geste dans l'autre sens referme le Finder. Attention : macOS utilise déjà ces gestes, vers le haut pour Mission Control et vers le bas pour « Exposé des apps ». Pour que les deux ne se déclenchent pas ensemble, mets-les sur « Désactivé » dans Réglages Système &gt; Trackpad &gt; Autres gestes. Side ne change pas ces réglages lui-même.</key>
+	<string>Le geste dans l'autre sens referme le Finder. Attention : macOS utilise déjà ces gestes, vers le haut pour Mission Control et vers le bas pour « Exposé des apps ». Pour que les deux ne se déclenchent pas ensemble, mets-les sur « Désactivé » dans Réglages Système &gt; Trackpad &gt; Autres gestes. Side ne change pas ces réglages lui-même.</string>
+	<key>Le port 8765 du Mac est déjà pris. Fermez l'application qui l'utilise et réessayez.</key>
+	<string>Le port 8765 du Mac est déjà pris. Fermez l'application qui l'utilise et réessayez.</string>
+	<key>Le tiroir</key>
+	<string>Le tiroir</string>
+	<key>Le tiroir arrive</key>
+	<string>Le tiroir arrive</string>
+	<key>Le tiroir arrive du bas de l'écran : son geste est quatre doigts %@. Il n'est libre que si le Finder s'ouvre, lui, avec quatre doigts « Vers le bas ».</key>
+	<string>Le tiroir arrive du bas de l'écran : son geste est quatre doigts %@. Il n'est libre que si le Finder s'ouvre, lui, avec quatre doigts « Vers le bas ».</string>
+	<key>Le tiroir arrive du bas de l'écran, à l'opposé du Finder : quatre doigts %@ l'ouvrent, dans l'autre sens le referment. Il suit les doigts.</key>
+	<string>Le tiroir arrive du bas de l'écran, à l'opposé du Finder : quatre doigts %@ l'ouvrent, dans l'autre sens le referment. Il suit les doigts.</string>
+	<key>Le tiroir arrive du haut de l'écran : son geste est quatre doigts %@. Il n'est libre que si le Finder s'ouvre, lui, avec quatre doigts « Vers le haut ».</key>
+	<string>Le tiroir arrive du haut de l'écran : son geste est quatre doigts %@. Il n'est libre que si le Finder s'ouvre, lui, avec quatre doigts « Vers le haut ».</string>
+	<key>Le tiroir arrive du haut de l'écran, à l'opposé du Finder : quatre doigts %@ l'ouvrent, dans l'autre sens le referment. Il suit les doigts.</key>
+	<string>Le tiroir arrive du haut de l'écran, à l'opposé du Finder : quatre doigts %@ l'ouvrent, dans l'autre sens le referment. Il suit les doigts.</string>
+	<key>Le tiroir prend toujours le bord opposé au Finder : du haut quand le Finder vient du bas, du bas dans tous les autres cas. Le geste à quatre doigts s'inverse avec lui.</key>
+	<string>Le tiroir prend toujours le bord opposé au Finder : du haut quand le Finder vient du bas, du bas dans tous les autres cas. Le geste à quatre doigts s'inverse avec lui.</string>
+	<key>Le tiroir, second panneau de Side.</key>
+	<string>Le tiroir, second panneau de Side.</string>
+	<key>Lecteurs affichés</key>
+	<string>Lecteurs affichés</string>
+	<key>Lecture</key>
+	<string>Lecture</string>
+	<key>Lecture / pause</key>
+	<string>Lecture / pause</string>
+	<key>Les %lld éléments qu'elle contient seront supprimés définitivement. Cette action est irréversible.</key>
+	<string>Les %lld éléments qu'elle contient seront supprimés définitivement. Cette action est irréversible.</string>
+	<key>Les applications rangées dans le tiroir.</key>
+	<string>Les applications rangées dans le tiroir.</string>
+	<key>Les boutons et les gestes de la souris MX Master, sans le logiciel de Logitech.</key>
+	<string>Les boutons et les gestes de la souris MX Master, sans le logiciel de Logitech.</string>
+	<key>Les deux</key>
+	<string>Les deux</string>
+	<key>Les textes et les fichiers copiés sont gardés 7 jours sur ce Mac ; ce que tu épingles (clic droit) est gardé sans limite. Les images et les mots de passe ne sont jamais écrits sur le disque : ils s'effacent quand Side se ferme. Décocher l'historique efface tout.</key>
+	<string>Les textes et les fichiers copiés sont gardés 7 jours sur ce Mac ; ce que tu épingles (clic droit) est gardé sans limite. Les images et les mots de passe ne sont jamais écrits sur le disque : ils s'effacent quand Side se ferme. Décocher l'historique efface tout.</string>
+	<key>Les zones où poser des fichiers en attente, à côté du Finder de Side.</key>
+	<string>Les zones où poser des fichiers en attente, à côté du Finder de Side.</string>
+	<key>Lire les informations</key>
+	<string>Lire les informations</string>
+	<key>Liste</key>
+	<string>Liste</string>
+	<key>Masquer cette app</key>
+	<string>Masquer cette app</string>
+	<key>Masquer le bouton Apps</key>
+	<string>Masquer le bouton Apps</string>
+	<key>Masquer le mini-Dock</key>
+	<string>Masquer le mini-Dock</string>
+	<key>Mini-Dock</key>
+	<string>Mini-Dock</string>
+	<key>Modifié le</key>
+	<string>Modifié le</string>
+	<key>Mon site</key>
+	<string>Mon site</string>
+	<key>Moyenne</key>
+	<string>Moyenne</string>
+	<key>Multimédia</key>
+	<string>Multimédia</string>
+	<key>Musique et vidéo, au début du tiroir.</key>
+	<string>Musique et vidéo, au début du tiroir.</string>
+	<key>Nom</key>
+	<string>Nom</string>
+	<key>Nombre de dossiers récents</key>
+	<string>Nombre de dossiers récents</string>
+	<key>Non connecté</key>
+	<string>Non connecté</string>
+	<key>Note %@</key>
+	<string>Note %@</string>
+	<key>Nouvel onglet (⌘T)</key>
+	<string>Nouvel onglet (⌘T)</string>
+	<key>Opacité</key>
+	<string>Opacité</string>
+	<key>Options avancées</key>
+	<string>Options avancées</string>
+	<key>Ouvert le</key>
+	<string>Ouvert le</string>
+	<key>Ouverture et fermeture</key>
+	<string>Ouverture et fermeture</string>
+	<key>Ouvre Spotify en grand pour regarder la vidéo</key>
+	<string>Ouvre Spotify en grand pour regarder la vidéo</string>
+	<key>Ouvrir</key>
+	<string>Ouvrir</string>
+	<key>Ouvrir Side à l'ouverture de session</key>
+	<string>Ouvrir Side à l'ouverture de session</string>
+	<key>Ouvrir avec</key>
+	<string>Ouvrir avec</string>
+	<key>Ouvrir dans le Finder</key>
+	<string>Ouvrir dans le Finder</string>
+	<key>Ouvrir et fermer</key>
+	<string>Ouvrir et fermer</string>
+	<key>Ouvrir et fermer le Finder</key>
+	<string>Ouvrir et fermer le Finder</string>
+	<key>Ouvrir et fermer le tiroir</key>
+	<string>Ouvrir et fermer le tiroir</string>
+	<key>Ouvrir le Finder et le tiroir d'un geste, à la souris ou au trackpad.</key>
+	<string>Ouvrir le Finder et le tiroir d'un geste, à la souris ou au trackpad.</string>
+	<key>Ouvrir le lien YouTube copié</key>
+	<string>Ouvrir le lien YouTube copié</string>
+	<key>Ouvrir le réglage</key>
+	<string>Ouvrir le réglage</string>
+	<key>Ouvrir le site Spotify</key>
+	<string>Ouvrir le site Spotify</string>
+	<key>Ouvrir les réglages d'accessibilité</key>
+	<string>Ouvrir les réglages d'accessibilité</string>
+	<key>Ouvrir les réglages du trackpad</key>
+	<string>Ouvrir les réglages du trackpad</string>
+	<key>Ouvrir à l'ouverture de session</key>
+	<string>Ouvrir à l'ouverture de session</string>
+	<key>Page précédente</key>
+	<string>Page précédente</string>
+	<key>Pages</key>
+	<string>Pages</string>
+	<key>Partager…</key>
+	<string>Partager…</string>
+	<key>Passer</key>
+	<string>Passer</string>
+	<key>Passer en faux plein écran</key>
+	<string>Passer en faux plein écran</string>
+	<key>Passer la publicité (quand YouTube le propose)</key>
+	<string>Passer la publicité (quand YouTube le propose)</string>
+	<key>Placer dans la corbeille</key>
+	<string>Placer dans la corbeille</string>
+	<key>Playlist</key>
+	<string>Playlist</string>
+	<key>Playlists</key>
+	<string>Playlists</string>
+	<key>Plein écran d'Apple : macOS empêche d'y afficher les tuiles.</key>
+	<string>Plein écran d'Apple : macOS empêche d'y afficher les tuiles.</string>
+	<key>Plus tard</key>
+	<string>Plus tard</string>
+	<key>Podcast</key>
+	<string>Podcast</string>
+	<key>Podcasts</key>
+	<string>Podcasts</string>
+	<key>Position du texte</key>
+	<string>Position du texte</string>
+	<key>Position et taille</key>
+	<string>Position et taille</string>
+	<key>Position libre, en fondu</key>
+	<string>Position libre, en fondu</string>
+	<key>Pour l'ouvrir et le fermer : %@.</key>
+	<string>Pour l'ouvrir et le fermer : %@.</string>
+	<key>Pour le garder ouvert cette fois-là : maintiens Option (⌥) en lâchant le fichier, ou ramène tout de suite la souris sur la carte.</key>
+	<string>Pour le garder ouvert cette fois-là : maintiens Option (⌥) en lâchant le fichier, ou ramène tout de suite la souris sur la carte.</string>
+	<key>Pour ouvrir</key>
+	<string>Pour ouvrir</string>
+	<key>Pour ouvrir et fermer le Finder :</key>
+	<string>Pour ouvrir et fermer le Finder :</string>
+	<key>Pour ranger des applications, Side a besoin de l'autorisation Accessibilité.</key>
+	<string>Pour ranger des applications, Side a besoin de l'autorisation Accessibilité.</string>
+	<key>Pour épingler un dossier : glisse-le vers le bord droit de la carte, ou utilise le bouton + de la dernière colonne.</key>
+	<string>Pour épingler un dossier : glisse-le vers le bord droit de la carte, ou utilise le bouton + de la dernière colonne.</string>
+	<key>Presse-papiers</key>
+	<string>Presse-papiers</string>
+	<key>Presse-papiers · 7 jours</key>
+	<string>Presse-papiers · 7 jours</string>
+	<key>Précédent</key>
+	<string>Précédent</string>
+	<key>Présentation</key>
+	<string>Présentation</string>
+	<key>Présentation par icônes</key>
+	<string>Présentation par icônes</string>
+	<key>Quand la place manque</key>
+	<string>Quand la place manque</string>
+	<key>Quand le Finder de Side se referme.</key>
+	<string>Quand le Finder de Side se referme.</string>
+	<key>Quatre doigts %@</key>
+	<string>Quatre doigts %@</string>
+	<key>Quitter Side</key>
+	<string>Quitter Side</string>
+	<key>Raccourci %@</key>
+	<string>Raccourci %@</string>
+	<key>Raccourci « %@ ». Dépose un fichier pour le lui passer.</key>
+	<string>Raccourci « %@ ». Dépose un fichier pour le lui passer.</string>
+	<key>Raccourcis clavier</key>
+	<string>Raccourcis clavier</string>
+	<key>Recentrer</key>
+	<string>Recentrer</string>
+	<key>Recherche</key>
+	<string>Recherche</string>
+	<key>Rechercher</key>
+	<string>Rechercher</string>
+	<key>Rechercher dans le dossier affiché</key>
+	<string>Rechercher dans le dossier affiché</string>
+	<key>Rechercher dans le presse-papiers</key>
+	<string>Rechercher dans le presse-papiers</string>
+	<key>Rechercher sur ce Mac</key>
+	<string>Rechercher sur ce Mac</string>
+	<key>Rechercher une app</key>
+	<string>Rechercher une app</string>
+	<key>Recherche…</key>
+	<string>Recherche…</string>
+	<key>Reculer de 10 secondes</key>
+	<string>Reculer de 10 secondes</string>
+	<key>Refermer Side après un dépôt</key>
+	<string>Refermer Side après un dépôt</string>
+	<key>Renommer</key>
+	<string>Renommer</string>
+	<key>Renommer « %@ »</key>
+	<string>Renommer « %@ »</string>
+	<key>Replacer à côté de Side</key>
+	<string>Replacer à côté de Side</string>
+	<key>Reste sous la main</key>
+	<string>Reste sous la main</string>
+	<key>Retirer</key>
+	<string>Retirer</string>
+	<key>Retirer cette colonne</key>
+	<string>Retirer cette colonne</string>
+	<key>Retirer de l'étagère</key>
+	<string>Retirer de l'étagère</string>
+	<key>Retirer des favoris</key>
+	<string>Retirer des favoris</string>
+	<key>Retirer des favorites</key>
+	<string>Retirer des favorites</string>
+	<key>Retirer du mini-Dock</key>
+	<string>Retirer du mini-Dock</string>
+	<key>Revenir au dossier précédent</key>
+	<string>Revenir au dossier précédent</string>
+	<key>Revoir la présentation</key>
+	<string>Revoir la présentation</string>
+	<key>Rien dans cette rubrique.</key>
+	<string>Rien dans cette rubrique.</string>
+	<key>Rien en lecture</key>
+	<string>Rien en lecture</string>
+	<key>Rien à afficher pour l'instant.</key>
+	<string>Rien à afficher pour l'instant.</string>
+	<key>Récents</key>
+	<string>Récents</string>
+	<key>Réglages</key>
+	<string>Réglages</string>
+	<key>Réglages : icône Side, barre des menus</key>
+	<string>Réglages : icône Side, barre des menus</string>
+	<key>Réglages de Side</key>
+	<string>Réglages de Side</string>
+	<key>Réglages…</key>
+	<string>Réglages…</string>
+	<key>Réseau</key>
+	<string>Réseau</string>
+	<key>Réseau (ordinateurs qui partagent des fichiers)</key>
+	<string>Réseau (ordinateurs qui partagent des fichiers)</string>
+	<key>Rétablir</key>
+	<string>Rétablir</string>
+	<key>Rétrécir pour tout afficher</key>
+	<string>Rétrécir pour tout afficher</string>
+	<key>Se connecter</key>
+	<string>Se connecter</string>
+	<key>Se connecter à %@</key>
+	<string>Se connecter à %@</string>
+	<key>Se connecter à « %@ » dans le Finder. Une fois connecté, il apparaît ici et se parcourt dans Side.</key>
+	<string>Se connecter à « %@ » dans le Finder. Une fois connecté, il apparaît ici et se parcourt dans Side.</string>
+	<key>Secouer le pointeur</key>
+	<string>Secouer le pointeur</string>
+	<key>Secousse</key>
+	<string>Secousse</string>
+	<key>Sensibilité</key>
+	<string>Sensibilité</string>
+	<key>Side a aussi un tiroir, pour tes applications à usage rapide. Il va s'ouvrir pour se présenter.</key>
+	<string>Side a aussi un tiroir, pour tes applications à usage rapide. Il va s'ouvrir pour se présenter.</string>
+	<key>Side n'a pas le droit de lire la corbeille</key>
+	<string>Side n'a pas le droit de lire la corbeille</string>
+	<key>Side redémarre pour changer de langue.</key>
+	<string>Side redémarre pour changer de langue.</string>
+	<key>Side, Square et Mulot sont trois petites applications gratuites, faites pour aller ensemble.</key>
+	<string>Side, Square et Mulot sont trois petites applications gratuites, faites pour aller ensemble.</string>
+	<key>Souris : ouvrir le Finder</key>
+	<string>Souris : ouvrir le Finder</string>
+	<key>Souris et trackpad</key>
+	<string>Souris et trackpad</string>
+	<key>Spotify</key>
+	<string>Spotify</string>
+	<key>Spotify est fermé</key>
+	<string>Spotify est fermé</string>
+	<key>Spotify n'a pas renvoyé d'autorisation.</key>
+	<string>Spotify n'a pas renvoyé d'autorisation.</string>
+	<key>Spotify n'a pas répondu.</key>
+	<string>Spotify n'a pas répondu.</string>
+	<key>Spotify ne répond pas (%@).</key>
+	<string>Spotify ne répond pas (%@).</string>
+	<key>Spotify refuse cet accès (%@).</key>
+	<string>Spotify refuse cet accès (%@).</string>
+	<key>Square n'agrandit jamais ces applications.</key>
+	<string>Square n'agrandit jamais ces applications.</string>
+	<key>Suivant</key>
+	<string>Suivant</string>
+	<key>Supprimer cette zone</key>
+	<string>Supprimer cette zone</string>
+	<key>Supprimer de l'historique</key>
+	<string>Supprimer de l'historique</string>
+	<key>Supprimer le téléchargement</key>
+	<string>Supprimer le téléchargement</string>
+	<key>Tags</key>
+	<string>Tags</string>
+	<key>Taille</key>
+	<string>Taille</string>
+	<key>Taille des coins</key>
+	<string>Taille des coins</string>
+	<key>Taille des icônes</key>
+	<string>Taille des icônes</string>
+	<key>Taille du texte</key>
+	<string>Taille du texte</string>
+	<key>Taille fixe, à faire défiler</key>
+	<string>Taille fixe, à faire défiler</string>
+	<key>Tape le raccourci…</key>
+	<string>Tape le raccourci…</string>
+	<key>Tapez pour chercher dans Spotify.</key>
+	<string>Tapez pour chercher dans Spotify.</string>
+	<key>Terminer</key>
+	<string>Terminer</string>
+	<key>Tes applications en plein écran, en grille, et un Dock.</key>
+	<string>Tes applications en plein écran, en grille, et un Dock.</string>
+	<key>Tes dossiers</key>
+	<string>Tes dossiers</string>
+	<key>Tes favoris se gèrent directement dans la barre : glisse un dossier sur « Favoris » pour l'ajouter, clic droit pour le retirer.</key>
+	<string>Tes favoris se gèrent directement dans la barre : glisse un dossier sur « Favoris » pour l'ajouter, clic droit pour le retirer.</string>
+	<key>Tes fichiers</key>
+	<string>Tes fichiers</string>
+	<key>Tiroir</key>
+	<string>Tiroir</string>
+	<key>Titres</key>
+	<string>Titres</string>
+	<key>Titres, artistes, albums, playlists</key>
+	<string>Titres, artistes, albums, playlists</string>
+	<key>Toujours fermer</key>
+	<string>Toujours fermer</string>
+	<key>Toujours rester affichée</key>
+	<string>Toujours rester affichée</string>
+	<key>Tout sélectionner</key>
+	<string>Tout sélectionner</string>
+	<key>Toutes les applications</key>
+	<string>Toutes les applications</string>
+	<key>Trackpad : ouvrir le Finder</key>
+	<string>Trackpad : ouvrir le Finder</string>
+	<key>Trackpad : ouvrir le tiroir</key>
+	<string>Trackpad : ouvrir le tiroir</string>
+	<key>Trier par</key>
+	<string>Trier par</string>
+	<key>Type</key>
+	<string>Type</string>
+	<key>Téléchargement en cours</key>
+	<string>Téléchargement en cours</string>
+	<key>Téléchargement en cours…</key>
+	<string>Téléchargement en cours…</string>
+	<key>Téléchargements</key>
+	<string>Téléchargements</string>
+	<key>Télécharger</key>
+	<string>Télécharger</string>
+	<key>Télécharger depuis iCloud</key>
+	<string>Télécharger depuis iCloud</string>
+	<key>Un autre site web</key>
+	<string>Un autre site web</string>
+	<key>Un cercle avec la souris</key>
+	<string>Un cercle avec la souris</string>
+	<key>Un raccourci pour le Finder, un autre pour le tiroir.</key>
+	<string>Un raccourci pour le Finder, un autre pour le tiroir.</string>
+	<key>Une application du Mac se range plutôt dans « Applications ».</key>
+	<string>Une application du Mac se range plutôt dans « Applications ».</string>
+	<key>Une secousse de souris</key>
+	<string>Une secousse de souris</string>
+	<key>Une seule note…</key>
+	<string>Une seule note…</string>
+	<key>Une zone apparaît en haut à droite de la carte quand tu fais glisser un fichier. Tant qu'elle contient quelque chose, elle reste à l'écran même quand Side est fermé, pour que tu puisses glisser son contenu ailleurs. Side fermé, secoue le pointeur pendant que tu glisses un fichier : la zone apparaît seule, à côté de la souris. Secoue encore pour en ajouter une autre. Si la carte vient du haut, la zone se place en bas de la carte et les suivantes s'empilent au-dessus. Les zones vides disparaissent toutes seules.</key>
+	<string>Une zone apparaît en haut à droite de la carte quand tu fais glisser un fichier. Tant qu'elle contient quelque chose, elle reste à l'écran même quand Side est fermé, pour que tu puisses glisser son contenu ailleurs. Side fermé, secoue le pointeur pendant que tu glisses un fichier : la zone apparaît seule, à côté de la souris. Secoue encore pour en ajouter une autre. Si la carte vient du haut, la zone se place en bas de la carte et les suivantes s'empilent au-dessus. Les zones vides disparaissent toutes seules.</string>
+	<key>Utiliser un aperçu comme icône</key>
+	<string>Utiliser un aperçu comme icône</string>
+	<key>Verrouillée : reste à l'écran quand Side se ferme. Clique pour qu'elle se cache avec Side.</key>
+	<string>Verrouillée : reste à l'écran quand Side se ferme. Clique pour qu'elle se cache avec Side.</string>
+	<key>Vers le bas</key>
+	<string>Vers le bas</string>
+	<key>Vers le haut</key>
+	<string>Vers le haut</string>
+	<key>Vide</key>
+	<string>Vide</string>
+	<key>Vider</key>
+	<string>Vider</string>
+	<key>Vider l'étagère</key>
+	<string>Vider l'étagère</string>
+	<key>Vider la corbeille</key>
+	<string>Vider la corbeille</string>
+	<key>Vider la corbeille ?</key>
+	<string>Vider la corbeille ?</string>
+	<key>Vider la zone</key>
+	<string>Vider la zone</string>
+	<key>Voir la vidéo</key>
+	<string>Voir la vidéo</string>
+	<key>Voir le tiroir</key>
+	<string>Voir le tiroir</string>
+	<key>Vos artistes du moment</key>
+	<string>Vos artistes du moment</string>
+	<key>Vos titres du moment</key>
+	<string>Vos titres du moment</string>
+	<key>Vous avez refusé l'autorisation dans Spotify.</key>
+	<string>Vous avez refusé l'autorisation dans Spotify.</string>
+	<key>Y garder aussi les mots de passe (affichés masqués)</key>
+	<string>Y garder aussi les mots de passe (affichés masqués)</string>
+	<key>YouTube</key>
+	<string>YouTube</string>
+	<key>Zone de dépôt : glisse ces fichiers où tu veux</key>
+	<string>Zone de dépôt : glisse ces fichiers où tu veux</string>
+	<key>Zone qui se cache avec Side</key>
+	<string>Zone qui se cache avec Side</string>
+	<key>Zone verrouillée à l'écran</key>
+	<string>Zone verrouillée à l'écran</string>
+	<key>Zones affichées</key>
+	<string>Zones affichées</string>
+	<key>Zones de dépôt</key>
+	<string>Zones de dépôt</string>
+	<key>copie</key>
+	<string>copie</string>
+	<key>https://…</key>
+	<string>https://…</string>
+	<key>le coin %@</key>
+	<string>le coin %@</string>
+	<key>macOS réserve le contenu de la corbeille aux applications qui ont l'« Accès complet au disque ». Ouvre le réglage, active Side dans la liste, puis relance Side : la corbeille s'affichera dans la carte.</key>
+	<string>macOS réserve le contenu de la corbeille aux applications qui ont l'« Accès complet au disque ». Ouvre le réglage, active Side dans la liste, puis relance Side : la corbeille s'affichera dans la carte.</string>
+	<key>pas de réponse</key>
+	<string>pas de réponse</string>
+	<key>quatre doigts %@</key>
+	<string>quatre doigts %@</string>
+	<key>vers le bas</key>
+	<string>vers le bas</string>
+	<key>vers le haut</key>
+	<string>vers le haut</string>
+	<key>À droite</key>
+	<string>À droite</string>
+	<key>À gauche, la musique et la vidéo : YouTube, Spotify ou le site de ton choix.</key>
+	<string>À gauche, la musique et la vidéo : YouTube, Spotify ou le site de ton choix.</string>
+	<key>Écoutés récemment</key>
+	<string>Écoutés récemment</string>
+	<key>Édition</key>
+	<string>Édition</string>
+	<key>Élargir ou rétrécir le lecteur</key>
+	<string>Élargir ou rétrécir le lecteur</string>
+	<key>Élevée</key>
+	<string>Élevée</string>
+	<key>Élément déposé</key>
+	<string>Élément déposé</string>
+	<key>Épingler</key>
+	<string>Épingler</string>
+	<key>Épingler ce dossier en colonne</key>
+	<string>Épingler ce dossier en colonne</string>
+	<key>Épingler en colonne</key>
+	<string>Épingler en colonne</string>
+	<key>Épingler en haut de la liste</key>
+	<string>Épingler en haut de la liste</string>
+	<key>Épingler un autre dossier…</key>
+	<string>Épingler un autre dossier…</string>
+	<key>Épingler un dossier en colonne</key>
+	<string>Épingler un dossier en colonne</string>
+	<key>Épingler un dossier en colonne (clique, ou dépose un dossier ici)</key>
+	<string>Épingler un dossier en colonne (clique, ou dépose un dossier ici)</string>
+	<key>Étagère</key>
+	<string>Étagère</string>
+	<key>–</key>
+	<string>–</string>
+	<key>••••••••••  (mot de passe)</key>
+	<string>••••••••••  (mot de passe)</string>
+	<key>⌃⌥Espace</key>
+	<string>⌃⌥Espace</string>
+</dict>
+</plist>

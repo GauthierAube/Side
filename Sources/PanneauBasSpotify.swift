@@ -78,11 +78,11 @@ final class SpotifyCompte {
 
     /// Ouvre la page d'autorisation de Spotify dans le navigateur. `fin` reçoit nil si tout s'est bien passé, sinon l'explication.
     func connecter(_ fin: @escaping (String?) -> Void) {
-        guard !identifiant.isEmpty else { fin("Collez d'abord l'identifiant (Client ID)."); return }
+        guard !identifiant.isEmpty else { fin(String(localized: "Collez d'abord l'identifiant (Client ID).")); return }
         verificateur = hasard(48)
         etat = hasard(12)
         finConnexion = fin
-        guard demarrerEcoute() else { fin("Le port 8765 du Mac est déjà pris. Fermez l'application qui l'utilise et réessayez."); return }
+        guard demarrerEcoute() else { fin(String(localized: "Le port 8765 du Mac est déjà pris. Fermez l'application qui l'utilise et réessayez.")); return }
         var c = URLComponents(string: "https://accounts.spotify.com/authorize")!
         c.queryItems = [
             URLQueryItem(name: "client_id", value: identifiant), URLQueryItem(name: "response_type", value: "code"),
@@ -110,8 +110,8 @@ final class SpotifyCompte {
                 let code = champs.first { $0.name == "code" }?.value
                 let bonEtat = champs.first { $0.name == "state" }?.value == self?.etat
                 let refus = champs.first { $0.name == "error" }?.value
-                let message = (code != nil && bonEtat) ? "Connexion réussie. Vous pouvez fermer cette page et revenir au panneau."
-                                                       : "La connexion n'a pas abouti. Vous pouvez fermer cette page et réessayer depuis le panneau."
+                let message = (code != nil && bonEtat) ? String(localized: "Connexion réussie. Vous pouvez fermer cette page et revenir au panneau.")
+                                                       : String(localized: "La connexion n'a pas abouti. Vous pouvez fermer cette page et réessayer depuis le panneau.")
                 let page = "<html><head><meta charset=\"utf-8\"></head><body style=\"font: 18px -apple-system; padding: 48px\">\(message)</body></html>"
                 let reponse = "HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nConnection: close\r\n\r\n" + page
                 lien.send(content: Data(reponse.utf8), completion: .contentProcessed { _ in lien.cancel() })
@@ -119,7 +119,7 @@ final class SpotifyCompte {
                 self?.ecoute?.cancel()
                 self?.ecoute = nil
                 if let code, bonEtat { self?.echanger(code) }
-                else { self?.terminer(refus == "access_denied" ? "Vous avez refusé l'autorisation dans Spotify." : "Spotify n'a pas renvoyé d'autorisation.") }
+                else { self?.terminer(refus == "access_denied" ? String(localized: "Vous avez refusé l'autorisation dans Spotify.") : String(localized: "Spotify n'a pas renvoyé d'autorisation.")) }
             }
         }
         e.start(queue: .main)
@@ -142,7 +142,7 @@ final class SpotifyCompte {
             let json = d.flatMap { try? JSONSerialization.jsonObject(with: $0) } as? [String: Any]
             DispatchQueue.main.async {
                 guard let self, let acces = json?["access_token"] as? String else {
-                    fin((json?["error_description"] as? String) ?? "Spotify n'a pas répondu.")
+                    fin((json?["error_description"] as? String) ?? String(localized: "Spotify n'a pas répondu."))
                     return
                 }
                 self.jeton = acces
@@ -159,7 +159,7 @@ final class SpotifyCompte {
     }
 
     private func renouveler(_ fin: @escaping (String?) -> Void) {
-        guard let suite = lireTrousseau() else { fin("Le compte Spotify n'est pas connecté."); return }
+        guard let suite = lireTrousseau() else { fin(String(localized: "Le compte Spotify n'est pas connecté.")); return }
         jetons(["grant_type": "refresh_token", "refresh_token": suite, "client_id": identifiant]) { [weak self] erreur in
             // Autorisation retirée ou expirée : il faudra se reconnecter.
             if erreur != nil { self?.ecrireTrousseau(nil) }
@@ -188,9 +188,9 @@ final class SpotifyCompte {
             let json = d.flatMap { try? JSONSerialization.jsonObject(with: $0) } as? [String: Any]
             DispatchQueue.main.async {
                 if code == 200 { fin(json, nil); return }
-                let detail = ((json?["error"] as? [String: Any])?["message"] as? String) ?? "pas de réponse"
+                let detail = ((json?["error"] as? [String: Any])?["message"] as? String) ?? String(localized: "pas de réponse")
                 journalBas("Spotify : %@ → %d %@", chemin.components(separatedBy: "?").first ?? chemin, code, detail)
-                fin(nil, code == 403 ? "Spotify refuse cet accès (\(detail))." : "Spotify ne répond pas (\(detail)).")
+                fin(nil, code == 403 ? String(localized: "Spotify refuse cet accès (\(detail)).") : String(localized: "Spotify ne répond pas (\(detail))."))
             }
         }.resume()
     }
@@ -215,7 +215,7 @@ final class SpotifyCompte {
         if let p = (o["owner"] as? [String: Any])?["display_name"] as? String { sous = "\(genre) · \(p)" }
         if let a = ((o["artists"] as? [[String: Any]]) ?? []).first?["name"] as? String { sous = "\(genre) · \(a)" }
         if let e = o["publisher"] as? String { sous = "\(genre) · \(e)" }
-        return ElementSpotify(titre: nom, sousTitre: sous, image: image(o), uri: uri, rond: genre == "Artiste")
+        return ElementSpotify(titre: nom, sousTitre: sous, image: image(o), uri: uri, rond: genre == String(localized: "Artiste"))
     }
 
     static func liste(_ json: [String: Any]?, _ cle: String? = nil) -> [[String: Any]] {
@@ -421,7 +421,7 @@ final class LecteurSpotifyBas: NSView, NSSearchFieldDelegate {
     private let pageConnexion = NSView()
     private let resultats = ListeSpotifyBas(), biblio = ListeSpotifyBas()
     private let champ = NSSearchField()
-    private let genres = PastillesBas(["Playlists", "Albums", "Podcasts", "Titres"])
+    private let genres = PastillesBas([String(localized: "Playlists"), String(localized: "Albums"), String(localized: "Podcasts"), String(localized: "Titres")])
     private let champIdentifiant = NSTextField()
     private let etatConnexion = NSTextField(wrappingLabelWithString: "")
     private var onglets: [BoutonBas] = []
@@ -465,11 +465,11 @@ final class LecteurSpotifyBas: NSView, NSSearchFieldDelegate {
         construireConnexion()
         for liste in [pageAccueil, resultats, biblio] { liste.auChoix = { [weak self] e in self?.lancer(e) } }
 
-        onglets = [onglet("house.fill", "Accueil", 0), onglet("play.circle.fill", "Lecture", 1),
-                   onglet("magnifyingglass", "Recherche", 2), onglet("books.vertical.fill", "Bibliothèque", 3)]
+        onglets = [onglet("house.fill", String(localized: "Accueil"), 0), onglet("play.circle.fill", String(localized: "Lecture"), 1),
+                   onglet("magnifyingglass", String(localized: "Recherche"), 2), onglet("books.vertical.fill", String(localized: "Bibliothèque"), 3)]
         // Clic droit sur « Bibliothèque » : se déconnecter du compte.
         let menuCompte = NSMenu()
-        let sortie = menuCompte.addItem(withTitle: "Déconnecter le compte Spotify", action: #selector(deconnecter), keyEquivalent: "")
+        let sortie = menuCompte.addItem(withTitle: String(localized: "Déconnecter le compte Spotify"), action: #selector(deconnecter), keyEquivalent: "")
         sortie.target = self
         onglets[3].menu = menuCompte
         let barre = NSStackView(views: onglets)
@@ -619,9 +619,9 @@ final class LecteurSpotifyBas: NSView, NSSearchFieldDelegate {
         video.image = symbole("play.rectangle.fill", 12)
         video.imagePosition = .imageLeading
         video.contentTintColor = .white
-        video.attributedTitle = NSAttributedString(string: " Voir la vidéo", attributes: [
+        video.attributedTitle = NSAttributedString(string: " " + String(localized: "Voir la vidéo"), attributes: [
             .font: NSFont.systemFont(ofSize: 12, weight: .medium), .foregroundColor: NSColor.white])
-        video.toolTip = "Ouvre Spotify en grand pour regarder la vidéo"
+        video.toolTip = String(localized: "Ouvre Spotify en grand pour regarder la vidéo")
         let pile = NSStackView(views: [pochette, titre, artiste, progression, commandes, video])
         pile.orientation = .vertical
         pile.spacing = 8
@@ -647,37 +647,37 @@ final class LecteurSpotifyBas: NSView, NSSearchFieldDelegate {
     }
 
     private func construireRecherche() {
-        champ.placeholderString = "Titres, artistes, albums, playlists"
+        champ.placeholderString = String(localized: "Titres, artistes, albums, playlists")
         champ.delegate = self
         champ.sendsSearchStringImmediately = false
         champ.controlSize = .large
-        remplir(pageRecherche, titre: "Recherche", haut: champ, liste: resultats)
-        resultats.dire("Tapez pour chercher dans Spotify.")
+        remplir(pageRecherche, titre: String(localized: "Recherche"), haut: champ, liste: resultats)
+        resultats.dire(String(localized: "Tapez pour chercher dans Spotify."))
     }
 
     private func construireBiblio() {
         genres.auChoix = { [weak self] _ in self?.chargerBiblio() }
-        remplir(pageBiblio, titre: "Bibliothèque", haut: genres, liste: biblio)
+        remplir(pageBiblio, titre: String(localized: "Bibliothèque"), haut: genres, liste: biblio)
     }
 
     private func construireConnexion() {
-        let titre = NSTextField(labelWithString: "Connecter Spotify")
+        let titre = NSTextField(labelWithString: String(localized: "Connecter Spotify"))
         titre.font = .systemFont(ofSize: 17, weight: .bold)
-        let etapes = NSTextField(wrappingLabelWithString: """
+        let etapes = NSTextField(wrappingLabelWithString: String(localized: """
         1. Ouvrez le site développeur de Spotify et connectez-vous.
         2. « Create app » : un nom au choix, et dans « Redirect URIs » : \(SpotifyCompte.redirection). Cochez « Web API ».
         3. Copiez le « Client ID » de cette app et collez-le ci-dessous.
         4. « Se connecter », puis « Accepter » dans la page Spotify qui s'ouvre.
-        """)
+        """))
         etapes.font = .systemFont(ofSize: 11.5)
         etapes.textColor = .secondaryLabelColor
         etapes.isSelectable = true
-        let site = BoutonBas(title: "Ouvrir le site Spotify", target: self, action: #selector(ouvrirSite))
-        let adresse = BoutonBas(title: "Copier l'adresse de redirection", target: self, action: #selector(copierRedirection))
+        let site = BoutonBas(title: String(localized: "Ouvrir le site Spotify"), target: self, action: #selector(ouvrirSite))
+        let adresse = BoutonBas(title: String(localized: "Copier l'adresse de redirection"), target: self, action: #selector(copierRedirection))
         champIdentifiant.placeholderString = "Client ID"
         champIdentifiant.stringValue = SpotifyCompte.commun.identifiant
         champIdentifiant.font = .monospacedSystemFont(ofSize: 11, weight: .regular)
-        let connecter = BoutonBas(title: "Se connecter", target: self, action: #selector(connecter))
+        let connecter = BoutonBas(title: String(localized: "Se connecter"), target: self, action: #selector(connecter))
         connecter.keyEquivalent = "\r"
         for b in [site, adresse, connecter] { b.bezelStyle = .rounded; b.controlSize = .small }
         etatConnexion.font = .systemFont(ofSize: 11)
@@ -735,12 +735,12 @@ final class LecteurSpotifyBas: NSView, NSSearchFieldDelegate {
     @objc private func copierRedirection() {
         NSPasteboard.general.clearContents()
         NSPasteboard.general.setString(SpotifyCompte.redirection, forType: .string)
-        etatConnexion.stringValue = "Adresse copiée : collez-la dans « Redirect URIs »."
+        etatConnexion.stringValue = String(localized: "Adresse copiée : collez-la dans « Redirect URIs ».")
     }
 
     @objc private func connecter() {
         SpotifyCompte.commun.identifiant = champIdentifiant.stringValue
-        etatConnexion.stringValue = "La page de Spotify s'ouvre dans votre navigateur…"
+        etatConnexion.stringValue = String(localized: "La page de Spotify s'ouvre dans votre navigateur…")
         SpotifyCompte.commun.connecter { [weak self] erreur in
             guard let self else { return }
             if let erreur { self.etatConnexion.stringValue = erreur; return }
@@ -758,15 +758,15 @@ final class LecteurSpotifyBas: NSView, NSSearchFieldDelegate {
     // MARK: Accueil, Bibliothèque, Recherche
 
     private func chargerAccueil() {
-        pageAccueil.dire("Chargement…")
+        pageAccueil.dire(String(localized: "Chargement…"))
         var recents: [ElementSpotify] = [], favoris: [ElementSpotify] = [], artistes: [ElementSpotify] = []
         var attendus = 3, erreurVue: String?
         func fini(_ erreur: String?) {
             attendus -= 1
             if let erreur { erreurVue = erreur }
             guard attendus == 0, onglet == .accueil else { return }
-            let rubriques = [("Écoutés récemment", recents), ("Vos titres du moment", favoris), ("Vos artistes du moment", artistes)]
-            if rubriques.allSatisfy({ $0.1.isEmpty }) { pageAccueil.dire(erreurVue ?? "Rien à afficher pour l'instant.") }
+            let rubriques = [(String(localized: "Écoutés récemment"), recents), (String(localized: "Vos titres du moment"), favoris), (String(localized: "Vos artistes du moment"), artistes)]
+            if rubriques.allSatisfy({ $0.1.isEmpty }) { pageAccueil.dire(erreurVue ?? String(localized: "Rien à afficher pour l'instant.")) }
             else { pageAccueil.montrer(rubriques) }
         }
         SpotifyCompte.commun.appel("me/player/recently-played?limit=30") { json, erreur in
@@ -785,26 +785,26 @@ final class LecteurSpotifyBas: NSView, NSSearchFieldDelegate {
             fini(erreur)
         }
         SpotifyCompte.commun.appel("me/top/artists?limit=6&time_range=short_term") { json, erreur in
-            artistes = SpotifyCompte.liste(json).compactMap { SpotifyCompte.recueil($0, genre: "Artiste") }
+            artistes = SpotifyCompte.liste(json).compactMap { SpotifyCompte.recueil($0, genre: String(localized: "Artiste")) }
             fini(erreur)
         }
     }
 
     private func chargerBiblio() {
         let rang = genres.choisie
-        biblio.dire("Chargement…")
+        biblio.dire(String(localized: "Chargement…"))
         let chemin = ["me/playlists?limit=50", "me/albums?limit=50", "me/shows?limit=50", "me/tracks?limit=50"][max(0, min(3, rang))]
         SpotifyCompte.commun.appel(chemin) { [weak self] json, erreur in
             guard let self, self.genres.choisie == rang else { return }
             let lignes = SpotifyCompte.liste(json)
             let elements: [ElementSpotify]
             switch rang {
-            case 0: elements = lignes.compactMap { SpotifyCompte.recueil($0, genre: "Playlist") }
-            case 1: elements = lignes.compactMap { ($0["album"] as? [String: Any]).flatMap { SpotifyCompte.recueil($0, genre: "Album") } }
-            case 2: elements = lignes.compactMap { ($0["show"] as? [String: Any]).flatMap { SpotifyCompte.recueil($0, genre: "Podcast") } }
+            case 0: elements = lignes.compactMap { SpotifyCompte.recueil($0, genre: String(localized: "Playlist")) }
+            case 1: elements = lignes.compactMap { ($0["album"] as? [String: Any]).flatMap { SpotifyCompte.recueil($0, genre: String(localized: "Album")) } }
+            case 2: elements = lignes.compactMap { ($0["show"] as? [String: Any]).flatMap { SpotifyCompte.recueil($0, genre: String(localized: "Podcast")) } }
             default: elements = lignes.compactMap { ($0["track"] as? [String: Any]).flatMap { SpotifyCompte.titre($0) } }
             }
-            if elements.isEmpty { self.biblio.dire(erreur ?? "Rien dans cette rubrique.") } else { self.biblio.montrer([("", elements)]) }
+            if elements.isEmpty { self.biblio.dire(erreur ?? String(localized: "Rien dans cette rubrique.")) } else { self.biblio.montrer([("", elements)]) }
         }
     }
 
@@ -817,19 +817,19 @@ final class LecteurSpotifyBas: NSView, NSSearchFieldDelegate {
 
     private func chercher() {
         let mots = champ.stringValue.trimmingCharacters(in: .whitespaces)
-        guard !mots.isEmpty else { resultats.dire("Tapez pour chercher dans Spotify."); return }
+        guard !mots.isEmpty else { resultats.dire(String(localized: "Tapez pour chercher dans Spotify.")); return }
         var permis = CharacterSet.alphanumerics
         permis.insert(charactersIn: "-._~")
         let q = mots.addingPercentEncoding(withAllowedCharacters: permis) ?? ""
         SpotifyCompte.commun.appel("search?q=\(q)&type=track,artist,album,playlist&limit=5") { [weak self] json, erreur in
             guard let self, self.champ.stringValue.trimmingCharacters(in: .whitespaces) == mots else { return }
             let rubriques: [(String, [ElementSpotify])] = [
-                ("Titres", SpotifyCompte.liste(json, "tracks").compactMap { SpotifyCompte.titre($0) }),
-                ("Artistes", SpotifyCompte.liste(json, "artists").compactMap { SpotifyCompte.recueil($0, genre: "Artiste") }),
-                ("Albums", SpotifyCompte.liste(json, "albums").compactMap { SpotifyCompte.recueil($0, genre: "Album") }),
-                ("Playlists", SpotifyCompte.liste(json, "playlists").compactMap { SpotifyCompte.recueil($0, genre: "Playlist") }),
+                (String(localized: "Titres"), SpotifyCompte.liste(json, "tracks").compactMap { SpotifyCompte.titre($0) }),
+                (String(localized: "Artistes"), SpotifyCompte.liste(json, "artists").compactMap { SpotifyCompte.recueil($0, genre: String(localized: "Artiste")) }),
+                (String(localized: "Albums"), SpotifyCompte.liste(json, "albums").compactMap { SpotifyCompte.recueil($0, genre: String(localized: "Album")) }),
+                (String(localized: "Playlists"), SpotifyCompte.liste(json, "playlists").compactMap { SpotifyCompte.recueil($0, genre: String(localized: "Playlist")) }),
             ]
-            if rubriques.allSatisfy({ $0.1.isEmpty }) { self.resultats.dire(erreur ?? "Aucun résultat pour « \(mots) ».") }
+            if rubriques.allSatisfy({ $0.1.isEmpty }) { self.resultats.dire(erreur ?? String(localized: "Aucun résultat pour « \(mots) ».")) }
             else { self.resultats.montrer(rubriques) }
         }
     }
@@ -866,8 +866,8 @@ final class LecteurSpotifyBas: NSView, NSSearchFieldDelegate {
         SpotifyBas.lire { [weak self] e in
             guard let self else { return }
             self.etat = e
-            self.titre.stringValue = e.enCours ? (e.titre.isEmpty ? "Rien en lecture" : e.titre) : "Spotify est fermé"
-            self.artiste.stringValue = e.enCours ? e.artiste : "Le bouton lecture l'ouvre"
+            self.titre.stringValue = e.enCours ? (e.titre.isEmpty ? String(localized: "Rien en lecture") : e.titre) : String(localized: "Spotify est fermé")
+            self.artiste.stringValue = e.enCours ? e.artiste : String(localized: "Le bouton lecture l'ouvre")
             self.lecture.image = self.symbole(e.joue ? "pause.circle.fill" : "play.circle.fill", 50)
             self.aleatoire.contentTintColor = e.aleatoire ? self.accent : .secondaryLabelColor
             self.repete.contentTintColor = e.repete ? self.accent : .secondaryLabelColor

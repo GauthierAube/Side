@@ -172,18 +172,18 @@ final class LecteurYouTubeBas: NSView, WKNavigationDelegate, WKUIDelegate {
         }
         addSubview(poignée)
         poignée.isHidden = true      // la largeur se règle maintenant sur le coin multimédia entier (Spotify comme YouTube)
-        retour = bouton("chevron.left", "Page précédente", #selector(reculer))
-        let maison = bouton("house.fill", "Accueil de YouTube", #selector(allerAccueil))
-        let coller = bouton("link", "Ouvrir le lien YouTube copié", #selector(collerLien))
-        taille = bouton("arrow.left.and.right", "Élargir ou rétrécir le lecteur", #selector(changerLargeur))
+        retour = bouton("chevron.left", String(localized: "Page précédente"), #selector(reculer))
+        let maison = bouton("house.fill", String(localized: "Accueil de YouTube"), #selector(allerAccueil))
+        let coller = bouton("link", String(localized: "Ouvrir le lien YouTube copié"), #selector(collerLien))
+        taille = bouton("arrow.left.and.right", String(localized: "Élargir ou rétrécir le lecteur"), #selector(changerLargeur))
         // Les commandes du site pour téléphone sont faites pour le doigt : celles-ci marchent toujours à la souris.
-        let moins = bouton("gobackward.10", "Reculer de 10 secondes", #selector(reculerDansLaVidéo))
-        let pause = bouton("playpause.fill", "Lecture / pause", #selector(lecturePause))
-        let plus = bouton("goforward.10", "Avancer de 10 secondes", #selector(avancerDansLaVidéo))
-        let passer = bouton("forward.end.fill", "Passer la publicité (quand YouTube le propose)", #selector(passerLaPub))
+        let moins = bouton("gobackward.10", String(localized: "Reculer de 10 secondes"), #selector(reculerDansLaVidéo))
+        let pause = bouton("playpause.fill", String(localized: "Lecture / pause"), #selector(lecturePause))
+        let plus = bouton("goforward.10", String(localized: "Avancer de 10 secondes"), #selector(avancerDansLaVidéo))
+        let passer = bouton("forward.end.fill", String(localized: "Passer la publicité (quand YouTube le propose)"), #selector(passerLaPub))
         let gauche = NSStackView(views: [retour, maison])
         let milieu = NSStackView(views: [moins, pause, plus, passer])
-        let cadre = bouton("arrow.up.left.and.arrow.down.right", "La vidéo remplit la tuile (ou reprend sa place)", #selector(pleinCadre))
+        let cadre = bouton("arrow.up.left.and.arrow.down.right", String(localized: "La vidéo remplit la tuile (ou reprend sa place)"), #selector(pleinCadre))
         let droite = NSStackView(views: [coller, cadre, taille])
         for pile in [gauche, milieu, droite] {
             pile.spacing = 10
