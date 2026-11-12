@@ -130,6 +130,8 @@
 	<string>Aucun</string>
 	<key>Aucun lecteur : cette partie n'apparaît pas dans le tiroir.</key>
 	<string>Aucun lecteur : cette partie n'apparaît pas dans le tiroir.</string>
+	<key>Aucun lien enregistré</key>
+	<string>Aucun lien enregistré</string>
 	<key>Aucun ordinateur repéré</key>
 	<string>Aucun ordinateur repéré</string>
 	<key>Aucun résultat</key>
@@ -326,6 +328,8 @@
 	<string>En photo : %@ — fenêtre ouverte sur un autre bureau.</string>
 	<key>Enregistrer</key>
 	<string>Enregistrer</string>
+	<key>Enregistrés</key>
+	<string>Enregistrés</string>
 	<key>Envoi vers iCloud en cours</key>
 	<string>Envoi vers iCloud en cours</string>
 	<key>Envoi vers iCloud en cours…</key>
@@ -366,8 +370,6 @@
 	<string>Flouter l'arrière-plan quand le Finder est ouvert</string>
 	<key>Fond</key>
 	<string>Fond</string>
-	<key>Garde ici les liens que tu colles souvent : ils restent, sans limite. Le + en ajoute un ; le clic droit sur un élément copié aussi.</key>
-	<string>Garde ici les liens que tu colles souvent : ils restent, sans limite. Le + en ajoute un ; le clic droit sur un élément copié aussi.</string>
 	<key>Garder dans le mini-Dock</key>
 	<string>Garder dans le mini-Dock</string>
 	<key>Garder dans les liens…</key>
@@ -378,12 +380,16 @@
 	<string>Garder un historique du copier-coller (7 jours)</string>
 	<key>Gardé 7 jours · clic pour copier</key>
 	<string>Gardé 7 jours · clic pour copier</string>
+	<key>Gardé sans limite · clic pour copier</key>
+	<string>Gardé sans limite · clic pour copier</string>
 	<key>Geste</key>
 	<string>Geste</string>
 	<key>Geste de la souris</key>
 	<string>Geste de la souris</string>
 	<key>Gestes de macOS</key>
 	<string>Gestes de macOS</string>
+	<key>Glisse ici un élément du presse-papiers, ou ajoute un lien avec le +. Il restera là, sans limite.</key>
+	<string>Glisse ici un élément du presse-papiers, ou ajoute un lien avec le +. Il restera là, sans limite.</string>
 	<key>Glisse le titre pour déplacer la colonne</key>
 	<string>Glisse le titre pour déplacer la colonne</string>
 	<key>Glisse pour changer la largeur</key>
@@ -548,8 +554,6 @@
 	<string>Lien</string>
 	<key>Lien ou texte à coller</key>
 	<string>Lien ou texte à coller</string>
-	<key>Liens</key>
-	<string>Liens</string>
 	<key>Lire les informations</key>
 	<string>Lire les informations</string>
 	<key>Liste</key>
@@ -592,6 +596,8 @@
 	<string>Nouveau lien</string>
 	<key>Nouvel onglet (⌘T)</key>
 	<string>Nouvel onglet (⌘T)</string>
+	<key>Onglet</key>
+	<string>Onglet</string>
 	<key>Opacité</key>
 	<string>Opacité</string>
 	<key>Options avancées</key>

@@ -130,6 +130,8 @@
 	<string>None</string>
 	<key>Aucun lecteur : cette partie n'apparaît pas dans le tiroir.</key>
 	<string>No players: this part doesn’t appear in the drawer.</string>
+	<key>Aucun lien enregistré</key>
+	<string>No Saved Links</string>
 	<key>Aucun ordinateur repéré</key>
 	<string>No computers found</string>
 	<key>Aucun résultat</key>
@@ -326,6 +328,8 @@
 	<string>Shown as a snapshot: %@ — window open on another desktop.</string>
 	<key>Enregistrer</key>
 	<string>Save</string>
+	<key>Enregistrés</key>
+	<string>Saved</string>
 	<key>Envoi vers iCloud en cours</key>
 	<string>Uploading to iCloud</string>
 	<key>Envoi vers iCloud en cours…</key>
@@ -366,8 +370,6 @@
 	<string>Blur the background when the Finder is open</string>
 	<key>Fond</key>
 	<string>Background</string>
-	<key>Garde ici les liens que tu colles souvent : ils restent, sans limite. Le + en ajoute un ; le clic droit sur un élément copié aussi.</key>
-	<string>Keep the links you paste often here: they stay, with no limit. Add one with the + button, or by right-clicking a copied item.</string>
 	<key>Garder dans le mini-Dock</key>
 	<string>Keep in Mini Dock</string>
 	<key>Garder dans les liens…</key>
@@ -378,12 +380,16 @@
 	<string>Keep a copy-and-paste history (7 days)</string>
 	<key>Gardé 7 jours · clic pour copier</key>
 	<string>Kept for 7 days · click to copy</string>
+	<key>Gardé sans limite · clic pour copier</key>
+	<string>Kept with no limit · click to copy</string>
 	<key>Geste</key>
 	<string>Gesture</string>
 	<key>Geste de la souris</key>
 	<string>Mouse gesture</string>
 	<key>Gestes de macOS</key>
 	<string>macOS gestures</string>
+	<key>Glisse ici un élément du presse-papiers, ou ajoute un lien avec le +. Il restera là, sans limite.</key>
+	<string>Drag an item from the clipboard here, or add a link with the + button. It stays here, with no limit.</string>
 	<key>Glisse le titre pour déplacer la colonne</key>
 	<string>Drag the title to move the column</string>
 	<key>Glisse pour changer la largeur</key>
@@ -548,8 +554,6 @@
 	<string>Link</string>
 	<key>Lien ou texte à coller</key>
 	<string>Link or text to paste</string>
-	<key>Liens</key>
-	<string>Links</string>
 	<key>Lire les informations</key>
 	<string>Get Info</string>
 	<key>Liste</key>
@@ -592,6 +596,8 @@
 	<string>New Link</string>
 	<key>Nouvel onglet (⌘T)</key>
 	<string>New Tab (⌘T)</string>
+	<key>Onglet</key>
+	<string>Tab</string>
 	<key>Opacité</key>
 	<string>Opacity</string>
 	<key>Options avancées</key>

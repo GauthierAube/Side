@@ -6,6 +6,7 @@ import AppKit
 import SwiftUI
 import Carbon.HIToolbox
 import LinkPresentation
+import Combine
 
 // MARK: - Réglages
 
@@ -286,8 +287,7 @@ final class LiensGardes: ObservableObject {
     private let d = UserDefaults.standard
 
     @Published var liens: [LienGarde] { didSet { sauver() } }
-    /// La section est-elle dépliée ? Et quels groupes sont repliés ?
-    @Published var ouverte: Bool { didSet { d.set(ouverte, forKey: "presseLiensOuverts") } }
+    /// Les groupes repliés.
     @Published var groupesFermes: Set<String> { didSet { d.set(Array(groupesFermes), forKey: "presseGroupesFermes") } }
     /// Le lien en cours d'ajout ou de modification (le formulaire du volet s'affiche quand il y en a un).
     @Published var brouillon: LienGarde?
@@ -295,7 +295,6 @@ final class LiensGardes: ObservableObject {
     private init() {
         let json = d.string(forKey: "presseLiens") ?? "[]"
         liens = (try? JSONDecoder().decode([LienGarde].self, from: Data(json.utf8))) ?? []
-        ouverte = d.object(forKey: "presseLiensOuverts") as? Bool ?? true
         groupesFermes = Set(d.stringArray(forKey: "presseGroupesFermes") ?? [])
     }
 
@@ -324,7 +323,32 @@ final class LiensGardes: ObservableObject {
         }
         if let i = liens.firstIndex(where: { $0.id == l.id }) { liens[i] = l } else { liens.append(l) }
         groupesFermes.remove(l.groupe)
-        ouverte = true
+    }
+
+    private var attentes: [UUID: AnyCancellable] = [:]
+
+    /// Ce qu'on vient de glisser dans l'onglet : gardé tout de suite, sans formulaire. Déjà gardé : il change seulement de groupe.
+    /// Le titre est d'abord le nom du site ; le vrai titre de la page le remplace dès qu'il arrive.
+    func deposer(_ texte: String, groupe: String?) {
+        let t = texte.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !t.isEmpty else { return }
+        if let i = liens.firstIndex(where: { $0.texte == t }) {
+            guard let groupe, liens[i].groupe != groupe else { return }
+            var l = liens.remove(at: i)
+            l.groupe = groupe
+            liens.append(l)
+            groupesFermes.remove(groupe)
+            return
+        }
+        let l = LienGarde(titre: "", texte: t, groupe: groupe ?? "")
+        enregistrer(l)
+        guard let u = l.url, ConfigPresse.commun.apercuLiens else { return }
+        let apercu = ApercuLien.pour(u.absoluteString), provisoire = liens.first { $0.id == l.id }?.titre
+        apercu.charger()
+        attentes[l.id] = apercu.$titre.compactMap { $0 }.filter { !$0.isEmpty }.first().sink { [weak self] titre in
+            guard let self, let i = self.liens.firstIndex(where: { $0.id == l.id }), self.liens[i].titre == provisoire else { return }
+            self.liens[i].titre = titre
+        }
     }
     func supprimer(_ l: LienGarde) { liens.removeAll { $0.id == l.id } }
     /// Monte ou descend un lien d'un cran dans son groupe.
@@ -452,8 +476,66 @@ private struct FormulaireLien: View {
     }
 }
 
-/// La section « Liens » en haut du volet : les liens gardés, par groupe, chaque groupe repliable.
-private struct SectionLiens: View {
+/// Lit ce qu'on vient de déposer (un lien glissé d'un navigateur, ou un texte) et le rend sur le fil principal.
+private func lireDepot(_ fournisseurs: [NSItemProvider], _ suite: @escaping (String) -> Void) -> Bool {
+    guard let f = fournisseurs.first else { return false }
+    if f.canLoadObject(ofClass: NSURL.self) {
+        _ = f.loadObject(ofClass: NSURL.self) { o, _ in
+            guard let u = o as? NSURL, let t = u.absoluteString else { return }
+            DispatchQueue.main.async { suite(t) }
+        }
+        return true
+    }
+    if f.canLoadObject(ofClass: NSString.self) {
+        _ = f.loadObject(ofClass: NSString.self) { o, _ in
+            guard let t = o as? String else { return }
+            DispatchQueue.main.async { suite(t) }
+        }
+        return true
+    }
+    return false
+}
+private let typesDepot = ["public.url", "public.utf8-plain-text", "public.plain-text"]
+
+/// Un groupe de l'onglet « Enregistrés » : son en-tête repliable et ses lignes. On peut y déposer un élément.
+private struct GroupeLiens: View {
+    let groupe: String
+    let lignes: [LienGarde]
+    let cherche: Bool
+    let copie: UUID?
+    let copier: (LienGarde) -> Void
+    @ObservedObject private var liens = LiensGardes.commun
+    @State private var vise = false
+
+    var body: some View {
+        let ferme = liens.groupesFermes.contains(groupe) && !cherche
+        VStack(alignment: .leading, spacing: 2) {
+            if !groupe.isEmpty {
+                HStack(spacing: 5) {
+                    Image(systemName: "chevron.right").font(.system(size: 9, weight: .bold))
+                        .rotationEffect(.degrees(ferme ? 0 : 90))
+                    Text(verbatim: groupe).font(.subheadline.weight(.semibold))
+                    Spacer()
+                    Text(verbatim: "\(lignes.count)").font(.caption).monospacedDigit()
+                }
+                .foregroundStyle(.secondary)
+                .padding(.horizontal, 6).padding(.vertical, 5)
+                .contentShape(Rectangle())
+                .onTapGesture { withAnimation(.easeOut(duration: 0.18)) { liens.basculerGroupe(groupe) } }
+            }
+            if !ferme {
+                ForEach(lignes) { l in LigneLien(lien: l, copie: copie == l.id) { copier(l) } }
+            }
+        }
+        .padding(4)
+        .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(Color.accentColor.opacity(vise ? 0.16 : 0)))
+        .overlay(RoundedRectangle(cornerRadius: 10, style: .continuous).strokeBorder(Color.accentColor.opacity(vise ? 0.8 : 0), lineWidth: 1.5))
+        .onDrop(of: typesDepot, isTargeted: $vise) { f in lireDepot(f) { liens.deposer($0, groupe: groupe) } }
+    }
+}
+
+/// L'onglet « Enregistrés » : les liens gardés pour toujours, par groupe.
+private struct OngletLiens: View {
     let filtre: String
     let copie: UUID?
     let copier: (LienGarde) -> Void
@@ -470,53 +552,22 @@ private struct SectionLiens: View {
     var body: some View {
         let cherche = !filtre.trimmingCharacters(in: .whitespaces).isEmpty
         let groupes = liens.groupes.filter { !visibles($0).isEmpty }
-        if !(cherche && groupes.isEmpty) {
-            VStack(alignment: .leading, spacing: 4) {
-                HStack(spacing: 6) {
-                    Image(systemName: "chevron.right").font(.system(size: 9, weight: .bold)).foregroundStyle(.secondary)
-                        .rotationEffect(.degrees(liens.ouverte || cherche ? 90 : 0))
-                    Image(systemName: "bookmark.fill").font(.caption).foregroundStyle(Color.accentColor)
-                    Text("Liens").font(.subheadline.weight(.semibold))
-                    Text(verbatim: "\(liens.liens.count)").font(.caption2).foregroundStyle(.secondary)
-                    Spacer()
-                    Button { liens.brouillon = LienGarde(titre: "", texte: "") } label: { Image(systemName: "plus") }
-                        .buttonStyle(.plain).foregroundStyle(Color.accentColor)
-                        .help("Ajouter un lien").accessibilityLabel("Ajouter un lien")
+        VStack(alignment: .leading, spacing: 4) {
+            if let b = liens.brouillon { FormulaireLien(lien: b).id(b.id) }
+            if liens.liens.isEmpty && liens.brouillon == nil {
+                VStack(spacing: 8) {
+                    Image(systemName: "bookmark").font(.system(size: 28)).foregroundStyle(.tertiary)
+                    Text("Aucun lien enregistré").font(.headline)
+                    Text("Glisse ici un élément du presse-papiers, ou ajoute un lien avec le +. Il restera là, sans limite.")
+                        .font(.callout).foregroundStyle(.secondary).multilineTextAlignment(.center)
                 }
-                .contentShape(Rectangle())
-                .onTapGesture { withAnimation(.easeOut(duration: 0.18)) { liens.ouverte.toggle() } }
-
-                if let b = liens.brouillon { FormulaireLien(lien: b).id(b.id) }
-
-                if liens.ouverte || cherche {
-                    if liens.liens.isEmpty && liens.brouillon == nil {
-                        Text("Garde ici les liens que tu colles souvent : ils restent, sans limite. Le + en ajoute un ; le clic droit sur un élément copié aussi.")
-                            .font(.caption).foregroundStyle(.secondary).padding(.vertical, 4)
-                    }
-                    ForEach(groupes, id: \.self) { g in
-                        let ferme = liens.groupesFermes.contains(g) && !cherche
-                        if !g.isEmpty {
-                            HStack(spacing: 5) {
-                                Image(systemName: "chevron.right").font(.system(size: 8, weight: .bold))
-                                    .rotationEffect(.degrees(ferme ? 0 : 90))
-                                Text(verbatim: g).font(.caption.weight(.semibold))
-                                Text(verbatim: "\(visibles(g).count)").font(.caption2)
-                                Spacer()
-                            }
-                            .foregroundStyle(.secondary)
-                            .padding(.top, 4).padding(.leading, 2)
-                            .contentShape(Rectangle())
-                            .onTapGesture { withAnimation(.easeOut(duration: 0.18)) { liens.basculerGroupe(g) } }
-                        }
-                        if !ferme {
-                            ForEach(visibles(g)) { l in
-                                LigneLien(lien: l, copie: copie == l.id) { copier(l) }
-                            }
-                        }
-                    }
-                }
+                .frame(maxWidth: .infinity).padding(.horizontal, 16).padding(.vertical, 40)
+            } else if groupes.isEmpty && cherche {
+                Text("Aucun résultat").foregroundStyle(.secondary).frame(maxWidth: .infinity).padding(.vertical, 30)
             }
-            .padding(.bottom, 6)
+            ForEach(groupes, id: \.self) { g in
+                GroupeLiens(groupe: g, lignes: visibles(g), cherche: cherche, copie: copie, copier: copier)
+            }
         }
     }
 }
@@ -633,6 +684,10 @@ struct VoletPresseVue: View {
     @State private var nature: NaturePresse?
     @State private var copiee: UUID?
     @State private var lienCopie: UUID?
+    @ObservedObject private var liens = LiensGardes.commun
+    /// L'onglet affiché : 0 = presse-papiers, 1 = enregistrés. Retenu d'une fois sur l'autre.
+    @AppStorage("presseOnglet") private var onglet = 0
+    @State private var ongletsVises = false
 
     private var visibles: [Copie] {
         let f = filtre.trimmingCharacters(in: .whitespaces)
@@ -653,13 +708,26 @@ struct VoletPresseVue: View {
 
     var body: some View {
         VStack(spacing: 10) {
+            // Les deux onglets (contrôle segmenté de macOS). On peut y déposer un élément pour l'enregistrer.
             HStack(spacing: 8) {
-                Image(systemName: "doc.on.clipboard.fill").foregroundStyle(Color.accentColor)
-                Text("Presse-papiers").font(.headline)
-                Spacer()
-                Text(verbatim: "\(presse.elements.count)").font(.caption.weight(.semibold)).monospacedDigit()
-                    .padding(.horizontal, 7).padding(.vertical, 2)
-                    .background(Capsule().fill(Color.primary.opacity(0.09)))
+                Picker("Onglet", selection: $onglet) {
+                    Text("Presse-papiers").tag(0)
+                    Text("Enregistrés").tag(1)
+                }
+                .pickerStyle(.segmented).labelsHidden()
+                .overlay(RoundedRectangle(cornerRadius: 7, style: .continuous).strokeBorder(Color.accentColor, lineWidth: 2).opacity(ongletsVises ? 1 : 0))
+                .onDrop(of: typesDepot, isTargeted: $ongletsVises) { f in
+                    lireDepot(f) { liens.deposer($0, groupe: nil); onglet = 1 }
+                }
+                .onChange(of: ongletsVises) { _, vise in
+                    // Rester un instant sur les onglets pendant un glisser ouvre « Enregistrés », pour viser un groupe.
+                    guard vise else { return }
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) { if ongletsVises { onglet = 1 } }
+                }
+                if onglet == 1 {
+                    Button { liens.brouillon = LienGarde(titre: "", texte: "") } label: { Image(systemName: "plus") }
+                        .buttonStyle(.borderless).help("Ajouter un lien").accessibilityLabel("Ajouter un lien")
+                }
             }
             HStack(spacing: 6) {
                 Image(systemName: "magnifyingglass").foregroundStyle(.secondary)
@@ -671,33 +739,40 @@ struct VoletPresseVue: View {
             }
             .padding(.horizontal, 10).frame(height: 28)
             .background(Capsule().fill(Color.primary.opacity(0.08)))
-            // Les filtres par nature : une pastille par sorte d'élément présent.
-            if natures.count > 1 {
-                HStack(spacing: 6) {
-                    pastille(nil)
-                    ForEach(natures, id: \.self) { pastille($0) }
-                    Spacer(minLength: 0)
-                }
-            }
-            ScrollView {
-                LazyVStack(spacing: 8) {
-                    // Les liens gardés d'abord (sauf quand on filtre l'historique par nature).
-                    if nature == nil { SectionLiens(filtre: filtre, copie: lienCopie) { copier($0) } }
-                    if !config.historique {
-                        vide("L'historique du copier-coller est désactivé dans les réglages de Side.")
-                    } else if presse.elements.isEmpty {
-                        vide("Ce que tu copies apparaîtra ici.")
-                    } else if visibles.isEmpty {
-                        vide("Aucun résultat")
-                    } else {
-                        ForEach(visibles) { c in
-                            CartePresse(c: c, copiee: copiee == c.id) { copier(c) }
-                        }
+            if onglet == 0 {
+                // Les filtres par nature : une pastille par sorte d'élément présent.
+                if natures.count > 1 {
+                    HStack(spacing: 6) {
+                        pastille(nil)
+                        ForEach(natures, id: \.self) { pastille($0) }
+                        Spacer(minLength: 0)
                     }
                 }
-                .padding(.bottom, 6)
+                ScrollView {
+                    LazyVStack(spacing: 8) {
+                        if !config.historique {
+                            vide("L'historique du copier-coller est désactivé dans les réglages de Side.")
+                        } else if presse.elements.isEmpty {
+                            vide("Ce que tu copies apparaîtra ici.")
+                        } else if visibles.isEmpty {
+                            vide("Aucun résultat")
+                        } else {
+                            ForEach(visibles) { c in
+                                CartePresse(c: c, copiee: copiee == c.id) { copier(c) }
+                            }
+                        }
+                    }
+                    .padding(.bottom, 6)
+                }
+            } else {
+                ScrollView {
+                    OngletLiens(filtre: filtre, copie: lienCopie) { copier($0) }.padding(.bottom, 6)
+                }
+                // Tout l'onglet reçoit ce qu'on y glisse (hors d'un groupe : sans groupe).
+                .onDrop(of: typesDepot, isTargeted: nil) { f in lireDepot(f) { liens.deposer($0, groupe: nil) } }
             }
-            Text("Gardé 7 jours · clic pour copier").font(.caption2).foregroundStyle(.secondary)
+            Text(onglet == 0 ? "Gardé 7 jours · clic pour copier" : "Gardé sans limite · clic pour copier")
+                .font(.caption2).foregroundStyle(.secondary)
         }
         .padding(14)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -707,6 +782,8 @@ struct VoletPresseVue: View {
         })
         .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
         .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).strokeBorder(Color.primary.opacity(0.14), lineWidth: 1))
+        // « Garder dans les liens… » depuis une carte : le formulaire est dans l'onglet « Enregistrés ».
+        .onChange(of: liens.brouillon) { _, b in if b != nil { onglet = 1 } }
     }
 
     private func vide(_ texte: LocalizedStringKey) -> some View {

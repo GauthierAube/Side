@@ -8,11 +8,11 @@ Il est mis à jour à chaque modification, en même temps que le code.
 
 ## 12/11/2026, nuit
 
-### Presse-papiers : une section « Liens » qu'on retrouve toujours
-- En haut du volet, les liens (ou petits textes) qu'on colle souvent : ils restent, sans limite de nombre ni de durée, rangés par groupes qu'on replie d'un clic.
-- Un clic copie le lien (sans l'ajouter à l'historique) ; le clic droit l'ouvre, le modifie, le monte, le descend ou le supprime. On peut aussi le glisser ailleurs.
-- Le + ajoute un lien : l'adresse, et si on veut un titre et un groupe. Sans titre, Side prend celui du site. Le clic droit sur un élément copié propose « Garder dans les liens… ».
-- La recherche du volet cherche aussi dans les liens ; chaque lien montre l'icône de son site.
+### Presse-papiers : un onglet « Enregistrés » pour les liens qu'on retrouve toujours
+- Le volet a deux onglets, comme dans les apps d'Apple : « Presse-papiers » (l'historique, 7 jours) et « Enregistrés » (les liens ou petits textes qu'on colle souvent, gardés sans limite de nombre ni de durée).
+- **Glisser** un élément du presse-papiers sur les onglets l'enregistre aussitôt, avec le titre de sa page. En restant un instant sur les onglets, « Enregistrés » s'ouvre : on lâche alors l'élément sur le groupe voulu. Un lien glissé depuis un navigateur marche aussi.
+- Les liens sont rangés par groupes qu'on replie d'un clic ; glisser un lien sur un autre groupe l'y déplace.
+- Un clic copie le lien (sans l'ajouter à l'historique) ; le clic droit l'ouvre, le modifie, le monte, le descend ou le supprime. Le + ajoute un lien à la main. La recherche cherche dans l'onglet affiché.
 
 ### Presse-papiers : les images restent, les liens ont leur aperçu
 - **Les images** copiées n'étaient gardées qu'en mémoire : elles disparaissaient à chaque redémarrage de Side. Les 40 dernières sont maintenant gardées sur le Mac (lisibles par toi seul), et effacées avec l'historique.

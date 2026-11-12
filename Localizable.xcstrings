@@ -623,6 +623,16 @@
         }
       }
     },
+    "Aucun lien enregistré": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No Saved Links"
+          }
+        }
+      }
+    },
     "Aucun ordinateur repéré": {
       "localizations": {
         "en": {
@@ -1603,6 +1613,16 @@
         }
       }
     },
+    "Enregistrés": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saved"
+          }
+        }
+      }
+    },
     "Envoi vers iCloud en cours": {
       "localizations": {
         "en": {
@@ -1803,16 +1823,6 @@
         }
       }
     },
-    "Garde ici les liens que tu colles souvent : ils restent, sans limite. Le + en ajoute un ; le clic droit sur un élément copié aussi.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Keep the links you paste often here: they stay, with no limit. Add one with the + button, or by right-clicking a copied item."
-          }
-        }
-      }
-    },
     "Garder dans le mini-Dock": {
       "localizations": {
         "en": {
@@ -1863,6 +1873,16 @@
         }
       }
     },
+    "Gardé sans limite · clic pour copier": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kept with no limit · click to copy"
+          }
+        }
+      }
+    },
     "Geste": {
       "localizations": {
         "en": {
@@ -1889,6 +1909,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "macOS gestures"
+          }
+        }
+      }
+    },
+    "Glisse ici un élément du presse-papiers, ou ajoute un lien avec le +. Il restera là, sans limite.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drag an item from the clipboard here, or add a link with the + button. It stays here, with no limit."
           }
         }
       }
@@ -2713,16 +2743,6 @@
         }
       }
     },
-    "Liens": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Links"
-          }
-        }
-      }
-    },
     "Lire les informations": {
       "localizations": {
         "en": {
@@ -2929,6 +2949,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "New Tab (⌘T)"
+          }
+        }
+      }
+    },
+    "Onglet": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tab"
           }
         }
       }
