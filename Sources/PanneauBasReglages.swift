@@ -24,6 +24,7 @@ struct MediaBas: Identifiable, Equatable {
         .spotify, .youtube,
         MediaBas(id: "youtube-music", nom: "YouTube Music", genre: "web", adresse: "https://music.youtube.com/"),
         MediaBas(id: "apple-music", nom: "Apple Music", genre: "web", adresse: "https://music.apple.com/"),
+        MediaBas(id: "apple-podcasts", nom: "Apple Podcasts", genre: "web", adresse: "https://podcasts.apple.com/"),
         MediaBas(id: "deezer", nom: "Deezer", genre: "web", adresse: "https://www.deezer.com/"),
         MediaBas(id: "soundcloud", nom: "SoundCloud", genre: "web", adresse: "https://soundcloud.com/"),
         MediaBas(id: "twitch", nom: "Twitch", genre: "web", adresse: "https://www.twitch.tv/"),

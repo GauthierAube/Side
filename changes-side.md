@@ -8,6 +8,12 @@ Il est mis à jour à chaque modification, en même temps que le code.
 
 ## 13/11/2026
 
+### Tiroir : le clavier reste à Side, Square ignore les tuiles
+- **Avant :** pour faire passer les tuiles devant, le tiroir activait leurs applications ; la dernière gardait le clavier (le champ de recherche de Mots de passe prenait la main), et un clic droit sur la barre des lecteurs se refermait aussitôt.
+- **Maintenant :** une fois les tuiles en place, Side reprend le clavier et repasse sous elles. Pendant qu'un menu de Side est ouvert, le tiroir n'active plus aucune application.
+- Square ne met plus les fenêtres des tuiles dans sa grille ni dans son carrousel à quatre doigts (Side lui donne leurs numéros).
+- Apple Podcasts rejoint les lecteurs proposés.
+
 ### Tiroir : YouTube plus soigné
 - La vidéo a des coins arrondis (sauf en plein écran).
 - En plein écran, un bouton en haut à droite de la fenêtre montre ou cache la colonne des vidéos suivantes, comme sur le site de YouTube ; la vidéo se resserre à côté.

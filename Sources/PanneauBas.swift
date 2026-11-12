@@ -421,7 +421,7 @@ final class PanneauBas: NSObject {
         UserDefaults.standard.set(depart.map { $0.enTexte }, forKey: "panneauBasTuiles")
         return depart
     }() {
-        didSet { UserDefaults.standard.set(emprunts.map { $0.enTexte }, forKey: "panneauBasTuiles") }
+        didSet { UserDefaults.standard.set(emprunts.map { $0.enTexte }, forKey: "panneauBasTuiles"); publierFenêtres() }
     }
 
     /// Décalage de la bande de tuiles, retenu d'une fois sur l'autre.
@@ -489,7 +489,15 @@ final class PanneauBas: NSObject {
     private var images: [String: ImageTuileBas] = [:]   // photo de chaque tuile, pendant qu'elle glisse, défile ou attend sur le côté
     private var veille: Timer?                          // regarde si vous avez fermé une fenêtre (bouton rouge)
     private var absences: [String: Int] = [:]
-    private var numéros: [String: CGWindowID] = [:]     // le numéro de la fenêtre de chaque tuile, pour savoir tout de suite si elle a été fermée
+    private var numéros: [String: CGWindowID] = [:] { didSet { publierFenêtres() } }
+    /// La tuile sortie en grand par son bouton vert : sa fenêtre est hors du tiroir, Square peut la ranger.
+    private var enGrand: String? { didSet { publierFenêtres() } }
+    /// Les numéros des fenêtres rangées dans le tiroir, pour Square : il ne les met ni dans sa grille ni dans son carrousel.
+    private func publierFenêtres() {
+        let ids = emprunts.filter { $0.nom != enGrand }.compactMap { numéros[$0.nom] }.map { Int($0) }.sorted()
+        let d = UserDefaults.standard
+        if (d.array(forKey: "fenetresDuTiroir") as? [Int]) != ids { d.set(ids, forKey: "fenetresDuTiroir") }
+    }     // le numéro de la fenêtre de chaque tuile, pour savoir tout de suite si elle a été fermée
     private var tic = 0
     private var enMain: String?                         // la tuile que vous êtes en train d'élargir ou de déplacer
     private var enMainRetaillée = false
@@ -522,10 +530,16 @@ final class PanneauBas: NSObject {
     private var vues: Set<String> = []
     private var dernierLever = Date.distantPast
     private var levées = 0
+    private var mainRendue = -1                       // la série d'ouverture pour laquelle Side a repris le clavier
+    /// Un menu de Side est en train d'être affiché (suivi par les notifications de NSMenu).
+    static var menuOuvert = false
     private var demandées: Set<String> = []     // fenêtres dont on a déjà demandé l'ouverture, pour cette fois
     private var serie = 0                       // pour abandonner les attentes d'une ouverture précédente
 
     func brancher() {
+        // Pendant qu'un menu de Side est affiché, le tiroir n'active aucune application (le menu se refermerait).
+        NotificationCenter.default.addObserver(forName: NSMenu.didBeginTrackingNotification, object: nil, queue: .main) { _ in PanneauBas.menuOuvert = true }
+        NotificationCenter.default.addObserver(forName: NSMenu.didEndTrackingNotification, object: nil, queue: .main) { _ in PanneauBas.menuOuvert = false }
         installerRaccourci()
         VoletPresse.commun.installerRaccourci()     // le volet du presse-papiers a aussi le sien
         GestePanneauBas.enHaut = enHaut
@@ -1085,6 +1099,7 @@ final class PanneauBas: NSObject {
         guard bienvenue == nil else { return }
         glissé = déjàArrivé
         glisséÀ = Date()
+        enGrand = nil                              // la fenêtre sortie en grand revient dans le tiroir
         replacements = [:]
         stables = [:]
         posées = []
@@ -1580,6 +1595,7 @@ final class PanneauBas: NSObject {
         guard ouvert, emprunts.indices.contains(i), let ecran = NSScreen.main, let principal = NSScreen.screens.first else { return }
         let e = emprunts[i]
         journalBas("%@ sort du panneau en grand", e.nom)
+        enGrand = e.nom
         libérée = e.nom
         fermer(rendreLaMain: false)
         libérée = nil
@@ -1774,14 +1790,24 @@ final class PanneauBas: NSObject {
         var v: CFTypeRef?
         AXUIElementCopyAttributeValue(el, kAXWindowsAttribute as CFString, &v)
         let toutes = (v as? [AXUIElement]) ?? []
-        guard let note = e.note else { return toutes.first }
+        guard let note = e.note else {
+            if let f = toutes.first { noterNuméro(e, f) }
+            return toutes.first
+        }
         // Une note déjà trouvée est reconnue à son numéro de fenêtre : son titre (sa première ligne) change dès qu'on l'écrit,
         // et la chercher par son titre la faisait passer pour fermée (elle quittait le tiroir et restait sur le bureau).
         if let n = numéros[e.nom], let f = toutes.first(where: { w in var id: CGWindowID = 0; return _AXUIElementGetWindow(w, &id) == .success && id == n }) {
             return f
         }
         let actuel = titresDeNotes[note] ?? note
-        return toutes.first { titre($0) == actuel } ?? toutes.first { titre($0) == note }
+        let f = toutes.first { titre($0) == actuel } ?? toutes.first { titre($0) == note }
+        if let f { noterNuméro(e, f) }
+        return f
+    }
+
+    private func noterNuméro(_ e: EmpruntBas, _ f: AXUIElement) {
+        var id: CGWindowID = 0
+        if _AXUIElementGetWindow(f, &id) == .success, id != 0, numéros[e.nom] != id { numéros[e.nom] = id }
     }
 
     /// L'application a bien une fenêtre, mais pas sur le bureau affiché (l'Accessibilité ne voit que le bureau courant).
@@ -2001,14 +2027,37 @@ final class PanneauBas: NSObject {
             }
         }
         remonter(visibles.map { $0.0 })
+        rendreLeClavier(visibles.map { $0.0 })
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { [weak self] in
             self?.surveiller(visibles, essais: essais - 1, serie: maSerie)
         }
     }
 
+    /// Toutes les tuiles sont devant. Pour y arriver, il a fallu activer leurs applications : la dernière garde le clavier
+    /// (le champ de recherche de Mots de passe, par exemple). Side le reprend, et repasse aussitôt sous les tuiles.
+    private func rendreLeClavier(_ liste: [EmpruntBas]) {
+        guard !PanneauBas.menuOuvert, mainRendue != serie, Date().timeIntervalSince(dernierLever) > 0.3 else { return }
+        let devant = NSWorkspace.shared.frontmostApplication?.bundleIdentifier
+        guard let devant, liste.contains(where: { $0.bundle == devant }) else { return }
+        // Toutes les tuiles visibles ont leur fenêtre, devant le tiroir (une note encore en train de s'ouvrir : on attend).
+        guard liste.allSatisfy({ e in fenetre(e).map { estDevant($0) } ?? false }) else { return }
+        mainRendue = serie
+        NSApp.activate(ignoringOtherApps: true)
+        panneau?.makeKey()
+        // L'activation de Side fait passer le tiroir devant les tuiles, un peu plus tard : on le repasse dessous, à plusieurs reprises.
+        for attente in [0.0, 0.1, 0.25, 0.5] {
+            DispatchQueue.main.asyncAfter(deadline: .now() + attente) { [weak self] in self?.repasserSousLesTuiles() }
+        }
+        journalBas("clavier repris par Side (%@ était devant)", devant)
+    }
+
     /// Une fenêtre empruntée restée derrière le panneau est ramenée devant, une seule à la fois :
     /// macOS ne fait passer devant qu'une application par demande.
     private func remonter(_ liste: [EmpruntBas], attente: TimeInterval = 0.2) {
+        // Un menu de Side est ouvert (clic droit sur la barre des lecteurs…) : activer une application le refermerait.
+        guard !PanneauBas.menuOuvert else { return }
+        // Side a repris le clavier : les tuiles sont déjà devant, on ne réactive plus leurs applications.
+        guard mainRendue != serie else { return }
         guard Date().timeIntervalSince(dernierLever) > attente, levées < 12 else { return }
         for e in liste {
             guard let f = fenetre(e), !estDevant(f) else { continue }
@@ -2018,6 +2067,7 @@ final class PanneauBas: NSObject {
             levées += 1
             return
         }
+
     }
 
     private func placer(_ e: EmpruntBas, _ f: AXUIElement, _ zone: CGRect) {
@@ -2051,6 +2101,7 @@ final class PanneauBas: NSObject {
         let milieu = CGPoint(x: visible.midX, y: ecran.frame.height - visible.midY)
         let r = origines[e.nom] ?? CGRect(x: milieu.x - c.width / 2, y: milieu.y - c.height / 2, width: c.width, height: c.height)
         AXBas.placer(f, r)
+        numéros[e.nom] = nil                       // elle n'est plus dans le tiroir : Square peut la ranger
         journalBas("fenêtre rendue à %@", e.nom)
     }
 
