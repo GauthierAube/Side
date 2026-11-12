@@ -545,7 +545,6 @@ private struct OngletLiens: View {
         let cherche = !filtre.trimmingCharacters(in: .whitespaces).isEmpty
         let groupes = liens.groupes.filter { !visibles($0).isEmpty }
         LazyVStack(alignment: .leading, spacing: 8) {
-            if let b = liens.brouillon { FormulaireLien(lien: b).id(b.id) }
             if liens.liens.isEmpty && liens.brouillon == nil {
                 VStack(spacing: 8) {
                     Image(systemName: "bookmark").font(.system(size: 28)).foregroundStyle(.tertiary)
@@ -782,6 +781,9 @@ struct VoletPresseVue: View {
                     .padding(.bottom, 6)
                 }
             } else {
+                // Le formulaire d'ajout ou de modification reste au-dessus de la liste, toujours visible.
+                // (Dans la liste paresseuse, il laissait un grand vide à sa place.)
+                if let b = liens.brouillon { FormulaireLien(lien: b).id(b.id) }
                 ScrollView {
                     OngletLiens(filtre: filtre, copie: lienCopie) { copier($0) }.padding(.bottom, 6)
                 }
