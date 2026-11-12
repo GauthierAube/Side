@@ -493,6 +493,16 @@
         }
       }
     },
+    "Aperçu des liens (l'image et le titre du site)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Link previews (the site's image and title)"
+          }
+        }
+      }
+    },
     "Apparence": {
       "localizations": {
         "en": {
@@ -3149,6 +3159,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Free position, fading in"
+          }
+        }
+      }
+    },
+    "Pour cela, Side contacte le site du lien, quand le volet l'affiche.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "To do this, Side contacts the link's website when the panel shows it."
           }
         }
       }

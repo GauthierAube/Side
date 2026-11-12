@@ -104,6 +104,8 @@
 	<string>Cancel</string>
 	<key>Aperçu</key>
 	<string>Quick Look</string>
+	<key>Aperçu des liens (l'image et le titre du site)</key>
+	<string>Link previews (the site's image and title)</string>
 	<key>Apparence</key>
 	<string>Appearance</string>
 	<key>Applications</key>
@@ -636,6 +638,8 @@
 	<string>Position and Size</string>
 	<key>Position libre, en fondu</key>
 	<string>Free position, fading in</string>
+	<key>Pour cela, Side contacte le site du lien, quand le volet l'affiche.</key>
+	<string>To do this, Side contacts the link's website when the panel shows it.</string>
 	<key>Pour l'ouvrir et le fermer : %@.</key>
 	<string>To open and close it: %@.</string>
 	<key>Pour le garder ouvert cette fois-là : maintiens Option (⌥) en lâchant le fichier, ou ramène tout de suite la souris sur la carte.</key>

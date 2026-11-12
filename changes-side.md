@@ -8,6 +8,11 @@ Il est mis à jour à chaque modification, en même temps que le code.
 
 ## 12/11/2026, nuit
 
+### Presse-papiers : les images restent, les liens ont leur aperçu
+- **Les images** copiées n'étaient gardées qu'en mémoire : elles disparaissaient à chaque redémarrage de Side. Les 40 dernières sont maintenant gardées sur le Mac (lisibles par toi seul), et effacées avec l'historique.
+- **Une image copiée depuis un navigateur** arrivait avec son adresse, et Side gardait l'adresse au lieu de l'image. C'est l'image qui est gardée.
+- **Les liens** montrent l'aperçu officiel du site, comme dans Messages : l'image de partage, le titre et l'icône. Side contacte le site pour cela, seulement quand le volet affiche le lien ; un réglage le coupe.
+
 ### Le presse-papiers : un raccourci, et sa place dans la présentation
 - **Raccourci clavier** pour ouvrir et fermer le volet : Contrôle + Option + V au départ. Il se change ou s'efface dans Réglages › Général › Presse-papiers.
 - **La présentation** de la première ouverture a un cinquième écran : le pointeur va dans le coin en bas à droite, le volet glisse depuis le bord, un clic recopie une carte. Les pastilles rappellent le coin et le raccourci réglés.

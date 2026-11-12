@@ -5,6 +5,7 @@
 import AppKit
 import SwiftUI
 import Carbon.HIToolbox
+import LinkPresentation
 
 // MARK: - Réglages
 
@@ -18,6 +19,8 @@ final class ConfigPresse: ObservableObject {
     @Published var largeur: Double { didSet { d.set(largeur, forKey: "presseLargeur") } }
     /// Un clic sur une carte la recopie ; le volet se referme alors tout seul.
     @Published var fermerApresCopie: Bool { didSet { d.set(fermerApresCopie, forKey: "presseFermer") } }
+    /// Montrer l'aperçu officiel des liens (image et titre du site). Il faut pour cela contacter le site.
+    @Published var apercuLiens: Bool { didSet { d.set(apercuLiens, forKey: "presseApercuLiens") } }
     /// Raccourci clavier : -1 = aucun, sinon le code de la touche. Au départ : Contrôle + Option + V.
     @Published var touche: Int { didSet { d.set(touche, forKey: "presseTouche") } }
     @Published var mods: Int { didSet { d.set(mods, forKey: "presseMods") } }
@@ -55,6 +58,7 @@ final class ConfigPresse: ObservableObject {
     }
 
     private init() {
+        apercuLiens = d.object(forKey: "presseApercuLiens") as? Bool ?? true
         touche = d.object(forKey: "presseTouche") as? Int ?? kVK_ANSI_V
         mods = d.object(forKey: "presseMods") as? Int ?? (controlKey | optionKey)
         libelle = d.string(forKey: "presseLibelle") ?? "⌃⌥V"
@@ -90,6 +94,8 @@ struct ReglagesVoletPresse: View {
             }
         }
         Toggle("Refermer le volet après avoir copié", isOn: $presse.fermerApresCopie)
+        Toggle("Aperçu des liens (l'image et le titre du site)", isOn: $presse.apercuLiens)
+            .help("Pour cela, Side contacte le site du lien, quand le volet l'affiche.")
         LabeledContent("Le volet glisse depuis le bord droit de l'écran") {
             Button("Afficher le volet") { VoletPresse.commun.basculer() }
         }
@@ -158,6 +164,96 @@ enum NaturePresse: String, CaseIterable {
         if h.count == 3 { h = h.map { "\($0)\($0)" }.joined() }
         guard h.count == 6, let v = UInt32(h, radix: 16) else { return nil }
         return Color(red: Double((v >> 16) & 0xFF) / 255, green: Double((v >> 8) & 0xFF) / 255, blue: Double(v & 0xFF) / 255)
+    }
+}
+
+// MARK: - L'aperçu d'un lien
+
+/// L'aperçu officiel d'un site, celui que montrent Messages ou Notes : son image de partage, son titre, son icône.
+/// Demandé une seule fois par adresse, quand une carte l'affiche, puis gardé en mémoire.
+final class ApercuLien: ObservableObject {
+    private static var connus: [String: ApercuLien] = [:]
+    static func pour(_ adresse: String) -> ApercuLien {
+        if let a = connus[adresse] { return a }
+        let a = ApercuLien(adresse)
+        connus[adresse] = a
+        return a
+    }
+
+    let adresse: String
+    @Published var titre: String?
+    @Published var image: NSImage?
+    @Published var icone: NSImage?
+    @Published var enCours = false
+    private var demande = false
+    private init(_ adresse: String) { self.adresse = adresse }
+
+    func charger() {
+        guard !demande, let url = URL(string: adresse) else { return }
+        demande = true
+        enCours = true
+        let fournisseur = LPMetadataProvider()
+        fournisseur.timeout = 12
+        fournisseur.startFetchingMetadata(for: url) { [weak self] meta, _ in
+            DispatchQueue.main.async {
+                guard let self else { return }
+                self.enCours = false
+                guard let meta else { return }
+                self.titre = meta.title
+                meta.imageProvider?.loadObject(ofClass: NSImage.self) { objet, _ in
+                    guard let i = objet as? NSImage else { return }
+                    DispatchQueue.main.async { self.image = i }
+                }
+                meta.iconProvider?.loadObject(ofClass: NSImage.self) { objet, _ in
+                    guard let i = objet as? NSImage else { return }
+                    DispatchQueue.main.async { self.icone = i }
+                }
+            }
+        }
+    }
+}
+
+private struct ApercuLienVue: View {
+    let texte: String
+    @ObservedObject private var apercu: ApercuLien
+    @ObservedObject private var presse = ConfigPresse.commun
+
+    init(texte: String) {
+        self.texte = texte
+        apercu = ApercuLien.pour(texte)
+    }
+
+    private var site: String { (URL(string: texte)?.host ?? texte).replacingOccurrences(of: "www.", with: "") }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            if presse.apercuLiens, let image = apercu.image {
+                // L'image de partage du site, comme dans Messages.
+                Color.clear.frame(height: 130)
+                    .overlay(Image(nsImage: image).resizable().scaledToFill())
+                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+            }
+            HStack(alignment: .top, spacing: 8) {
+                if presse.apercuLiens, let icone = apercu.icone {
+                    Image(nsImage: icone).resizable().scaledToFit().frame(width: 18, height: 18)
+                        .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
+                }
+                VStack(alignment: .leading, spacing: 2) {
+                    if presse.apercuLiens, let titre = apercu.titre, !titre.isEmpty {
+                        Text(verbatim: titre).font(.callout.weight(.semibold)).lineLimit(2)
+                        Text(verbatim: site).font(.caption).foregroundStyle(.secondary).lineLimit(1)
+                    } else {
+                        HStack(spacing: 6) {
+                            Text(verbatim: site).font(.callout.weight(.semibold)).lineLimit(1)
+                            if presse.apercuLiens && apercu.enCours { ProgressView().controlSize(.mini) }
+                        }
+                        Text(verbatim: texte).font(.caption).foregroundStyle(.secondary).lineLimit(2).truncationMode(.middle)
+                    }
+                }
+            }
+        }
+        .onAppear { if presse.apercuLiens { apercu.charger() } }
+        .onChange(of: presse.apercuLiens) { _, oui in if oui { apercu.charger() } }
     }
 }
 
@@ -233,10 +329,7 @@ private struct CartePresse: View {
                 Text(verbatim: "\(Int(image.size.width)) × \(Int(image.size.height))").font(.caption2).foregroundStyle(.secondary)
             }
         case .lien:
-            let u = URL(string: texte)
-            Text(verbatim: (u?.host ?? texte).replacingOccurrences(of: "www.", with: ""))
-                .font(.callout.weight(.semibold)).lineLimit(1)
-            Text(verbatim: texte).font(.caption).foregroundStyle(.secondary).lineLimit(2).truncationMode(.middle)
+            ApercuLienVue(texte: texte)
         case .couleur:
             RoundedRectangle(cornerRadius: 8, style: .continuous).fill(NaturePresse.teinte(texte) ?? .clear)
                 .frame(height: 44)

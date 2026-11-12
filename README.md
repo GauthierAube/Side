@@ -51,7 +51,8 @@ Le script compile Side, l'installe dans `~/Applications` et le lance. Une icône
 - L'autorisation Enregistrement de l'écran est facultative : elle rend plus joli le glissement des applications du tiroir.
 - Le lecteur Spotify pilote l'application Spotify du Mac. Son accueil, sa recherche et sa bibliothèque demandent un accès développeur Spotify (gratuit), expliqué dans le lecteur ; le jeton reste dans le trousseau du Mac.
 - Couper les publicités de YouTube est un réglage, désactivé au départ : c'est contraire aux conditions d'utilisation de YouTube, à chacun de décider.
-- L'historique du copier-coller garde 7 jours de textes et de noms de fichiers copiés, dans un fichier lisible par toi seul (`~/Library/Application Support/Side/presse-papiers.json`). Les images et les mots de passe copiés depuis un gestionnaire de mots de passe ne sont jamais écrits sur le disque. Un réglage coupe l'historique et efface tout.
+- L'historique du copier-coller garde 7 jours de textes et de noms de fichiers copiés, dans un fichier lisible par toi seul (`~/Library/Application Support/Side/presse-papiers.json`), et les 40 dernières images copiées dans le dossier `images` à côté. Les mots de passe copiés depuis un gestionnaire de mots de passe ne sont jamais écrits sur le disque. Un réglage coupe l'historique et efface tout.
+- Pour montrer l'aperçu d'un lien copié (image et titre du site), Side contacte ce site, et seulement quand le volet du presse-papiers affiche le lien. Un réglage coupe ces aperçus.
 
 ## Limites connues
 
