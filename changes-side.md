@@ -7,6 +7,10 @@ Il est mis à jour à chaque modification, en même temps que le code.
 
 ## 12/11/2026, soir
 
+### Tiroir : une seule note, et des tuiles qui restent visibles
+- La liste « + » propose « Une seule note… » : on tape le titre d'une note, elle s'ouvre seule dans sa propre fenêtre au lieu de toute l'application Notes.
+- **Avant :** un clic dans le tiroir pouvait le faire passer devant les fenêtres de ses tuiles, qui semblaient disparaître. **Maintenant :** après chaque clic, le tiroir se replace sous ses tuiles.
+
 ### Tiroir : fermer une application qui quitte avec sa fenêtre
 - **Avant :** fermer la fenêtre d'une application comme Réglages Système (qui quitte alors complètement) refermait le tiroir, et l'application y revenait à l'ouverture suivante.
 - **Maintenant :** le tiroir reste ouvert et la tuile de l'application s'en va.

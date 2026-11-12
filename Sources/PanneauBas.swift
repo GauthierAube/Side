@@ -766,6 +766,13 @@ final class PanneauBas: NSObject {
         poignee.auTirage = { [weak self] d in self?.tirerHauteur(d) }
         poignee.aLaFin = { [weak self] in self?.finirHauteur() }
         fond.addSubview(poignee)
+        // Après chaque clic dans le tiroir, ses tuiles repassent devant lui (voir repasserSousLesTuiles).
+        NSEvent.addLocalMonitorForEvents(matching: [.leftMouseDown, .leftMouseUp]) { [weak self] ev in
+            if let self, ev.window === self.panneau {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { self.repasserSousLesTuiles() }
+            }
+            return ev
+        }
         roue.isBordered = false
         roue.image = NSImage(systemSymbolName: "gearshape.fill", accessibilityDescription: "Réglages")?
             .withSymbolConfiguration(.init(pointSize: 26, weight: .regular))      // la même taille que la case « + »
@@ -1465,6 +1472,51 @@ final class PanneauBas: NSObject {
 
     // MARK: Ajouter et retirer des applications
 
+    /// « Une seule note… » : on demande son titre, puis sa tuile remplace celle de toute l'application Notes.
+    private func demanderUneNote() {
+        fermer(rendreLaMain: false)
+        NSApp.activate(ignoringOtherApps: true)
+        let alerte = NSAlert()
+        alerte.messageText = "Quelle note afficher dans le tiroir ?"
+        alerte.informativeText = "Tape son titre, exactement comme dans Notes. Elle s'ouvrira seule, dans sa propre fenêtre."
+        let champ = NSTextField(frame: NSRect(x: 0, y: 0, width: 280, height: 24))
+        champ.placeholderString = "Titre de la note"
+        alerte.accessoryView = champ
+        alerte.addButton(withTitle: "Ajouter")
+        alerte.addButton(withTitle: "Annuler")
+        alerte.window.initialFirstResponder = champ
+        guard alerte.runModal() == .alertFirstButtonReturn else { return }
+        ajouterNote(champ.stringValue.trimmingCharacters(in: .whitespacesAndNewlines))
+    }
+
+    /// Range une note précise dans le tiroir (par son titre). Aussi appelé depuis les réglages.
+    func ajouterNote(_ titre: String) {
+        guard !titre.isEmpty, !emprunts.contains(where: { $0.note == titre }) else { return }
+        // La tuile de toute l'application Notes ferait double emploi (et prendrait la fenêtre de la note pour la sienne).
+        for e in emprunts where e.bundle == "com.apple.Notes" && e.note == nil { rendreLaFenêtre(e) }
+        emprunts.removeAll { $0.bundle == "com.apple.Notes" && $0.note == nil }
+        emprunts.append(EmpruntBas(nom: "Note " + titre, bundle: "com.apple.Notes", chemin: "/System/Applications/Notes.app", note: titre))
+        journalBas("tuile ajoutée : une note")
+        recharger(versLaFin: true)
+    }
+
+    /// Un clic dans le tiroir (case « + », sélecteur, page YouTube…) fait passer sa fenêtre devant celles des tuiles,
+    /// qui disparaissent alors derrière lui. On le remet aussitôt juste sous la tuile la plus en arrière.
+    private func repasserSousLesTuiles() {
+        guard ouvert, enPlace, !défile, !sansFenêtres, let p = panneau else { return }
+        let infos = (CGWindowListCopyWindowInfo([.optionOnScreenOnly], kCGNullWindowID) as? [[String: Any]]) ?? []
+        let ordre = infos.compactMap { $0[kCGWindowNumber as String] as? Int }
+        guard let rangPanneau = ordre.firstIndex(of: p.windowNumber) else { return }
+        var plusLoin: (rang: Int, numero: Int)?
+        for (e, _) in entières(p.frame) where posées.contains(e.nom) {
+            var wid: CGWindowID = 0
+            guard let f = fenetre(e), _AXUIElementGetWindow(f, &wid) == .success, let rang = ordre.firstIndex(of: Int(wid)) else { continue }
+            if rang > (plusLoin?.rang ?? -1) { plusLoin = (rang, Int(wid)) }
+        }
+        guard let cible = plusLoin, cible.rang > rangPanneau else { return }      // une tuile est passée derrière le tiroir
+        p.order(.below, relativeTo: cible.numero)
+    }
+
     /// La roue dentée : le tiroir se referme et la fenêtre Réglages s'ouvre.
     @objc private func ouvrirLesRéglages() {
         fermer(rendreLaMain: false)
@@ -1486,9 +1538,15 @@ final class PanneauBas: NSObject {
                 self?.ajouter(a.bundleURL!)
             }
         }
-        let autre = [SelecteurTuilesBas.Ligne(icone: nil, nom: "Choisir une autre application…", signe: nil, couleur: .clear) { [weak self] in
-            self?.choisirApplication()
-        }]
+        let autre = [
+            SelecteurTuilesBas.Ligne(icone: nil, nom: "Choisir une autre application…", signe: nil, couleur: .clear) { [weak self] in
+                self?.choisirApplication()
+            },
+            // Une seule note, dans sa propre petite fenêtre, plutôt que toute l'application Notes.
+            SelecteurTuilesBas.Ligne(icone: icone("/System/Applications/Notes.app"), nom: "Une seule note…", signe: nil, couleur: .clear) { [weak self] in
+                self?.demanderUneNote()
+            },
+        ]
         guard let fenetre = bouton.window else { return }
         let ancre = fenetre.convertToScreen(bouton.convert(bouton.bounds, to: nil))
         journalBas("liste + ouverte")
