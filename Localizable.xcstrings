@@ -203,6 +203,16 @@
         }
       }
     },
+    "Adresse e-mail": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Email Address"
+          }
+        }
+      }
+    },
     "Afficher Side": {
       "localizations": {
         "en": {
@@ -279,6 +289,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Show the path of this folder"
+          }
+        }
+      }
+    },
+    "Afficher le volet": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show Panel"
           }
         }
       }
@@ -369,6 +389,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Add a Folder…"
+          }
+        }
+      }
+    },
+    "Ajouter un lecteur": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add a Player"
           }
         }
       }
@@ -1073,6 +1103,16 @@
         }
       }
     },
+    "Copié": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copied"
+          }
+        }
+      }
+    },
     "Copié — prêt à coller": {
       "localizations": {
         "en": {
@@ -1089,6 +1129,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Trash"
+          }
+        }
+      }
+    },
+    "Couleur": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Color"
           }
         }
       }
@@ -1653,6 +1703,16 @@
         }
       }
     },
+    "Fichier": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "File"
+          }
+        }
+      }
+    },
     "Fichiers récents": {
       "localizations": {
         "en": {
@@ -1719,6 +1779,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Keep a copy-and-paste history (7 days)"
+          }
+        }
+      }
+    },
+    "Gardé 7 jours · clic pour copier": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kept for 7 days · click to copy"
           }
         }
       }
@@ -2033,6 +2103,16 @@
         }
       }
     },
+    "L'historique du copier-coller est désactivé dans les réglages de Side.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clipboard history is turned off in Side's settings."
+          }
+        }
+      }
+    },
     "L'écran derrière la carte s'estompe en fondu. On peut toujours cliquer et glisser des fichiers au travers.": {
       "localizations": {
         "en": {
@@ -2093,6 +2173,16 @@
         }
       }
     },
+    "La note « %@ » est introuvable dans Notes : renommée ou supprimée. Retire sa tuile et choisis-la de nouveau avec le +.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The note “%@” can't be found in Notes: it was renamed or deleted. Remove its tile and choose it again with the + button."
+          }
+        }
+      }
+    },
     "La page de Spotify s'ouvre dans votre navigateur…": {
       "localizations": {
         "en": {
@@ -2133,12 +2223,12 @@
         }
       }
     },
-    "La visite guidée de Side, en quatre étapes": {
+    "La visite guidée de Side, en cinq étapes": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The guided tour of Side, in four steps"
+            "value": "The guided tour of Side, in five steps"
           }
         }
       }
@@ -2199,6 +2289,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Column width"
+          }
+        }
+      }
+    },
+    "Largeur du volet": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Panel width"
           }
         }
       }
@@ -2323,6 +2423,16 @@
         }
       }
     },
+    "Le presse-papiers": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The Clipboard"
+          }
+        }
+      }
+    },
     "Le tiroir": {
       "localizations": {
         "en": {
@@ -2399,6 +2509,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "The drawer, Side's second panel."
+          }
+        }
+      }
+    },
+    "Le volet glisse depuis le bord droit de l'écran": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The panel slides in from the right edge of the screen"
           }
         }
       }
@@ -2493,6 +2613,16 @@
         }
       }
     },
+    "Lien": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Link"
+          }
+        }
+      }
+    },
     "Lire les informations": {
       "localizations": {
         "en": {
@@ -2569,6 +2699,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "My site"
+          }
+        }
+      }
+    },
+    "Mot de passe": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Password"
           }
         }
       }
@@ -2779,6 +2919,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Open the Finder and the drawer with a gesture, using the mouse or the trackpad."
+          }
+        }
+      }
+    },
+    "Ouvrir le lien": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open Link"
           }
         }
       }
@@ -3283,6 +3433,16 @@
         }
       }
     },
+    "Refermer le volet après avoir copié": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Close the panel after copying"
+          }
+        }
+      }
+    },
     "Renommer": {
       "localizations": {
         "en": {
@@ -3329,6 +3489,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Remove"
+          }
+        }
+      }
+    },
+    "Retirer %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove %@"
           }
         }
       }
@@ -3469,6 +3639,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Side Settings"
+          }
+        }
+      }
+    },
+    "Réglages du tiroir…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drawer Settings…"
           }
         }
       }
@@ -3883,6 +4063,16 @@
         }
       }
     },
+    "Texte": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Text"
+          }
+        }
+      }
+    },
     "Tiroir": {
       "localizations": {
         "en": {
@@ -3929,6 +4119,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Always stay visible"
+          }
+        }
+      }
+    },
+    "Tout": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All"
+          }
+        }
+      }
+    },
+    "Tout ce que tu as copié, retrouvé d'un clic.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Everything you've copied, one click away."
           }
         }
       }
@@ -4049,6 +4259,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Another Website"
+          }
+        }
+      }
+    },
+    "Un autre site web…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Another Website…"
           }
         }
       }
@@ -4233,6 +4453,26 @@
         }
       }
     },
+    "Volet du presse-papiers : coin actif": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clipboard panel: hot corner"
+          }
+        }
+      }
+    },
+    "Volet du presse-papiers : raccourci clavier": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clipboard panel: keyboard shortcut"
+          }
+        }
+      }
+    },
     "Vos artistes du moment": {
       "localizations": {
         "en": {
@@ -4339,6 +4579,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "copy"
+          }
+        }
+      }
+    },
+    "et %lld de plus": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "and %lld more"
           }
         }
       }

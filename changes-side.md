@@ -8,6 +8,30 @@ Il est mis à jour à chaque modification, en même temps que le code.
 
 ## 12/11/2026, nuit
 
+### Le presse-papiers : un raccourci, et sa place dans la présentation
+- **Raccourci clavier** pour ouvrir et fermer le volet : Contrôle + Option + V au départ. Il se change ou s'efface dans Réglages › Général › Presse-papiers.
+- **La présentation** de la première ouverture a un cinquième écran : le pointeur va dans le coin en bas à droite, le volet glisse depuis le bord, un clic recopie une carte. Les pastilles rappellent le coin et le raccourci réglés.
+
+### Le presse-papiers a son volet
+- **Avant :** l'historique du copier-coller se déroulait depuis le mini-Dock, qui n'est plus affiché.
+- **Maintenant :** un volet étroit glisse depuis le bord droit de l'écran, sur toute sa hauteur, quand le pointeur va dans un coin (en bas à droite au départ). Y revenir, Échap ou un clic ailleurs le referment.
+- Chaque élément copié est une carte selon sa nature, avec sa pastille de couleur : une image se montre, un lien affiche son site, une couleur (« #D86F4A ») se voit, un fichier a son icône, un mot de passe reste masqué. Des pastilles en haut filtrent par nature, et un champ cherche dans les textes.
+- Un clic recopie la carte (et referme le volet, si on veut) ; on peut aussi la glisser ailleurs ; le clic droit épingle, supprime ou ouvre un lien.
+- Réglages › Général › Presse-papiers : le coin actif du volet, sa largeur, et s'il se referme après une copie.
+
+### Tiroir : la note retrouvée, et les captures d'écran respectées
+- **Une note dont la première ligne a changé** n'était plus retrouvée : le tiroir affichait un message d'erreur, puis réclamait la note en boucle en cliquant dans le menu de Notes. Il retrouve maintenant la note même si son titre a été retouché ; si elle a vraiment disparu, il le dit une fois et n'insiste pas.
+- **Pendant une capture d'écran (⌘⇧4, ⌘⇧5)**, tiroir ouvert : Échap annule bien la capture au lieu de refermer le tiroir, un clic ne le referme pas, et aucune fenêtre n'est ramenée devant.
+- La capture est reconnue à sa fenêtre de sélection : Side et le tiroir se rouvrent dès qu'elle est finie, sans attendre quelques secondes.
+
+### La barre des lecteurs se règle sur place
+- **Clic droit** sur la barre (Spotify, YouTube, Arte…) : retirer ce lecteur, en ajouter un parmi les mêmes propositions que dans les réglages, ou ouvrir les réglages du tiroir.
+- **Glisser** un lecteur le change de place : les autres se poussent, et l'ordre est retenu.
+
+### Le bord du tiroir se tire vraiment
+- **Avant :** pour régler la hauteur du tiroir, il fallait viser une bande très fine ; le plus souvent, c'était la fenêtre d'une tuile qui attrapait le clic et se redimensionnait à la place.
+- **Maintenant :** le bord du tiroir (quelques points au-dehors, toute sa marge au-dedans) lui est réservé, devant les fenêtres. Le pointeur y devient une double flèche.
+
 ### Side en anglais
 - **Avant :** Side n'existait qu'en français.
 - **Maintenant :** Side s'affiche en anglais sur tout Mac qui n'est pas réglé en français, et reste en français sinon. Réglages › Général › Langue permet de choisir : automatique (langue du Mac), français ou English ; Side redémarre pour changer de langue.

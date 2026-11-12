@@ -46,6 +46,8 @@
 	<string>Adresse</string>
 	<key>Adresse copiée : collez-la dans « Redirect URIs ».</key>
 	<string>Adresse copiée : collez-la dans « Redirect URIs ».</string>
+	<key>Adresse e-mail</key>
+	<string>Adresse e-mail</string>
 	<key>Afficher Side</key>
 	<string>Afficher Side</string>
 	<key>Afficher dans la barre latérale</key>
@@ -62,6 +64,8 @@
 	<string>Afficher la corbeille</string>
 	<key>Afficher le chemin de ce dossier</key>
 	<string>Afficher le chemin de ce dossier</string>
+	<key>Afficher le volet</key>
+	<string>Afficher le volet</string>
 	<key>Afficher les informations</key>
 	<string>Afficher les informations</string>
 	<key>Afficher toutes les extensions de fichiers</key>
@@ -80,6 +84,8 @@
 	<string>Ajouter ou retirer une application du panneau</string>
 	<key>Ajouter un dossier…</key>
 	<string>Ajouter un dossier…</string>
+	<key>Ajouter un lecteur</key>
+	<string>Ajouter un lecteur</string>
 	<key>Ajouter une application</key>
 	<string>Ajouter une application</string>
 	<key>Ajouter une application ouverte</key>
@@ -220,10 +226,14 @@
 	<string>Copier l'adresse de redirection</string>
 	<key>Copier « %@ » en tant que chemin d'accès</key>
 	<string>Copier « %@ » en tant que chemin d'accès</string>
+	<key>Copié</key>
+	<string>Copié</string>
 	<key>Copié — prêt à coller</key>
 	<string>Copié — prêt à coller</string>
 	<key>Corbeille</key>
 	<string>Corbeille</string>
+	<key>Couleur</key>
+	<string>Couleur</string>
 	<key>Coup d'œil</key>
 	<string>Coup d'œil</string>
 	<key>Couper</key>
@@ -336,6 +346,8 @@
 	<string>Fermer, sauf si Commande est maintenue</string>
 	<key>Fermeture</key>
 	<string>Fermeture</string>
+	<key>Fichier</key>
+	<string>Fichier</string>
 	<key>Fichiers récents</key>
 	<string>Fichiers récents</string>
 	<key>Finder</key>
@@ -350,6 +362,8 @@
 	<string>Garder les zones remplies à l'écran quand Side est fermé</string>
 	<key>Garder un historique du copier-coller (7 jours)</key>
 	<string>Garder un historique du copier-coller (7 jours)</string>
+	<key>Gardé 7 jours · clic pour copier</key>
+	<string>Gardé 7 jours · clic pour copier</string>
 	<key>Geste</key>
 	<string>Geste</string>
 	<key>Geste de la souris</key>
@@ -412,6 +426,8 @@
 	<string>Installée</string>
 	<key>Intensité</key>
 	<string>Intensité</string>
+	<key>L'historique du copier-coller est désactivé dans les réglages de Side.</key>
+	<string>L'historique du copier-coller est désactivé dans les réglages de Side.</string>
 	<key>L'écran derrière la carte s'estompe en fondu. On peut toujours cliquer et glisser des fichiers au travers.</key>
 	<string>L'écran derrière la carte s'estompe en fondu. On peut toujours cliquer et glisser des fichiers au travers.</string>
 	<key>L'élément qu'elle contient sera supprimé définitivement. Cette action est irréversible.</key>
@@ -424,6 +440,8 @@
 	<string>La connexion n'a pas abouti. Vous pouvez fermer cette page et réessayer depuis le panneau.</string>
 	<key>La musique et les petites applis : un coup d'œil, et on referme.</key>
 	<string>La musique et les petites applis : un coup d'œil, et on referme.</string>
+	<key>La note « %@ » est introuvable dans Notes : renommée ou supprimée. Retire sa tuile et choisis-la de nouveau avec le +.</key>
+	<string>La note « %@ » est introuvable dans Notes : renommée ou supprimée. Retire sa tuile et choisis-la de nouveau avec le +.</string>
 	<key>La page de Spotify s'ouvre dans votre navigateur…</key>
 	<string>La page de Spotify s'ouvre dans votre navigateur…</string>
 	<key>La roue dentée, sous la case « + », ouvre les réglages.</key>
@@ -432,8 +450,8 @@
 	<string>La rubrique « Dossiers récents » montre les derniers dossiers où tu as travaillé, en grille.</string>
 	<key>La vidéo remplit la tuile (ou reprend sa place)</key>
 	<string>La vidéo remplit la tuile (ou reprend sa place)</string>
-	<key>La visite guidée de Side, en quatre étapes</key>
-	<string>La visite guidée de Side, en quatre étapes</string>
+	<key>La visite guidée de Side, en cinq étapes</key>
+	<string>La visite guidée de Side, en cinq étapes</string>
 	<key>La zone de dépôt</key>
 	<string>La zone de dépôt</string>
 	<key>Laisser les dossiers en haut lors du tri par nom</key>
@@ -446,6 +464,8 @@
 	<string>Largeur (sans les colonnes épinglées)</string>
 	<key>Largeur d'une colonne</key>
 	<string>Largeur d'une colonne</string>
+	<key>Largeur du volet</key>
+	<string>Largeur du volet</string>
 	<key>Le Finder</key>
 	<string>Le Finder</string>
 	<key>Le Finder arrive</key>
@@ -470,6 +490,8 @@
 	<string>Le geste dans l'autre sens referme le Finder. Attention : macOS utilise déjà ces gestes, vers le haut pour Mission Control et vers le bas pour « Exposé des apps ». Pour que les deux ne se déclenchent pas ensemble, mets-les sur « Désactivé » dans Réglages Système &gt; Trackpad &gt; Autres gestes. Side ne change pas ces réglages lui-même.</string>
 	<key>Le port 8765 du Mac est déjà pris. Fermez l'application qui l'utilise et réessayez.</key>
 	<string>Le port 8765 du Mac est déjà pris. Fermez l'application qui l'utilise et réessayez.</string>
+	<key>Le presse-papiers</key>
+	<string>Le presse-papiers</string>
 	<key>Le tiroir</key>
 	<string>Le tiroir</string>
 	<key>Le tiroir arrive</key>
@@ -486,6 +508,8 @@
 	<string>Le tiroir prend toujours le bord opposé au Finder : du haut quand le Finder vient du bas, du bas dans tous les autres cas. Le geste à quatre doigts s'inverse avec lui.</string>
 	<key>Le tiroir, second panneau de Side.</key>
 	<string>Le tiroir, second panneau de Side.</string>
+	<key>Le volet glisse depuis le bord droit de l'écran</key>
+	<string>Le volet glisse depuis le bord droit de l'écran</string>
 	<key>Lecteurs affichés</key>
 	<string>Lecteurs affichés</string>
 	<key>Lecture</key>
@@ -504,6 +528,8 @@
 	<string>Les textes et les fichiers copiés sont gardés 7 jours sur ce Mac ; ce que tu épingles (clic droit) est gardé sans limite. Les images et les mots de passe ne sont jamais écrits sur le disque : ils s'effacent quand Side se ferme. Décocher l'historique efface tout.</string>
 	<key>Les zones où poser des fichiers en attente, à côté du Finder de Side.</key>
 	<string>Les zones où poser des fichiers en attente, à côté du Finder de Side.</string>
+	<key>Lien</key>
+	<string>Lien</string>
 	<key>Lire les informations</key>
 	<string>Lire les informations</string>
 	<key>Liste</key>
@@ -520,6 +546,8 @@
 	<string>Modifié le</string>
 	<key>Mon site</key>
 	<string>Mon site</string>
+	<key>Mot de passe</key>
+	<string>Mot de passe</string>
 	<key>Moyenne</key>
 	<string>Moyenne</string>
 	<key>Multimédia</key>
@@ -562,6 +590,8 @@
 	<string>Ouvrir et fermer le tiroir</string>
 	<key>Ouvrir le Finder et le tiroir d'un geste, à la souris ou au trackpad.</key>
 	<string>Ouvrir le Finder et le tiroir d'un geste, à la souris ou au trackpad.</string>
+	<key>Ouvrir le lien</key>
+	<string>Ouvrir le lien</string>
 	<key>Ouvrir le lien YouTube copié</key>
 	<string>Ouvrir le lien YouTube copié</string>
 	<key>Ouvrir le réglage</key>
@@ -662,6 +692,8 @@
 	<string>Reculer de 10 secondes</string>
 	<key>Refermer Side après un dépôt</key>
 	<string>Refermer Side après un dépôt</string>
+	<key>Refermer le volet après avoir copié</key>
+	<string>Refermer le volet après avoir copié</string>
 	<key>Renommer</key>
 	<string>Renommer</string>
 	<key>Renommer « %@ »</key>
@@ -672,6 +704,8 @@
 	<string>Reste sous la main</string>
 	<key>Retirer</key>
 	<string>Retirer</string>
+	<key>Retirer %@</key>
+	<string>Retirer %@</string>
 	<key>Retirer cette colonne</key>
 	<string>Retirer cette colonne</string>
 	<key>Retirer de l'étagère</key>
@@ -700,6 +734,8 @@
 	<string>Réglages : icône Side, barre des menus</string>
 	<key>Réglages de Side</key>
 	<string>Réglages de Side</string>
+	<key>Réglages du tiroir…</key>
+	<string>Réglages du tiroir…</string>
 	<key>Réglages…</key>
 	<string>Réglages…</string>
 	<key>Réseau</key>
@@ -782,6 +818,8 @@
 	<string>Tes favoris se gèrent directement dans la barre : glisse un dossier sur « Favoris » pour l'ajouter, clic droit pour le retirer.</string>
 	<key>Tes fichiers</key>
 	<string>Tes fichiers</string>
+	<key>Texte</key>
+	<string>Texte</string>
 	<key>Tiroir</key>
 	<string>Tiroir</string>
 	<key>Titres</key>
@@ -792,6 +830,10 @@
 	<string>Toujours fermer</string>
 	<key>Toujours rester affichée</key>
 	<string>Toujours rester affichée</string>
+	<key>Tout</key>
+	<string>Tout</string>
+	<key>Tout ce que tu as copié, retrouvé d'un clic.</key>
+	<string>Tout ce que tu as copié, retrouvé d'un clic.</string>
 	<key>Tout sélectionner</key>
 	<string>Tout sélectionner</string>
 	<key>Toutes les applications</key>
@@ -816,6 +858,8 @@
 	<string>Télécharger depuis iCloud</string>
 	<key>Un autre site web</key>
 	<string>Un autre site web</string>
+	<key>Un autre site web…</key>
+	<string>Un autre site web…</string>
 	<key>Un cercle avec la souris</key>
 	<string>Un cercle avec la souris</string>
 	<key>Un raccourci pour le Finder, un autre pour le tiroir.</key>
@@ -852,6 +896,10 @@
 	<string>Voir la vidéo</string>
 	<key>Voir le tiroir</key>
 	<string>Voir le tiroir</string>
+	<key>Volet du presse-papiers : coin actif</key>
+	<string>Volet du presse-papiers : coin actif</string>
+	<key>Volet du presse-papiers : raccourci clavier</key>
+	<string>Volet du presse-papiers : raccourci clavier</string>
 	<key>Vos artistes du moment</key>
 	<string>Vos artistes du moment</string>
 	<key>Vos titres du moment</key>
@@ -874,6 +922,8 @@
 	<string>Zones de dépôt</string>
 	<key>copie</key>
 	<string>copie</string>
+	<key>et %lld de plus</key>
+	<string>et %lld de plus</string>
 	<key>https://…</key>
 	<string>https://…</string>
 	<key>le coin %@</key>

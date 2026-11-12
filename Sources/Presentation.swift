@@ -1,4 +1,4 @@
-// La présentation de Side, à la première ouverture : quatre écrans, presque sans mots. Chacun montre le geste en mouvement
+// La présentation de Side, à la première ouverture : cinq écrans, presque sans mots. Chacun montre le geste en mouvement
 // sur un petit écran dessiné, avec en dessous le ou les déclencheurs sous forme de pastilles (ceux qui sont réglés).
 // Et, à part : Side se met en retrait pendant une capture d'écran.
 import AppKit
@@ -6,8 +6,10 @@ import SwiftUI
 
 // MARK: - Capture d'écran
 
-/// La capture d'écran de macOS est-elle en cours (⌘⇧4, ⌘⇧5) ? Son outil ne tourne que pendant qu'on choisit la zone.
-/// Side ne s'ouvre alors par aucun geste : on doit pouvoir viser un coin de l'écran sans rien déclencher.
+/// Une capture d'écran est-elle en train d'être choisie (⌘⇧4, ⌘⇧5) ? On le voit à la fenêtre de sélection de macOS,
+/// posée au-dessus de tout. (L'outil de capture reste en mémoire quelques secondes après : cela ne compte pas.)
+/// Side ne s'ouvre alors par aucun geste, et le tiroir, s'il est ouvert, ne bouge plus : ni clic ailleurs, ni Échap,
+/// ni fenêtre ramenée devant — tout cela annulerait la capture.
 enum CaptureEcran {
     private static var valeur = false
     private static var verifieA: TimeInterval = 0
@@ -17,7 +19,13 @@ enum CaptureEcran {
         let maintenant = ProcessInfo.processInfo.systemUptime
         if maintenant - verifieA > 0.25 {
             verifieA = maintenant
-            valeur = !NSRunningApplication.runningApplications(withBundleIdentifier: "com.apple.screencaptureui").isEmpty
+            let fenetres = (CGWindowListCopyWindowInfo([.optionOnScreenOnly], kCGNullWindowID) as? [[String: Any]]) ?? []
+            valeur = fenetres.contains { f in
+                guard ((f[kCGWindowLayer as String] as? Int) ?? 0) >= 100 else { return false }
+                if (f[kCGWindowOwnerName as String] as? String) == "screencapture" { return true }
+                guard let pid = f[kCGWindowOwnerPID as String] as? pid_t else { return false }
+                return NSRunningApplication(processIdentifier: pid)?.bundleIdentifier == "com.apple.screencaptureui"
+            }
         }
         return valeur
     }
@@ -173,7 +181,8 @@ struct ScenePresentation: View {
                 // Fichiers et dossiers, en deux temps dans la même boucle : un dossier ajouté aux favoris, puis l'aperçu d'un fichier.
                 case 1: if t < 0.5 { dossiers(t * 2) } else { fichiers((t - 0.5) * 2) }
                 case 2: depot
-                default: tiroir
+                case 3: tiroir
+                default: pressePapiers
                 }
             }
             .frame(width: EcranP.taille.width, height: EcranP.taille.height)
@@ -363,6 +372,81 @@ struct ScenePresentation: View {
             .position(centre(r))
         }
     }
+
+    /// 5. Le presse-papiers : le pointeur va dans son coin, le volet glisse depuis le bord droit ; un clic sur une carte la recopie.
+    private var pressePapiers: some View {
+        let k = tranche(t, 0.24, 0.42) - tranche(t, 0.84, 0.96)
+        let l: CGFloat = 112
+        let r = CGRect(x: 420 - 6 - l + (l + 14) * (1 - k), y: EcranP.barre + 5, width: l, height: 262 - EcranP.barre - 11)
+        let coin: CGPoint? = {
+            switch ConfigPresse.commun.coin {
+            case .aucun: return nil
+            case .hautGauche: return CGPoint(x: 3, y: 3)
+            case .hautDroite: return CGPoint(x: 417, y: 3)
+            case .basGauche: return CGPoint(x: 3, y: 259)
+            case .basDroite: return CGPoint(x: 417, y: 259)
+            }
+        }()
+        // Les cartes : une image, un lien, une couleur, un texte. La deuxième est celle qu'on recopie.
+        let hauteurs: [CGFloat] = [62, 40, 44, 40]
+        let teintes: [Color] = [.purple, .blue, .pink, .gray]
+        let symboles = ["photo.fill", "link", "paintpalette.fill", "text.alignleft"]
+        let cible = CGPoint(x: r.midX, y: r.minY + 30 + hauteurs[0] + 6 + hauteurs[1] / 2)
+        let copie = tranche(t, 0.62, 0.66) - tranche(t, 0.80, 0.86)
+        let depart = CGPoint(x: 210, y: 150)
+        let p = melange(melange(depart, coin ?? CGPoint(x: 330, y: 200), tranche(t, 0.04, 0.22)), cible, tranche(t, 0.46, 0.60))
+        return ZStack {
+            FondP()
+            ZStack(alignment: .top) {
+                RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color(white: 0.95))
+                VStack(spacing: 6) {
+                    HStack(spacing: 5) {
+                        Image(systemName: "doc.on.clipboard.fill").font(.system(size: 10)).foregroundStyle(Color.accentColor)
+                        Capsule().fill(Color(white: 0.55)).frame(width: 46, height: 5)
+                        Spacer(minLength: 0)
+                    }
+                    .frame(height: 16)
+                    ForEach(0..<4, id: \.self) { i in
+                        let choisie = i == 1 ? copie : 0
+                        ZStack(alignment: .topLeading) {
+                            RoundedRectangle(cornerRadius: 7, style: .continuous).fill(Color.white)
+                            RoundedRectangle(cornerRadius: 7, style: .continuous).fill(Color.accentColor.opacity(0.22 * Double(choisie)))
+                            RoundedRectangle(cornerRadius: 7, style: .continuous)
+                                .strokeBorder(Color.accentColor, lineWidth: 2).opacity(Double(choisie))
+                            VStack(alignment: .leading, spacing: 4) {
+                                HStack(spacing: 4) {
+                                    Image(systemName: symboles[i]).font(.system(size: 6, weight: .bold)).foregroundStyle(.white)
+                                        .frame(width: 12, height: 12)
+                                        .background(RoundedRectangle(cornerRadius: 4, style: .continuous).fill(teintes[i].gradient))
+                                    Capsule().fill(teintes[i].opacity(0.55)).frame(width: 26, height: 4)
+                                }
+                                if i == 0 {
+                                    RoundedRectangle(cornerRadius: 4, style: .continuous)
+                                        .fill(LinearGradient(colors: [.orange, .purple], startPoint: .topLeading, endPoint: .bottomTrailing))
+                                } else if i == 2 {
+                                    RoundedRectangle(cornerRadius: 4, style: .continuous).fill(Color(red: 0.85, green: 0.44, blue: 0.29))
+                                } else {
+                                    Capsule().fill(Color(white: 0.78)).frame(width: 78, height: 4)
+                                    Capsule().fill(Color(white: 0.84)).frame(width: 54, height: 4)
+                                }
+                            }
+                            .padding(6)
+                        }
+                        .frame(height: hauteurs[i])
+                        .scaleEffect(1 + 0.04 * choisie)
+                    }
+                    Spacer(minLength: 0)
+                }
+                .padding(8)
+            }
+            .frame(width: r.width, height: r.height)
+            .shadow(color: .black.opacity(0.35), radius: 9, x: -2, y: 3)
+            .position(centre(r))
+            if coin != nil {
+                PointeurP(en: p, clic: tranche(t, 0.60, 0.70)).opacity(Double(1 - tranche(t, 0.86, 0.94)))
+            }
+        }
+    }
 }
 
 // MARK: - La fenêtre de présentation
@@ -383,9 +467,10 @@ private struct PastilleP: View {
 struct PresentationVue: View {
     @State var etape = 0
     let fermer: () -> Void
-    static let nombre = 4
-    private static let periodes: [Double] = [4.6, 10.0, 6.0, 4.6]
+    static let nombre = 5
+    private static let periodes: [Double] = [4.6, 10.0, 6.0, 4.6, 5.4]
     @ObservedObject private var config = Config.shared
+    @ObservedObject private var presse = ConfigPresse.commun
 
     var body: some View {
         VStack(spacing: 14) {
@@ -397,10 +482,11 @@ struct PresentationVue: View {
             }
             .padding(.top, 4)
             VStack(spacing: 4) {
-                Text([String(localized: "Le Finder"), String(localized: "Accède à tes fichiers et dossiers"), String(localized: "La zone de dépôt"), String(localized: "Le tiroir")][min(etape, 3)])
+                Text([String(localized: "Le Finder"), String(localized: "Accède à tes fichiers et dossiers"), String(localized: "La zone de dépôt"), String(localized: "Le tiroir"), String(localized: "Le presse-papiers")][min(etape, 4)])
                     .font(.title2.weight(.semibold))
-                // Une ligne d'explication, seulement là où le dessin ne suffit pas : à quoi sert le tiroir.
-                Text(etape == 3 ? String(localized: "La musique et les petites applis : un coup d'œil, et on referme.") : " ")
+                // Une ligne d'explication, seulement là où le dessin ne suffit pas : à quoi servent le tiroir et le presse-papiers.
+                Text(etape == 3 ? String(localized: "La musique et les petites applis : un coup d'œil, et on referme.")
+                     : (etape == 4 ? String(localized: "Tout ce que tu as copié, retrouvé d'un clic.") : " "))
                     .font(.callout).foregroundStyle(.secondary)
             }
             TimelineView(.animation) { horloge in
@@ -453,6 +539,9 @@ struct PresentationVue: View {
             PastilleP(symbole: "cursorarrow.click.2", texte: String(localized: "Ouvrir"))
         case 2:
             PastilleP(symbole: "tray.and.arrow.down", texte: String(localized: "Reste sous la main"))
+        case 4:
+            if presse.coin != .aucun { PastilleP(symbole: symbole(presse.coin), texte: String(localized: "Coin")) }
+            if presse.touche != -1 { PastilleP(symbole: "keyboard", texte: presse.libelle) }
         default:
             if ConfigTiroir.commun.quatreDoigts && ConfigTiroir.gestePossible {
                 PastilleP(symbole: "hand.draw", texte: String(localized: "Quatre doigts \(ConfigTiroir.enHaut ? "↓" : "↑")"))

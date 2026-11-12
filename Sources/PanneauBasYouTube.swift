@@ -441,9 +441,19 @@ final class LecteurYouTubeBas: NSView, WKNavigationDelegate, WKUIDelegate {
 /// Le petit sélecteur au-dessus du coin multimédia : un bouton par élément (Spotify, YouTube, un site ajouté…), un seul affiché.
 final class ChoixMediaBas: NSView {
     var auChoix: ((String) -> Void)?
+    /// Clic droit : retirer un lecteur, en ajouter un, ouvrir les réglages. Glisser : changer l'ordre.
+    var auRetrait: ((String) -> Void)?
+    var auAjout: ((MediaBas) -> Void)?
+    var auxReglages: (() -> Void)?
+    var auNouvelOrdre: (([String]) -> Void)?
     private var boutons: [(String, BoutonBas)] = []
     private var cles: [String] = []
     var choisi = "" { didSet { peindre() } }
+    // Le lecteur qu'on est en train de glisser pour le changer de place.
+    private var prise: Int?
+    private var priseEn: CGFloat = 0
+    private var decalage: CGFloat = 0
+    private var glisse = false
 
     override init(frame: NSRect) {
         super.init(frame: frame)
@@ -459,7 +469,7 @@ final class ChoixMediaBas: NSView {
             cles = elements.map { $0.cle + "|" + $0.nom }
             boutons.forEach { $0.1.removeFromSuperview() }
             boutons = elements.map { e in
-                let b = BoutonBas(title: e.nom, target: self, action: #selector(clic(_:)))
+                let b = BoutonBas(title: e.nom, target: nil, action: nil)
                 b.isBordered = false
                 b.wantsLayer = true
                 b.layer?.cornerRadius = 7
@@ -481,18 +491,112 @@ final class ChoixMediaBas: NSView {
                 .font: NSFont.systemFont(ofSize: 12, weight: .semibold)])
         }
     }
+
+    private var largeurBouton: CGFloat { (bounds.width - 4 * (CGFloat(boutons.count) + 1)) / CGFloat(max(boutons.count, 1)) }
+    private func cadre(_ i: Int) -> NSRect {
+        NSRect(x: 4 + CGFloat(i) * (largeurBouton + 4), y: 4, width: largeurBouton, height: bounds.height - 8)
+    }
+
     override func layout() {
         super.layout()
-        guard !boutons.isEmpty else { return }
-        let n = CGFloat(boutons.count)
-        let l = (bounds.width - 4 * (n + 1)) / n
-        for (i, (_, b)) in boutons.enumerated() {
-            b.frame = NSRect(x: 4 + CGFloat(i) * (l + 4), y: 4, width: l, height: bounds.height - 8)
+        // Le lecteur qu'on glisse suit la souris ; les autres tiennent leur rang.
+        for (i, (_, b)) in boutons.enumerated() where !(glisse && i == prise) { b.frame = cadre(i) }
+    }
+
+    // La barre reçoit elle-même les clics (les boutons ne servent qu'à l'affichage) : elle distingue ainsi le clic, le glisser et le clic droit.
+    override func hitTest(_ point: NSPoint) -> NSView? {
+        guard !isHidden, let s = superview else { return nil }
+        return bounds.contains(convert(point, from: s)) ? self : nil
+    }
+    override func acceptsFirstMouse(for event: NSEvent?) -> Bool { true }
+
+    private func rang(_ x: CGFloat) -> Int? {
+        guard !boutons.isEmpty else { return nil }
+        return min(max(Int((x - 2) / (largeurBouton + 4)), 0), boutons.count - 1)
+    }
+
+    override func mouseDown(with event: NSEvent) {
+        let p = convert(event.locationInWindow, from: nil)
+        prise = rang(p.x)
+        priseEn = p.x
+        glisse = false
+        if let i = prise { decalage = p.x - cadre(i).minX }
+    }
+
+    override func mouseDragged(with event: NSEvent) {
+        guard var i = prise, boutons.count > 1 else { return }
+        let p = convert(event.locationInWindow, from: nil)
+        if !glisse {
+            guard abs(p.x - priseEn) > 6 else { return }
+            glisse = true
+            boutons[i].1.layer?.zPosition = 5
+        }
+        // Le bouton suit la souris, sans sortir de la barre.
+        var r = cadre(i)
+        r.origin.x = min(max(p.x - decalage, 4), bounds.width - 4 - r.width)
+        boutons[i].1.frame = r
+        // Quand son milieu passe sur un autre rang, il prend ce rang et les autres se poussent, en douceur.
+        if let cible = rang(r.midX), cible != i {
+            let b = boutons.remove(at: i)
+            boutons.insert(b, at: cible)
+            i = cible
+            prise = cible
+            NSAnimationContext.runAnimationGroup { ctx in
+                ctx.duration = 0.18
+                for (k, (_, autre)) in boutons.enumerated() where k != cible { autre.animator().frame = cadre(k) }
+            }
         }
     }
-    @objc private func clic(_ b: NSButton) {
-        guard let cle = b.identifier?.rawValue, cle != choisi else { return }
+
+    override func mouseUp(with event: NSEvent) {
+        defer { prise = nil; glisse = false }
+        guard let i = prise, boutons.indices.contains(i) else { return }
+        if glisse {
+            // Lâché : il se pose à son rang, et le nouvel ordre est retenu.
+            let b = boutons[i].1
+            b.layer?.zPosition = 0
+            NSAnimationContext.runAnimationGroup({ ctx in ctx.duration = 0.15; b.animator().frame = cadre(i) })
+            cles = []                                   // la liste sera relue à la prochaine mise à jour
+            auNouvelOrdre?(boutons.map { $0.0 })
+            return
+        }
+        let cle = boutons[i].0
+        guard cle != choisi else { return }
         choisi = cle
         auChoix?(cle)
     }
+
+    /// Clic droit : retirer ce lecteur, en ajouter un autre (les mêmes propositions que dans les réglages), ou ouvrir les réglages.
+    override func rightMouseDown(with event: NSEvent) {
+        let p = convert(event.locationInWindow, from: nil)
+        let menu = NSMenu()
+        if let i = rang(p.x) {
+            let retirer = menu.addItem(withTitle: String(localized: "Retirer \(boutons[i].1.title)"), action: #selector(retirer(_:)), keyEquivalent: "")
+            retirer.target = self
+            retirer.representedObject = boutons[i].0
+            menu.addItem(.separator())
+        }
+        let presents = Set(boutons.map { $0.0 })
+        let ajout = NSMenu()
+        for m in MediaBas.proposes where !presents.contains(m.id) {
+            let ligne = ajout.addItem(withTitle: m.nom, action: #selector(ajouter(_:)), keyEquivalent: "")
+            ligne.target = self
+            ligne.representedObject = m.id
+        }
+        if ajout.items.isEmpty == false { ajout.addItem(.separator()) }
+        let site = ajout.addItem(withTitle: String(localized: "Un autre site web…"), action: #selector(reglages), keyEquivalent: "")
+        site.target = self
+        let parent = menu.addItem(withTitle: String(localized: "Ajouter un lecteur"), action: nil, keyEquivalent: "")
+        parent.submenu = ajout
+        menu.addItem(.separator())
+        let reglage = menu.addItem(withTitle: String(localized: "Réglages du tiroir…"), action: #selector(reglages), keyEquivalent: "")
+        reglage.target = self
+        NSMenu.popUpContextMenu(menu, with: event, for: self)
+    }
+
+    @objc private func retirer(_ ligne: NSMenuItem) { if let cle = ligne.representedObject as? String { auRetrait?(cle) } }
+    @objc private func ajouter(_ ligne: NSMenuItem) {
+        if let cle = ligne.representedObject as? String, let m = MediaBas.proposes.first(where: { $0.id == cle }) { auAjout?(m) }
+    }
+    @objc private func reglages() { auxReglages?() }
 }

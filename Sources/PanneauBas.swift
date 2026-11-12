@@ -8,6 +8,8 @@ import UniformTypeIdentifiers
 
 @_silgen_name("_AXUIElementGetWindow") func _AXUIElementGetWindow(_ el: AXUIElement, _ wid: inout CGWindowID) -> AXError
 @_silgen_name("CGSMainConnectionID") func CGSMainConnectionIDBas() -> Int32
+@_silgen_name("CGSCopySpacesForWindows") func CGSCopySpacesForWindowsBas(_ cid: Int32, _ masque: Int32, _ fenetres: CFArray) -> CFArray?
+@_silgen_name("CGSSetConnectionProperty") func CGSSetConnectionPropertyBas(_ cid: Int32, _ cible: Int32, _ cle: CFString, _ valeur: CFTypeRef) -> Int32
 @_silgen_name("CGSCopyManagedDisplaySpaces") func CGSCopyManagedDisplaySpacesBas(_ cid: Int32) -> CFArray
 
 /// Petit journal dans ~/Library/Logs/Side-panneau.log, pour comprendre un souci après coup.
@@ -374,10 +376,25 @@ final class PanneauBas: NSObject {
     /// Lus hors du fil principal (geste à quatre doigts, défilement).
     static var estOuvertBrut = false
     static var cadreBrut = CGRect.zero          // le panneau, en coordonnées globales
+    static var curseurBord = false              // le pointeur est sur le bord du tiroir (double flèche affichée)
+
+    /// Ce point de l'écran est-il sur le bord qu'on tire pour régler la hauteur ? Quelques points au-dehors du tiroir,
+    /// et toute sa marge au-dedans (jusqu'au bord des fenêtres des tuiles compris).
+    static func surLeBord(_ p: CGPoint) -> Bool {
+        let c = cadreBrut
+        let bord = ConfigTiroir.enHaut ? c.maxY : c.minY                   // le bord tourné vers le milieu de l'écran
+        let dedans = ConfigTiroir.enHaut ? bord - p.y : p.y - bord
+        return p.x >= c.minX && p.x <= c.maxX && dedans >= -8 && dedans <= 18
+    }
+    static var tirageHauteur = false            // on est en train de tirer le bord du tiroir (suivi par le filtre d'événements)
+    static var departHauteur: CGFloat = 0
     private static var filtre: CFMachPort?
 
     private let idRaccourci: UInt32 = 1
     private let idEchap: UInt32 = 2
+    private var enCapture = false               // une capture d'écran est en cours, tiroir ouvert : il se fait oublier
+    private var notesIntrouvables: Set<String> = []   // notes qu'on n'a pas retrouvées dans Notes : on ne les réclame plus en boucle
+    private var titresDeNotes: [String: String] = [:] // le titre actuel de chaque note (il change si on modifie sa première ligne)
     private let largeurLecteur: CGFloat = 300
     private let largeurPlus: CGFloat = 44
     private let marge: CGFloat = 14
@@ -491,6 +508,7 @@ final class PanneauBas: NSObject {
 
     func brancher() {
         installerRaccourci()
+        VoletPresse.commun.installerRaccourci()     // le volet du presse-papiers a aussi le sien
         GestePanneauBas.enHaut = enHaut
         NSWorkspace.shared.notificationCenter.addObserver(self, selector: #selector(appActivée(_:)),
                                                           name: NSWorkspace.didActivateApplicationNotification, object: nil)
@@ -528,6 +546,7 @@ final class PanneauBas: NSObject {
         switch commande {
         case "carte": AppDelegate.shared.basculer()      // la carte Finder
         case "panneau": basculer()                        // le panneau du bas
+        case "presse": VoletPresse.commun.basculer()      // le volet du presse-papiers
         case "corbeille":                                 // la carte Finder, ouverte sur la corbeille
             if !AppDelegate.shared.estOuvert { AppDelegate.shared.basculer() }
             Corbeille.montrer()
@@ -728,6 +747,15 @@ final class PanneauBas: NSObject {
             LecteurYouTubeBas.largeurCommune = self.largeurTête        // la largeur vraiment obtenue (bornée à la bande)
             self.finDéfilement?.cancel()
             if self.défile { self.finirDéfilement(vers: min(self.défilement, self.arrêts(p.frame).maxi)) } else { self.recharger(versLaFin: false) }
+        }
+        // Clic droit et glisser sur la barre des lecteurs : la liste des réglages est modifiée, le tiroir se met à jour tout seul.
+        choixMédia.auRetrait = { cle in ConfigTiroir.commun.medias.removeAll { $0.id == cle } }
+        choixMédia.auAjout = { m in if !ConfigTiroir.commun.medias.contains(where: { $0.id == m.id }) { ConfigTiroir.commun.medias.append(m) } }
+        choixMédia.auxReglages = { [weak self] in self?.ouvrirLesRéglages() }
+        choixMédia.auNouvelOrdre = { ordre in
+            let actuels = ConfigTiroir.commun.medias
+            let ranges = ordre.compactMap { cle in actuels.first { $0.id == cle } }
+            if ranges.count == actuels.count { ConfigTiroir.commun.medias = ranges }
         }
         choixMédia.auChoix = { [weak self] m in
             guard let self else { return }
@@ -981,6 +1009,7 @@ final class PanneauBas: NSObject {
         p.setFrame(fin, display: false)
         disposerLeFond(fin)
         sansFenêtres = dansUnPleinÉcranApple()
+        notesIntrouvables = []                       // à chaque ouverture, on redonne sa chance à une note introuvable
         // Une fenêtre restée sur un autre bureau n'est jamais réclamée : macOS vous y renverrait. Sa tuile reste en photo.
         ailleursNoms = sansFenêtres ? [] : Set(emprunts.filter { surUnAutreBureau($0) }.map { $0.nom })
         banniere.isHidden = !sansFenêtres && ailleursNoms.isEmpty
@@ -1188,13 +1217,13 @@ final class PanneauBas: NSObject {
 
     // MARK: Hauteur du panneau (on tire son bord haut, comme pour la carte de Side)
 
-    private func commencerHauteur() {
+    fileprivate func commencerHauteur() {
         guard let p = panneau, commencerDéfilement() else { return }     // les tuiles deviennent des photos le temps du geste
         finDéfilement?.cancel()
         hauteurAuDepart = p.frame.height
     }
 
-    private func tirerHauteur(_ montée: CGFloat) {
+    fileprivate func tirerHauteur(_ montée: CGFloat) {
         guard ouvert, défile, let p = panneau, let ecran = p.screen ?? NSScreen.main else { return }
         hauteurChoisie = hauteurAuDepart + (enHaut ? -montée : montée)          // bornée par cadre() : un minimum, et presque tout l'écran au plus
         let fin = cadre(ecran)
@@ -1205,7 +1234,7 @@ final class PanneauBas: NSObject {
         déplacerImages(animé: false)                      // toutes les tuiles prennent la nouvelle hauteur, ensemble
     }
 
-    private func finirHauteur() {
+    fileprivate func finirHauteur() {
         guard ouvert, défile else { return }
         journalBas("hauteur du panneau : %.0f", panneau?.frame.height ?? 0)
         refusHauteur = []
@@ -1220,12 +1249,51 @@ final class PanneauBas: NSObject {
     private func écouterDéfilement() {
         guard PanneauBas.filtre == nil else { return }
         let masque = CGEventMask(1 << CGEventType.scrollWheel.rawValue) | CGEventMask(1 << CGEventType.leftMouseDown.rawValue)
-            | CGEventMask(1 << CGEventType.leftMouseUp.rawValue)
+            | CGEventMask(1 << CGEventType.leftMouseUp.rawValue) | CGEventMask(1 << CGEventType.leftMouseDragged.rawValue)
+            | CGEventMask(1 << CGEventType.mouseMoved.rawValue)
+        // Side n'est pas l'application de devant quand le tiroir est ouvert : macOS ne le laisse changer le pointeur
+        // (la double flèche, sur le bord du tiroir) que si on le demande expressément.
+        _ = CGSSetConnectionPropertyBas(CGSMainConnectionIDBas(), CGSMainConnectionIDBas(), "SetsCursorInBackground" as CFString, kCFBooleanTrue)
         PanneauBas.filtre = CGEvent.tapCreate(tap: .cgSessionEventTap, place: .headInsertEventTap, options: .defaultTap,
                                               eventsOfInterest: masque, callback: { _, type, ev, _ in
             if type == .tapDisabledByTimeout || type == .tapDisabledByUserInput {
                 if let f = PanneauBas.filtre { CGEvent.tapEnable(tap: f, enable: true) }
                 return Unmanaged.passUnretained(ev)
+            }
+            // Pendant une capture d'écran, le tiroir ne touche à aucun clic ni au pointeur.
+            if CaptureEcran.enCours, !PanneauBas.tirageHauteur { return Unmanaged.passUnretained(ev) }
+            // Le bord du tiroir qu'on tire pour régler sa hauteur. Les fenêtres des tuiles sont posées juste dessous, devant
+            // le tiroir, et leur propre zone de redimensionnement déborde sur ce bord : sans ce filtre, c'est une fenêtre
+            // qui attrapait le clic et se redimensionnait à la place du tiroir. Ici, le clic sur le bord est pour le tiroir.
+            if PanneauBas.tirageHauteur {
+                if type == .leftMouseDragged {
+                    NSCursor.resizeUpDown.set()          // la double flèche reste pendant tout le geste
+                    let montee = PanneauBas.departHauteur - ev.location.y        // l'écran global compte vers le bas
+                    DispatchQueue.main.async { PanneauBas.commun.tirerHauteur(montee) }
+                    return nil
+                }
+                if type == .leftMouseUp {
+                    PanneauBas.tirageHauteur = false
+                    DispatchQueue.main.async { PanneauBas.commun.finirHauteur() }
+                    return nil
+                }
+            }
+            if type == .leftMouseDragged { return Unmanaged.passUnretained(ev) }
+            if type == .mouseMoved {
+                // Au-dessus du bord : le pointeur devient une double flèche, pour montrer qu'on peut le tirer.
+                let dessus = PanneauBas.estOuvertBrut && PanneauBas.surLeBord(ev.location)
+                if dessus { NSCursor.resizeUpDown.set() } else if PanneauBas.curseurBord { NSCursor.arrow.set() }
+                PanneauBas.curseurBord = dessus
+                return Unmanaged.passUnretained(ev)
+            }
+            if type == .leftMouseDown, PanneauBas.estOuvertBrut {
+                let p = ev.location
+                if PanneauBas.surLeBord(p) {
+                    PanneauBas.tirageHauteur = true
+                    PanneauBas.departHauteur = p.y
+                    DispatchQueue.main.async { PanneauBas.commun.commencerHauteur() }
+                    return nil
+                }
             }
             // Bouton vert d'une tuile : au lieu du plein écran d'Apple, la fenêtre sort du panneau en grand.
             if type == .leftMouseUp {
@@ -1316,6 +1384,15 @@ final class PanneauBas: NSObject {
     /// - une fenêtre que vous déplacez change de rang dans la bande quand vous la lâchez ;
     /// - on repère les boutons jaune et vert, pour les intercepter.
     private func veiller() {
+        // Pendant une capture d'écran : Échap doit annuler la capture (pas refermer le tiroir), et aucune fenêtre ne doit
+        // être ramenée devant. Le tiroir rend donc sa touche Échap et ne fait plus rien, jusqu'à la fin de la capture.
+        let capture = ouvert && CaptureEcran.enCours
+        if capture != enCapture {
+            enCapture = capture
+            if capture { TouchesBas.retirer(idEchap) }
+            else if ouvert { TouchesBas.ajouter(idEchap, touche: UInt32(kVK_Escape), modifs: 0) { [weak self] in self?.fermer(rendreLaMain: true) } }
+        }
+        if capture { return }
         guard ouvert, enPlace, !défile, !suiviDoigts, !sansFenêtres, let p = panneau else {
             PanneauBas.boutonsVerts = []; PanneauBas.boutonsJaunes = []; enMain = nil; return
         }
@@ -1646,23 +1723,38 @@ final class PanneauBas: NSObject {
         AXUIElementCopyAttributeValue(el, kAXWindowsAttribute as CFString, &v)
         let toutes = (v as? [AXUIElement]) ?? []
         guard let note = e.note else { return toutes.first }
-        return toutes.first { titre($0) == note }
+        // Le titre d'une note est sa première ligne : il a pu changer depuis qu'on l'a rangée dans le tiroir.
+        let actuel = titresDeNotes[note] ?? note
+        return toutes.first { titre($0) == actuel } ?? toutes.first { titre($0) == note }
     }
 
     /// L'application a bien une fenêtre, mais pas sur le bureau affiché (l'Accessibilité ne voit que le bureau courant).
     private func surUnAutreBureau(_ e: EmpruntBas) -> Bool {
         guard let a = app(e), !a.isHidden, fenetre(e) == nil else { return false }
+        // Une note a sa propre fenêtre, qu'on ouvre à la demande : la grande fenêtre de Notes, où qu'elle soit, ne compte pas.
+        if e.note != nil { return false }
+        // Le bureau affiché, et celui de chaque fenêtre de l'application : elle est « ailleurs » si elle a une vraie fenêtre
+        // et qu'aucune n'est sur le bureau affiché. (Une fenêtre simplement garée hors de l'écran est bien sur ce bureau.)
+        let ecrans = (CGSCopyManagedDisplaySpacesBas(CGSMainConnectionIDBas()) as? [[String: Any]]) ?? []
+        let courants = Set(ecrans.compactMap { (($0["Current Space"] as? [String: Any])?["id64"] as? NSNumber)?.intValue })
+        guard !courants.isEmpty else { return false }
         let infos = (CGWindowListCopyWindowInfo([.optionAll], kCGNullWindowID) as? [[String: Any]]) ?? []
-        return infos.contains { w in
+        var ailleurs = false
+        for w in infos {
             guard (w[kCGWindowOwnerPID as String] as? Int32) == a.processIdentifier, (w[kCGWindowLayer as String] as? Int) == 0,
-                  let b = w[kCGWindowBounds as String] as? [String: CGFloat] else { return false }
-            return (b["Width"] ?? 0) > 200 && (b["Height"] ?? 0) > 200
+                  let b = w[kCGWindowBounds as String] as? [String: CGFloat], (b["Width"] ?? 0) > 200, (b["Height"] ?? 0) > 200,
+                  let numero = w[kCGWindowNumber as String] as? Int else { continue }
+            let bureaux = (CGSCopySpacesForWindowsBas(CGSMainConnectionIDBas(), 7, [numero] as CFArray) as? [Int]) ?? []
+            if bureaux.isEmpty { continue }                              // fenêtre fantôme : ni ici ni ailleurs
+            if !courants.isDisjoint(with: bureaux) { return false }      // elle en a une ici : on saura la trouver ou la rouvrir
+            ailleurs = true
         }
+        return ailleurs
     }
 
     /// Fait apparaître la fenêtre quand elle n'existe pas encore (une seule demande par installation).
     private func demander(_ e: EmpruntBas) {
-        guard !demandées.contains(e.nom) else { return }
+        guard !demandées.contains(e.nom), !notesIntrouvables.contains(e.nom), !CaptureEcran.enCours else { return }
         demandées.insert(e.nom)
         journalBas("ouverture demandée pour %@", e.nom)
         guard let note = e.note else {
@@ -1686,11 +1778,35 @@ final class PanneauBas: NSObject {
         }
         DispatchQueue.global().asyncAfter(deadline: .now() + (lancée ? 0 : 1.2)) { [weak self] in
             var erreur: NSDictionary?
-            _ = NSAppleScript(source: "tell application \"Notes\" to show (first note whose name is \"\(note)\")")?
-                .executeAndReturnError(&erreur)
+            // La note qui porte ce nom ; à défaut, celle dont le nom le contient (sa première ligne a pu être retouchée).
+            let cherche = note.replacingOccurrences(of: "\\", with: "\\\\").replacingOccurrences(of: "\"", with: "\\\"")
+            let script = """
+            tell application "Notes"
+                set n to missing value
+                try
+                    set n to first note whose name is "\(cherche)"
+                end try
+                if n is missing value then set n to first note whose name contains "\(cherche)"
+                show n
+                return name of n
+            end tell
+            """
+            let titre = NSAppleScript(source: script)?.executeAndReturnError(&erreur).stringValue
             if let erreur { journalBas("Notes a répondu %@", "\(erreur[NSAppleScript.errorMessage] ?? erreur)") }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
-                guard let self, self.ouvert, self.serie == maSerie, let a = self.app(e) else { return }
+                guard let self else { return }
+                guard let titre else {
+                    // Note introuvable (supprimée, ou renommée du tout au tout) : on ne clique surtout pas dans le menu de Notes
+                    // (il ouvrirait une autre note), on ne la réclame plus, et on le dit.
+                    self.notesIntrouvables.insert(e.nom)
+                    self.messageBanniere.stringValue = String(localized: "La note « \(note) » est introuvable dans Notes : renommée ou supprimée. Retire sa tuile et choisis-la de nouveau avec le +.")
+                    self.boutonBanniere?.isHidden = true
+                    self.banniere.isHidden = !self.ouvert
+                    self.fermerLeResteDeNotes()
+                    return
+                }
+                self.titresDeNotes[note] = titre
+                guard self.ouvert, self.serie == maSerie, let a = self.app(e) else { return }
                 // Le menu de Notes est dans la langue de Notes (celle du Mac), pas dans celle de Side : on cherche les deux.
                 let ok = self.presserMenu(a, ["Ouvrir la note dans une nouvelle fenêtre", "Open Note in New Window"])
                 journalBas("menu de Notes %@", ok ? "pressé" : "introuvable")
@@ -1874,15 +1990,7 @@ final class PanneauBas: NSObject {
 
     /// Une capture d'écran est-elle en train d'être choisie (⌘⇧4, ⌘⇧5) ? Son voile couvre tout l'écran.
     /// Tant qu'il est là, les clics servent à tracer la zone : le panneau ne se referme pas.
-    private func captureEnCours() -> Bool {
-        let largeur = NSScreen.main?.frame.width ?? 0
-        let fenetres = (CGWindowListCopyWindowInfo([.optionOnScreenOnly], kCGNullWindowID) as? [[String: Any]]) ?? []
-        return fenetres.contains { f in
-            guard (f[kCGWindowOwnerName as String] as? String) == "screencaptureui",
-                  let b = f[kCGWindowBounds as String] as? [String: CGFloat] else { return false }
-            return (b["Width"] ?? 0) >= largeur * 0.9
-        }
-    }
+    private func captureEnCours() -> Bool { CaptureEcran.enCours }
 
     @objc private func appActivée(_ note: Notification) {
         guard let a = note.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication else { return }

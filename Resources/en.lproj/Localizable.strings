@@ -46,6 +46,8 @@
 	<string>Address</string>
 	<key>Adresse copiée : collez-la dans « Redirect URIs ».</key>
 	<string>Address copied: paste it into “Redirect URIs”.</string>
+	<key>Adresse e-mail</key>
+	<string>Email Address</string>
 	<key>Afficher Side</key>
 	<string>Show Side</string>
 	<key>Afficher dans la barre latérale</key>
@@ -62,6 +64,8 @@
 	<string>Show the Trash</string>
 	<key>Afficher le chemin de ce dossier</key>
 	<string>Show the path of this folder</string>
+	<key>Afficher le volet</key>
+	<string>Show Panel</string>
 	<key>Afficher les informations</key>
 	<string>Show item info</string>
 	<key>Afficher toutes les extensions de fichiers</key>
@@ -80,6 +84,8 @@
 	<string>Add or remove an app from the drawer</string>
 	<key>Ajouter un dossier…</key>
 	<string>Add a Folder…</string>
+	<key>Ajouter un lecteur</key>
+	<string>Add a Player</string>
 	<key>Ajouter une application</key>
 	<string>Add an App</string>
 	<key>Ajouter une application ouverte</key>
@@ -220,10 +226,14 @@
 	<string>Copy Redirect Address</string>
 	<key>Copier « %@ » en tant que chemin d'accès</key>
 	<string>Copy “%@” as Pathname</string>
+	<key>Copié</key>
+	<string>Copied</string>
 	<key>Copié — prêt à coller</key>
 	<string>Copied — ready to paste</string>
 	<key>Corbeille</key>
 	<string>Trash</string>
+	<key>Couleur</key>
+	<string>Color</string>
 	<key>Coup d'œil</key>
 	<string>Quick Look</string>
 	<key>Couper</key>
@@ -336,6 +346,8 @@
 	<string>Close, unless Command is held</string>
 	<key>Fermeture</key>
 	<string>Closing</string>
+	<key>Fichier</key>
+	<string>File</string>
 	<key>Fichiers récents</key>
 	<string>Recent Files</string>
 	<key>Finder</key>
@@ -350,6 +362,8 @@
 	<string>Keep filled zones on screen when Side is closed</string>
 	<key>Garder un historique du copier-coller (7 jours)</key>
 	<string>Keep a copy-and-paste history (7 days)</string>
+	<key>Gardé 7 jours · clic pour copier</key>
+	<string>Kept for 7 days · click to copy</string>
 	<key>Geste</key>
 	<string>Gesture</string>
 	<key>Geste de la souris</key>
@@ -412,6 +426,8 @@
 	<string>Installed</string>
 	<key>Intensité</key>
 	<string>Intensity</string>
+	<key>L'historique du copier-coller est désactivé dans les réglages de Side.</key>
+	<string>Clipboard history is turned off in Side's settings.</string>
 	<key>L'écran derrière la carte s'estompe en fondu. On peut toujours cliquer et glisser des fichiers au travers.</key>
 	<string>The screen behind the card fades out. You can still click and drag files through it.</string>
 	<key>L'élément qu'elle contient sera supprimé définitivement. Cette action est irréversible.</key>
@@ -424,6 +440,8 @@
 	<string>The connection didn’t go through. You can close this page and try again from the drawer.</string>
 	<key>La musique et les petites applis : un coup d'œil, et on referme.</key>
 	<string>Music and small apps: take a quick look, then close it.</string>
+	<key>La note « %@ » est introuvable dans Notes : renommée ou supprimée. Retire sa tuile et choisis-la de nouveau avec le +.</key>
+	<string>The note “%@” can't be found in Notes: it was renamed or deleted. Remove its tile and choose it again with the + button.</string>
 	<key>La page de Spotify s'ouvre dans votre navigateur…</key>
 	<string>The Spotify page is opening in your browser…</string>
 	<key>La roue dentée, sous la case « + », ouvre les réglages.</key>
@@ -432,8 +450,8 @@
 	<string>The “Recent Folders” section shows the last folders you worked in, as a grid.</string>
 	<key>La vidéo remplit la tuile (ou reprend sa place)</key>
 	<string>The video fills the tile (or goes back to its place)</string>
-	<key>La visite guidée de Side, en quatre étapes</key>
-	<string>The guided tour of Side, in four steps</string>
+	<key>La visite guidée de Side, en cinq étapes</key>
+	<string>The guided tour of Side, in five steps</string>
 	<key>La zone de dépôt</key>
 	<string>The Drop Zone</string>
 	<key>Laisser les dossiers en haut lors du tri par nom</key>
@@ -446,6 +464,8 @@
 	<string>Width (without pinned columns)</string>
 	<key>Largeur d'une colonne</key>
 	<string>Column width</string>
+	<key>Largeur du volet</key>
+	<string>Panel width</string>
 	<key>Le Finder</key>
 	<string>The Finder</string>
 	<key>Le Finder arrive</key>
@@ -470,6 +490,8 @@
 	<string>Swiping the other way closes the Finder. Note: macOS already uses these gestures, up for Mission Control and down for App Exposé. So that both don't trigger together, set them to “Off” in System Settings &gt; Trackpad &gt; More Gestures. Side doesn't change these settings itself.</string>
 	<key>Le port 8765 du Mac est déjà pris. Fermez l'application qui l'utilise et réessayez.</key>
 	<string>Port 8765 on this Mac is already in use. Quit the app using it and try again.</string>
+	<key>Le presse-papiers</key>
+	<string>The Clipboard</string>
 	<key>Le tiroir</key>
 	<string>The Drawer</string>
 	<key>Le tiroir arrive</key>
@@ -486,6 +508,8 @@
 	<string>The drawer always takes the edge opposite the Finder: from the top when the Finder comes from the bottom, from the bottom in all other cases. The four-finger gesture flips with it.</string>
 	<key>Le tiroir, second panneau de Side.</key>
 	<string>The drawer, Side's second panel.</string>
+	<key>Le volet glisse depuis le bord droit de l'écran</key>
+	<string>The panel slides in from the right edge of the screen</string>
 	<key>Lecteurs affichés</key>
 	<string>Players Shown</string>
 	<key>Lecture</key>
@@ -504,6 +528,8 @@
 	<string>Copied text and files are kept for 7 days on this Mac; what you pin (right-click) is kept with no limit. Images and passwords are never written to disk: they're erased when Side closes. Turning off the history erases everything.</string>
 	<key>Les zones où poser des fichiers en attente, à côté du Finder de Side.</key>
 	<string>The zones where you can leave files waiting, next to Side's Finder.</string>
+	<key>Lien</key>
+	<string>Link</string>
 	<key>Lire les informations</key>
 	<string>Get Info</string>
 	<key>Liste</key>
@@ -520,6 +546,8 @@
 	<string>Modified</string>
 	<key>Mon site</key>
 	<string>My site</string>
+	<key>Mot de passe</key>
+	<string>Password</string>
 	<key>Moyenne</key>
 	<string>Medium</string>
 	<key>Multimédia</key>
@@ -562,6 +590,8 @@
 	<string>Open and close the drawer</string>
 	<key>Ouvrir le Finder et le tiroir d'un geste, à la souris ou au trackpad.</key>
 	<string>Open the Finder and the drawer with a gesture, using the mouse or the trackpad.</string>
+	<key>Ouvrir le lien</key>
+	<string>Open Link</string>
 	<key>Ouvrir le lien YouTube copié</key>
 	<string>Open the copied YouTube link</string>
 	<key>Ouvrir le réglage</key>
@@ -662,6 +692,8 @@
 	<string>Skip back 10 seconds</string>
 	<key>Refermer Side après un dépôt</key>
 	<string>Close Side after a drop</string>
+	<key>Refermer le volet après avoir copié</key>
+	<string>Close the panel after copying</string>
 	<key>Renommer</key>
 	<string>Rename</string>
 	<key>Renommer « %@ »</key>
@@ -672,6 +704,8 @@
 	<string>Stays at hand</string>
 	<key>Retirer</key>
 	<string>Remove</string>
+	<key>Retirer %@</key>
+	<string>Remove %@</string>
 	<key>Retirer cette colonne</key>
 	<string>Remove This Column</string>
 	<key>Retirer de l'étagère</key>
@@ -700,6 +734,8 @@
 	<string>Settings: Side icon, menu bar</string>
 	<key>Réglages de Side</key>
 	<string>Side Settings</string>
+	<key>Réglages du tiroir…</key>
+	<string>Drawer Settings…</string>
 	<key>Réglages…</key>
 	<string>Settings…</string>
 	<key>Réseau</key>
@@ -782,6 +818,8 @@
 	<string>Manage your favorites right in the sidebar: drag a folder onto “Favorites” to add it, right-click to remove it.</string>
 	<key>Tes fichiers</key>
 	<string>Your Files</string>
+	<key>Texte</key>
+	<string>Text</string>
 	<key>Tiroir</key>
 	<string>Drawer</string>
 	<key>Titres</key>
@@ -792,6 +830,10 @@
 	<string>Always close</string>
 	<key>Toujours rester affichée</key>
 	<string>Always stay visible</string>
+	<key>Tout</key>
+	<string>All</string>
+	<key>Tout ce que tu as copié, retrouvé d'un clic.</key>
+	<string>Everything you've copied, one click away.</string>
 	<key>Tout sélectionner</key>
 	<string>Select All</string>
 	<key>Toutes les applications</key>
@@ -816,6 +858,8 @@
 	<string>Download from iCloud</string>
 	<key>Un autre site web</key>
 	<string>Another Website</string>
+	<key>Un autre site web…</key>
+	<string>Another Website…</string>
 	<key>Un cercle avec la souris</key>
 	<string>A circle with the mouse</string>
 	<key>Un raccourci pour le Finder, un autre pour le tiroir.</key>
@@ -852,6 +896,10 @@
 	<string>Watch Video</string>
 	<key>Voir le tiroir</key>
 	<string>See the Drawer</string>
+	<key>Volet du presse-papiers : coin actif</key>
+	<string>Clipboard panel: hot corner</string>
+	<key>Volet du presse-papiers : raccourci clavier</key>
+	<string>Clipboard panel: keyboard shortcut</string>
 	<key>Vos artistes du moment</key>
 	<string>Your Top Artists</string>
 	<key>Vos titres du moment</key>
@@ -874,6 +922,8 @@
 	<string>Drop Zones</string>
 	<key>copie</key>
 	<string>copy</string>
+	<key>et %lld de plus</key>
+	<string>and %lld more</string>
 	<key>https://…</key>
 	<string>https://…</string>
 	<key>le coin %@</key>

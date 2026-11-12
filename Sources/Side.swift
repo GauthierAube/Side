@@ -4343,12 +4343,13 @@ struct ReglagesView: View {
                 Toggle("Garder un historique du copier-coller (7 jours)", isOn: $config.historique)
                 Toggle("Y garder aussi les mots de passe (affichés masqués)", isOn: $config.historiqueSecrets)
                     .disabled(!config.historique)
+                ReglagesVoletPresse().disabled(!config.historique)
             } header: { Text("Presse-papiers") } footer: {
                 note("Les textes et les fichiers copiés sont gardés 7 jours sur ce Mac ; ce que tu épingles (clic droit) est gardé sans limite. Les images et les mots de passe ne sont jamais écrits sur le disque : ils s'effacent quand Side se ferme. Décocher l'historique efface tout.")
             }
             SectionCompagnes()
             Section("Présentation") {
-                LabeledContent("La visite guidée de Side, en quatre étapes") {
+                LabeledContent("La visite guidée de Side, en cinq étapes") {
                     Button("Revoir la présentation") { AppDelegate.shared.revoirAccueil() }
                 }
             }
@@ -7011,6 +7012,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         guard let e = ecranSous(p) else { return }
         // Version personnelle : le tiroir du bas a son propre coin actif (voir PanneauBas.swift).
         PanneauBas.commun.surveillerCoin(p, e, taille: CGFloat(config.tailleCoin))
+        VoletPresse.commun.surveillerCoin(p, e, taille: CGFloat(config.tailleCoin))      // le volet du presse-papiers, à droite
         let coin = dansCoin(p, e)
 
         if !visible {

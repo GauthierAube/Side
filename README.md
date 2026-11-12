@@ -14,7 +14,7 @@ On les fait venir d'un geste, on s'en sert, on les referme. Pas besoin de quitte
 - **Un vrai navigateur de fichiers** : barre latérale (favoris, récents, tags, disques et serveurs connectés), onglets, présentations en icônes, liste ou colonnes, recherche Spotlight, menu du clic droit, aperçu avec Espace.
 - **Une zone de dépôt** : pendant un glisser, une case apparaît à côté de la carte. Ce qu'on y pose reste sous la main, même Side fermé, pour le glisser ailleurs plus tard.
 - **Des colonnes épinglées** : glisser un dossier sur le bord droit de la carte le garde affiché en colonne.
-- **Un historique du copier-coller**, gardé 7 jours.
+- **Un historique du copier-coller**, gardé 7 jours : un volet glisse depuis le bord droit de l'écran, par un coin (en bas à droite par défaut) ou un raccourci clavier (⌃⌥V par défaut). Chaque élément copié y est une carte selon sa nature (image, lien, couleur, fichier…) ; un clic la recopie.
 
 ### Le tiroir
 
