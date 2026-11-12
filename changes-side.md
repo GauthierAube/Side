@@ -5,6 +5,22 @@ Il est mis à jour à chaque modification, en même temps que le code.
 
 ---
 
+## 12/11/2026, soir
+
+### Side a maintenant deux panneaux : le Finder et le tiroir
+- **Avant :** Side était un Finder flottant, avec un mini-Dock.
+- **Maintenant :** un second panneau, le tiroir, arrive du bord opposé au Finder. Il a une partie multimédia (YouTube dans une page intégrée, un lecteur Spotify, ou n'importe quel site ajouté dans les réglages) et une bande où ranger les fenêtres de ses applications à usage rapide (case « + »).
+- Le tiroir a son coin actif, son raccourci (⌃⌥Espace au départ) et son geste à quatre doigts, dans l'autre sens que le Finder.
+- La visite guidée présente le Finder, puis ouvre le tiroir pour le présenter à son tour.
+
+### Réglages repensés
+- La fenêtre est rangée comme les Réglages Système : Général ; Ouvrir et fermer (Coins actifs, Raccourcis clavier, Souris et trackpad) ; Finder ; Tiroir.
+- Coins actifs : un écran dessiné avec un menu à chaque coin, pour choisir ce que chaque coin ouvre.
+- Le mini-Dock et les raccourcis de l'app Raccourcis ne sont plus proposés dans les réglages.
+- Réglages > Général signale les applications compagnes, Square et Mulot.
+
+---
+
 ## 12/11/2026, matin
 
 ### Secouer pendant un glisser ouvre la zone de dépôt seule

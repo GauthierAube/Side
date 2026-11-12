@@ -2,19 +2,31 @@
 
 # Side
 
-Un petit Finder qui apparaît par-dessus n'importe quelle app du Mac, même en plein écran.
+Deux panneaux qui apparaissent par-dessus n'importe quelle app du Mac, même en plein écran : un petit Finder, et un tiroir pour la musique, la vidéo et les applications qu'on veut garder sous la main.
 
-Side est une carte flottante : on la fait venir d'un geste, on attrape un fichier, on la referme. Pas besoin de quitter l'app en cours ni de changer de bureau.
+On les fait venir d'un geste, on s'en sert, on les referme. Pas besoin de quitter l'app en cours ni de changer de bureau.
 
 ## Ce que fait Side
 
-- **S'ouvre d'un geste** : un coin de l'écran, une secousse de souris ou un raccourci clavier (⌘@ par défaut).
+### Le Finder
+
+- **S'ouvre d'un geste** : un coin de l'écran, un geste de souris, quatre doigts sur le trackpad ou un raccourci clavier (⌘@ par défaut).
 - **Un vrai navigateur de fichiers** : barre latérale (favoris, récents, tags, disques et serveurs connectés), onglets, présentations en icônes, liste ou colonnes, recherche Spotlight, menu du clic droit, aperçu avec Espace.
 - **Une zone de dépôt** : pendant un glisser, une case apparaît à côté de la carte. Ce qu'on y pose reste sous la main, même Side fermé, pour le glisser ailleurs plus tard.
 - **Des colonnes épinglées** : glisser un dossier sur le bord droit de la carte le garde affiché en colonne.
-- **Un mini-Dock** : les apps ouvertes ou favorites, et des raccourcis de l'app Raccourcis de macOS.
-- **Un historique du copier-coller** : il se déroule en passant la souris sur son icône, au bout du mini-Dock.
-- **Des réglages** façon Réglages Système : position et taille de la carte, flou de l'arrière-plan, options reprises du Finder.
+- **Un historique du copier-coller**, gardé 7 jours.
+
+### Le tiroir
+
+Il arrive du bord opposé au Finder (du bas, en général).
+
+- **Multimédia** : YouTube dans une page intégrée, un lecteur Spotify, ou n'importe quel site ajouté dans les réglages (Deezer, Apple Music, Twitch…). Un seul est affiché, les autres continuent de jouer, même tiroir fermé.
+- **Tes applications** : la case « + » range une application dans le tiroir. Sa fenêtre y reste, à côté des autres, dans une bande qu'on fait défiler ; elle ne traîne plus sur le bureau.
+- **S'ouvre comme le Finder** : son propre coin actif, son raccourci (⌃⌥Espace par défaut), quatre doigts dans l'autre sens.
+
+### Les réglages
+
+Une fenêtre façon Réglages Système : coins actifs, raccourcis, gestes, puis le Finder et le tiroir, chacun avec ses volets.
 
 ## Installation
 
@@ -26,24 +38,36 @@ cd Side
 ./build.sh
 ```
 
-Le script compile Side, l'installe dans `~/Applications` et le lance. Une icône apparaît dans la barre des menus, et une courte présentation s'affiche à la première ouverture.
+Le script compile Side, l'installe dans `~/Applications` et le lance. Une icône apparaît dans la barre des menus, et une courte présentation s'affiche à la première ouverture du Finder, puis du tiroir.
 
 À savoir : sans certificat de développeur Apple dans le trousseau, Side est signé avec une signature jetable. macOS redemande alors les autorisations (accès aux dossiers) après chaque compilation.
 
 ## Autorisations et vie privée
 
-- Side ne se connecte à aucun serveur : rien ne quitte le Mac.
+- Le Finder de Side ne se connecte à aucun serveur. Le tiroir, lui, affiche les sites que tu y mets (YouTube…) : ils voient ce que voit un navigateur. Side ne récolte rien.
 - macOS demande l'accès aux dossiers que Side affiche (Documents, Téléchargements, Bureau).
 - macOS demande aussi l'accès au réseau local : Side s'en sert uniquement pour repérer les ordinateurs qui partagent des fichiers (rubrique Réseau). On peut refuser ; la rubrique reste alors vide.
-- L'autorisation Accessibilité est facultative ; elle ne sert qu'à rejoindre une app en plein écran depuis le mini-Dock.
+- L'autorisation Accessibilité sert au tiroir : sans elle, Side ne peut pas y ranger la fenêtre d'une autre application. Le Finder et la partie multimédia marchent sans.
+- L'autorisation Enregistrement de l'écran est facultative : elle rend plus joli le glissement des applications du tiroir.
+- Le lecteur Spotify pilote l'application Spotify du Mac. Son accueil, sa recherche et sa bibliothèque demandent un accès développeur Spotify (gratuit), expliqué dans le lecteur ; le jeton reste dans le trousseau du Mac.
+- Couper les publicités de YouTube est un réglage, désactivé au départ : c'est contraire aux conditions d'utilisation de YouTube, à chacun de décider.
 - L'historique du copier-coller garde 7 jours de textes et de noms de fichiers copiés, dans un fichier lisible par toi seul (`~/Library/Application Support/Side/presse-papiers.json`). Les images et les mots de passe copiés depuis un gestionnaire de mots de passe ne sont jamais écrits sur le disque. Un réglage coupe l'historique et efface tout.
 
 ## Limites connues
 
 - Projet personnel, écrit rapidement avec l'aide d'une IA : il reste sûrement des bugs.
 - L'interface est en français uniquement.
-- Tout le code tient dans un seul fichier, `Sources/Side.swift`.
+- Le Finder tient dans un seul fichier, `Sources/Side.swift` ; le tiroir dans les fichiers `Sources/PanneauBas*.swift`.
+- Le tiroir déplace les fenêtres d'autres applications : certaines s'y prêtent mal (taille minimale, plusieurs bureaux, plein écran d'Apple).
+- YouTube change souvent sa page : les réglages propres à YouTube peuvent demander une mise à jour.
 - La corbeille et AirDrop ne sont pas pris en charge. Pour le réseau, Side repère les ordinateurs mais la première connexion se fait dans le Finder.
+
+## Les applications compagnes
+
+Side va bien avec deux autres petites applications, signalées dans ses réglages :
+
+- Square (bientôt publié) : les applications en plein écran, en grille, et un Dock.
+- [Mulot](https://github.com/GauthierAube/Mulot) : les boutons et les gestes de la souris MX Master, sans le logiciel de Logitech.
 
 ## Licence
 

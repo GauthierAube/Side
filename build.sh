@@ -6,7 +6,7 @@ APP=build/Side.app
 rm -rf build
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 swiftc -O -swift-version 5 -parse-as-library -target arm64-apple-macos14.0 \
-  Sources/Side.swift -o "$APP/Contents/MacOS/Side"
+  Sources/*.swift -o "$APP/Contents/MacOS/Side"
 mkdir -p "$APP/Contents/Resources/fr.lproj"
 cp Info.plist "$APP/Contents/Info.plist"
 cp Icone/Side.icns "$APP/Contents/Resources/Side.icns"

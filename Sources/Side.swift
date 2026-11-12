@@ -59,7 +59,7 @@ final class Config: ObservableObject {
     private let d = UserDefaults.standard
 
     @Published var coin: Coin { didSet { d.set(coin.rawValue, forKey: "coin") } }
-    @Published var bord: Bord { didSet { d.set(bord.rawValue, forKey: "bord") } }
+    @Published var bord: Bord { didSet { d.set(bord.rawValue, forKey: "bord"); GestePanneauBas.enHaut = bord == .bas } }   // version personnelle : le tiroir passe au bord opposé
     /// Taille de la carte, en part de l'écran : hauteur (haut/bas) ou largeur (gauche/droite).
     @Published var tailleHauteur: Double { didSet { d.set(tailleHauteur, forKey: "tailleHauteur") } }
     @Published var tailleLargeur: Double { didSet { d.set(tailleLargeur, forKey: "tailleLargeur") } }
@@ -445,6 +445,13 @@ enum Doigts {
         dernierePresence = ProcessInfo.processInfo.systemUptime
         nombreDoigts = doigts.count
         guard actif else { return }
+        // Version personnelle : un glissement qui part à l'horizontale (changement d'application, dans Square) n'est pas pour nous.
+        if let touches, nombre > 0 {
+            let contacts = touches.bindMemory(to: Contact.self, capacity: nombre)
+            if FiltreHorizontalBas.avaler((0..<nombre).map { (contacts[$0].identifiant, contacts[$0].x, contacts[$0].y) }) { return }
+        } else if FiltreHorizontalBas.avaler([]) { return }
+        // Version personnelle : le panneau du bas passe d'abord (voir PanneauBas.swift).
+        if GestePanneauBas.intercepter(doigts, sideOuvert: AppDelegate.shared.estOuvert, sensSide: sens) { return }
         let geste = traiter(doigts)
         if suivre(doigts) { return }
         guard geste != 0 else { return }
@@ -1682,14 +1689,16 @@ struct AccueilView: View {
                     Button("Passer") { store.finAccueil() }.buttonStyle(.plain).foregroundStyle(.secondary)
                 }
                 Spacer()
-                if etape == 0 || etape == Self.nombre - 1 {
-                    Button(etape == 0 ? "Changer…" : "Réglages…") {
-                        if etape > 0 { store.finAccueil() }
-                        AppDelegate.shared.ouvrirReglages()
-                    }
+                if etape == 0 {
+                    Button("Changer…") { AppDelegate.shared.ouvrirReglages() }
                 }
-                Button(etape < Self.nombre - 1 ? "Suivant" : "Terminer") {
-                    if etape < Self.nombre - 1 { store.accueil = etape + 1 } else { store.finAccueil() }
+                Button(etape < Self.nombre - 1 ? "Suivant" : "Voir le tiroir") {
+                    if etape < Self.nombre - 1 { store.accueil = etape + 1 } else {
+                        // Fin de la visite du Finder : il se referme, et le tiroir s'ouvre pour se présenter à son tour.
+                        store.finAccueil()
+                        if AppDelegate.shared.estOuvert { AppDelegate.shared.basculer() }
+                        PanneauBas.commun.présenter()
+                    }
                 }
                 .buttonStyle(.borderedProminent)
                 .keyboardShortcut(.defaultAction)
@@ -1703,13 +1712,12 @@ struct AccueilView: View {
     }
 
     private var titre: String {
-        ["Bienvenue dans Side", "Tes dossiers", "Tes fichiers", "La zone de dépôt", "Tes apps"][min(etape, 4)]
+        ["Bienvenue dans Side", "Tes dossiers", "Tes fichiers", "La zone de dépôt", "Le tiroir"][min(etape, 4)]
     }
 
     private var fleche: String? {
         if etape == 3 { return "arrow.right" }
-        guard etape == 4, config.apps else { return nil }
-        return ["haut": "arrow.up", "bas": "arrow.down", "gauche": "arrow.left", "droite": "arrow.right"][config.dockPosition]
+        return etape == 4 ? (ConfigTiroir.enHaut ? "arrow.up" : "arrow.down") : nil      // le bord d'où arrive le tiroir
     }
 
     private func geste(_ symbole: String, _ texte: String) -> some View {
@@ -1723,7 +1731,7 @@ struct AccueilView: View {
         switch etape {
         case 0:
             VStack(alignment: .leading, spacing: 7) {
-                Text("Pour l'ouvrir et le fermer :").foregroundStyle(.secondary)
+                Text("Pour ouvrir et fermer le Finder :").foregroundStyle(.secondary)
                 if config.coin != .aucun { geste("arrow.up.left.and.arrow.down.right", "Le coin " + config.coin.titre.lowercased()) }
                 if config.secouer {
                     geste("cursorarrow.motionlines", config.cercle ? "Un cercle avec la souris" : "Une secousse de souris")
@@ -1741,7 +1749,7 @@ struct AccueilView: View {
             Text("Glisse un fichier : elle apparaît ici. Ce que tu y poses reste sous la main, même Side fermé.")
         default:
             VStack(alignment: .leading, spacing: 7) {
-                if config.apps { geste("dock.rectangle", "Le mini-Dock lance tes apps") }
+                Text("Side a aussi un tiroir, pour tes applications à usage rapide. Il va s'ouvrir pour se présenter.").foregroundStyle(.secondary)
                 geste("menubar.arrow.up.rectangle", "Réglages : icône Side, barre des menus")
             }
         }
@@ -2928,6 +2936,7 @@ struct SidebarView: View {
                                        symbole: Fichiers.estReseau(disque) ? "server.rack" : "externaldrive")
                         }
                     }
+                    if b.contains("corbeille") { LigneCorbeille(store: store) }
                 }
                 if b.contains("reseau") {
                     titre("Réseau")
@@ -3116,6 +3125,100 @@ struct PressePapiersView: View {
     }
 }
 
+/// Toute fenêtre d'avertissement ou de choix de fichier de Side doit apparaître DEVANT la carte, le panneau du bas et leurs
+/// menus, jamais derrière : ils flottent au-dessus des fenêtres ordinaires, et une alerte ordinaire resterait cachée dessous.
+enum Devant {
+    /// Au-dessus de tout ce que Side affiche (carte, mini-Dock, panneau du bas, listes).
+    static let niveau = NSWindow.Level(rawValue: NSWindow.Level.popUpMenu.rawValue + 6)
+
+    /// Affiche l'alerte devant tout le reste et attend la réponse.
+    @discardableResult
+    static func alerte(_ a: NSAlert) -> NSApplication.ModalResponse {
+        a.window.level = niveau
+        NSApp.activate(ignoringOtherApps: true)
+        return a.runModal()
+    }
+
+    /// Affiche un panneau d'ouverture ou d'enregistrement devant tout le reste et attend la réponse.
+    static func panneau(_ p: NSSavePanel) -> NSApplication.ModalResponse {
+        p.level = niveau
+        NSApp.activate(ignoringOtherApps: true)
+        return p.runModal()
+    }
+}
+
+/// La corbeille s'affiche dans la carte, comme un dossier. macOS ne laisse une application lire son contenu que si elle a
+/// l'« Accès complet au disque » : sans lui, Side l'explique et propose d'ouvrir le bon réglage.
+enum Corbeille {
+    static var dossier: URL? { FileManager.default.urls(for: .trashDirectory, in: .userDomainMask).first }
+
+    static var lisible: Bool {
+        guard let d = dossier else { return false }
+        return (try? FileManager.default.contentsOfDirectory(atPath: d.path)) != nil
+    }
+
+    /// Ce dossier est-il la corbeille ?
+    static func est(_ u: URL) -> Bool { dossier.map { $0.standardizedFileURL.path == u.standardizedFileURL.path } ?? false }
+
+    /// Vide la corbeille, après confirmation : la suppression est définitive.
+    static func vider() {
+        guard let d = dossier, let elements = try? FileManager.default.contentsOfDirectory(at: d, includingPropertiesForKeys: nil) else { return }
+        let aSupprimer = elements.filter { $0.lastPathComponent != ".DS_Store" }
+        guard !aSupprimer.isEmpty else { NSSound.beep(); return }
+        let alerte = NSAlert()
+        alerte.alertStyle = .warning
+        alerte.messageText = "Vider la corbeille ?"
+        alerte.informativeText = aSupprimer.count == 1
+            ? "L'élément qu'elle contient sera supprimé définitivement. Cette action est irréversible."
+            : "Les \(aSupprimer.count) éléments qu'elle contient seront supprimés définitivement. Cette action est irréversible."
+        alerte.addButton(withTitle: "Vider la corbeille")
+        alerte.addButton(withTitle: "Annuler")
+        guard Devant.alerte(alerte) == .alertFirstButtonReturn else { return }
+        var rates = 0
+        for u in aSupprimer { do { try FileManager.default.removeItem(at: u) } catch { rates += 1 } }
+        if rates > 0 { NSSound.beep() }
+        AppDelegate.shared.store.reloadAll()
+    }
+
+    /// Affiche la corbeille dans la carte (qui doit être ouverte), ou explique pourquoi ce n'est pas possible.
+    static func montrer() {
+        guard let d = dossier else { return }
+        if lisible { AppDelegate.shared.store.naviguer(.folder(d)); return }
+        let alerte = NSAlert()
+        alerte.messageText = "Side n'a pas le droit de lire la corbeille"
+        alerte.informativeText = "macOS réserve le contenu de la corbeille aux applications qui ont l'« Accès complet au disque ». Ouvre le réglage, active Side dans la liste, puis relance Side : la corbeille s'affichera dans la carte."
+        alerte.addButton(withTitle: "Ouvrir le réglage")
+        alerte.addButton(withTitle: "Plus tard")
+        if Devant.alerte(alerte) == .alertFirstButtonReturn,
+           let u = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles") {
+            NSWorkspace.shared.open(u)
+        }
+    }
+}
+
+/// La corbeille, dans la barre latérale : un clic l'affiche dans la carte.
+struct LigneCorbeille: View {
+    @ObservedObject var store: Store
+    @State private var survol = false
+
+    var body: some View {
+        let actif = Corbeille.dossier.map { store.courante == .folder($0) } ?? false
+        HStack(spacing: 7) {
+            Image(systemName: "trash").foregroundStyle(Color.accentColor).frame(width: 18)
+            Text("Corbeille").lineLimit(1)
+            Spacer(minLength: 0)
+        }
+        .padding(.horizontal, 6)
+        .padding(.vertical, 6)
+        .background(RoundedRectangle(cornerRadius: 6).fill(
+            actif ? Color.primary.opacity(0.16) : (survol ? Color.primary.opacity(0.08) : .clear)))
+        .contentShape(Rectangle())
+        .onHover { survol = $0 }
+        .onTapGesture { Corbeille.montrer() }
+        .help("Afficher la corbeille")
+    }
+}
+
 struct LigneBarre: View {
     @ObservedObject var store: Store
     let kind: Column.Kind
@@ -3276,6 +3379,20 @@ struct ColumnView: View {
                     }
                     .padding(3)
                     .background(Capsule().fill(Color.primary.opacity(0.09)))
+                }
+                // Dans la corbeille : le bouton « Vider », comme dans le Finder.
+                if case .folder(let d) = column.kind, Corbeille.est(d) {
+                    Button { Corbeille.vider() } label: {
+                        Text("Vider")
+                            .font(.system(size: 12, weight: .semibold))
+                            .padding(.horizontal, 11)
+                            .frame(height: 28)
+                            .background(Capsule().fill(Color.primary.opacity(0.09)))
+                            .contentShape(Capsule())
+                    }
+                    .buttonStyle(.plain)
+                    .help("Vider la corbeille")
+                    .accessibilityLabel("Vider la corbeille")
                 }
                 Menu {
                     if !fixe {
@@ -4020,49 +4137,88 @@ struct RowView: View {
 
 // MARK: - Réglages de l'utilisateur
 
-/// Les volets de la fenêtre de réglages, comme les rubriques des Réglages Système.
+/// Les volets de la fenêtre de réglages, rangés comme les Réglages Système : d'abord ce qui vaut pour tout Side,
+/// puis les façons d'ouvrir, puis chacune des deux parties de Side : le Finder (la carte) et le tiroir du bas.
 enum Volet: String, CaseIterable, Identifiable {
     /// Volet affiché à l'ouverture des réglages (« --volet nom » le choisit, pour les tests).
     static var depart: Volet {
         let a = CommandLine.arguments
-        return a.firstIndex(of: "--volet").flatMap { $0 + 1 < a.count ? Volet(rawValue: a[$0 + 1]) : nil } ?? .ouverture
+        return a.firstIndex(of: "--volet").flatMap { $0 + 1 < a.count ? Volet(rawValue: a[$0 + 1]) : nil } ?? .general
     }
-    case ouverture, fermeture, apparence, finder, colonnes, depot, raccourcis, general
+    case general, coins, clavier, gestes, apparence, fermeture, fichiers, colonnes, depot, tiroir, multimedia, applications
     var id: String { rawValue }
+
+    /// Les rubriques de la barre latérale, avec leur intitulé.
+    static let groupes: [(String?, [Volet])] = [
+        (nil, [.general]),
+        ("Ouvrir et fermer", [.coins, .clavier, .gestes]),
+        ("Finder", [.apparence, .fermeture, .fichiers, .colonnes, .depot]),
+        ("Tiroir", [.tiroir, .multimedia, .applications]),      // le second panneau de Side, au bord opposé au Finder
+    ]
+
     var titre: String {
         switch self {
-        case .ouverture: return "Ouverture"
-        case .fermeture: return "Fermeture"
-        case .apparence: return "Apparence"
-        case .finder: return "Comme le Finder"
-        case .colonnes: return "Dossiers et colonnes"
-        case .depot: return "Dépôt et apps"
-        case .raccourcis: return "Raccourcis"
         case .general: return "Général"
+        case .coins: return "Coins actifs"
+        case .clavier: return "Raccourcis clavier"
+        case .gestes: return "Souris et trackpad"
+        case .apparence: return "Apparence"
+        case .fermeture: return "Fermeture"
+        case .fichiers: return "Barre latérale et fichiers"
+        case .colonnes: return "Dossiers et colonnes"
+        case .depot: return "Zones de dépôt"
+        case .tiroir: return "Ouverture et fermeture"
+        case .multimedia: return "Multimédia"
+        case .applications: return "Applications"
+        }
+    }
+    /// Une phrase sous le titre du volet, pour dire de quoi il s'agit.
+    var resume: String {
+        switch self {
+        case .general: return "Ce qui vaut pour tout Side."
+        case .coins: return "Amener le pointeur dans un coin de l'écran ouvre le Finder ou le tiroir."
+        case .clavier: return "Un raccourci pour le Finder, un autre pour le tiroir."
+        case .gestes: return "Ouvrir le Finder et le tiroir d'un geste, à la souris ou au trackpad."
+        case .apparence: return "Le Finder de Side : d'où il arrive, sa taille, son fond."
+        case .fermeture: return "Quand le Finder de Side se referme."
+        case .fichiers: return "Ce que le Finder de Side affiche, et comment."
+        case .colonnes: return "Le dossier de départ et les colonnes épinglées du Finder de Side."
+        case .depot: return "Les zones où poser des fichiers en attente, à côté du Finder de Side."
+        case .tiroir: return "Le tiroir, second panneau de Side."
+        case .multimedia: return "Musique et vidéo, au début du tiroir."
+        case .applications: return "Les applications rangées dans le tiroir."
         }
     }
     var symbole: String {
         switch self {
-        case .ouverture: return "cursorarrow.rays"
-        case .fermeture: return "xmark"
+        case .general: return "gearshape.fill"
+        case .coins: return "rectangle.inset.topleft.filled"
+        case .clavier: return "keyboard.fill"
+        case .gestes: return "hand.draw.fill"
         case .apparence: return "paintbrush.fill"
-        case .finder: return "folder.fill"
+        case .fermeture: return "xmark"
+        case .fichiers: return "folder.fill"
         case .colonnes: return "rectangle.split.3x1.fill"
         case .depot: return "tray.and.arrow.down.fill"
-        case .raccourcis: return "bolt.fill"
-        case .general: return "gearshape.fill"
+        case .tiroir: return "rectangle.bottomthird.inset.filled"
+        case .multimedia: return "play.rectangle.fill"
+        case .applications: return "square.grid.2x2.fill"
         }
     }
     var couleur: Color {
         switch self {
-        case .ouverture: return .blue
-        case .fermeture: return .red
+        case .general: return .gray
+        case .coins: return .blue
+        case .clavier: return .indigo
+        case .gestes: return .teal
         case .apparence: return .purple
-        case .finder: return .cyan
+        case .fermeture: return .red
+        case .fichiers: return .cyan
         case .colonnes: return .orange
         case .depot: return .green
-        case .raccourcis: return .pink
-        case .general: return .gray
+        case .tiroir: return .pink
+        case .multimedia: return .red
+        case .applications: return .mint
         }
     }
 }
@@ -4070,21 +4226,27 @@ enum Volet: String, CaseIterable, Identifiable {
 struct ReglagesView: View {
     @ObservedObject var config = Config.shared
     @ObservedObject var store = AppDelegate.shared.store
+    @ObservedObject var tiroir = ConfigTiroir.commun
     @State private var volet: Volet = Volet.depart
     @State private var demarrage = SMAppService.mainApp.status == .enabled
     @State private var ecoute = false
-    @ObservedObject var raccourcis = Raccourcis.shared
 
     var body: some View {
         HStack(spacing: 0) {
             VStack(alignment: .leading, spacing: 2) {
-                ForEach(Volet.allCases) { ligne($0) }
+                ForEach(Array(Volet.groupes.enumerated()), id: \.offset) { _, groupe in
+                    if let nom = groupe.0 {
+                        Text(nom).font(.caption.weight(.semibold)).foregroundStyle(.secondary)
+                            .padding(.leading, 8).padding(.top, 12).padding(.bottom, 2)
+                    }
+                    ForEach(groupe.1) { ligne($0) }
+                }
                 Spacer()
             }
             .padding(.horizontal, 10)
             .padding(.top, 48)
             .padding(.bottom, 10)
-            .frame(width: 210)
+            .frame(width: 230)
             .background(ZStack {
                 Color(nsColor: .windowBackgroundColor)
                 Color.primary.opacity(0.05)
@@ -4092,7 +4254,9 @@ struct ReglagesView: View {
             Divider()
             VStack(alignment: .leading, spacing: 0) {
                 Text(volet.titre).font(.title2.weight(.semibold))
-                    .padding(.horizontal, 26).padding(.top, 16).padding(.bottom, 2)
+                    .padding(.horizontal, 26).padding(.top, 16)
+                Text(volet.resume).font(.callout).foregroundStyle(.secondary)
+                    .padding(.horizontal, 26).padding(.top, 2).padding(.bottom, 2)
                 Form { contenu }
                     .formStyle(.grouped)
                     .scrollContentBackground(.hidden)
@@ -4100,7 +4264,7 @@ struct ReglagesView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             .background(Color(nsColor: .windowBackgroundColor))
         }
-        .frame(minWidth: 760, maxWidth: .infinity, minHeight: 500, maxHeight: .infinity)   // remplit toute la fenêtre
+        .frame(minWidth: 800, maxWidth: .infinity, minHeight: 560, maxHeight: .infinity)   // remplit toute la fenêtre
         .ignoresSafeArea()
     }
 
@@ -4153,16 +4317,55 @@ struct ReglagesView: View {
 
     @ViewBuilder private var contenu: some View {
         switch volet {
-        case .ouverture:
+        case .general:
             Section {
-                Picker("Coin actif", selection: $config.coin) {
-                    ForEach(Coin.allCases, id: \.self) { Text($0.titre).tag($0) }
-                }
-                curseur("Taille du coin", $config.tailleCoin, 6...120, "\(Int(config.tailleCoin.rounded())) pt")
-                    .disabled(config.coin == .aucun)
-            } header: { Text("Coin de l'écran") } footer: {
-                note("Si macOS utilise déjà ce coin, désactive-le dans Réglages Système > Bureau et Dock > Coins actifs.")
+                Toggle("Garder un historique du copier-coller (7 jours)", isOn: $config.historique)
+                Toggle("Y garder aussi les mots de passe (affichés masqués)", isOn: $config.historiqueSecrets)
+                    .disabled(!config.historique)
+            } header: { Text("Presse-papiers") } footer: {
+                note("Les textes et les fichiers copiés sont gardés 7 jours sur ce Mac ; ce que tu épingles (clic droit) est gardé sans limite. Les images et les mots de passe ne sont jamais écrits sur le disque : ils s'effacent quand Side se ferme. Décocher l'historique efface tout.")
             }
+            SectionCompagnes()
+            Section("Présentation") {
+                LabeledContent("La visite guidée de Side, en cinq étapes") {
+                    Button("Revoir la présentation") { AppDelegate.shared.revoirAccueil() }
+                }
+            }
+            Section {
+                Toggle("Ouvrir Side à l'ouverture de session", isOn: Binding(
+                    get: { demarrage },
+                    set: { _ in
+                        AppDelegate.shared.basculerDemarrage()
+                        demarrage = SMAppService.mainApp.status == .enabled
+                    }))
+            }
+        case .coins:
+            Section {
+                CoinsActifsView()
+                curseur("Taille des coins", $config.tailleCoin, 6...120, "\(Int(config.tailleCoin.rounded())) pt")
+                    .disabled(config.coin == .aucun && tiroir.coin == .aucun)
+            } footer: {
+                note("Choisis pour chaque coin ce qu'il ouvre : le Finder, le tiroir, ou rien. Revenir dans le coin referme. Si macOS utilise déjà ce coin, désactive-le dans Réglages Système > Bureau et Dock > Coins actifs.")
+            }
+        case .clavier:
+            Section("Finder") {
+                LabeledContent("Ouvrir et fermer le Finder") {
+                    HStack {
+                        Button(ecoute ? "Tape le raccourci…" : config.libelle) {
+                            ecoute = true
+                            AppDelegate.shared.ecouterRaccourci { ecoute = false }
+                        }
+                        Button("Effacer") { AppDelegate.shared.definirRaccourci(touche: -1, mods: 0, libelle: "Aucun") }
+                            .disabled(config.touche == -1)
+                    }
+                }
+            }
+            Section {
+                RaccourciTiroirLigne()
+            } header: { Text("Tiroir") } footer: {
+                note("Clique sur un raccourci, puis tape la nouvelle combinaison : elle doit contenir Commande, Contrôle ou Option. Échap annule. La touche Échap referme toujours le Finder comme le tiroir.")
+            }
+        case .gestes:
             Section {
                 Toggle("Geste de la souris", isOn: $config.secouer)
                 Picker("Geste", selection: $config.cercle) {
@@ -4174,9 +4377,9 @@ struct ReglagesView: View {
                 curseur("Sensibilité", $config.sensibilite, 0...1,
                         config.sensibilite > 0.66 ? "Élevée" : (config.sensibilite > 0.33 ? "Moyenne" : "Faible"))
                     .disabled(!config.secouer)
-            } header: { Text("Geste de la souris") } footer: {
+            } header: { Text("Souris : ouvrir le Finder") } footer: {
                 if config.cercle {
-                    note("Fais un cercle avec le pointeur, d'un seul mouvement rapide, sans cliquer, pour ouvrir Side. Il peut être grossier, petit ou grand, dans un sens ou dans l'autre. Le cercle ne referme pas Side : utilise un clic à côté, Échap, le coin ou le raccourci.")
+                    note("Fais un cercle avec le pointeur, d'un seul mouvement rapide, sans cliquer, pour ouvrir le Finder. Il peut être grossier, petit ou grand, dans un sens ou dans l'autre. Le cercle ne referme pas le Finder : utilise un clic à côté, Échap, le coin ou le raccourci.")
                 }
             }
             Section {
@@ -4197,23 +4400,49 @@ struct ReglagesView: View {
                         }
                     }
                 }
-            } header: { Text("Trackpad") } footer: {
+            } header: { Text("Trackpad : ouvrir le Finder") } footer: {
                 note((config.sensDoigts == "deux"
-                      ? "Chaque geste, vers le haut ou vers le bas, ouvre ou ferme Side. "
-                      : "Le geste dans l'autre sens referme Side. ")
+                      ? "Chaque geste, vers le haut ou vers le bas, ouvre ou ferme le Finder. "
+                      : "Le geste dans l'autre sens referme le Finder. ")
                      + "Attention : macOS utilise déjà ces gestes, vers le haut pour Mission Control et vers le bas pour « Exposé des apps ». Pour que les deux ne se déclenchent pas ensemble, mets-les sur « Désactivé » dans Réglages Système > Trackpad > Autres gestes. Side ne change pas ces réglages lui-même.")
             }
-            Section("Clavier") {
-                LabeledContent("Raccourci") {
+            Section {
+                Toggle("Glisser quatre doigts " + ConfigTiroir.sensGeste, isOn: $tiroir.quatreDoigts)
+                    .disabled(!ConfigTiroir.gestePossible)
+            } header: { Text("Trackpad : ouvrir le tiroir") } footer: {
+                note(ConfigTiroir.gestePossible
+                     ? "Le tiroir arrive du \(ConfigTiroir.enHaut ? "haut" : "bas") de l'écran, à l'opposé du Finder : quatre doigts \(ConfigTiroir.sensGeste) l'ouvrent, dans l'autre sens le referment. Il suit les doigts."
+                     : "Le tiroir arrive du \(ConfigTiroir.enHaut ? "haut" : "bas") de l'écran : son geste est quatre doigts \(ConfigTiroir.sensGeste). Il n'est libre que si le Finder s'ouvre, lui, avec quatre doigts « \(ConfigTiroir.enHaut ? "Vers le haut" : "Vers le bas") ».")
+            }
+        case .apparence:
+            Section("Position et taille") {
+                Picker("Le Finder arrive", selection: $config.bord) {
+                    ForEach(Bord.allCases, id: \.self) { Text($0.titre).tag($0) }
+                }
+                .onChange(of: config.bord) { _, b in ConfigTiroir.reglerBord(b) }      // les gestes à quatre doigts suivent
+                LabeledContent("Le tiroir arrive") {
+                    Text(ConfigTiroir.enHaut ? "Du haut" : "Du bas").foregroundStyle(.secondary)
+                }
+                note("Le tiroir prend toujours le bord opposé au Finder : du haut quand le Finder vient du bas, du bas dans tous les autres cas. Le geste à quatre doigts s'inverse avec lui.")
+                if config.bord == .plein {
                     HStack {
-                        Button(ecoute ? "Tape le raccourci…" : config.libelle) {
-                            ecoute = true
-                            AppDelegate.shared.ecouterRaccourci { ecoute = false }
-                        }
-                        Button("Effacer") { AppDelegate.shared.definirRaccourci(touche: -1, mods: 0, libelle: "Aucun") }
-                            .disabled(config.touche == -1)
+                        note("La carte apparaît au centre. Tire-la par sa barre du haut pour la déplacer : Side retient l'endroit.")
+                        Spacer()
+                        Button("Recentrer") { AppDelegate.shared.recentrerCarte() }
                     }
                 }
+                curseur("Hauteur du Finder", $config.tailleHauteur, 0.15...0.9, pourcent(config.tailleHauteur))
+                curseur("Largeur (sans les colonnes épinglées)", $config.largeurSeule, 0.35...1, pourcent(config.largeurSeule))
+            }
+            Section("Fond") {
+                curseur("Opacité", $config.opacite, 0...1, pourcent(config.opacite))
+            }
+            Section {
+                Toggle("Flouter l'arrière-plan quand le Finder est ouvert", isOn: $config.flou)
+                curseur("Intensité", $config.flouForce, 0.3...1, pourcent(config.flouForce))
+                    .disabled(!config.flou)
+            } header: { Text("Arrière-plan") } footer: {
+                note("L'écran derrière la carte s'estompe en fondu. On peut toujours cliquer et glisser des fichiers au travers.")
             }
         case .fermeture:
             Section {
@@ -4225,34 +4454,9 @@ struct ReglagesView: View {
                 Toggle("Fermer d'un clic en dehors", isOn: $config.fermerAuClic)
                 Toggle("Fermer quand la souris en sort", isOn: $config.fermerEnSortant)
             } footer: {
-                note("La carte se ferme toujours avec le raccourci clavier, la touche Échap, une secousse ou en revenant dans le coin actif.")
+                note("Le Finder se ferme toujours avec le raccourci clavier, la touche Échap, une secousse ou en revenant dans le coin actif.")
             }
-        case .apparence:
-            Section("Position et taille") {
-                Picker("La carte arrive", selection: $config.bord) {
-                    ForEach(Bord.allCases, id: \.self) { Text($0.titre).tag($0) }
-                }
-                if config.bord == .plein {
-                    HStack {
-                        note("La carte apparaît au centre. Tire-la par sa barre du haut pour la déplacer : Side retient l'endroit.")
-                        Spacer()
-                        Button("Recentrer") { AppDelegate.shared.recentrerCarte() }
-                    }
-                }
-                curseur("Hauteur de la carte", $config.tailleHauteur, 0.15...0.9, pourcent(config.tailleHauteur))
-                curseur("Largeur du Finder (sans les colonnes)", $config.largeurSeule, 0.35...1, pourcent(config.largeurSeule))
-            }
-            Section("Fond de la carte") {
-                curseur("Opacité", $config.opacite, 0...1, pourcent(config.opacite))
-            }
-            Section {
-                Toggle("Flouter l'arrière-plan quand Side est ouvert", isOn: $config.flou)
-                curseur("Intensité", $config.flouForce, 0.3...1, pourcent(config.flouForce))
-                    .disabled(!config.flou)
-            } header: { Text("Arrière-plan") } footer: {
-                note("L'écran derrière la carte s'estompe en fondu. On peut toujours cliquer et glisser des fichiers au travers.")
-            }
-        case .finder:
+        case .fichiers:
             Section {
                 entree("Fichiers récents", "clock", "recents")
                 entree("Dossiers récents", "clock.arrow.circlepath", "dossiers")
@@ -4262,6 +4466,7 @@ struct ReglagesView: View {
                 entree("Bureau", "menubar.dock.rectangle", "bureau")
                 entree("Documents", "doc", "documents")
                 entree("Téléchargements", "arrow.down.circle", "telechargements")
+                entree("Corbeille", "trash", "corbeille")
                 entree("Disques externes et serveurs connectés", "externaldrive", "disques")
                 entree("Réseau (ordinateurs qui partagent des fichiers)", "network", "reseau")
                 entree("Tags", "circle.fill", "tags")
@@ -4330,66 +4535,12 @@ struct ReglagesView: View {
             } header: { Text("Zones de dépôt") } footer: {
                 note("Une zone apparaît en haut à droite de la carte quand tu fais glisser un fichier. Tant qu'elle contient quelque chose, elle reste à l'écran même quand Side est fermé, pour que tu puisses glisser son contenu ailleurs. Side fermé, secoue le pointeur pendant que tu glisses un fichier : la zone apparaît seule, à côté de la souris. Secoue encore pour en ajouter une autre. Si la carte vient du haut, la zone se place en bas de la carte et les suivantes s'empilent au-dessus. Les zones vides disparaissent toutes seules.")
             }
-            Section {
-                Toggle("Afficher le mini-Dock", isOn: $config.apps)
-                Picker("Emplacement", selection: $config.dockPosition) {
-                    Text("Au-dessus de la carte").tag("haut")
-                    Text("En dessous").tag("bas")
-                    Text("À gauche").tag("gauche")
-                    Text("À droite").tag("droite")
-                }
-                .disabled(!config.apps)
-                curseur("Taille des icônes", $config.tailleDock, 28...64, "\(Int(config.tailleDock.rounded())) pt")
-                    .disabled(!config.apps)
-                curseur("Grossissement au survol", $config.grossissement, 1...2,
-                        config.grossissement < 1.005 ? "Aucun" : "+ " + pourcent(config.grossissement - 1))
-                    .disabled(!config.apps)
-                Toggle("Afficher le bouton « Apps » (toutes les applications, avec une recherche)", isOn: $config.lanceur).disabled(!config.apps)
-                Toggle("Apps ouvertes", isOn: $config.appsOuvertes).disabled(!config.apps)
-                Toggle("Apps favorites", isOn: $config.appsFavoris).disabled(!config.apps)
-                if !config.appsMasquees.isEmpty {
-                    Button("Réafficher les \(config.appsMasquees.count) apps masquées") { config.appsMasquees = [] }
-                }
-            } header: { Text("Mini-Dock") } footer: {
-                note("Un clic passe à l'app. Déposer un fichier sur une icône l'ouvre avec cette app. Pour ajouter une favorite : dépose une app sur le mini-Dock, ou clic droit > « Garder dans le mini-Dock ». Pour retirer une icône : glisse-la hors du mini-Dock et lâche-la quand la croix apparaît, ou clic droit.")
-            }
-        case .raccourcis:
-            Section {
-                if raccourcis.tous.isEmpty {
-                    Text("Aucun raccourci trouvé dans l'app Raccourcis.").foregroundStyle(.secondary)
-                }
-                ForEach(raccourcis.tous, id: \.self) { nom in
-                    Toggle(nom, isOn: Binding(
-                        get: { config.raccourcis.contains(nom) },
-                        set: { oui in
-                            if oui { config.raccourcis.append(nom) } else { config.raccourcis.removeAll { $0 == nom } }
-                        }))
-                }
-                Button("Actualiser la liste") { raccourcis.actualiser() }
-            } header: { Text("Afficher dans le mini-Dock") } footer: {
-                note("Ce sont les raccourcis de l'app « Raccourcis » de macOS. Ils s'affichent à droite des apps, après un séparateur, sous forme de tuiles à leurs initiales. Un clic les lance ; déposer un fichier dessus le leur passe en entrée.")
-            }
-        case .general:
-            Section {
-                Toggle("Garder un historique du copier-coller (7 jours)", isOn: $config.historique)
-                Toggle("Y garder aussi les mots de passe (affichés masqués)", isOn: $config.historiqueSecrets)
-                    .disabled(!config.historique)
-            } header: { Text("Presse-papiers") } footer: {
-                note("L'historique se déroule en passant la souris sur l'icône au bout du mini-Dock. Les textes et les fichiers copiés sont gardés 7 jours sur ce Mac ; ce que tu épingles (clic droit) est gardé sans limite. Les images et les mots de passe ne sont jamais écrits sur le disque : ils s'effacent quand Side se ferme. Décocher l'historique efface tout.")
-            }
-            Section("Présentation") {
-                LabeledContent("Les cinq étapes de bienvenue") {
-                    Button("Revoir la présentation") { AppDelegate.shared.revoirAccueil() }
-                }
-            }
-            Section {
-                Toggle("Ouvrir Side à l'ouverture de session", isOn: Binding(
-                    get: { demarrage },
-                    set: { _ in
-                        AppDelegate.shared.basculerDemarrage()
-                        demarrage = SMAppService.mainApp.status == .enabled
-                    }))
-            }
+        case .tiroir:
+            SectionsTiroir(partie: .ouverture)
+        case .multimedia:
+            SectionsTiroir(partie: .multimedia)
+        case .applications:
+            SectionsTiroir(partie: .applications)
         }
     }
 }
@@ -4595,6 +4746,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
     private var ecran: NSScreen?
 
     func applicationDidFinishLaunching(_ note: Notification) {
+        // Version personnelle : le panneau du bas, branché après le raccourci de Side (voir PanneauBas.swift).
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { PanneauBas.commun.brancher() }
         panel = DrawerPanel(
             contentRect: NSRect(x: 0, y: 0, width: 800, height: 400),
             styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
@@ -4939,7 +5092,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         menu.addItem(withTitle: "Ajouter un dossier…", action: #selector(choisirDossier), keyEquivalent: "").target = self
         menu.addItem(.separator())
         menu.addItem(withTitle: "Réglages…", action: #selector(ouvrirReglages), keyEquivalent: ",").target = self
-        menu.addItem(withTitle: "Revoir la présentation", action: #selector(revoirAccueil), keyEquivalent: "").target = self
+        // « Revoir la présentation » n'est plus dans ce menu : elle se relance depuis Réglages > Général.
         menu.addItem(.separator())
         let demarrage = menu.addItem(
             withTitle: "Ouvrir à l'ouverture de session", action: #selector(basculerDemarrage), keyEquivalent: "")
@@ -4957,8 +5110,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
             let a = NSAlert()
             a.messageText = "Impossible de modifier l'ouverture automatique"
             a.informativeText = error.localizedDescription
-            NSApp.activate(ignoringOtherApps: true)
-            a.runModal()
+            Devant.alerte(a)
         }
     }
 
@@ -5373,8 +5525,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         p.allowsMultipleSelection = false
         p.prompt = "Ajouter"
         p.message = "Choisis le dossier à épingler dans Side"
-        NSApp.activate(ignoringOtherApps: true)
-        if p.runModal() == .OK, let url = p.url {
+        if Devant.panneau(p) == .OK, let url = p.url {
             store.ajouter(.folder(url.standardizedFileURL))
             afficherEpingle()
         }
@@ -5764,7 +5915,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
 
     // MARK: Menu contextuel (clic droit), calqué sur celui du Finder
 
-    private var auDessus: NSWindow.Level { NSWindow.Level(rawValue: NSWindow.Level.statusBar.rawValue + 1) }
+    private var auDessus: NSWindow.Level { Devant.niveau }
 
     func menuContextuel(_ item: FileItem, event: NSEvent) {
         let url = item.url
@@ -6813,6 +6964,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
 
         let p = NSEvent.mouseLocation
         guard let e = ecranSous(p) else { return }
+        // Version personnelle : le tiroir du bas a son propre coin actif (voir PanneauBas.swift).
+        PanneauBas.commun.surveillerCoin(p, e, taille: CGFloat(config.tailleCoin))
         let coin = dansCoin(p, e)
 
         if !visible {

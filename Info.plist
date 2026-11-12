@@ -51,7 +51,7 @@
 		<string>_afpovertcp._tcp</string>
 	</array>
 	<key>NSAppleEventsUsageDescription</key>
-	<string>Side demande au Finder d'afficher la fenêtre d'informations d'un fichier.</string>
+	<string>Side demande au Finder d'afficher la fenêtre d'informations d'un fichier, pilote Spotify et ouvre votre note dans Notes depuis le panneau du bas.</string>
 	<key>NSDocumentsFolderUsageDescription</key>
 	<string>Side affiche vos dossiers.</string>
 	<key>NSDownloadsFolderUsageDescription</key>
