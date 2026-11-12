@@ -3506,8 +3506,19 @@ final class Selection: ObservableObject {
 struct MillerView: View {
     @ObservedObject var column: Column
     @ObservedObject var config = Config.shared
+    @ObservedObject private var selection = Selection.shared
+
+    /// Le fichier sélectionné dans cette vue (nil pour un dossier : lui s'ouvre dans la colonne suivante).
+    private var fichierChoisi: FileItem? {
+        guard let url = selection.url, selection.colonne === column else { return nil }
+        for items in column.niveaux {
+            if let item = items.first(where: { $0.url == url }) { return item.isFolder ? nil : item }
+        }
+        return nil
+    }
 
     var body: some View {
+        GeometryReader { geo in
         ScrollViewReader { defilement in
             ScrollView(.horizontal, showsIndicators: true) {
                 HStack(spacing: 0) {
@@ -3526,17 +3537,136 @@ struct MillerView: View {
                         // Glisser ce trait change la largeur des colonnes.
                         Poignee(valeur: $config.largeurMiller, mini: 140, maxi: 520)
                     }
+                    // Comme dans le Finder : le fichier sélectionné s'affiche à droite, avec ses informations.
+                    if let fichier = fichierChoisi {
+                        let prise = CGFloat(column.niveaux.count) * (CGFloat(config.largeurMiller) + 9)
+                        ApercuFichier(item: fichier)
+                            .frame(width: max(300, geo.size.width - prise))
+                            .id("apercu")
+                    }
                 }
                 .frame(maxHeight: .infinity, alignment: .top)
             }
             .onChange(of: column.niveaux.count) { _, n in
-                withAnimation(.easeOut(duration: 0.2)) { defilement.scrollTo(n - 1, anchor: .trailing) }
+                withAnimation(.easeOut(duration: 0.2)) {
+                    if fichierChoisi != nil { defilement.scrollTo("apercu", anchor: .trailing) }
+                    else { defilement.scrollTo(n - 1, anchor: .trailing) }
+                }
+            }
+            .onChange(of: fichierChoisi?.url) { _, url in
+                guard url != nil else { return }
+                withAnimation(.easeOut(duration: 0.2)) { defilement.scrollTo("apercu", anchor: .trailing) }
             }
             // Sélectionner un élément dans une colonne à moitié masquée la fait glisser entièrement dans la vue.
             .onReceive(Selection.shared.changements) { url in
                 guard let url, Selection.shared.colonne === column,
                       let niveau = column.niveaux.firstIndex(where: { $0.contains { $0.url == url } }) else { return }
+                guard !(column.niveaux[niveau].first { $0.url == url }.map { !$0.isFolder } ?? false) else { return }
                 withAnimation(.easeOut(duration: 0.2)) { defilement.scrollTo(niveau) }
+            }
+        }
+        }
+    }
+}
+
+/// Ce que le Finder affiche à droite d'un fichier sélectionné, en présentation « colonnes ».
+struct InfosFichier {
+    var type = ""
+    var taille = ""
+    var lignes: [(String, String)] = []
+    var tags: [String] = []
+
+    static func lire(_ url: URL) -> InfosFichier {
+        var infos = InfosFichier()
+        let v = try? url.resourceValues(forKeys: [
+            .localizedTypeDescriptionKey, .totalFileSizeKey, .fileSizeKey, .creationDateKey,
+            .contentModificationDateKey, .tagNamesKey])
+        infos.type = v?.localizedTypeDescription ?? ""
+        if let octets = v?.totalFileSize ?? v?.fileSize {
+            infos.taille = ByteCountFormatter.string(fromByteCount: Int64(octets), countStyle: .file)
+        }
+        infos.tags = v?.tagNames ?? []
+        let dates = DateFormatter()
+        dates.dateStyle = .full
+        dates.timeStyle = .short
+        if let d = v?.creationDate { infos.lignes.append(("Créé le", dates.string(from: d))) }
+        if let d = v?.contentModificationDate { infos.lignes.append(("Modifié le", dates.string(from: d))) }
+        // Le reste vient de Spotlight, comme dans le Finder : dernière ouverture, dimensions, durée.
+        if let md = MDItemCreateWithURL(nil, url as CFURL) {
+            func valeur(_ cle: CFString) -> Any? { MDItemCopyAttribute(md, cle) }
+            if let d = valeur(kMDItemLastUsedDate) as? Date { infos.lignes.append(("Ouvert le", dates.string(from: d))) }
+            if let l = valeur(kMDItemPixelWidth) as? Int, let h = valeur(kMDItemPixelHeight) as? Int {
+                infos.lignes.append(("Dimensions", "\(l) × \(h)"))
+            }
+            if let s = valeur(kMDItemDurationSeconds) as? Double, s > 0 {
+                let f = DateComponentsFormatter()
+                f.allowedUnits = s >= 3600 ? [.hour, .minute, .second] : [.minute, .second]
+                f.zeroFormattingBehavior = .pad
+                if let texte = f.string(from: s) { infos.lignes.append(("Durée", texte)) }
+            }
+            if let n = valeur(kMDItemNumberOfPages) as? Int { infos.lignes.append(("Pages", "\(n)")) }
+        }
+        return infos
+    }
+}
+
+struct ApercuFichier: View {
+    let item: FileItem
+    @State private var image: NSImage?
+    @State private var infos = InfosFichier()
+
+    var body: some View {
+        VStack(spacing: 14) {
+            Group {
+                if let image {
+                    Image(nsImage: image).resizable().aspectRatio(contentMode: .fit)
+                        .clipShape(RoundedRectangle(cornerRadius: 6))
+                } else {
+                    Image(nsImage: NSWorkspace.shared.icon(forFile: item.url.path))
+                        .resizable().aspectRatio(contentMode: .fit).frame(maxWidth: 128, maxHeight: 128)
+                }
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .contentShape(Rectangle())
+            .onTapGesture(count: 2) { AppDelegate.shared.ouvrir(item.url) }
+
+            VStack(alignment: .leading, spacing: 6) {
+                Text(item.name).font(.title3.weight(.semibold)).lineLimit(2).truncationMode(.middle)
+                    .textSelection(.enabled)
+                Text([infos.type, infos.taille].filter { !$0.isEmpty }.joined(separator: " - "))
+                    .foregroundStyle(.secondary)
+                if !infos.lignes.isEmpty {
+                    Text("Informations").fontWeight(.semibold).padding(.top, 6)
+                    ForEach(Array(infos.lignes.enumerated()), id: \.offset) { n, ligne in
+                        if n > 0 { Divider() }
+                        HStack(alignment: .firstTextBaseline) {
+                            Text(ligne.0).foregroundStyle(.secondary)
+                            Spacer(minLength: 12)
+                            Text(ligne.1).multilineTextAlignment(.trailing)
+                        }
+                        .font(.callout)
+                    }
+                }
+                if !infos.tags.isEmpty {
+                    Text("Tags").fontWeight(.semibold).padding(.top, 6)
+                    Text(infos.tags.joined(separator: ", ")).font(.callout).foregroundStyle(.secondary)
+                }
+            }
+            .frame(maxWidth: 420, alignment: .leading)
+            .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(16)
+        .frame(maxHeight: .infinity)
+        .task(id: item.url) {
+            let url = item.url
+            image = nil
+            infos = await Task.detached { InfosFichier.lire(url) }.value
+            let demande = QLThumbnailGenerator.Request(
+                fileAt: url, size: CGSize(width: 900, height: 900),
+                scale: NSScreen.main?.backingScaleFactor ?? 2, representationTypes: .thumbnail)
+            if let rep = try? await QLThumbnailGenerator.shared.generateBestRepresentation(for: demande),
+               !Task.isCancelled {
+                image = rep.nsImage
             }
         }
     }

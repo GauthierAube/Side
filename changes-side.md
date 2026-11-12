@@ -5,6 +5,16 @@ Il est mis à jour à chaque modification, en même temps que le code.
 
 ---
 
+## 12/11/2026, matin
+
+### Présentation en colonnes : aperçu du fichier sélectionné
+- **Le problème :** en présentation « colonnes », cliquer sur un fichier laissait la partie droite vide.
+- **Maintenant :** le fichier sélectionné s'affiche à droite, comme dans le Finder : grand aperçu, nom, type et taille, puis les informations (Créé le, Modifié le, Ouvert le, Dimensions, Durée ou Pages selon le fichier) et les tags.
+- L'aperçu suit la sélection, à la souris comme aux flèches du clavier. Un double-clic sur l'aperçu ouvre le fichier.
+- Pas repris du Finder : le lien « Plus de détails » et l'ajout de tags depuis ce panneau.
+
+---
+
 ## 11/11/2026, soir
 
 ### Une app déposée dans le mini-Dock se pose là où tu la lâches
