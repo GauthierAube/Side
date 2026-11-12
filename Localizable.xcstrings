@@ -283,6 +283,16 @@
         }
       }
     },
+    "Afficher la vidéo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show Video"
+          }
+        }
+      }
+    },
     "Afficher le chemin de ce dossier": {
       "localizations": {
         "en": {
@@ -339,6 +349,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Add to the Drawer"
+          }
+        }
+      }
+    },
+    "Ajouter au tiroir": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add to Drawer"
           }
         }
       }
@@ -423,16 +443,6 @@
         }
       }
     },
-    "Ajouter une application ouverte": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Add an Open App"
-          }
-        }
-      }
-    },
     "Ajouter une application…": {
       "localizations": {
         "en": {
@@ -473,12 +483,12 @@
         }
       }
     },
-    "Amener le pointeur dans un coin de l'écran ouvre le Finder ou le tiroir.": {
+    "Amener le pointeur dans un coin de l'écran ouvre le Finder, le tiroir ou le presse-papiers.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Moving the pointer to a corner of the screen opens the Finder or the drawer."
+            "value": "Moving the pointer into a corner of the screen opens the Finder, the drawer or the clipboard."
           }
         }
       }
@@ -539,6 +549,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Companion Apps"
+          }
+        }
+      }
+    },
+    "Applications ouvertes": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open Apps"
           }
         }
       }
@@ -903,12 +923,12 @@
         }
       }
     },
-    "Choisir une autre application…": {
+    "Choisir une application…": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Choose Another App…"
+            "value": "Choose an App…"
           }
         }
       }
@@ -943,12 +963,12 @@
         }
       }
     },
-    "Choisis pour chaque coin ce qu'il ouvre : le Finder, le tiroir, ou rien. Revenir dans le coin referme. Si macOS utilise déjà ce coin, désactive-le dans Réglages Système > Bureau et Dock > Coins actifs.": {
+    "Choisis pour chaque coin ce qu'il ouvre : le Finder, le tiroir, le presse-papiers, la grille de Square (s'il est installé), ou rien. Revenir dans le coin referme. Si macOS utilise déjà ce coin, désactive-le dans Réglages Système > Bureau et Dock > Coins actifs.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Choose what each corner opens: the Finder, the drawer, or nothing. Going back to the corner closes it. If macOS already uses that corner, turn it off in System Settings > Desktop & Dock > Hot Corners."
+            "value": "Choose what each corner opens: the Finder, the drawer, the clipboard, the Square grid (if Square is installed), or nothing. Going back to the corner closes it. If macOS already uses that corner, turn it off in System Settings > Desktop & Dock > Hot Corners."
           }
         }
       }
@@ -1103,16 +1123,6 @@
         }
       }
     },
-    "Contraire aux conditions d'utilisation de YouTube : à activer en connaissance de cause. Pris en compte au prochain lancement de Side.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Against YouTube’s terms of service: turn on at your own discretion. Takes effect the next time Side opens."
-          }
-        }
-      }
-    },
     "Copier": {
       "localizations": {
         "en": {
@@ -1243,7 +1253,7 @@
         }
       }
     },
-    "Dans le panneau": {
+    "Dans le tiroir": {
       "localizations": {
         "en": {
           "stringUnit": {
@@ -1823,6 +1833,16 @@
         }
       }
     },
+    "Fond derrière les tuiles": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Background Behind Tiles"
+          }
+        }
+      }
+    },
     "Garder dans le mini-Dock": {
       "localizations": {
         "en": {
@@ -2013,6 +2033,16 @@
         }
       }
     },
+    "Grille de Square": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Square Grid"
+          }
+        }
+      }
+    },
     "Groupe (facultatif)": {
       "localizations": {
         "en": {
@@ -2043,6 +2073,16 @@
         }
       }
     },
+    "Historique": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "History"
+          }
+        }
+      }
+    },
     "Historique du presse-papiers": {
       "localizations": {
         "en": {
@@ -2053,12 +2093,32 @@
         }
       }
     },
+    "Historique et liens": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "History and Links"
+          }
+        }
+      }
+    },
     "Icônes": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Icons"
+          }
+        }
+      }
+    },
+    "Il s'ouvre par un coin actif (en bas à droite au départ) ou par son raccourci clavier : voir les volets Coins actifs et Raccourcis clavier.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "It opens from a hot corner (bottom right by default) or with its keyboard shortcut: see Hot Corners and Keyboard Shortcuts."
           }
         }
       }
@@ -2223,6 +2283,16 @@
         }
       }
     },
+    "L'aperçu montre l'image et le titre du site : pour cela, Side contacte le site du lien, seulement quand le volet l'affiche. La présentation vaut pour le presse-papiers comme pour l'onglet « Enregistrés ». Les liens enregistrés restent sur ce Mac.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The preview shows the site's image and title: to do this, Side contacts the link's website, only when the panel shows it. The appearance applies to both the clipboard and the Saved tab. Saved links stay on this Mac."
+          }
+        }
+      }
+    },
     "L'historique du copier-coller est désactivé dans les réglages de Side.": {
       "localizations": {
         "en": {
@@ -2329,6 +2399,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "The “Recent Folders” section shows the last folders you worked in, as a grid."
+          }
+        }
+      }
+    },
+    "La vidéo est en plein écran": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The video is full screen"
           }
         }
       }
@@ -2633,6 +2713,26 @@
         }
       }
     },
+    "Le volet": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The Panel"
+          }
+        }
+      }
+    },
+    "Le volet de droite : ce que tu as copié, et les liens que tu gardes.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The right-hand panel: what you've copied, and the links you keep."
+          }
+        }
+      }
+    },
     "Le volet glisse depuis le bord droit de l'écran": {
       "localizations": {
         "en": {
@@ -2713,12 +2813,12 @@
         }
       }
     },
-    "Les textes et les fichiers copiés sont gardés 7 jours sur ce Mac ; ce que tu épingles (clic droit) est gardé sans limite. Les images et les mots de passe ne sont jamais écrits sur le disque : ils s'effacent quand Side se ferme. Décocher l'historique efface tout.": {
+    "Les textes, les fichiers et les 40 dernières images copiés sont gardés 7 jours sur ce Mac ; ce que tu épingles (clic droit) est gardé sans limite. Les mots de passe ne sont jamais écrits sur le disque. Décocher l'historique efface tout.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Copied text and files are kept for 7 days on this Mac; what you pin (right-click) is kept with no limit. Images and passwords are never written to disk: they're erased when Side closes. Turning off the history erases everything."
+            "value": "Copied text, files and the last 40 images are kept for 7 days on this Mac; what you pin (right-click) is kept with no limit. Passwords are never written to disk. Turning off history erases everything."
           }
         }
       }
@@ -2749,6 +2849,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Link or text to paste"
+          }
+        }
+      }
+    },
+    "Liens": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Links"
+          }
+        }
+      }
+    },
+    "Liens enregistrés": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saved Links"
           }
         }
       }
@@ -2799,6 +2919,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Hide the Mini Dock"
+          }
+        }
+      }
+    },
+    "Masquer les Shorts": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hide Shorts"
+          }
+        }
+      }
+    },
+    "Masquer les Shorts retire leurs rangées, leur onglet et les vidéos courtes, tout de suite. Couper les publicités est contraire aux conditions d'utilisation de YouTube : à activer en connaissance de cause, pris en compte au prochain lancement de Side.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hide Shorts removes their rows, their tab and short videos, right away. Blocking ads goes against YouTube's terms of service: turn it on knowingly; it takes effect the next time Side launches."
           }
         }
       }
@@ -3083,6 +3223,16 @@
         }
       }
     },
+    "Ouvrir et fermer le presse-papiers": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open and close the clipboard"
+          }
+        }
+      }
+    },
     "Ouvrir et fermer le tiroir": {
       "localizations": {
         "en": {
@@ -3343,16 +3493,6 @@
         }
       }
     },
-    "Pour cela, Side contacte le site du lien, quand le volet l'affiche.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "To do this, Side contacts the link's website when the panel shows it."
-          }
-        }
-      }
-    },
     "Pour l'ouvrir et le fermer : %@.": {
       "localizations": {
         "en": {
@@ -3539,6 +3679,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Keyboard Shortcuts"
+          }
+        }
+      }
+    },
+    "Ramener dans le tiroir": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bring Back to Drawer"
           }
         }
       }
@@ -4523,12 +4673,12 @@
         }
       }
     },
-    "Un raccourci pour le Finder, un autre pour le tiroir.": {
+    "Un raccourci pour le Finder, le tiroir et le presse-papiers.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "One shortcut for the Finder, another for the drawer."
+            "value": "A shortcut for the Finder, the drawer and the clipboard."
           }
         }
       }
@@ -4673,6 +4823,16 @@
         }
       }
     },
+    "Vidéos suivantes": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Up Next"
+          }
+        }
+      }
+    },
     "Voir la vidéo": {
       "localizations": {
         "en": {
@@ -4689,26 +4849,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "See the Drawer"
-          }
-        }
-      }
-    },
-    "Volet du presse-papiers : coin actif": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Clipboard panel: hot corner"
-          }
-        }
-      }
-    },
-    "Volet du presse-papiers : raccourci clavier": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Clipboard panel: keyboard shortcut"
           }
         }
       }

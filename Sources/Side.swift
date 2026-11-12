@@ -4208,9 +4208,12 @@ enum Volet: String, CaseIterable, Identifiable {
     /// Volet affiché à l'ouverture des réglages (« --volet nom » le choisit, pour les tests).
     static var depart: Volet {
         let a = CommandLine.arguments
+        if let v = demande { demande = nil; return v }
         return a.firstIndex(of: "--volet").flatMap { $0 + 1 < a.count ? Volet(rawValue: a[$0 + 1]) : nil } ?? .general
     }
-    case general, coins, clavier, gestes, apparence, fermeture, fichiers, colonnes, depot, tiroir, multimedia, applications
+    /// Volet demandé par une autre application (Square renvoie ici pour son coin actif).
+    static var demande: Volet?
+    case general, coins, clavier, gestes, apparence, fermeture, fichiers, colonnes, depot, tiroir, multimedia, applications, presse
     var id: String { rawValue }
 
     /// Les rubriques de la barre latérale, avec leur intitulé.
@@ -4219,6 +4222,7 @@ enum Volet: String, CaseIterable, Identifiable {
         (String(localized: "Ouvrir et fermer"), [.coins, .clavier, .gestes]),
         ("Finder", [.apparence, .fermeture, .fichiers, .colonnes, .depot]),
         (String(localized: "Tiroir"), [.tiroir, .multimedia, .applications]),     // le second panneau de Side, au bord opposé au Finder
+        (String(localized: "Presse-papiers"), [.presse]),                         // le volet de droite : historique et liens enregistrés
     ]
 
     var titre: String {
@@ -4235,14 +4239,15 @@ enum Volet: String, CaseIterable, Identifiable {
         case .tiroir: return String(localized: "Ouverture et fermeture")
         case .multimedia: return String(localized: "Multimédia")
         case .applications: return String(localized: "Applications")
+        case .presse: return String(localized: "Historique et liens")
         }
     }
     /// Une phrase sous le titre du volet, pour dire de quoi il s'agit.
     var resume: String {
         switch self {
         case .general: return String(localized: "Ce qui vaut pour tout Side.")
-        case .coins: return String(localized: "Amener le pointeur dans un coin de l'écran ouvre le Finder ou le tiroir.")
-        case .clavier: return String(localized: "Un raccourci pour le Finder, un autre pour le tiroir.")
+        case .coins: return String(localized: "Amener le pointeur dans un coin de l'écran ouvre le Finder, le tiroir ou le presse-papiers.")
+        case .clavier: return String(localized: "Un raccourci pour le Finder, le tiroir et le presse-papiers.")
         case .gestes: return String(localized: "Ouvrir le Finder et le tiroir d'un geste, à la souris ou au trackpad.")
         case .apparence: return String(localized: "Le Finder de Side : d'où il arrive, sa taille, son fond.")
         case .fermeture: return String(localized: "Quand le Finder de Side se referme.")
@@ -4252,6 +4257,7 @@ enum Volet: String, CaseIterable, Identifiable {
         case .tiroir: return String(localized: "Le tiroir, second panneau de Side.")
         case .multimedia: return String(localized: "Musique et vidéo, au début du tiroir.")
         case .applications: return String(localized: "Les applications rangées dans le tiroir.")
+        case .presse: return String(localized: "Le volet de droite : ce que tu as copié, et les liens que tu gardes.")
         }
     }
     var symbole: String {
@@ -4268,6 +4274,7 @@ enum Volet: String, CaseIterable, Identifiable {
         case .tiroir: return "rectangle.bottomthird.inset.filled"
         case .multimedia: return "play.rectangle.fill"
         case .applications: return "square.grid.2x2.fill"
+        case .presse: return "doc.on.clipboard.fill"
         }
     }
     var couleur: Color {
@@ -4284,6 +4291,7 @@ enum Volet: String, CaseIterable, Identifiable {
         case .tiroir: return .pink
         case .multimedia: return .red
         case .applications: return .mint
+        case .presse: return .yellow
         }
     }
 }
@@ -4390,14 +4398,6 @@ struct ReglagesView: View {
             } header: { Text("Langue") } footer: {
                 note("Side redémarre pour changer de langue.")
             }
-            Section {
-                Toggle("Garder un historique du copier-coller (7 jours)", isOn: $config.historique)
-                Toggle("Y garder aussi les mots de passe (affichés masqués)", isOn: $config.historiqueSecrets)
-                    .disabled(!config.historique)
-                ReglagesVoletPresse().disabled(!config.historique)
-            } header: { Text("Presse-papiers") } footer: {
-                note("Les textes et les fichiers copiés sont gardés 7 jours sur ce Mac ; ce que tu épingles (clic droit) est gardé sans limite. Les images et les mots de passe ne sont jamais écrits sur le disque : ils s'effacent quand Side se ferme. Décocher l'historique efface tout.")
-            }
             SectionCompagnes()
             Section("Présentation") {
                 LabeledContent("La visite guidée de Side, en cinq étapes") {
@@ -4412,13 +4412,15 @@ struct ReglagesView: View {
                         demarrage = SMAppService.mainApp.status == .enabled
                     }))
             }
+        case .presse:
+            ReglagesVoletPresse()
         case .coins:
             Section {
                 CoinsActifsView()
                 curseur("Taille des coins", $config.tailleCoin, 6...120, "\(Int(config.tailleCoin.rounded())) pt")
-                    .disabled(config.coin == .aucun && tiroir.coin == .aucun)
+                    .disabled(config.coin == .aucun && tiroir.coin == .aucun && ConfigPresse.commun.coin == .aucun && ConfigSquare.commun.coin == .aucun)
             } footer: {
-                note("Choisis pour chaque coin ce qu'il ouvre : le Finder, le tiroir, ou rien. Revenir dans le coin referme. Si macOS utilise déjà ce coin, désactive-le dans Réglages Système > Bureau et Dock > Coins actifs.")
+                note("Choisis pour chaque coin ce qu'il ouvre : le Finder, le tiroir, le presse-papiers, la grille de Square (s'il est installé), ou rien. Revenir dans le coin referme. Si macOS utilise déjà ce coin, désactive-le dans Réglages Système > Bureau et Dock > Coins actifs.")
             }
         case .clavier:
             Section("Finder") {
@@ -4436,7 +4438,10 @@ struct ReglagesView: View {
             }
             Section {
                 RaccourciTiroirLigne()
-            } header: { Text("Tiroir") } footer: {
+            } header: { Text("Tiroir") }
+            Section {
+                RaccourciPresseLigne()
+            } header: { Text("Presse-papiers") } footer: {
                 note("Clique sur un raccourci, puis tape la nouvelle combinaison : elle doit contenir Commande, Contrôle ou Option. Échap annule. La touche Échap referme toujours le Finder comme le tiroir.")
             }
         case .gestes:
@@ -4829,6 +4834,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
     private var ecran: NSScreen?
 
     func applicationDidFinishLaunching(_ note: Notification) {
+        UserDefaults.standard.removeObject(forKey: LecteurYouTubeBas.cleFenetreVideo)   // plus de vidéo en plein écran d'une fois sur l'autre
         // Pour les essais : « --image-presentation dossier » dessine chaque étape de la présentation dans des images, puis quitte.
         if let i = CommandLine.arguments.firstIndex(of: "--image-presentation"), i + 1 < CommandLine.arguments.count {
             PresentationSide.images(vers: URL(fileURLWithPath: CommandLine.arguments[i + 1]))
@@ -5282,6 +5288,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
     @objc func revoirAccueil() {
         if visible { hide() }
         PresentationSide.montrer()
+    }
+
+    /// Referme et oublie la fenêtre des réglages (pour la rouvrir sur un autre volet).
+    func fermerReglages() {
+        fenetreReglages?.close()
+        fenetreReglages = nil
     }
 
     @objc func ouvrirReglages() {
@@ -7064,6 +7076,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         // Version personnelle : le tiroir du bas a son propre coin actif (voir PanneauBas.swift).
         PanneauBas.commun.surveillerCoin(p, e, taille: CGFloat(config.tailleCoin))
         VoletPresse.commun.surveillerCoin(p, e, taille: CGFloat(config.tailleCoin))      // le volet du presse-papiers, à droite
+        ConfigSquare.commun.surveillerCoin(p, e, taille: CGFloat(config.tailleCoin))     // la grille de Square, s'il est installé
         let coin = dansCoin(p, e)
 
         if !visible {

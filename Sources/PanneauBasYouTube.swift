@@ -74,7 +74,7 @@ final class PoigneeLargeurBas: NSView {
     override func mouseUp(with event: NSEvent) { aLaFin?() }
 }
 
-final class LecteurYouTubeBas: NSView, WKNavigationDelegate, WKUIDelegate {
+final class LecteurYouTubeBas: NSView, WKNavigationDelegate, WKUIDelegate, WKScriptMessageHandler, NSWindowDelegate {
     static let largeurEtroite: CGFloat = 400
     static let largeurLarge: CGFloat = 1100
 
@@ -136,12 +136,13 @@ final class LecteurYouTubeBas: NSView, WKNavigationDelegate, WKUIDelegate {
         let config = WKWebViewConfiguration()
         config.mediaTypesRequiringUserActionForPlayback = []      // une vidéo déposée démarre toute seule
         config.allowsAirPlayForMediaPlayback = true
-        let reglage = "window.__sideCouperPubs = \(ConfigTiroir.commun.couperPubs ? "true" : "false");"
+        let reglage = "window.__sideCouperPubs = \(ConfigTiroir.commun.couperPubs ? "true" : "false"); window.__sideSansShorts = \(ConfigTiroir.commun.masquerShorts ? "true" : "false");"
         let scripts = youtube ? [reglage, LecteurYouTubeBas.scriptSansPub, LecteurYouTubeBas.scriptPleinCadre] : [LecteurYouTubeBas.scriptToujoursAffiche]
         for s in scripts {
             config.userContentController.addUserScript(WKUserScript(source: s, injectionTime: .atDocumentStart, forMainFrameOnly: true))
         }
         if !youtube { config.preferences.isElementFullscreenEnabled = true }      // un autre site garde son vrai plein écran
+        if youtube { config.userContentController.add(self, name: "sidePlein") }  // le bouton plein écran de YouTube prévient Side
         page = PageYouTubeBas(frame: .zero, configuration: config)
         page.customUserAgent = large ? safariMac : safariIPhone
         page.navigationDelegate = self
@@ -214,7 +215,9 @@ final class LecteurYouTubeBas: NSView, WKNavigationDelegate, WKUIDelegate {
         super.layout()
         barre.isHidden = hauteurBarre == 0
         barre.frame = NSRect(x: 0, y: bounds.height - hauteurBarre, width: bounds.width, height: hauteurBarre)
-        page.frame = NSRect(x: 0, y: 0, width: bounds.width, height: max(0, bounds.height - hauteurBarre))
+        // La page n'est placée ici que si elle est dans la tuile (en plein écran, elle est dans sa propre fenêtre).
+        if page.superview === self { page.frame = NSRect(x: 0, y: 0, width: bounds.width, height: max(0, bounds.height - hauteurBarre)) }
+        attente?.frame = bounds
         poignée.frame = NSRect(x: bounds.width - 9, y: 0, width: 9, height: max(0, bounds.height - hauteurBarre))
     }
 
@@ -255,7 +258,12 @@ final class LecteurYouTubeBas: NSView, WKNavigationDelegate, WKUIDelegate {
         + 'html.side-plein body{overflow:hidden!important}'
         + 'html.side-plein ytd-app #movie_player{position:fixed!important;left:0!important;top:0!important;width:100vw!important;height:100vh!important;z-index:2147483646!important;background:#000!important}'
         + 'html.side-plein ytd-app #movie_player .html5-video-container{position:static!important}'
-        + 'html.side-plein ytd-app #masthead-container{display:none!important}';
+        + 'html.side-plein ytd-app #masthead-container{display:none!important}'
+        + 'html.side-plein ytd-app #secondary,html.side-plein ytd-app #below,html.side-plein ytd-app #comments,html.side-plein ytd-app ytd-watch-metadata{visibility:hidden!important}'
+        // En plein écran, la colonne des vidéos suivantes (bouton en haut à droite de la fenêtre) : la vidéo se resserre à gauche.
+        + 'html.side-plein.side-suggestions ytd-app #movie_player,html.side-plein.side-suggestions #player-container-id{width:calc(100vw - 440px)!important}'
+        + 'html.side-plein.side-suggestions ytd-watch-flexy #secondary{visibility:visible!important;display:block!important;position:fixed!important;top:0!important;right:0!important;width:440px!important;max-width:440px!important;min-width:0!important;height:100vh!important;overflow-y:auto!important;z-index:2147483647!important;background:#0f0f0f!important;padding:52px 12px 12px 12px!important;margin:0!important;box-sizing:border-box!important}'
+        + 'html.side-plein.side-suggestions ytd-watch-flexy #secondary-inner{width:auto!important;padding:0!important}';
       function poser(){ if (document.getElementById('side-plein-css') || !document.documentElement) return;
         var s = document.createElement('style'); s.id = 'side-plein-css'; s.textContent = css; document.documentElement.appendChild(s); }
       function racine(){ return document.documentElement; }
@@ -264,8 +272,10 @@ final class LecteurYouTubeBas: NSView, WKNavigationDelegate, WKUIDelegate {
       var enPlein = null;
       function annoncer(){ ['fullscreenchange','webkitfullscreenchange'].forEach(function(n){ document.dispatchEvent(new Event(n, { bubbles: true })); });
         window.dispatchEvent(new Event('resize')); }
-      function entrerDans(el){ poser(); enPlein = el || document.getElementById('movie_player') || racine(); racine().classList.add('side-plein'); annoncer(); }
-      window.__sideSortir = function(){ if (!enPlein && !racine().classList.contains('side-plein')) return; enPlein = null; racine().classList.remove('side-plein'); annoncer(); };
+      // Side est prévenu : il sort la page du tiroir dans une fenêtre qui remplit l'écran, et l'y ramène à la sortie.
+      function dire(v){ try { window.webkit.messageHandlers.sidePlein.postMessage(v); } catch (e) {} }
+      function entrerDans(el){ poser(); enPlein = el || document.getElementById('movie_player') || racine(); racine().classList.add('side-plein'); annoncer(); dire(true); }
+      window.__sideSortir = function(){ if (!enPlein && !racine().classList.contains('side-plein')) return; enPlein = null; racine().classList.remove('side-plein'); annoncer(); dire(false); };
       window.__sideBasculer = function(){ if (racine().classList.contains('side-plein')) window.__sideSortir(); else entrerDans(null); return true; };
       var entrer = function(){ entrerDans(this instanceof Element ? this : null); return Promise.resolve(); };
       var sortir = function(){ window.__sideSortir(); return Promise.resolve(); };
@@ -283,6 +293,36 @@ final class LecteurYouTubeBas: NSView, WKNavigationDelegate, WKUIDelegate {
         Object.defineProperty(HTMLVideoElement.prototype, 'webkitSupportsFullscreen', { configurable: true, get: function(){ return true; } });
         Object.defineProperty(HTMLVideoElement.prototype, 'webkitDisplayingFullscreen', { configurable: true, get: function(){ return !!enPlein; } });
       } catch (e) {}
+      // Le bouton plein écran du lecteur (en bas à droite) et la touche f : on les prend nous-mêmes, sans attendre
+      // que YouTube décide (il ne sait pas toujours qu'il est « en plein écran »).
+      function basculerIci(e){ e.preventDefault(); e.stopImmediatePropagation(); window.__sideBasculer(); }
+      document.addEventListener('click', function(e){
+        var b = e.target && e.target.closest && e.target.closest('.ytp-fullscreen-button');
+        if (b) basculerIci(e);
+      }, true);
+      // En plein écran : un clic sur l'image met en pause ou relance, un double-clic ramène la vidéo dans le tiroir.
+      // (YouTube ne le fait pas de lui-même ici : il croit son plein écran, et le clic n'arrivait pas à son lecteur.)
+      function surLImage(t){
+        if (!racine().classList.contains('side-plein') || !t || !t.closest) return false;
+        if (t.closest('.ytp-chrome-bottom, .ytp-chrome-top, button, a, .ytp-popup, .ytp-ce-element, .ytp-suggested-action, #secondary')) return false;
+        return !!t.closest('#movie_player');
+      }
+      document.addEventListener('click', function(e){
+        if (!surLImage(e.target)) return;
+        e.preventDefault(); e.stopImmediatePropagation();
+        var p = document.getElementById('movie_player'), v = document.querySelector('video.html5-main-video');
+        if (p && p.getPlayerState) { if (p.getPlayerState() === 1) p.pauseVideo(); else p.playVideo(); }
+        else if (v) { if (v.paused) v.play(); else v.pause(); }
+      }, true);
+      document.addEventListener('dblclick', function(e){
+        if (!surLImage(e.target)) return;
+        e.preventDefault(); e.stopImmediatePropagation();
+        window.__sideBasculer();
+      }, true);
+      document.addEventListener('keydown', function(e){
+        var t = e.target, saisie = t && (t.isContentEditable || /INPUT|TEXTAREA/.test(t.tagName));
+        if (!saisie && (e.key === 'f' || e.key === 'F') && !e.metaKey && !e.ctrlKey && !e.altKey) basculerIci(e);
+      }, true);
       // Hors d'une page de vidéo, la vidéo reprend sa place (sinon elle couvrirait l'accueil).
       setInterval(function(){ if (racine() && racine().classList.contains('side-plein') && location.pathname.indexOf('/watch') !== 0) window.__sideSortir(); }, 500);
     })();
@@ -340,6 +380,8 @@ final class LecteurYouTubeBas: NSView, WKNavigationDelegate, WKUIDelegate {
           get: function(){ return reponse; }, set: function(v){ reponse = nettoyer(v); } });
       } catch (e) {}
       setInterval(function(){
+        // YouTube réécrit parfois les classes de la page : celle qui masque les Shorts est remise si besoin.
+        if (window.__sideSansShorts === true && document.documentElement && !document.documentElement.classList.contains('side-sans-shorts')) document.documentElement.classList.add('side-sans-shorts');
         var lecteur = document.getElementById('movie_player');
         if (couper && lecteur && lecteur.classList.contains('ad-showing')) {
           var v = lecteur.querySelector('video');
@@ -358,13 +400,185 @@ final class LecteurYouTubeBas: NSView, WKNavigationDelegate, WKUIDelegate {
           // … et la place qui leur était réservée au-dessus des vidéos est reprise.
           + '.rich-grid-renderer-contents.rich-grid-top-margin{margin-top:0!important}.rich-grid-renderer-header{display:none!important}'
           // Sur le site d'ordinateur, le voile sombre sous l'en-tête garde la hauteur de ces onglets : il reprend celle de l'en-tête seul.
-          + '#frosted-glass.with-chipbar{height:56px!important}';
+          + '#frosted-glass.with-chipbar{height:56px!important}'
+          // La vidéo a des coins arrondis, comme sur le site de YouTube (sauf en plein écran).
+          // (Une découpe, et non un « overflow » : la vidéo est dessinée à part par le Mac, et l'overflow la faisait disparaître.)
+          + 'html:not(.side-plein) ytd-watch-flexy #movie_player{clip-path:inset(0 round 12px)!important}'
+          // Les Shorts, masqués quand le réglage le demande (la classe se pose et se retire sans recharger la page).
+          + 'html.side-sans-shorts ytd-reel-shelf-renderer,html.side-sans-shorts ytd-rich-shelf-renderer[is-shorts],html.side-sans-shorts ytd-rich-section-renderer:has(ytd-rich-shelf-renderer[is-shorts]),'
+          + 'html.side-sans-shorts ytd-rich-section-renderer:has(ytm-shorts-lockup-view-model),html.side-sans-shorts grid-shelf-view-model:has(ytm-shorts-lockup-view-model),'
+          + 'html.side-sans-shorts ytd-rich-item-renderer:has(a[href^="/shorts/"]),html.side-sans-shorts ytd-video-renderer:has(a[href^="/shorts/"]),'
+          + 'html.side-sans-shorts ytd-grid-video-renderer:has(a[href^="/shorts/"]),html.side-sans-shorts ytd-compact-video-renderer:has(a[href^="/shorts/"]),'
+          + 'html.side-sans-shorts yt-lockup-view-model:has(a[href^="/shorts/"]),html.side-sans-shorts ytm-shorts-lockup-view-model,'
+          + 'html.side-sans-shorts ytd-guide-entry-renderer:has(a[title="Shorts"]),html.side-sans-shorts ytd-mini-guide-entry-renderer[aria-label="Shorts"],'
+          + 'html.side-sans-shorts yt-tab-shape[tab-title="Shorts"]{display:none!important}';
+        if (window.__sideSansShorts === true) document.documentElement.classList.add('side-sans-shorts');
         document.documentElement.appendChild(s); }
       masquer(); document.addEventListener('DOMContentLoaded', masquer);
     })();
     """
 
     @objc private func pleinCadre() { js("window.__sideBasculer && window.__sideBasculer()") }
+
+    /// Le réglage « Masquer les Shorts » change : la page suit tout de suite.
+    func appliquerShorts(_ masquer: Bool) {
+        guard estYouTube else { return }
+        js("document.documentElement.classList.toggle('side-sans-shorts', \(masquer ? "true" : "false")); window.__sideSansShorts = \(masquer ? "true" : "false");")
+    }
+    var estUnYouTube: Bool { estYouTube }
+    /// La vidéo en cours passe en plein écran, ou revient dans le tiroir (raccourci, commande d'une autre app).
+    func basculerPleinEcran() {
+        if fenetreVideo != nil { rentrerDansLeTiroir() } else { pleinCadre() }
+    }
+    var adresseEnCours: String { page.url?.absoluteString ?? "" }
+    /// Pour les essais : note dans le journal si la vidéo est en pause.
+    func noterEtat() {
+        page.evaluateJavaScript("(function(){var v=document.querySelector('video');return v?(v.paused?'en pause':'en lecture'):'aucune vidéo'})()") { r, _ in
+            journalBas("YouTube : vidéo %@", (r as? String) ?? "?")
+        }
+    }
+
+    // MARK: Plein écran : la page sort du tiroir dans une fenêtre qui remplit l'écran (sans le plein écran d'Apple)
+
+    /// La fenêtre de la vidéo en grand. C'est une fenêtre ordinaire : Square la range dans sa grille comme celle d'une application
+    /// (Side lui donne son numéro dans le réglage `videoPleinEcran`, que Square relit).
+    private var fenetreVideo: NSWindow?
+    private var suggestions = false
+    /// Le bouton en haut à droite de la fenêtre : montre ou cache la colonne des vidéos suivantes, comme sur le site de YouTube.
+    private func boutonSuggestions() -> NSTitlebarAccessoryViewController {
+        let b = NSButton(image: NSImage(systemSymbolName: "sidebar.right", accessibilityDescription: String(localized: "Vidéos suivantes")) ?? NSImage(),
+                         target: self, action: #selector(basculerSuggestions))
+        b.isBordered = false
+        b.contentTintColor = NSColor(white: 1, alpha: 0.85)
+        b.symbolConfiguration = .init(pointSize: 15, weight: .medium)
+        b.toolTip = String(localized: "Vidéos suivantes")
+        b.frame = NSRect(x: 0, y: 0, width: 44, height: 28)
+        let conteneur = NSView(frame: NSRect(x: 0, y: 0, width: 52, height: 28))
+        b.frame.origin = NSPoint(x: 0, y: 0)
+        conteneur.addSubview(b)
+        let c = NSTitlebarAccessoryViewController()
+        c.view = conteneur
+        c.layoutAttribute = .trailing
+        return c
+    }
+    @objc private func basculerSuggestions() {
+        suggestions.toggle()
+        js("document.documentElement.classList.toggle('side-suggestions', \(suggestions ? "true" : "false")); window.dispatchEvent(new Event('resize'));")
+    }
+
+    /// Ce qui reste dans la tuile pendant ce temps : un mot, et un bouton pour ramener la vidéo.
+    private var attente: NSView?
+    private var suiviTitre: NSKeyValueObservation?
+    private var ecouteEchap: Any?
+    static let cleFenetreVideo = "videoPleinEcran"
+
+    func userContentController(_ c: WKUserContentController, didReceive message: WKScriptMessage) {
+        guard message.name == "sidePlein", let entre = message.body as? Bool else { return }
+        if entre { sortirEnGrand() } else { rentrerDansLeTiroir() }
+    }
+
+    private func sortirEnGrand() {
+        guard fenetreVideo == nil, let ecran = window?.screen ?? NSScreen.main else { return }
+        let w = NSWindow(contentRect: ecran.visibleFrame, styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
+                         backing: .buffered, defer: false)
+        w.title = page.title?.isEmpty == false ? page.title! : "YouTube"
+        w.titlebarAppearsTransparent = true
+        w.titleVisibility = .hidden
+        w.backgroundColor = .black
+        w.isReleasedWhenClosed = false
+        w.delegate = self
+        w.appearance = NSAppearance(named: .darkAqua)
+        w.addTitlebarAccessoryViewController(boutonSuggestions())
+        w.setFrame(ecran.visibleFrame, display: false)
+        // Le même lecteur change de fenêtre : la lecture ne s'interrompt pas.
+        page.removeFromSuperview()
+        page.frame = w.contentView?.bounds ?? .zero
+        page.autoresizingMask = [.width, .height]
+        w.contentView?.addSubview(page)
+        fenetreVideo = w
+        suiviTitre = page.observe(\.title) { [weak w] p, _ in if let t = p.title, !t.isEmpty { w?.title = t } }
+        // Échap ramène la vidéo dans le tiroir (YouTube attend que le navigateur s'en charge).
+        ecouteEchap = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] e in
+            guard e.keyCode == 53, let self, let w = self.fenetreVideo, e.window === w else { return e }
+            self.rentrerDansLeTiroir()
+            return nil
+        }
+        montrerAttente()
+        PanneauBas.commun.fermerPourLaVideo()
+        NSApp.activate(ignoringOtherApps: true)
+        w.makeKeyAndOrderFront(nil)
+        w.makeFirstResponder(page)
+        // En plein écran, YouTube laisse défiler ses commentaires par-dessus la vidéo : on repart du haut.
+        let enHaut = "window.scrollTo(0,0);document.querySelectorAll('ytd-app,#page-manager,ytd-watch-flexy').forEach(function(e){e.scrollTop=0})"
+        js(enHaut)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { [weak self] in self?.js(enHaut) }
+        UserDefaults.standard.set(w.windowNumber, forKey: Self.cleFenetreVideo)
+        journalBas("YouTube : vidéo sortie en plein écran (fenêtre %d)", w.windowNumber)
+    }
+
+    /// La vidéo reprend sa place dans la tuile. Appelé par YouTube (Échap, bouton plein écran), par le bouton de la tuile,
+    /// ou quand on ferme la fenêtre.
+    @objc func rentrerDansLeTiroir() {
+        guard let w = fenetreVideo else { return }
+        fenetreVideo = nil
+        suiviTitre = nil
+        if let ecouteEchap { NSEvent.removeMonitor(ecouteEchap) }
+        ecouteEchap = nil
+        UserDefaults.standard.removeObject(forKey: Self.cleFenetreVideo)
+        page.removeFromSuperview()
+        page.autoresizingMask = []
+        addSubview(page, positioned: .below, relativeTo: barre)
+        attente?.removeFromSuperview()
+        attente = nil
+        needsLayout = true
+        w.delegate = nil
+        w.orderOut(nil)
+        suggestions = false
+        js("document.documentElement.classList.remove('side-suggestions'); window.__sideSortir && window.__sideSortir()")      // YouTube reprend sa présentation normale
+        journalBas("YouTube : vidéo revenue dans le tiroir")
+    }
+
+    func windowShouldClose(_ sender: NSWindow) -> Bool {
+        rentrerDansLeTiroir()
+        return false
+    }
+
+    private func montrerAttente() {
+        let v = NSView(frame: bounds)
+        v.wantsLayer = true
+        v.layer?.backgroundColor = NSColor(white: 0.06, alpha: 1).cgColor
+        let image = NSImageView(image: NSImage(systemSymbolName: "arrow.up.left.and.arrow.down.right", accessibilityDescription: nil) ?? NSImage())
+        image.symbolConfiguration = .init(pointSize: 30, weight: .regular)
+        image.contentTintColor = NSColor(white: 1, alpha: 0.45)
+        let texte = NSTextField(labelWithString: String(localized: "La vidéo est en plein écran"))
+        texte.font = .systemFont(ofSize: 15, weight: .semibold)
+        texte.textColor = NSColor(white: 1, alpha: 0.85)
+        let b = NSButton(title: String(localized: "Ramener dans le tiroir"), target: self, action: #selector(rentrerDansLeTiroir))
+        b.bezelStyle = .rounded
+        b.controlSize = .large
+        let voir = NSButton(title: String(localized: "Afficher la vidéo"), target: self, action: #selector(montrerLaVideo))
+        voir.bezelStyle = .rounded
+        voir.controlSize = .large
+        let boutons = NSStackView(views: [voir, b])
+        boutons.spacing = 10
+        let pile = NSStackView(views: [image, texte, boutons])
+        pile.orientation = .vertical
+        pile.spacing = 12
+        pile.translatesAutoresizingMaskIntoConstraints = false
+        v.addSubview(pile)
+        pile.centerXAnchor.constraint(equalTo: v.centerXAnchor).isActive = true
+        pile.centerYAnchor.constraint(equalTo: v.centerYAnchor).isActive = true
+        addSubview(v)
+        attente = v
+    }
+
+    /// Depuis la tuile : la fenêtre de la vidéo repasse devant, et le tiroir se referme.
+    @objc private func montrerLaVideo() {
+        guard let w = fenetreVideo else { return }
+        PanneauBas.commun.fermerPourLaVideo()
+        NSApp.activate(ignoringOtherApps: true)
+        w.makeKeyAndOrderFront(nil)
+    }
 
     private func js(_ code: String) { page.evaluateJavaScript(code, completionHandler: nil) }
 

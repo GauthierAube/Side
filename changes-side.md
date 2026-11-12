@@ -6,6 +6,41 @@ Il est mis à jour à chaque modification, en même temps que le code.
 ---
 
 
+## 13/11/2026
+
+### Tiroir : YouTube plus soigné
+- La vidéo a des coins arrondis (sauf en plein écran).
+- En plein écran, un bouton en haut à droite de la fenêtre montre ou cache la colonne des vidéos suivantes, comme sur le site de YouTube ; la vidéo se resserre à côté.
+- Correction : le premier arrondi des coins rendait la vidéo noire dans le tiroir, le deuxième ne marchait pas. La vidéo est maintenant découpée aux coins arrondis.
+- En plein écran, un clic sur la vidéo la met en pause ou la relance ; un double-clic la ramène dans le tiroir.
+
+### Tiroir : le menu du + plus clair
+- Les deux façons d'ajouter (« Choisir une application… » et « Une seule note… ») sont en tête, sous « Ajouter au tiroir », avec une icône et une flèche. Viennent ensuite les tuiles du tiroir, puis les applications ouvertes.
+- Le menu est plus large : les noms ne sont plus coupés.
+- Réglages › Tiroir › Multimédia › « Masquer les Shorts » : leurs rangées, leur onglet et les vidéos courtes disparaissent, tout de suite, sans recharger la page.
+
+### Tiroir : une note qu'on modifie reste dans le tiroir
+- **Avant :** écrire dans une note du tiroir changeait son titre (sa première ligne) ; le tiroir, qui la cherchait par son titre, la croyait fermée. Il retirait sa tuile, et la fenêtre de la note restait sur le bureau, où Square la rangeait comme une application.
+- **Et maintenant aussi :** le tiroir retient l'identifiant de chaque note dans Notes, qui ne change jamais. Même après un redémarrage de Side, une note dont on a réécrit la première ligne est retrouvée (avant : « introuvable dans Notes »). Les notes déjà rangées gardent leur identifiant à la première ouverture réussie.
+- **Maintenant :** une fois trouvée, la note est reconnue au numéro de sa fenêtre, quoi qu'on y écrive. Cela vaut aussi quand le tiroir se referme : la fenêtre d'une note modifiée était prise pour la grande fenêtre de Notes, et ramenée au milieu de l'écran (puis rangée par Square).
+
+### Coins actifs : le presse-papiers et la grille de Square
+- Chaque coin peut ouvrir le Finder, le tiroir, le presse-papiers, ou la grille de Square (si Square est installé). Un coin ne fait qu'une chose.
+- La grille de Square reprend la première fois le coin réglé dans Square (en haut à droite au départ). Tant que Side est ouvert, c'est lui qui surveille ce coin : Square grise son propre réglage et renvoie aux réglages de Side.
+- Revenir dans un coin referme ce qu'il a ouvert dès qu'on en est sorti d'un peu (40 points, comme dans Square). Avant, il fallait s'en éloigner de 140 points : en restant en bas du volet du presse-papiers, revenir au coin ne le refermait pas.
+- Le presse-papiers a son propre volet dans les réglages (« Historique et liens ») : historique, volet, aperçu et présentation des liens. Son raccourci est dans « Raccourcis clavier ».
+
+### Tiroir : la vidéo YouTube en plein écran, gérée par Square
+- **Avant :** le bouton plein écran de YouTube ne faisait qu'agrandir la vidéo dans sa tuile.
+- **Maintenant :** il sort la vidéo du tiroir dans une fenêtre qui remplit l'écran (sans le plein écran d'Apple, qui crée un bureau à part). Le tiroir se referme ; la lecture continue sans coupure, c'est le même lecteur qui change de place.
+- Square range cette fenêtre comme celle d'une application : elle est dans sa grille, son carrousel et ses raccourcis ⌘1 à ⌘9, et peut partager l'écran.
+- **Pour revenir :** Échap, le bouton de sortie du plein écran de YouTube (en bas à droite de la vidéo), la touche F, ou le bouton rouge de la fenêtre. Rouvrir le tiroir ne la ramène pas : sa tuile affiche « La vidéo est en plein écran », avec « Afficher la vidéo » et « Ramener dans le tiroir ».
+
+### Tiroir : plus de fond derrière les tuiles
+- Le fond flouté du tiroir est retiré : les tuiles flottent seules. Réglages › Tiroir › « Fond derrière les tuiles » le remet.
+- Sans fond, le tiroir garde un voile presque invisible, pour que les clics et les glisser restent pour lui (une zone tout à fait transparente les laissait passer à l'application de derrière).
+- **Déplacer une tuile** (par sa barre de titre) : comme dans la grille de Square, elle prend sa nouvelle place pendant le geste, et les autres se poussent tout de suite. Avant, rien ne bougeait jusqu'au lâcher.
+
 ## 12/11/2026, nuit
 
 ### Presse-papiers : trois présentations pour les liens

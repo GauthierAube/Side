@@ -62,6 +62,8 @@
 	<string>Afficher en liste</string>
 	<key>Afficher la corbeille</key>
 	<string>Afficher la corbeille</string>
+	<key>Afficher la vidéo</key>
+	<string>Afficher la vidéo</string>
 	<key>Afficher le chemin de ce dossier</key>
 	<string>Afficher le chemin de ce dossier</string>
 	<key>Afficher le volet</key>
@@ -74,6 +76,8 @@
 	<string>Ajouter</string>
 	<key>Ajouter au panneau</key>
 	<string>Ajouter au panneau</string>
+	<key>Ajouter au tiroir</key>
+	<string>Ajouter au tiroir</string>
 	<key>Ajouter aux favoris</key>
 	<string>Ajouter aux favoris</string>
 	<key>Ajouter ce site</key>
@@ -90,8 +94,6 @@
 	<string>Ajouter un lien</string>
 	<key>Ajouter une application</key>
 	<string>Ajouter une application</string>
-	<key>Ajouter une application ouverte</key>
-	<string>Ajouter une application ouverte</string>
 	<key>Ajouter une application…</key>
 	<string>Ajouter une application…</string>
 	<key>Ajouter…</key>
@@ -100,8 +102,8 @@
 	<string>Album</string>
 	<key>Albums</key>
 	<string>Albums</string>
-	<key>Amener le pointeur dans un coin de l'écran ouvre le Finder ou le tiroir.</key>
-	<string>Amener le pointeur dans un coin de l'écran ouvre le Finder ou le tiroir.</string>
+	<key>Amener le pointeur dans un coin de l'écran ouvre le Finder, le tiroir ou le presse-papiers.</key>
+	<string>Amener le pointeur dans un coin de l'écran ouvre le Finder, le tiroir ou le presse-papiers.</string>
 	<key>Annuler</key>
 	<string>Annuler</string>
 	<key>Aperçu</key>
@@ -114,6 +116,8 @@
 	<string>Applications</string>
 	<key>Applications compagnes</key>
 	<string>Applications compagnes</string>
+	<key>Applications ouvertes</key>
+	<string>Applications ouvertes</string>
 	<key>Arrière-plan</key>
 	<string>Arrière-plan</string>
 	<key>Artiste</key>
@@ -186,16 +190,16 @@
 	<string>Chemin du dossier %@</string>
 	<key>Choisir un groupe existant</key>
 	<string>Choisir un groupe existant</string>
-	<key>Choisir une autre application…</key>
-	<string>Choisir une autre application…</string>
+	<key>Choisir une application…</key>
+	<string>Choisir une application…</string>
 	<key>Choisir une note</key>
 	<string>Choisir une note</string>
 	<key>Choisis comment l'ouvrir dans les réglages.</key>
 	<string>Choisis comment l'ouvrir dans les réglages.</string>
 	<key>Choisis le dossier à épingler dans Side</key>
 	<string>Choisis le dossier à épingler dans Side</string>
-	<key>Choisis pour chaque coin ce qu'il ouvre : le Finder, le tiroir, ou rien. Revenir dans le coin referme. Si macOS utilise déjà ce coin, désactive-le dans Réglages Système &gt; Bureau et Dock &gt; Coins actifs.</key>
-	<string>Choisis pour chaque coin ce qu'il ouvre : le Finder, le tiroir, ou rien. Revenir dans le coin referme. Si macOS utilise déjà ce coin, désactive-le dans Réglages Système &gt; Bureau et Dock &gt; Coins actifs.</string>
+	<key>Choisis pour chaque coin ce qu'il ouvre : le Finder, le tiroir, le presse-papiers, la grille de Square (s'il est installé), ou rien. Revenir dans le coin referme. Si macOS utilise déjà ce coin, désactive-le dans Réglages Système &gt; Bureau et Dock &gt; Coins actifs.</key>
+	<string>Choisis pour chaque coin ce qu'il ouvre : le Finder, le tiroir, le presse-papiers, la grille de Square (s'il est installé), ou rien. Revenir dans le coin referme. Si macOS utilise déjà ce coin, désactive-le dans Réglages Système &gt; Bureau et Dock &gt; Coins actifs.</string>
 	<key>Clic : recopier. Clic droit : épingler. On peut aussi le glisser ailleurs.</key>
 	<string>Clic : recopier. Clic droit : épingler. On peut aussi le glisser ailleurs.</string>
 	<key>Clique pour replier. Glisse un dossier ici pour l'ajouter aux favoris.</key>
@@ -226,8 +230,6 @@
 	<string>Connecté</string>
 	<key>Connexion réussie. Vous pouvez fermer cette page et revenir au panneau.</key>
 	<string>Connexion réussie. Vous pouvez fermer cette page et revenir au panneau.</string>
-	<key>Contraire aux conditions d'utilisation de YouTube : à activer en connaissance de cause. Pris en compte au prochain lancement de Side.</key>
-	<string>Contraire aux conditions d'utilisation de YouTube : à activer en connaissance de cause. Pris en compte au prochain lancement de Side.</string>
 	<key>Copier</key>
 	<string>Copier</string>
 	<key>Copier l'adresse de redirection</key>
@@ -254,8 +256,8 @@
 	<string>Créé le</string>
 	<key>Dans iCloud, pas encore sur ce Mac. Clique pour le télécharger.</key>
 	<string>Dans iCloud, pas encore sur ce Mac. Clique pour le télécharger.</string>
-	<key>Dans le panneau</key>
-	<string>Dans le panneau</string>
+	<key>Dans le tiroir</key>
+	<string>Dans le tiroir</string>
 	<key>Date (les plus récents d'abord)</key>
 	<string>Date (les plus récents d'abord)</string>
 	<key>De la droite</key>
@@ -370,6 +372,8 @@
 	<string>Flouter l'arrière-plan quand le Finder est ouvert</string>
 	<key>Fond</key>
 	<string>Fond</string>
+	<key>Fond derrière les tuiles</key>
+	<string>Fond derrière les tuiles</string>
 	<key>Garder dans le mini-Dock</key>
 	<string>Garder dans le mini-Dock</string>
 	<key>Garder dans les liens…</key>
@@ -408,16 +412,24 @@
 	<string>Grande image</string>
 	<key>Grande zone</key>
 	<string>Grande zone</string>
+	<key>Grille de Square</key>
+	<string>Grille de Square</string>
 	<key>Groupe (facultatif)</key>
 	<string>Groupe (facultatif)</string>
 	<key>Général</key>
 	<string>Général</string>
 	<key>Hauteur du Finder</key>
 	<string>Hauteur du Finder</string>
+	<key>Historique</key>
+	<string>Historique</string>
 	<key>Historique du presse-papiers</key>
 	<string>Historique du presse-papiers</string>
+	<key>Historique et liens</key>
+	<string>Historique et liens</string>
 	<key>Icônes</key>
 	<string>Icônes</string>
+	<key>Il s'ouvre par un coin actif (en bas à droite au départ) ou par son raccourci clavier : voir les volets Coins actifs et Raccourcis clavier.</key>
+	<string>Il s'ouvre par un coin actif (en bas à droite au départ) ou par son raccourci clavier : voir les volets Coins actifs et Raccourcis clavier.</string>
 	<key>Image</key>
 	<string>Image</string>
 	<key>Impossible d'afficher les informations</key>
@@ -450,6 +462,8 @@
 	<string>Installée</string>
 	<key>Intensité</key>
 	<string>Intensité</string>
+	<key>L'aperçu montre l'image et le titre du site : pour cela, Side contacte le site du lien, seulement quand le volet l'affiche. La présentation vaut pour le presse-papiers comme pour l'onglet « Enregistrés ». Les liens enregistrés restent sur ce Mac.</key>
+	<string>L'aperçu montre l'image et le titre du site : pour cela, Side contacte le site du lien, seulement quand le volet l'affiche. La présentation vaut pour le presse-papiers comme pour l'onglet « Enregistrés ». Les liens enregistrés restent sur ce Mac.</string>
 	<key>L'historique du copier-coller est désactivé dans les réglages de Side.</key>
 	<string>L'historique du copier-coller est désactivé dans les réglages de Side.</string>
 	<key>L'écran derrière la carte s'estompe en fondu. On peut toujours cliquer et glisser des fichiers au travers.</key>
@@ -472,6 +486,8 @@
 	<string>La roue dentée, sous la case « + », ouvre les réglages.</string>
 	<key>La rubrique « Dossiers récents » montre les derniers dossiers où tu as travaillé, en grille.</key>
 	<string>La rubrique « Dossiers récents » montre les derniers dossiers où tu as travaillé, en grille.</string>
+	<key>La vidéo est en plein écran</key>
+	<string>La vidéo est en plein écran</string>
 	<key>La vidéo remplit la tuile (ou reprend sa place)</key>
 	<string>La vidéo remplit la tuile (ou reprend sa place)</string>
 	<key>La visite guidée de Side, en cinq étapes</key>
@@ -532,6 +548,10 @@
 	<string>Le tiroir prend toujours le bord opposé au Finder : du haut quand le Finder vient du bas, du bas dans tous les autres cas. Le geste à quatre doigts s'inverse avec lui.</string>
 	<key>Le tiroir, second panneau de Side.</key>
 	<string>Le tiroir, second panneau de Side.</string>
+	<key>Le volet</key>
+	<string>Le volet</string>
+	<key>Le volet de droite : ce que tu as copié, et les liens que tu gardes.</key>
+	<string>Le volet de droite : ce que tu as copié, et les liens que tu gardes.</string>
 	<key>Le volet glisse depuis le bord droit de l'écran</key>
 	<string>Le volet glisse depuis le bord droit de l'écran</string>
 	<key>Lecteurs affichés</key>
@@ -548,14 +568,18 @@
 	<string>Les boutons et les gestes de la souris MX Master, sans le logiciel de Logitech.</string>
 	<key>Les deux</key>
 	<string>Les deux</string>
-	<key>Les textes et les fichiers copiés sont gardés 7 jours sur ce Mac ; ce que tu épingles (clic droit) est gardé sans limite. Les images et les mots de passe ne sont jamais écrits sur le disque : ils s'effacent quand Side se ferme. Décocher l'historique efface tout.</key>
-	<string>Les textes et les fichiers copiés sont gardés 7 jours sur ce Mac ; ce que tu épingles (clic droit) est gardé sans limite. Les images et les mots de passe ne sont jamais écrits sur le disque : ils s'effacent quand Side se ferme. Décocher l'historique efface tout.</string>
+	<key>Les textes, les fichiers et les 40 dernières images copiés sont gardés 7 jours sur ce Mac ; ce que tu épingles (clic droit) est gardé sans limite. Les mots de passe ne sont jamais écrits sur le disque. Décocher l'historique efface tout.</key>
+	<string>Les textes, les fichiers et les 40 dernières images copiés sont gardés 7 jours sur ce Mac ; ce que tu épingles (clic droit) est gardé sans limite. Les mots de passe ne sont jamais écrits sur le disque. Décocher l'historique efface tout.</string>
 	<key>Les zones où poser des fichiers en attente, à côté du Finder de Side.</key>
 	<string>Les zones où poser des fichiers en attente, à côté du Finder de Side.</string>
 	<key>Lien</key>
 	<string>Lien</string>
 	<key>Lien ou texte à coller</key>
 	<string>Lien ou texte à coller</string>
+	<key>Liens</key>
+	<string>Liens</string>
+	<key>Liens enregistrés</key>
+	<string>Liens enregistrés</string>
 	<key>Lire les informations</key>
 	<string>Lire les informations</string>
 	<key>Liste</key>
@@ -566,6 +590,10 @@
 	<string>Masquer le bouton Apps</string>
 	<key>Masquer le mini-Dock</key>
 	<string>Masquer le mini-Dock</string>
+	<key>Masquer les Shorts</key>
+	<string>Masquer les Shorts</string>
+	<key>Masquer les Shorts retire leurs rangées, leur onglet et les vidéos courtes, tout de suite. Couper les publicités est contraire aux conditions d'utilisation de YouTube : à activer en connaissance de cause, pris en compte au prochain lancement de Side.</key>
+	<string>Masquer les Shorts retire leurs rangées, leur onglet et les vidéos courtes, tout de suite. Couper les publicités est contraire aux conditions d'utilisation de YouTube : à activer en connaissance de cause, pris en compte au prochain lancement de Side.</string>
 	<key>Mini-Dock</key>
 	<string>Mini-Dock</string>
 	<key>Modifier le lien</key>
@@ -622,6 +650,8 @@
 	<string>Ouvrir et fermer</string>
 	<key>Ouvrir et fermer le Finder</key>
 	<string>Ouvrir et fermer le Finder</string>
+	<key>Ouvrir et fermer le presse-papiers</key>
+	<string>Ouvrir et fermer le presse-papiers</string>
 	<key>Ouvrir et fermer le tiroir</key>
 	<string>Ouvrir et fermer le tiroir</string>
 	<key>Ouvrir le Finder et le tiroir d'un geste, à la souris ou au trackpad.</key>
@@ -674,8 +704,6 @@
 	<string>Position et taille</string>
 	<key>Position libre, en fondu</key>
 	<string>Position libre, en fondu</string>
-	<key>Pour cela, Side contacte le site du lien, quand le volet l'affiche.</key>
-	<string>Pour cela, Side contacte le site du lien, quand le volet l'affiche.</string>
 	<key>Pour l'ouvrir et le fermer : %@.</key>
 	<string>Pour l'ouvrir et le fermer : %@.</string>
 	<key>Pour le garder ouvert cette fois-là : maintiens Option (⌥) en lâchant le fichier, ou ramène tout de suite la souris sur la carte.</key>
@@ -714,6 +742,8 @@
 	<string>Raccourci « %@ ». Dépose un fichier pour le lui passer.</string>
 	<key>Raccourcis clavier</key>
 	<string>Raccourcis clavier</string>
+	<key>Ramener dans le tiroir</key>
+	<string>Ramener dans le tiroir</string>
 	<key>Recentrer</key>
 	<string>Recentrer</string>
 	<key>Recherche</key>
@@ -910,8 +940,8 @@
 	<string>Un autre site web…</string>
 	<key>Un cercle avec la souris</key>
 	<string>Un cercle avec la souris</string>
-	<key>Un raccourci pour le Finder, un autre pour le tiroir.</key>
-	<string>Un raccourci pour le Finder, un autre pour le tiroir.</string>
+	<key>Un raccourci pour le Finder, le tiroir et le presse-papiers.</key>
+	<string>Un raccourci pour le Finder, le tiroir et le presse-papiers.</string>
 	<key>Une application du Mac se range plutôt dans « Applications ».</key>
 	<string>Une application du Mac se range plutôt dans « Applications ».</string>
 	<key>Une secousse de souris</key>
@@ -940,14 +970,12 @@
 	<string>Vider la corbeille ?</string>
 	<key>Vider la zone</key>
 	<string>Vider la zone</string>
+	<key>Vidéos suivantes</key>
+	<string>Vidéos suivantes</string>
 	<key>Voir la vidéo</key>
 	<string>Voir la vidéo</string>
 	<key>Voir le tiroir</key>
 	<string>Voir le tiroir</string>
-	<key>Volet du presse-papiers : coin actif</key>
-	<string>Volet du presse-papiers : coin actif</string>
-	<key>Volet du presse-papiers : raccourci clavier</key>
-	<string>Volet du presse-papiers : raccourci clavier</string>
 	<key>Vos artistes du moment</key>
 	<string>Vos artistes du moment</string>
 	<key>Vos titres du moment</key>

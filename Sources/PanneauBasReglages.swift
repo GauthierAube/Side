@@ -45,9 +45,13 @@ final class ConfigTiroir: ObservableObject {
     /// Quatre doigts vers le haut ouvrent le tiroir (quand le Finder de Side est fermé).
     @Published var quatreDoigts: Bool { didSet { d.set(quatreDoigts, forKey: "tiroirQuatreDoigts"); GestePanneauBas.actif = quatreDoigts } }
     @Published var fermerAuClic: Bool { didSet { d.set(fermerAuClic, forKey: "tiroirFermerAuClic") } }
+    /// Le fond flouté derrière les tuiles. Retiré au départ depuis le 13/11/2026 : les tuiles flottent seules, plus légères.
+    @Published var fond: Bool { didSet { d.set(fond, forKey: "tiroirFond"); PanneauBas.commun.majFond() } }
     /// Couper les publicités dans la page YouTube du tiroir. Désactivé au départ : c'est contraire aux conditions de YouTube,
     /// chacun décide pour soi. Pris en compte au prochain lancement de Side.
     @Published var couperPubs: Bool { didSet { d.set(couperPubs, forKey: "tiroirCouperPubs") } }
+    /// Masquer les Shorts de YouTube (rangées de Shorts, onglet, vidéos courtes). Appliqué tout de suite, sans recharger.
+    @Published var masquerShorts: Bool { didSet { d.set(masquerShorts, forKey: "tiroirMasquerShorts"); PanneauBas.commun.appliquerShorts() } }
     /// Les éléments du coin multimédia, dans l'ordre. Au départ : Spotify et YouTube. La liste peut être vide.
     @Published var medias: [MediaBas] {
         didSet { d.set(medias.map { $0.enTexte }, forKey: "tiroirMedias"); PanneauBas.commun.médiasChangés() }
@@ -60,7 +64,9 @@ final class ConfigTiroir: ObservableObject {
         libelle = d.string(forKey: "tiroirLibelle") ?? String(localized: "⌃⌥Espace")
         quatreDoigts = d.object(forKey: "tiroirQuatreDoigts") as? Bool ?? true
         fermerAuClic = d.object(forKey: "tiroirFermerAuClic") as? Bool ?? true
+        fond = d.object(forKey: "tiroirFond") as? Bool ?? false
         couperPubs = d.bool(forKey: "tiroirCouperPubs")
+        masquerShorts = d.bool(forKey: "tiroirMasquerShorts")
         // Au départ : YouTube, qui marche sans rien installer, et Spotify seulement si l'application est sur ce Mac.
         let spotifyInstalle = FileManager.default.fileExists(atPath: "/Applications/Spotify.app")
         medias = (d.array(forKey: "tiroirMedias") as? [[String: String]])?.compactMap { MediaBas($0) }
@@ -119,33 +125,108 @@ final class ConfigTiroir: ObservableObject {
 
 // MARK: - Coins actifs (comme la feuille « Coins actifs » de macOS : un écran, un menu par coin)
 
+/// La grille de Square dans un coin actif de Side (quand Square est installé). Side surveille le coin et demande la grille à Square ;
+/// Square, voyant ce réglage, grise le sien et renvoie ici.
+final class ConfigSquare: ObservableObject {
+    static let commun = ConfigSquare()
+    static let bundle = "com.gauthieraube.square"
+    static var installe: Bool { NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundle) != nil }
+    private let d = UserDefaults.standard
+
+    @Published var coin: Coin { didSet { d.set(coin.rawValue, forKey: "coinSquare") } }
+
+    private init() {
+        if let r = d.string(forKey: "coinSquare"), let c = Coin(rawValue: r) {
+            coin = c
+        } else {
+            // La première fois : on reprend le coin réglé dans Square (en haut à droite au départ), s'il est libre ici.
+            coin = .aucun
+            guard Self.installe else { return }
+            let code = (CFPreferencesCopyAppValue("coinGrille" as CFString, Self.bundle as CFString) as? String) ?? "hd"
+            let c: Coin = ["hd": .hautDroite, "hg": .hautGauche, "bd": .basDroite, "bg": .basGauche][code] ?? .aucun
+            if c != .aucun, Config.shared.coin != c, ConfigTiroir.commun.coin != c, ConfigPresse.commun.coin != c { coin = c }
+            d.set(coin.rawValue, forKey: "coinSquare")
+        }
+    }
+
+    private var arme = true
+    private var debut: Date?
+
+    /// Appelé plusieurs fois par seconde par Side, avec la place du pointeur.
+    func surveillerCoin(_ p: NSPoint, _ e: NSScreen, taille: CGFloat) {
+        guard coin != .aucun else { return }
+        func dans(_ marge: CGFloat) -> Bool {
+            let t = taille + marge, f = e.frame
+            let gauche = p.x <= f.minX + t, droite = p.x >= f.maxX - t, haut = p.y >= f.maxY - t, bas = p.y <= f.minY + t
+            switch coin {
+            case .aucun: return false
+            case .hautGauche: return haut && gauche
+            case .hautDroite: return haut && droite
+            case .basGauche: return bas && gauche
+            case .basDroite: return bas && droite
+            }
+        }
+        // Comme dans Square : il faut ressortir du coin avant de pouvoir le déclencher de nouveau.
+        if !dans(40) { arme = true; debut = nil; return }
+        guard dans(0) else { debut = nil; return }
+        guard arme, NSEvent.pressedMouseButtons == 0, !CaptureEcran.enCours else { return }
+        if debut == nil { debut = Date() }
+        guard Date().timeIntervalSince(debut!) >= 0.05 else { return }
+        arme = false
+        debut = nil
+        if NSRunningApplication.runningApplications(withBundleIdentifier: Self.bundle).isEmpty, let u = NSWorkspace.shared.urlForApplication(withBundleIdentifier: Self.bundle) {
+            NSWorkspace.shared.openApplication(at: u, configuration: NSWorkspace.OpenConfiguration())
+            return
+        }
+        DistributedNotificationCenter.default().postNotificationName(.init(Self.bundle + ".commande"), object: "grille", userInfo: nil, deliverImmediately: true)
+    }
+}
+
 struct CoinsActifsView: View {
     @ObservedObject var config = Config.shared
     @ObservedObject var tiroir = ConfigTiroir.commun
+    @ObservedObject var presse = ConfigPresse.commun
+    @ObservedObject var square = ConfigSquare.commun
 
     private func choix(_ c: Coin) -> Binding<String> {
-        Binding(get: { config.coin == c ? "finder" : (tiroir.coin == c ? "tiroir" : "") },
+        Binding(get: { config.coin == c ? "finder" : (tiroir.coin == c ? "tiroir" : (presse.coin == c ? "presse" : (square.coin == c ? "square" : ""))) },
                 set: { v in
-                    // Un coin ne fait qu'une chose, et le Finder comme le tiroir n'ont qu'un coin chacun.
+                    // Un coin ne fait qu'une chose, et le Finder, le tiroir et le presse-papiers n'ont qu'un coin chacun.
                     if config.coin == c { config.coin = .aucun }
                     if tiroir.coin == c { tiroir.coin = .aucun }
-                    if v == "finder" { config.coin = c } else if v == "tiroir" { tiroir.coin = c }
+                    if presse.coin == c { presse.coin = .aucun }
+                    if square.coin == c { square.coin = .aucun }
+                    switch v {
+                    case "finder": config.coin = c
+                    case "tiroir": tiroir.coin = c
+                    case "presse": presse.coin = c
+                    case "square": square.coin = c
+                    default: break
+                    }
                 })
     }
 
     private func menu(_ c: Coin) -> some View {
         Picker("", selection: choix(c)) {
             Text("–").tag("")
-            Text("Finder").tag("finder")
-            Text("Tiroir").tag("tiroir")
+            Label("Finder", systemImage: "folder.fill").tag("finder")
+            Label("Tiroir", systemImage: "rectangle.bottomthird.inset.filled").tag("tiroir")
+            Label("Presse-papiers", systemImage: "doc.on.clipboard.fill").tag("presse")
+            if ConfigSquare.installe || square.coin != .aucun {
+                Label("Grille de Square", systemImage: "square.grid.2x2.fill").tag("square")
+            }
         }
         .labelsHidden()
-        .frame(width: 130)
+        .frame(width: 150)
         .accessibilityLabel(c.titre)
     }
 
     private func couleur(_ c: Coin) -> Color {
-        config.coin == c ? .blue : (tiroir.coin == c ? .pink : Color.white.opacity(0.35))
+        if config.coin == c { return .blue }
+        if tiroir.coin == c { return .pink }
+        if presse.coin == c { return .yellow }
+        if square.coin == c { return .green }
+        return Color.white.opacity(0.35)
     }
 
     private var ecran: some View {
@@ -228,6 +309,7 @@ struct SectionsTiroir: View {
             } footer: { note(String(localized: "Attention : si le tiroir arrive du haut, le Finder arrivera du bas.")) }
             Section {
                 Toggle("Fermer d'un clic en dehors", isOn: $tiroir.fermerAuClic)
+                Toggle("Fond derrière les tuiles", isOn: $tiroir.fond)
             }
         case .multimedia:
             Section {
@@ -264,9 +346,10 @@ struct SectionsTiroir: View {
             }
             if tiroir.medias.contains(where: { $0.genre == "youtube" }) {
                 Section {
+                    Toggle("Masquer les Shorts", isOn: $tiroir.masquerShorts)
                     Toggle("Couper les publicités", isOn: $tiroir.couperPubs)
                 } header: { Text("YouTube") } footer: {
-                    note(String(localized: "Contraire aux conditions d'utilisation de YouTube : à activer en connaissance de cause. Pris en compte au prochain lancement de Side."))
+                    note(String(localized: "Masquer les Shorts retire leurs rangées, leur onglet et les vidéos courtes, tout de suite. Couper les publicités est contraire aux conditions d'utilisation de YouTube : à activer en connaissance de cause, pris en compte au prochain lancement de Side."))
                 }
             }
             if tiroir.medias.contains(where: { $0.genre == "spotify" }) {

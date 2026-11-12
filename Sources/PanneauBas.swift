@@ -173,18 +173,21 @@ struct EmpruntBas {
     let bundle: String
     let chemin: String
     let note: String?          // pour Notes : le nom de la note à ouvrir dans sa propre fenêtre
+    /// L'identifiant de la note dans Notes : il ne change jamais, même quand on réécrit sa première ligne (son titre).
+    var noteId: String?
 
     var enTexte: [String: String] {
         var d = ["nom": nom, "bundle": bundle, "chemin": chemin]
         if let note { d["note"] = note }
+        if let noteId { d["noteId"] = noteId }
         return d
     }
-    init(nom: String, bundle: String, chemin: String, note: String? = nil) {
-        self.nom = nom; self.bundle = bundle; self.chemin = chemin; self.note = note
+    init(nom: String, bundle: String, chemin: String, note: String? = nil, noteId: String? = nil) {
+        self.nom = nom; self.bundle = bundle; self.chemin = chemin; self.note = note; self.noteId = noteId
     }
     init?(_ d: [String: String]) {
         guard let nom = d["nom"], let bundle = d["bundle"], let chemin = d["chemin"] else { return nil }
-        self.init(nom: nom, bundle: bundle, chemin: chemin, note: d["note"])
+        self.init(nom: nom, bundle: bundle, chemin: chemin, note: d["note"], noteId: d["noteId"])
     }
 }
 
@@ -222,9 +225,12 @@ final class PoigneeHauteurBas: NSView {
 
 /// La même teinte que le mini-Dock de Side, posée sur le flou : couleur de fenêtre, à l'opacité choisie dans les réglages.
 final class TeinteBas: NSView {
+    /// Sans fond : un voile à peine visible, qui suffit à garder les clics pour le tiroir.
+    var presqueInvisible = false
     override var wantsUpdateLayer: Bool { true }
     override func updateLayer() {
-        layer?.backgroundColor = NSColor.windowBackgroundColor.withAlphaComponent(CGFloat(Config.shared.opacite)).cgColor
+        layer?.backgroundColor = presqueInvisible ? NSColor(white: 0.5, alpha: 0.012).cgColor
+            : NSColor.windowBackgroundColor.withAlphaComponent(CGFloat(Config.shared.opacite)).cgColor
     }
     override func hitTest(_ point: NSPoint) -> NSView? { nil }
 }
@@ -257,7 +263,7 @@ final class LigneSelecteurBas: NSView {
         let texte = NSTextField(labelWithString: nom)
         texte.font = .systemFont(ofSize: 13)
         texte.lineBreakMode = .byTruncatingTail
-        texte.frame = NSRect(x: icone == nil ? 10 : 36, y: 6, width: 170, height: 18)
+        texte.frame = NSRect(x: icone == nil ? 10 : 36, y: 6, width: 206, height: 18)
         addSubview(texte)
         if let icone {
             let v = NSImageView(image: icone)
@@ -268,7 +274,7 @@ final class LigneSelecteurBas: NSView {
         if let signe {
             let v = NSImageView(image: NSImage(systemSymbolName: signe, accessibilityDescription: nil) ?? NSImage())
             v.contentTintColor = couleur
-            v.frame = NSRect(x: 216, y: 6, width: 18, height: 18)
+            v.frame = NSRect(x: 252, y: 6, width: 18, height: 18)
             addSubview(v)
         }
     }
@@ -297,7 +303,7 @@ final class SelecteurTuilesBas {
 
     func montrer(pres ancre: NSRect, _ rubriques: [(String, [Ligne])]) {
         fermer()
-        let largeur: CGFloat = 244
+        let largeur: CGFloat = 280
         let pile = NSView()
         var y: CGFloat = 8
         var vues: [(NSView, CGFloat, CGFloat)] = []      // vue, position depuis le haut, hauteur
@@ -426,6 +432,19 @@ final class PanneauBas: NSObject {
 
     private var panneau: NSPanel?
     private var fond: FondPanneauBas?
+    private var teinte: TeinteBas?
+
+    /// Avec ou sans fond derrière les tuiles. Sans fond, le flou est masqué (les tuiles et le dépôt d'applications restent).
+    func majFond() {
+        guard let fond else { return }
+        let avec = ConfigTiroir.commun.fond
+        fond.maskImage = avec ? nil : NSImage(size: NSSize(width: 1, height: 1), flipped: false) { _ in true }
+        // Sans fond, le tiroir garde un voile presque invisible : une zone tout à fait transparente laisserait passer
+        // les clics et les glisser à l'application de derrière.
+        teinte?.presqueInvisible = !avec
+        teinte?.needsDisplay = true
+        fond.window?.invalidateShadow()
+    }
     private let bandeVue = NSView()             // la bande où défilent les tuiles (elle coupe ce qui dépasse)
     private let plus = BoutonBas(frame: .zero)
     private var bienvenue: BienvenueTiroirBas?      // le mot d'accueil, à la toute première ouverture du tiroir
@@ -547,10 +566,21 @@ final class PanneauBas: NSObject {
         case "carte": AppDelegate.shared.basculer()      // la carte Finder
         case "panneau": basculer()                        // le panneau du bas
         case "presse": VoletPresse.commun.basculer()      // le volet du presse-papiers
+        case "reglages-coins":                            // Square renvoie ici pour régler son coin actif
+            AppDelegate.shared.fermerReglages()
+            Volet.demande = .coins
+            AppDelegate.shared.ouvrirReglages()
+        case "video-etat": pagesWeb.values.first(where: { $0.estUnYouTube })?.noterEtat()
+        case "video":                                     // la vidéo YouTube du tiroir : en plein écran, ou de retour
+            pagesWeb.values.first(where: { $0.estUnYouTube })?.basculerPleinEcran()
         case "corbeille":                                 // la carte Finder, ouverte sur la corbeille
             if !AppDelegate.shared.estOuvert { AppDelegate.shared.basculer() }
             Corbeille.montrer()
-        default: break
+        default:
+            // « youtube https://… » : ouvre ce lien dans la tuile YouTube (pour les essais, et pour d'autres apps).
+            if commande.hasPrefix("youtube "), let u = URL(string: String(commande.dropFirst(8))) {
+                pagesWeb.values.first(where: { $0.estUnYouTube })?.ouvrir(u)
+            }
         }
     }
 
@@ -582,7 +612,7 @@ final class PanneauBas: NSObject {
             case .basDroite: return bas && droite
             }
         }
-        if !dans(140) { coinArmé = true; débutCoin = nil; return }
+        if !dans(40) { coinArmé = true; débutCoin = nil; return }
         guard dans(0) else { débutCoin = nil; return }
         guard coinArmé, NSEvent.pressedMouseButtons == 0, !suiviDoigts else { return }
         if débutCoin == nil { débutCoin = Date() }
@@ -721,10 +751,12 @@ final class PanneauBas: NSObject {
         teinte.autoresizingMask = [.width, .height]
         teinte.frame = fond.bounds
         fond.addSubview(teinte)
+        self.teinte = teinte
         fond.registerForDraggedTypes([.fileURL])
         fond.auDépôt = { [weak self] urls in urls.forEach { self?.ajouter($0) } }
         support.addSubview(fond)
         self.fond = fond
+        majFond()
         bandeVue.wantsLayer = true
         bandeVue.layer?.masksToBounds = true
         fond.addSubview(bandeVue)
@@ -1165,6 +1197,12 @@ final class PanneauBas: NSObject {
         journalBas("fermé")
     }
 
+    /// La vidéo sort en plein écran : le tiroir se referme, sans rendre la main à l'application d'avant.
+    func fermerPourLaVideo() { fermer(rendreLaMain: false) }
+
+    /// « Masquer les Shorts » : appliqué aux pages YouTube déjà ouvertes.
+    func appliquerShorts() { pagesWeb.values.forEach { $0.appliquerShorts(ConfigTiroir.commun.masquerShorts) } }
+
     private func fermer(rendreLaMain: Bool) {
         guard ouvert else { return }
         if !suiviDoigts || !fermetureSuivie { quitterLesFenêtres() }
@@ -1440,6 +1478,13 @@ final class PanneauBas: NSObject {
                 }
                 if appuyé {
                     if enMainRetaillée { pousser(sauf: e.nom) }
+                    else if abs(c.midX - zone.midX) > 30 {
+                        // Comme dans la grille de Square : pendant qu'on la déplace, la tuile prend sa nouvelle place
+                        // et les autres se poussent tout de suite pour la lui laisser.
+                        let avant = emprunts.map(\.nom)
+                        changerDeRang(e, milieu: c.midX)
+                        if emprunts.map(\.nom) != avant { pousser(sauf: e.nom) }
+                    }
                 } else {
                     // Lâchée : déplacée sans être élargie, elle prend le rang où vous l'avez posée. Puis tout se réaligne.
                     if !enMainRetaillée, abs(c.midX - zone.midX) > 30 { changerDeRang(e, milieu: c.midX) }
@@ -1566,11 +1611,15 @@ final class PanneauBas: NSObject {
         DispatchQueue.global().async { [weak self] in
             // Les titres des notes, dans l'ordre de Notes (les plus récentes d'abord). Rien d'autre n'est lu.
             var erreur: NSDictionary?
-            let reponse = NSAppleScript(source: "tell application \"Notes\" to get name of every note")?.executeAndReturnError(&erreur)
-            var titres: [String] = []
-            if let reponse, reponse.numberOfItems > 0 {
-                for i in 1...reponse.numberOfItems {
-                    if let t = reponse.atIndex(i)?.stringValue, !t.isEmpty, !titres.contains(t) { titres.append(t) }
+            // Avec leur identifiant, qui ne change pas quand on réécrit la première ligne d'une note.
+            let reponse = NSAppleScript(source: "tell application \"Notes\" to get {name, id} of every note")?.executeAndReturnError(&erreur)
+            var titres: [String] = [], ids: [String: String] = [:]
+            if let reponse, reponse.numberOfItems == 2, let noms = reponse.atIndex(1), let idents = reponse.atIndex(2), noms.numberOfItems > 0 {
+                for i in 1...noms.numberOfItems {
+                    if let t = noms.atIndex(i)?.stringValue, !t.isEmpty, !titres.contains(t) {
+                        titres.append(t)
+                        ids[t] = idents.atIndex(i)?.stringValue
+                    }
                     if titres.count >= 40 { break }
                 }
             }
@@ -1579,7 +1628,7 @@ final class PanneauBas: NSObject {
                 guard let self, self.ouvert else { return }
                 let icone = NSWorkspace.shared.icon(forFile: "/System/Applications/Notes.app")
                 let lignes = titres.map { t in
-                    SelecteurTuilesBas.Ligne(icone: icone, nom: t, signe: "plus.circle.fill", couleur: .systemGreen) { [weak self] in self?.ajouterNote(t) }
+                    SelecteurTuilesBas.Ligne(icone: icone, nom: t, signe: "plus.circle.fill", couleur: .systemGreen) { [weak self] in self?.ajouterNote(t, id: ids[t]) }
                 }
                 let vide = [SelecteurTuilesBas.Ligne(icone: nil, nom: String(localized: "Aucune note trouvée dans Notes"), signe: nil, couleur: .clear, action: nil)]
                 self.selecteur.montrer(pres: ancre, [(String(localized: "Choisir une note"), lignes.isEmpty ? vide : lignes)])
@@ -1588,12 +1637,12 @@ final class PanneauBas: NSObject {
     }
 
     /// Range une note précise dans le tiroir (par son titre). Aussi appelé depuis les réglages.
-    func ajouterNote(_ titre: String) {
+    func ajouterNote(_ titre: String, id: String? = nil) {
         guard !titre.isEmpty, !emprunts.contains(where: { $0.note == titre }) else { return }
         // La tuile de toute l'application Notes ferait double emploi (et prendrait la fenêtre de la note pour la sienne).
         for e in emprunts where e.bundle == "com.apple.Notes" && e.note == nil { rendreLaFenêtre(e) }
         emprunts.removeAll { $0.bundle == "com.apple.Notes" && $0.note == nil }
-        emprunts.append(EmpruntBas(nom: String(localized: "Note \(titre)"), bundle: "com.apple.Notes", chemin: "/System/Applications/Notes.app", note: titre))
+        emprunts.append(EmpruntBas(nom: String(localized: "Note \(titre)"), bundle: "com.apple.Notes", chemin: "/System/Applications/Notes.app", note: titre, noteId: id))
         journalBas("tuile ajoutée : une note")
         recharger(versLaFin: true)
     }
@@ -1636,19 +1685,22 @@ final class PanneauBas: NSObject {
                 self?.ajouter(a.bundleURL!)
             }
         }
+        let symbole: (String) -> NSImage? = { NSImage(systemSymbolName: $0, accessibilityDescription: nil)?.withSymbolConfiguration(.init(pointSize: 15, weight: .medium)) }
         let autre = [
-            SelecteurTuilesBas.Ligne(icone: nil, nom: String(localized: "Choisir une autre application…"), signe: nil, couleur: .clear) { [weak self] in
+            SelecteurTuilesBas.Ligne(icone: symbole("square.grid.2x2"), nom: String(localized: "Choisir une application…"), signe: "chevron.right", couleur: .tertiaryLabelColor) { [weak self] in
                 self?.choisirApplication()
             },
             // Une seule note, dans sa propre petite fenêtre, plutôt que toute l'application Notes.
-            SelecteurTuilesBas.Ligne(icone: icone("/System/Applications/Notes.app"), nom: String(localized: "Une seule note…"), signe: nil, couleur: .clear) { [weak self] in
+            SelecteurTuilesBas.Ligne(icone: icone("/System/Applications/Notes.app"), nom: String(localized: "Une seule note…"), signe: "chevron.right", couleur: .tertiaryLabelColor) { [weak self] in
                 self?.demanderUneNote()
             },
         ]
         guard let fenetre = bouton.window else { return }
         let ancre = fenetre.convertToScreen(bouton.convert(bouton.bounds, to: nil))
         journalBas("liste + ouverte")
-        selecteur.montrer(pres: ancre, [(String(localized: "Dans le panneau"), presentes), (String(localized: "Ajouter une application ouverte"), aAjouter), ("", autre)])
+        // Les deux façons d'ajouter d'abord, bien en vue ; puis les tuiles du tiroir, puis les applications ouvertes.
+        selecteur.montrer(pres: ancre, [(String(localized: "Ajouter au tiroir"), autre), (String(localized: "Dans le tiroir"), presentes),
+                                        (String(localized: "Applications ouvertes"), aAjouter)])
     }
 
     @objc private func choisirApplication() {
@@ -1723,7 +1775,11 @@ final class PanneauBas: NSObject {
         AXUIElementCopyAttributeValue(el, kAXWindowsAttribute as CFString, &v)
         let toutes = (v as? [AXUIElement]) ?? []
         guard let note = e.note else { return toutes.first }
-        // Le titre d'une note est sa première ligne : il a pu changer depuis qu'on l'a rangée dans le tiroir.
+        // Une note déjà trouvée est reconnue à son numéro de fenêtre : son titre (sa première ligne) change dès qu'on l'écrit,
+        // et la chercher par son titre la faisait passer pour fermée (elle quittait le tiroir et restait sur le bureau).
+        if let n = numéros[e.nom], let f = toutes.first(where: { w in var id: CGWindowID = 0; return _AXUIElementGetWindow(w, &id) == .success && id == n }) {
+            return f
+        }
         let actuel = titresDeNotes[note] ?? note
         return toutes.first { titre($0) == actuel } ?? toutes.first { titre($0) == note }
     }
@@ -1780,18 +1836,24 @@ final class PanneauBas: NSObject {
             var erreur: NSDictionary?
             // La note qui porte ce nom ; à défaut, celle dont le nom le contient (sa première ligne a pu être retouchée).
             let cherche = note.replacingOccurrences(of: "\\", with: "\\\\").replacingOccurrences(of: "\"", with: "\\\"")
+            // D'abord par son identifiant (il ne change jamais), puis par son nom.
+            let parId = e.noteId.map { "try\n set n to note id \"\($0.replacingOccurrences(of: "\"", with: ""))\"\n end try" } ?? ""
             let script = """
             tell application "Notes"
                 set n to missing value
-                try
-                    set n to first note whose name is "\(cherche)"
-                end try
+                \(parId)
+                if n is missing value then
+                    try
+                        set n to first note whose name is "\(cherche)"
+                    end try
+                end if
                 if n is missing value then set n to first note whose name contains "\(cherche)"
                 show n
-                return name of n
+                return {name of n, id of n}
             end tell
             """
-            let titre = NSAppleScript(source: script)?.executeAndReturnError(&erreur).stringValue
+            let reponse = NSAppleScript(source: script)?.executeAndReturnError(&erreur)
+            let titre = reponse?.atIndex(1)?.stringValue, ident = reponse?.atIndex(2)?.stringValue
             if let erreur { journalBas("Notes a répondu %@", "\(erreur[NSAppleScript.errorMessage] ?? erreur)") }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
                 guard let self else { return }
@@ -1806,6 +1868,10 @@ final class PanneauBas: NSObject {
                     return
                 }
                 self.titresDeNotes[note] = titre
+                // Une tuile rangée avant que Side ne retienne les identifiants : on le retient maintenant.
+                if let ident, let i = self.emprunts.firstIndex(where: { $0.nom == e.nom }), self.emprunts[i].noteId == nil {
+                    self.emprunts[i].noteId = ident
+                }
                 guard self.ouvert, self.serie == maSerie, let a = self.app(e) else { return }
                 // Le menu de Notes est dans la langue de Notes (celle du Mac), pas dans celle de Side : on cherche les deux.
                 let ok = self.presserMenu(a, ["Ouvrir la note dans une nouvelle fenêtre", "Open Note in New Window"])
@@ -1816,6 +1882,16 @@ final class PanneauBas: NSObject {
                 }
             }
         }
+    }
+
+    /// Cette fenêtre de Notes est-elle celle d'une note du tiroir ? D'abord par son numéro (le titre d'une note change dès
+    /// qu'on écrit sa première ligne), puis par son titre. Sinon, c'est la grande fenêtre de Notes, que le tiroir écarte ou rend.
+    private func estUneNoteDuTiroir(_ f: AXUIElement, _ notes: Set<String>) -> Bool {
+        var id: CGWindowID = 0
+        if _AXUIElementGetWindow(f, &id) == .success, id != 0,
+           emprunts.contains(where: { $0.note != nil && numéros[$0.nom] == id }) { return true }
+        let t = titre(f)
+        return notes.contains(t) || titresDeNotes.values.contains(t)
     }
 
     /// Pendant qu'une note s'ouvre dans sa propre fenêtre : toute autre fenêtre de Notes est repoussée hors de l'écran
@@ -1830,7 +1906,7 @@ final class PanneauBas: NSObject {
             let notes = Set(self.emprunts.compactMap { $0.note })
             var v: CFTypeRef?
             AXUIElementCopyAttributeValue(AXUIElementCreateApplication(a.processIdentifier), kAXWindowsAttribute as CFString, &v)
-            for f in (v as? [AXUIElement]) ?? [] where !notes.contains(self.titre(f)) {
+            for f in (v as? [AXUIElement]) ?? [] where !self.estUneNoteDuTiroir(f, notes) {
                 guard let c = AXBas.cadre(f), c.minX < ecran.frame.maxX - 2 else { continue }
                 AXBas.placer(f, CGRect(x: ecran.frame.maxX - 1, y: ecran.frame.height - 1, width: c.width, height: c.height))
             }
@@ -1857,7 +1933,7 @@ final class PanneauBas: NSObject {
         let notes = Set(emprunts.compactMap { $0.note })
         var v: CFTypeRef?
         AXUIElementCopyAttributeValue(AXUIElementCreateApplication(a.processIdentifier), kAXWindowsAttribute as CFString, &v)
-        for f in (v as? [AXUIElement]) ?? [] where !notes.contains(titre(f)) {
+        for f in (v as? [AXUIElement]) ?? [] where !estUneNoteDuTiroir(f, notes) {
             guard let c = AXBas.cadre(f), c.minX >= ecran.frame.maxX - 2 else { continue }
             let milieu = CGPoint(x: visible.midX, y: ecran.frame.height - visible.midY)
             AXBas.placer(f, CGRect(x: milieu.x - c.width / 2, y: milieu.y - c.height / 2, width: c.width, height: c.height))

@@ -92,18 +92,15 @@ final class ConfigPresse: ObservableObject {
     }
 }
 
-/// Les lignes du volet dans les réglages de Side (rubrique Général, groupe « Presse-papiers »).
-struct ReglagesVoletPresse: View {
+/// Le raccourci clavier du volet (réglages › Raccourcis clavier).
+struct RaccourciPresseLigne: View {
     @ObservedObject private var presse = ConfigPresse.commun
     @State private var ecoute = false
 
     var body: some View {
-        Picker("Volet du presse-papiers : coin actif", selection: $presse.coin) {
-            ForEach(Coin.allCases, id: \.self) { Text($0.titre).tag($0) }
-        }
-        LabeledContent("Volet du presse-papiers : raccourci clavier") {
+        LabeledContent("Ouvrir et fermer le presse-papiers") {
             HStack {
-                Button(ecoute ? String(localized: "Tape le raccourci…") : presse.libelle) {
+                Button(ecoute ? String(localized: "Tape le raccourci…") : (presse.touche == -1 ? String(localized: "Aucun") : presse.libelle)) {
                     ecoute = true
                     presse.ecouterRaccourci { ecoute = false }
                 }
@@ -111,21 +108,51 @@ struct ReglagesVoletPresse: View {
                     .disabled(presse.touche == -1)
             }
         }
-        LabeledContent("Largeur du volet") {
-            HStack {
-                Slider(value: $presse.largeur, in: 260...520).frame(width: 190)
-                Text(verbatim: "\(Int(presse.largeur.rounded())) pt").monospacedDigit().foregroundStyle(.secondary).frame(width: 84, alignment: .trailing)
+    }
+}
+
+/// Le volet « Presse-papiers » des réglages de Side : l'historique, le volet, les liens enregistrés et leur présentation.
+struct ReglagesVoletPresse: View {
+    @ObservedObject private var presse = ConfigPresse.commun
+    @ObservedObject private var config = Config.shared
+    @ObservedObject private var liens = LiensGardes.commun
+
+    var body: some View {
+        Section {
+            Toggle("Garder un historique du copier-coller (7 jours)", isOn: $config.historique)
+            Toggle("Y garder aussi les mots de passe (affichés masqués)", isOn: $config.historiqueSecrets)
+                .disabled(!config.historique)
+        } header: { Text("Historique") } footer: {
+            Text("Les textes, les fichiers et les 40 dernières images copiés sont gardés 7 jours sur ce Mac ; ce que tu épingles (clic droit) est gardé sans limite. Les mots de passe ne sont jamais écrits sur le disque. Décocher l'historique efface tout.")
+                .font(.caption).foregroundStyle(.secondary)
+        }
+        Section {
+            LabeledContent("Largeur du volet") {
+                HStack {
+                    Slider(value: $presse.largeur, in: 260...520).frame(width: 190)
+                    Text(verbatim: "\(Int(presse.largeur.rounded())) pt").monospacedDigit().foregroundStyle(.secondary).frame(width: 84, alignment: .trailing)
+                }
             }
+            Toggle("Refermer le volet après avoir copié", isOn: $presse.fermerApresCopie)
+            LabeledContent("Le volet glisse depuis le bord droit de l'écran") {
+                Button("Afficher le volet") { VoletPresse.commun.basculer() }
+            }
+        } header: { Text("Le volet") } footer: {
+            Text("Il s'ouvre par un coin actif (en bas à droite au départ) ou par son raccourci clavier : voir les volets Coins actifs et Raccourcis clavier.")
+                .font(.caption).foregroundStyle(.secondary)
         }
-        Toggle("Refermer le volet après avoir copié", isOn: $presse.fermerApresCopie)
-        Toggle("Aperçu des liens (l'image et le titre du site)", isOn: $presse.apercuLiens)
-            .help("Pour cela, Side contacte le site du lien, quand le volet l'affiche.")
-        Picker("Présentation des liens", selection: $presse.presentation) {
-            ForEach(PresentationLien.allCases, id: \.self) { Text($0.titre).tag($0) }
-        }
-        .disabled(!presse.apercuLiens)
-        LabeledContent("Le volet glisse depuis le bord droit de l'écran") {
-            Button("Afficher le volet") { VoletPresse.commun.basculer() }
+        Section {
+            Toggle("Aperçu des liens (l'image et le titre du site)", isOn: $presse.apercuLiens)
+            Picker("Présentation des liens", selection: $presse.presentation) {
+                ForEach(PresentationLien.allCases, id: \.self) { Label($0.titre, systemImage: $0.symbole).tag($0) }
+            }
+            .disabled(!presse.apercuLiens)
+            LabeledContent("Liens enregistrés") {
+                Text(verbatim: "\(liens.liens.count)").monospacedDigit().foregroundStyle(.secondary)
+            }
+        } header: { Text("Liens") } footer: {
+            Text("L'aperçu montre l'image et le titre du site : pour cela, Side contacte le site du lien, seulement quand le volet l'affiche. La présentation vaut pour le presse-papiers comme pour l'onglet « Enregistrés ». Les liens enregistrés restent sur ce Mac.")
+                .font(.caption).foregroundStyle(.secondary)
         }
     }
 }
@@ -1015,8 +1042,8 @@ final class VoletPresse {
             case .basDroite: return bas && droite
             }
         }
-        // Il faut s'éloigner nettement du coin avant qu'y revenir ne referme le volet.
-        if !dans(140) { coinArme = true; debutCoin = nil; return }
+        // Comme dans Square : sortir du coin (40 points) suffit pour qu'y revenir referme le volet.
+        if !dans(40) { coinArme = true; debutCoin = nil; return }
         guard dans(0) else { debutCoin = nil; return }
         guard coinArme, NSEvent.pressedMouseButtons == 0 else { return }
         if debutCoin == nil { debutCoin = Date() }
