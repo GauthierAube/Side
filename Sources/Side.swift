@@ -2602,15 +2602,18 @@ struct Poignee: View {
 /// Un carré apparaît pendant un glisser-déposer, et reste tant qu'il contient des fichiers.
 struct ZonesFlottantes: View {
     @ObservedObject var store: Store
+    @ObservedObject var config = Config.shared
 
     var body: some View {
+        // Carte venue du haut : la première zone est en bas, les suivantes s'empilent au-dessus.
+        let versHaut = config.bord == .haut
         VStack(spacing: 8) {
-            ForEach(store.etageres) { zone in
+            ForEach(versHaut ? store.etageres.reversed() : store.etageres) { zone in
                 ZoneCarree(column: zone, store: store, glisse: store.glisse)
             }
         }
         .frame(width: Reglages.carreDepot)
-        .frame(maxHeight: .infinity, alignment: .top)
+        .frame(maxHeight: .infinity, alignment: versHaut ? .bottom : .top)
         .animation(.spring(response: 0.32, dampingFraction: 0.78), value: store.glisse)
         .animation(.spring(response: 0.32, dampingFraction: 0.78), value: store.depotRempli)
     }
@@ -4325,7 +4328,7 @@ struct ReglagesView: View {
                     note("Dès qu'une capture d'écran est enregistrée, elle t'attend dans une zone, prête à être glissée ailleurs. Les captures se rangent ensemble dans la même zone.")
                 }
             } header: { Text("Zones de dépôt") } footer: {
-                note("Une zone apparaît en haut à droite de la carte quand tu fais glisser un fichier. Tant qu'elle contient quelque chose, elle reste à l'écran même quand Side est fermé, pour que tu puisses glisser son contenu ailleurs. Secoue le pointeur pendant le glisser pour en ajouter une autre en dessous. Les zones vides disparaissent toutes seules.")
+                note("Une zone apparaît en haut à droite de la carte quand tu fais glisser un fichier. Tant qu'elle contient quelque chose, elle reste à l'écran même quand Side est fermé, pour que tu puisses glisser son contenu ailleurs. Side fermé, secoue le pointeur pendant que tu glisses un fichier : la zone apparaît seule, à côté de la souris. Secoue encore pour en ajouter une autre. Si la carte vient du haut, la zone se place en bas de la carte et les suivantes s'empilent au-dessus. Les zones vides disparaissent toutes seules.")
             }
             Section {
                 Toggle("Afficher le mini-Dock", isOn: $config.apps)
@@ -4571,7 +4574,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
     private var voile: NSPanel?
     private var depotPanel: NSPanel?
     private var suiviDepot: [AnyCancellable] = []
-    private var ancreDepot: NSPoint = .zero   // coin haut-gauche de la fenêtre des zones de dépôt
+    private var ancreDepot: NSPoint = .zero   // coin haut-gauche de la fenêtre des zones de dépôt (bas-gauche si `zonesVersHaut`)
+    /// Carte venue du haut : les zones de dépôt se rangent en bas de la carte et s'empilent vers le haut.
+    private var zonesVersHaut: Bool { config.bord == .haut }
     private var ancrePerso: NSPoint?          // l'endroit où tu l'as déplacée à la main, s'il y en a un
     private var placementAuto = false
     private var accesDemande = false
@@ -5108,7 +5113,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
     private var dernierMouvement: TimeInterval = 0
 
     private func secousse() {
-        guard config.secouer, prise == nil else { return }   // secouer ouvre la carte, et la referme si elle est ouverte
+        // Secouer ouvre la carte, et la referme si elle est ouverte. Pendant un glisser-déposer, le geste sert
+        // aux zones de dépôt : il marche alors même si le geste de souris est désactivé dans les réglages.
+        guard config.secouer || glisserActif, prise == nil else { return }
         // Le cercle remplace la secousse — sauf pendant un glisser-déposer, où secouer ajoute une zone.
         if config.cercle, !glisserActif {
             // Pas de délai de sécurité pour le cercle : un geste aussi net ne se fait pas par erreur.
@@ -5144,8 +5151,26 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
             derniereSecousse = maintenant
             demiTours = []
             // Pendant un glisser-déposer, carte ouverte : secouer ajoute une zone de dépôt en dessous.
-            if glisserActif && visible { store.ajouterZone() } else { basculer() }
+            if glisserActif && (visible || zoneSecouee) { store.ajouterZone() }
+            // Side fermé, un fichier sous la souris : la zone de dépôt apparaît seule, près du pointeur (façon Dropover).
+            else if glisserActif && appGlissee == nil && glisseContientFichier() { ouvrirZoneSecouee() }
+            else if config.secouer { basculer() }
         }
+    }
+
+    /// Vrai entre la secousse qui a fait apparaître la zone de dépôt seule et la fin du glisser.
+    private var zoneSecouee = false
+
+    private func ouvrirZoneSecouee() {
+        journal("déclencheur : secousse pendant un glisser, zone de dépôt seule")
+        // Pas encore à l'écran : elle arrive à côté du pointeur. Déjà là (elle contient des fichiers) : elle ne bouge pas.
+        if depotPanel?.isVisible != true {
+            let ici = NSEvent.mouseLocation
+            ancrePerso = NSPoint(x: ici.x + 24, y: ici.y + (zonesVersHaut ? -1 : 1) * Reglages.carreDepot / 2)
+        }
+        zoneSecouee = true
+        // Ce qu'on y pose reste à l'écran un moment, même cadenas ouvert (comme pour une capture).
+        captureJusqua = ProcessInfo.processInfo.systemUptime + 60
     }
 
     // MARK: Dépôt de fichiers dans la carte
@@ -6161,12 +6186,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         // Les zones de dépôt ont leur propre fenêtre. On retient où la placer : à droite de la carte,
         // sinon à gauche, sinon par-dessus son coin haut-droit.
         let g = Reglages.carreDepot + 8
+        // Carte venue du haut : les zones s'alignent sur le bas de la carte (et grandissent vers le haut).
+        let yz = zonesVersHaut ? y : y + h
         if f.maxX - m - (x + lw + dD) >= g {
-            ancreDepot = NSPoint(x: x + lw + dD + 8, y: y + h)
+            ancreDepot = NSPoint(x: x + lw + dD + 8, y: yz)
         } else if (x - dG) - (f.minX + m) >= g {
-            ancreDepot = NSPoint(x: x - dG - g, y: y + h)
+            ancreDepot = NSPoint(x: x - dG - g, y: yz)
         } else {
-            ancreDepot = NSPoint(x: f.maxX - m - g, y: y + h - 56)
+            ancreDepot = NSPoint(x: f.maxX - m - g, y: zonesVersHaut ? yz + 56 : yz - 56)
         }
         if !store.depotDehors { store.depotDehors = true }
         cadreSeule = NSRect(x: x, y: y, width: lw, height: h)
@@ -6393,15 +6420,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         _ = poignee   // plus affichée : la zone se déplace en l'attrapant par son fond
         p.contentView = conteneur
         depotPanel = p
-        if let xy = UserDefaults.standard.array(forKey: "depotPosition") as? [Double], xy.count == 2 {
+        if let xy = UserDefaults.standard.array(forKey: "depotPosition2") as? [Double], xy.count == 2 {
             ancrePerso = NSPoint(x: xy[0], y: xy[1])
         }
         // Quand tu la déplaces, Side retient l'endroit (coin haut-gauche) et ne la replace plus tout seul.
         NotificationCenter.default.addObserver(forName: NSWindow.didMoveNotification, object: p, queue: .main) { [weak self] _ in
             guard let self, !self.placementAuto, !self.animationDepot else { return }
-            let coin = NSPoint(x: p.frame.minX, y: p.frame.maxY)
+            let coin = NSPoint(x: p.frame.minX, y: self.zonesVersHaut ? p.frame.minY : p.frame.maxY)
             self.ancrePerso = coin; self.journal("zone déplacée, position retenue : \(coin)")
-            UserDefaults.standard.set([Double(coin.x), Double(coin.y)], forKey: "depotPosition")
+            UserDefaults.standard.set([Double(coin.x), Double(coin.y)], forKey: "depotPosition2")
         }
         // Mise à jour dès que quelque chose change : glisser en cours, zone remplie ou vidée, zone ajoutée.
         suiviDepot = [
@@ -6429,7 +6456,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
                     // Vide et disparue : la prochaine fois, elle revient à sa place, à droite de la carte.
                     if !self.store.etageres.contains(where: { !$0.items.isEmpty }) {
                         self.ancrePerso = nil
-                        UserDefaults.standard.removeObject(forKey: "depotPosition")
+                        UserDefaults.standard.removeObject(forKey: "depotPosition2")
                     }
                 }
             }
@@ -6440,9 +6467,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         var coin = ancrePerso ?? ancreDepot
         if let ecran = NSScreen.screens.first(where: { $0.frame.insetBy(dx: -1, dy: -1).contains(coin) }) ?? NSScreen.main {
             coin.x = min(max(coin.x, ecran.frame.minX + 4), ecran.frame.maxX - Reglages.carreDepot - 4)
-            coin.y = min(max(coin.y, ecran.frame.minY + Reglages.carreDepot + 4), ecran.frame.maxY - 4)
+            coin.y = zonesVersHaut
+                ? min(max(coin.y, ecran.frame.minY + 4), ecran.frame.maxY - Reglages.carreDepot - 4)
+                : min(max(coin.y, ecran.frame.minY + Reglages.carreDepot + 4), ecran.frame.maxY - 4)
         }
-        let cadre = NSRect(x: coin.x, y: coin.y - hauteur, width: Reglages.carreDepot, height: hauteur)
+        let cadre = NSRect(x: coin.x, y: zonesVersHaut ? coin.y : coin.y - hauteur, width: Reglages.carreDepot, height: hauteur)
         if depotPanel.frame != cadre {
             placementAuto = true
             depotPanel.setFrame(cadre, display: true)
@@ -6473,7 +6502,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
     /// Oublie l'endroit choisi à la main : la fenêtre des zones revient à côté de la carte.
     func replacerDepot() {
         ancrePerso = nil
-        UserDefaults.standard.removeObject(forKey: "depotPosition")
+        UserDefaults.standard.removeObject(forKey: "depotPosition2")
         majDepot()
     }
 
@@ -6709,6 +6738,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
             }
         } else if glisserActif {
             glisserActif = false
+            zoneSecouee = false
             // Une icône du mini-Dock lâchée pendant que la croix est affichée : on la retire, comme dans le Dock.
             // Lâchée ailleurs (ou ramenée dans le mini-Dock) : elle reprend sa place.
             // Une app venue d'ailleurs, lâchée : on laisse au mini-Dock un instant pour la recevoir.
@@ -6749,7 +6779,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         if pointeurBord, priseBord == nil, let b = bordSous(NSEvent.mouseLocation) { curseurBord(b.x, b.y).set() }
         // Side fermé mais une zone de dépôt restée à l'écran : glisser un fichier la réveille aussi.
         let zoneSeule = !visible && depotPanel?.isVisible == true && glisserActif && glisseContientFichier()
-        let montrer = (glisserActif && visible && appGlissee == nil) || zoneSeule || forcerGlisse || (visible && store.accueil == 3)
+        let montrer = (glisserActif && visible && appGlissee == nil) || zoneSeule || (zoneSecouee && glisserActif) || forcerGlisse || (visible && store.accueil == 3)
             || ProcessInfo.processInfo.systemUptime - depotEnCours < 1.5
         // Un glisser commence alors que toutes les zones sont déjà remplies : une zone vide apparaît en dessous,
         // pour pouvoir poser ailleurs. Elle disparaîtra d'elle-même si on ne s'en sert pas.

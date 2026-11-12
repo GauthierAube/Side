@@ -7,6 +7,18 @@ Il est mis à jour à chaque modification, en même temps que le code.
 
 ## 12/11/2026, matin
 
+### Secouer pendant un glisser ouvre la zone de dépôt seule
+- **Avant :** Side fermé, secouer la souris avec un fichier sous le pointeur ouvrait toute la carte.
+- **Maintenant :** seule la zone de dépôt apparaît, à côté du pointeur, façon Dropover. C'est la même zone que celle de la carte.
+- Secouer encore pendant le glisser ajoute une autre zone.
+- Rien n'est posé : la zone disparaît à la fin du glisser. Un fichier posé : elle reste à l'écran (une minute au moins si le cadenas est ouvert).
+- Ce geste marche pendant un glisser même si le geste de souris est désactivé dans les réglages, ou réglé sur le cercle.
+
+### Carte venue du haut : zone de dépôt en bas
+- Quand la carte arrive du haut, la zone de dépôt se place en bas de la carte, et les zones suivantes s'empilent au-dessus.
+- Dans les autres cas, rien ne change : zone en haut, les suivantes en dessous.
+- L'ancien emplacement choisi à la main pour la zone est oublié une fois, pour repartir du nouvel emplacement.
+
 ### Présentation en colonnes : aperçu du fichier sélectionné
 - **Le problème :** en présentation « colonnes », cliquer sur un fichier laissait la partie droite vide.
 - **Maintenant :** le fichier sélectionné s'affiche à droite, comme dans le Finder : grand aperçu, nom, type et taille, puis les informations (Créé le, Modifié le, Ouvert le, Dimensions, Durée ou Pages selon le fichier) et les tags.
