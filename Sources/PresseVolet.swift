@@ -362,28 +362,47 @@ final class LiensGardes: ObservableObject {
     }
 }
 
-/// Une ligne de la section : l'icône du site (ou d'un texte), le titre, le site en petit.
+/// Un lien enregistré : une carte comme celles du presse-papiers, avec l'image de partage du site, son icône, le titre.
 private struct LigneLien: View {
     let lien: LienGarde
     let copie: Bool
     let action: () -> Void
     @ObservedObject private var liens = LiensGardes.commun
     @ObservedObject private var presse = ConfigPresse.commun
+    @ObservedObject private var apercu: ApercuLien
     @State private var survol = false
 
+    init(lien: LienGarde, copie: Bool, action: @escaping () -> Void) {
+        self.lien = lien
+        self.copie = copie
+        self.action = action
+        apercu = ApercuLien.pour(lien.url?.absoluteString ?? "")
+    }
+
     var body: some View {
-        HStack(spacing: 9) {
-            IconeLien(lien: lien)
-            VStack(alignment: .leading, spacing: 1) {
-                Text(verbatim: lien.titre).font(.callout.weight(.medium)).lineLimit(1)
-                Text(verbatim: lien.detail).font(.caption2).foregroundStyle(.secondary).lineLimit(1).truncationMode(.middle)
+        VStack(alignment: .leading, spacing: 9) {
+            if lien.url != nil, presse.apercuLiens, let image = apercu.image {
+                Color.clear.frame(height: 120)
+                    .overlay(Image(nsImage: image).resizable().scaledToFill())
+                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
             }
-            Spacer(minLength: 0)
-            if copie { Text("Copié").font(.caption2.weight(.semibold)).foregroundStyle(Color.accentColor) }
+            HStack(alignment: .top, spacing: 10) {
+                IconeLien(lien: lien)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(verbatim: lien.titre).font(.body.weight(.semibold)).lineLimit(2)
+                    Text(verbatim: lien.url != nil ? lien.detail : lien.texte)
+                        .font(.caption).foregroundStyle(.secondary).lineLimit(lien.url != nil ? 1 : 3).truncationMode(.middle)
+                }
+                Spacer(minLength: 0)
+                if copie { Text("Copié").font(.caption.weight(.semibold)).foregroundStyle(Color.accentColor) }
+            }
         }
-        .padding(.horizontal, 8).padding(.vertical, 6)
-        .background(RoundedRectangle(cornerRadius: 9, style: .continuous)
-            .fill(copie ? Color.accentColor.opacity(0.20) : Color.primary.opacity(survol ? 0.09 : 0)))
+        .padding(10)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(RoundedRectangle(cornerRadius: 12, style: .continuous)
+            .fill(copie ? Color.accentColor.opacity(0.20) : Color.primary.opacity(survol ? 0.10 : 0.055)))
+        .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous)
+            .strokeBorder(copie ? Color.accentColor : Color.accentColor.opacity(survol ? 0.55 : 0), lineWidth: 1.5))
         .contentShape(Rectangle())
         .onHover { survol = $0 }
         .onTapGesture(perform: action)
@@ -399,6 +418,7 @@ private struct LigneLien: View {
         }
         .help(lien.texte)
         .animation(.easeOut(duration: 0.12), value: survol)
+        .onAppear { if lien.url != nil, presse.apercuLiens { apercu.charger() } }
     }
 }
 
@@ -419,13 +439,13 @@ private struct IconeLien: View {
                 Image(nsImage: i).resizable().scaledToFit().clipShape(RoundedRectangle(cornerRadius: 5, style: .continuous))
             } else {
                 Image(systemName: lien.url != nil ? "link" : "text.alignleft")
-                    .font(.system(size: 10, weight: .bold)).foregroundStyle(.white)
-                    .frame(width: 22, height: 22)
-                    .background(RoundedRectangle(cornerRadius: 6, style: .continuous)
+                    .font(.system(size: 13, weight: .bold)).foregroundStyle(.white)
+                    .frame(width: 30, height: 30)
+                    .background(RoundedRectangle(cornerRadius: 8, style: .continuous)
                         .fill((lien.url != nil ? Color.blue : Color.gray).gradient))
             }
         }
-        .frame(width: 22, height: 22)
+        .frame(width: 30, height: 30)
         .onAppear { if lien.url != nil, presse.apercuLiens { apercu.charger() } }
     }
 }
@@ -497,49 +517,15 @@ private func lireDepot(_ fournisseurs: [NSItemProvider], _ suite: @escaping (Str
 }
 private let typesDepot = ["public.url", "public.utf8-plain-text", "public.plain-text"]
 
-/// Un groupe de l'onglet « Enregistrés » : son en-tête repliable et ses lignes. On peut y déposer un élément.
-private struct GroupeLiens: View {
-    let groupe: String
-    let lignes: [LienGarde]
-    let cherche: Bool
-    let copie: UUID?
-    let copier: (LienGarde) -> Void
-    @ObservedObject private var liens = LiensGardes.commun
-    @State private var vise = false
-
-    var body: some View {
-        let ferme = liens.groupesFermes.contains(groupe) && !cherche
-        VStack(alignment: .leading, spacing: 2) {
-            if !groupe.isEmpty {
-                HStack(spacing: 5) {
-                    Image(systemName: "chevron.right").font(.system(size: 9, weight: .bold))
-                        .rotationEffect(.degrees(ferme ? 0 : 90))
-                    Text(verbatim: groupe).font(.subheadline.weight(.semibold))
-                    Spacer()
-                    Text(verbatim: "\(lignes.count)").font(.caption).monospacedDigit()
-                }
-                .foregroundStyle(.secondary)
-                .padding(.horizontal, 6).padding(.vertical, 5)
-                .contentShape(Rectangle())
-                .onTapGesture { withAnimation(.easeOut(duration: 0.18)) { liens.basculerGroupe(groupe) } }
-            }
-            if !ferme {
-                ForEach(lignes) { l in LigneLien(lien: l, copie: copie == l.id) { copier(l) } }
-            }
-        }
-        .padding(4)
-        .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(Color.accentColor.opacity(vise ? 0.16 : 0)))
-        .overlay(RoundedRectangle(cornerRadius: 10, style: .continuous).strokeBorder(Color.accentColor.opacity(vise ? 0.8 : 0), lineWidth: 1.5))
-        .onDrop(of: typesDepot, isTargeted: $vise) { f in lireDepot(f) { liens.deposer($0, groupe: groupe) } }
-    }
-}
-
-/// L'onglet « Enregistrés » : les liens gardés pour toujours, par groupe.
+/// L'onglet « Enregistrés » : les liens gardés pour toujours, par groupe. Une seule liste paresseuse :
+/// l'aperçu d'un lien n'est demandé que lorsque sa carte arrive à l'écran.
 private struct OngletLiens: View {
     let filtre: String
     let copie: UUID?
     let copier: (LienGarde) -> Void
     @ObservedObject private var liens = LiensGardes.commun
+    /// Le groupe au-dessus duquel passe un glisser (son en-tête s'éclaire).
+    @State private var groupeVise: String?
 
     private func visibles(_ g: String) -> [LienGarde] {
         let f = filtre.trimmingCharacters(in: .whitespaces)
@@ -549,10 +535,16 @@ private struct OngletLiens: View {
         }
     }
 
+    private func vise(_ g: String) -> Binding<Bool> {
+        Binding(get: { groupeVise == g }, set: { oui in
+            if oui { groupeVise = g } else if groupeVise == g { groupeVise = nil }
+        })
+    }
+
     var body: some View {
         let cherche = !filtre.trimmingCharacters(in: .whitespaces).isEmpty
         let groupes = liens.groupes.filter { !visibles($0).isEmpty }
-        VStack(alignment: .leading, spacing: 4) {
+        LazyVStack(alignment: .leading, spacing: 8) {
             if let b = liens.brouillon { FormulaireLien(lien: b).id(b.id) }
             if liens.liens.isEmpty && liens.brouillon == nil {
                 VStack(spacing: 8) {
@@ -566,7 +558,32 @@ private struct OngletLiens: View {
                 Text("Aucun résultat").foregroundStyle(.secondary).frame(maxWidth: .infinity).padding(.vertical, 30)
             }
             ForEach(groupes, id: \.self) { g in
-                GroupeLiens(groupe: g, lignes: visibles(g), cherche: cherche, copie: copie, copier: copier)
+                let lignes = visibles(g), ferme = liens.groupesFermes.contains(g) && !cherche
+                if !g.isEmpty {
+                    HStack(spacing: 8) {
+                        Image(systemName: "chevron.right").font(.system(size: 11, weight: .bold)).foregroundStyle(.secondary)
+                            .rotationEffect(.degrees(ferme ? 0 : 90))
+                        Text(verbatim: g).font(.title3.weight(.semibold))
+                        Spacer()
+                        Text(verbatim: "\(lignes.count)").font(.caption.weight(.semibold)).monospacedDigit()
+                            .padding(.horizontal, 7).padding(.vertical, 2)
+                            .background(Capsule().fill(Color.primary.opacity(0.09)))
+                    }
+                    .padding(.horizontal, 10).padding(.vertical, 9)
+                    .background(RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        .fill(groupeVise == g ? Color.accentColor.opacity(0.22) : Color.primary.opacity(ferme ? 0.055 : 0)))
+                    .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        .strokeBorder(Color.accentColor.opacity(groupeVise == g ? 0.9 : 0), lineWidth: 1.5))
+                    .contentShape(Rectangle())
+                    .onTapGesture { withAnimation(.easeOut(duration: 0.18)) { liens.basculerGroupe(g) } }
+                    .onDrop(of: typesDepot, isTargeted: vise(g)) { f in lireDepot(f) { liens.deposer($0, groupe: g) } }
+                }
+                if !ferme {
+                    ForEach(lignes) { l in
+                        LigneLien(lien: l, copie: copie == l.id) { copier(l) }
+                            .onDrop(of: typesDepot, isTargeted: vise(g)) { f in lireDepot(f) { liens.deposer($0, groupe: g) } }
+                    }
+                }
             }
         }
     }
