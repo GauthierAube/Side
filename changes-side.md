@@ -7,6 +7,18 @@ Il est mis à jour à chaque modification, en même temps que le code.
 
 ## 12/11/2026, soir
 
+### Tiroir : fermer une application qui quitte avec sa fenêtre
+- **Avant :** fermer la fenêtre d'une application comme Réglages Système (qui quitte alors complètement) refermait le tiroir, et l'application y revenait à l'ouverture suivante.
+- **Maintenant :** le tiroir reste ouvert et la tuile de l'application s'en va.
+
+### Une présentation en images
+- **Avant :** la visite guidée posait des bulles de texte sur la carte ouverte.
+- **Maintenant :** une fenêtre à part montre quatre écrans en mouvement, presque sans mots : le Finder (quatre doigts sur le trackpad), les fichiers et dossiers (favoris, aperçu avec Espace), la zone de dépôt, le tiroir (quatre doigts dans l'autre sens). Sous chaque écran, des pastilles rappellent les déclencheurs réellement réglés (coin, secousse, raccourci, quatre doigts).
+- Elle s'affiche à la première ouverture et se retrouve dans les réglages (« Revoir la présentation »).
+
+### Side se met en retrait pendant une capture d'écran
+- Pendant une capture (⌘⇧4, ⌘⇧5), ni le coin, ni la secousse, ni les quatre doigts n'ouvrent le Finder ou le tiroir : on peut viser un coin de l'écran sans rien déclencher.
+
 ### Side a maintenant deux panneaux : le Finder et le tiroir
 - **Avant :** Side était un Finder flottant, avec un mini-Dock.
 - **Maintenant :** un second panneau, le tiroir, arrive du bord opposé au Finder. Il a une partie multimédia (YouTube dans une page intégrée, un lecteur Spotify, ou n'importe quel site ajouté dans les réglages) et une bande où ranger les fenêtres de ses applications à usage rapide (case « + »).

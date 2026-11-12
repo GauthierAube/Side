@@ -388,7 +388,15 @@ final class PanneauBas: NSObject {
         if let d = UserDefaults.standard.array(forKey: "panneauBasTuiles") as? [[String: String]] {
             return d.compactMap { EmpruntBas($0) }
         }
-        return []      // au départ, aucune application : chacun range les siennes avec la case « + »
+        // Au départ : Notes et Réglages Système, deux petites applications qu'on consulte d'un coup d'œil. Chacun ajuste
+        // ensuite la liste avec la case « + ». Elle est enregistrée tout de suite (Square la lit pour ne pas agrandir ces fenêtres).
+        let depart = [("com.apple.Notes", "/System/Applications/Notes.app"),
+                      ("com.apple.systempreferences", "/System/Applications/System Settings.app")]
+            .filter { FileManager.default.fileExists(atPath: $0.1) }
+            .map { EmpruntBas(nom: FileManager.default.displayName(atPath: $0.1).replacingOccurrences(of: ".app", with: ""),
+                              bundle: $0.0, chemin: $0.1) }
+        UserDefaults.standard.set(depart.map { $0.enTexte }, forKey: "panneauBasTuiles")
+        return depart
     }() {
         didSet { UserDefaults.standard.set(emprunts.map { $0.enTexte }, forKey: "panneauBasTuiles") }
     }
@@ -471,6 +479,7 @@ final class PanneauBas: NSObject {
     private var finDéfilement: DispatchWorkItem?
     private var replacements: [String: Int] = [:]
     private var stables: [String: Int] = [:]    // nombre de vérifications d'affilée où la fenêtre était à sa place
+    private var vivantes: Set<String> = []      // tuiles dont on a vu la fenêtre depuis l'ouverture du tiroir (même pas encore bien posée)
     private var posées: Set<String> = []        // fenêtres bien installées : on n'y touche plus, vous pouvez les redimensionner
     private var origines: [String: CGRect] = [:]
     private var vues: Set<String> = []
@@ -951,9 +960,11 @@ final class PanneauBas: NSObject {
 
     /// Met le panneau en place, caché sous le bord, avec les photos des tuiles : prêt à glisser.
     private func préparerOuverture() -> Bool {
-        guard !ouvert, let ecran = NSScreen.main else { return false }
+        // Pendant une capture d'écran, le tiroir ne s'ouvre par aucun geste.
+        guard !ouvert, !CaptureEcran.enCours, let ecran = NSScreen.main else { return false }
         ouvert = true
         ouvertÀ = Date()
+        vivantes = []
         serie += 1
         pidAvant = NSWorkspace.shared.frontmostApplication?.processIdentifier ?? 0
         let p = panneau ?? construire()
@@ -1673,6 +1684,7 @@ final class PanneauBas: NSObject {
     }
 
     private func placer(_ e: EmpruntBas, _ f: AXUIElement, _ zone: CGRect) {
+        vivantes.insert(e.nom)
         guard !posées.contains(e.nom), let avant = AXBas.cadre(f) else { return }
         let ecran = NSScreen.screens.first?.frame ?? .zero
         // Sa place d'avant l'emprunt, pour la lui rendre si on rouvre l'application normalement.
@@ -1747,8 +1759,22 @@ final class PanneauBas: NSObject {
         guard Date().timeIntervalSince(ouvertÀ) > 0.4, !estEmpruntée(a),
               a.processIdentifier != ProcessInfo.processInfo.processIdentifier else { return }
         guard a.bundleIdentifier != "com.apple.screencaptureui", !captureEnCours() else { return }
-        journalBas("%@ passe devant", a.localizedName ?? "?")
-        fermer(rendreLaMain: false)
+        // Une application du tiroir qui quitte quand on ferme sa fenêtre (Réglages Système) : macOS passe aussitôt la main
+        // à l'application d'avant. Ce n'est pas vous qui changez d'application : le tiroir reste ouvert, et la tuile s'en va.
+        // On laisse un court instant à l'application pour finir de quitter avant de trancher.
+        let nom = a.localizedName ?? "?"
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) { [weak self] in
+            guard let self, self.ouvert else { return }
+            if let i = self.emprunts.firstIndex(where: { e in
+                self.vivantes.contains(e.nom) && (self.app(e).map { $0.isTerminated } ?? true)
+            }) {
+                journalBas("%@ a quitté (fenêtre fermée) : sa tuile est retirée, le tiroir reste ouvert", self.emprunts[i].nom)
+                self.retirer(i)
+                return
+            }
+            journalBas("%@ passe devant", nom)
+            self.fermer(rendreLaMain: false)
+        }
     }
 }
 

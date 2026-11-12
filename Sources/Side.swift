@@ -444,7 +444,7 @@ enum Doigts {
         }
         dernierePresence = ProcessInfo.processInfo.systemUptime
         nombreDoigts = doigts.count
-        guard actif else { return }
+        guard actif, !CaptureEcran.enCours else { return }
         // Version personnelle : un glissement qui part à l'horizontale (changement d'application, dans Square) n'est pas pour nous.
         if let touches, nombre > 0 {
             let contacts = touches.bindMemory(to: Contact.self, capacity: nombre)
@@ -4746,6 +4746,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
     private var ecran: NSScreen?
 
     func applicationDidFinishLaunching(_ note: Notification) {
+        // Pour les essais : « --image-presentation dossier » dessine chaque étape de la présentation dans des images, puis quitte.
+        if let i = CommandLine.arguments.firstIndex(of: "--image-presentation"), i + 1 < CommandLine.arguments.count {
+            PresentationSide.images(vers: URL(fileURLWithPath: CommandLine.arguments[i + 1]))
+            exit(0)
+        }
+        // Première ouverture : la présentation de Side.
+        if !UserDefaults.standard.bool(forKey: "accueilVu"), CommandLine.arguments.count == 1 {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) { PresentationSide.montrer() }
+        }
         // Version personnelle : le panneau du bas, branché après le raccourci de Side (voir PanneauBas.swift).
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { PanneauBas.commun.brancher() }
         panel = DrawerPanel(
@@ -5186,10 +5195,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
     /// La carte est-elle ouverte ? (pour le geste à quatre doigts : ouvrir dans un sens, fermer dans l'autre)
     var estOuvert: Bool { visible }
 
-    /// Relance la présentation de bienvenue, carte ouverte.
+    /// Relance la présentation de bienvenue (une fenêtre à part, qui montre les gestes en images).
     @objc func revoirAccueil() {
-        store.accueil = 0
-        if !visible { basculer() }
+        if visible { hide() }
+        PresentationSide.montrer()
     }
 
     @objc func ouvrirReglages() {
@@ -6727,6 +6736,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
     }
 
     private func show(sur e: NSScreen, suivi: Bool = false) {
+        // Pendant une capture d'écran, Side ne s'ouvre par aucun geste : on doit pouvoir viser un coin sans rien déclencher.
+        if !visible, CaptureEcran.enCours { journal("ouverture ignorée : capture d'écran en cours"); return }
         journal("ouverture (déjà visible : \(visible))")
         ecran = e
         debutDehors = nil
@@ -6743,7 +6754,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         derniereSecousse = ProcessInfo.processInfo.systemUptime
         trace = []
         // Toute première ouverture : la présentation de bienvenue.
-        if store.accueil == nil && !UserDefaults.standard.bool(forKey: "accueilVu") { store.accueil = 0 }
+        // (La présentation de bienvenue est maintenant une fenêtre à part, affichée au premier lancement : voir Presentation.swift.)
         placer(sur: e, anime: true)
         let reduit = NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
         // La carte part de derrière le bord de l'écran et glisse jusqu'à sa place.
