@@ -403,6 +403,16 @@
         }
       }
     },
+    "Ajouter un lien": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add a Link"
+          }
+        }
+      }
+    },
     "Ajouter une application": {
       "localizations": {
         "en": {
@@ -873,6 +883,16 @@
         }
       }
     },
+    "Choisir un groupe existant": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose an existing group"
+          }
+        }
+      }
+    },
     "Choisir une autre application…": {
       "localizations": {
         "en": {
@@ -1253,6 +1273,16 @@
         }
       }
     },
+    "Descendre": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Move Down"
+          }
+        }
+      }
+    },
     "Dimensions": {
       "localizations": {
         "en": {
@@ -1563,6 +1593,16 @@
         }
       }
     },
+    "Enregistrer": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save"
+          }
+        }
+      }
+    },
     "Envoi vers iCloud en cours": {
       "localizations": {
         "en": {
@@ -1763,12 +1803,32 @@
         }
       }
     },
+    "Garde ici les liens que tu colles souvent : ils restent, sans limite. Le + en ajoute un ; le clic droit sur un élément copié aussi.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep the links you paste often here: they stay, with no limit. Add one with the + button, or by right-clicking a copied item."
+          }
+        }
+      }
+    },
     "Garder dans le mini-Dock": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Keep in Mini Dock"
+          }
+        }
+      }
+    },
+    "Garder dans les liens…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep in Links…"
           }
         }
       }
@@ -1909,6 +1969,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Main Area"
+          }
+        }
+      }
+    },
+    "Groupe (facultatif)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Group (optional)"
           }
         }
       }
@@ -2633,6 +2703,26 @@
         }
       }
     },
+    "Lien ou texte à coller": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Link or text to paste"
+          }
+        }
+      }
+    },
+    "Liens": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Links"
+          }
+        }
+      }
+    },
     "Lire les informations": {
       "localizations": {
         "en": {
@@ -2693,6 +2783,26 @@
         }
       }
     },
+    "Modifier le lien": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edit Link"
+          }
+        }
+      }
+    },
+    "Modifier…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edit…"
+          }
+        }
+      }
+    },
     "Modifié le": {
       "localizations": {
         "en": {
@@ -2709,6 +2819,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "My site"
+          }
+        }
+      }
+    },
+    "Monter": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Move Up"
           }
         }
       }
@@ -2789,6 +2909,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Note %@"
+          }
+        }
+      }
+    },
+    "Nouveau lien": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New Link"
           }
         }
       }
@@ -3923,6 +4053,16 @@
         }
       }
     },
+    "Supprimer": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete"
+          }
+        }
+      }
+    },
     "Supprimer cette zone": {
       "localizations": {
         "en": {
@@ -4099,6 +4239,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Drawer"
+          }
+        }
+      }
+    },
+    "Titre (facultatif)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Title (optional)"
           }
         }
       }

@@ -86,6 +86,8 @@
 	<string>Add a Folder…</string>
 	<key>Ajouter un lecteur</key>
 	<string>Add a Player</string>
+	<key>Ajouter un lien</key>
+	<string>Add a Link</string>
 	<key>Ajouter une application</key>
 	<string>Add an App</string>
 	<key>Ajouter une application ouverte</key>
@@ -180,6 +182,8 @@
 	<string>Loading…</string>
 	<key>Chemin du dossier %@</key>
 	<string>Path of folder %@</string>
+	<key>Choisir un groupe existant</key>
+	<string>Choose an existing group</string>
 	<key>Choisir une autre application…</key>
 	<string>Choose Another App…</string>
 	<key>Choisir une note</key>
@@ -256,6 +260,8 @@
 	<string>From the right</string>
 	<key>De la gauche</key>
 	<string>From the left</string>
+	<key>Descendre</key>
+	<string>Move Down</string>
 	<key>Dimensions</key>
 	<string>Dimensions</string>
 	<key>Disques externes et serveurs connectés</key>
@@ -318,6 +324,8 @@
 	<string>Top Left</string>
 	<key>En photo : %@ — fenêtre ouverte sur un autre bureau.</key>
 	<string>Shown as a snapshot: %@ — window open on another desktop.</string>
+	<key>Enregistrer</key>
+	<string>Save</string>
 	<key>Envoi vers iCloud en cours</key>
 	<string>Uploading to iCloud</string>
 	<key>Envoi vers iCloud en cours…</key>
@@ -358,8 +366,12 @@
 	<string>Blur the background when the Finder is open</string>
 	<key>Fond</key>
 	<string>Background</string>
+	<key>Garde ici les liens que tu colles souvent : ils restent, sans limite. Le + en ajoute un ; le clic droit sur un élément copié aussi.</key>
+	<string>Keep the links you paste often here: they stay, with no limit. Add one with the + button, or by right-clicking a copied item.</string>
 	<key>Garder dans le mini-Dock</key>
 	<string>Keep in Mini Dock</string>
+	<key>Garder dans les liens…</key>
+	<string>Keep in Links…</string>
 	<key>Garder les zones remplies à l'écran quand Side est fermé</key>
 	<string>Keep filled zones on screen when Side is closed</string>
 	<key>Garder un historique du copier-coller (7 jours)</key>
@@ -388,6 +400,8 @@
 	<string>Swipe four fingers on the trackpad</string>
 	<key>Grande zone</key>
 	<string>Main Area</string>
+	<key>Groupe (facultatif)</key>
+	<string>Group (optional)</string>
 	<key>Général</key>
 	<string>General</string>
 	<key>Hauteur du Finder</key>
@@ -532,6 +546,10 @@
 	<string>The zones where you can leave files waiting, next to Side's Finder.</string>
 	<key>Lien</key>
 	<string>Link</string>
+	<key>Lien ou texte à coller</key>
+	<string>Link or text to paste</string>
+	<key>Liens</key>
+	<string>Links</string>
 	<key>Lire les informations</key>
 	<string>Get Info</string>
 	<key>Liste</key>
@@ -544,10 +562,16 @@
 	<string>Hide the Mini Dock</string>
 	<key>Mini-Dock</key>
 	<string>Mini Dock</string>
+	<key>Modifier le lien</key>
+	<string>Edit Link</string>
+	<key>Modifier…</key>
+	<string>Edit…</string>
 	<key>Modifié le</key>
 	<string>Modified</string>
 	<key>Mon site</key>
 	<string>My site</string>
+	<key>Monter</key>
+	<string>Move Up</string>
 	<key>Mot de passe</key>
 	<string>Password</string>
 	<key>Moyenne</key>
@@ -564,6 +588,8 @@
 	<string>Not connected</string>
 	<key>Note %@</key>
 	<string>Note %@</string>
+	<key>Nouveau lien</key>
+	<string>New Link</string>
 	<key>Nouvel onglet (⌘T)</key>
 	<string>New Tab (⌘T)</string>
 	<key>Opacité</key>
@@ -790,6 +816,8 @@
 	<string>Square never makes these apps fill the screen.</string>
 	<key>Suivant</key>
 	<string>Next</string>
+	<key>Supprimer</key>
+	<string>Delete</string>
 	<key>Supprimer cette zone</key>
 	<string>Delete This Zone</string>
 	<key>Supprimer de l'historique</key>
@@ -826,6 +854,8 @@
 	<string>Text</string>
 	<key>Tiroir</key>
 	<string>Drawer</string>
+	<key>Titre (facultatif)</key>
+	<string>Title (optional)</string>
 	<key>Titres</key>
 	<string>Songs</string>
 	<key>Titres, artistes, albums, playlists</key>

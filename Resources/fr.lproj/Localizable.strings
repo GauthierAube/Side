@@ -86,6 +86,8 @@
 	<string>Ajouter un dossier…</string>
 	<key>Ajouter un lecteur</key>
 	<string>Ajouter un lecteur</string>
+	<key>Ajouter un lien</key>
+	<string>Ajouter un lien</string>
 	<key>Ajouter une application</key>
 	<string>Ajouter une application</string>
 	<key>Ajouter une application ouverte</key>
@@ -180,6 +182,8 @@
 	<string>Chargement…</string>
 	<key>Chemin du dossier %@</key>
 	<string>Chemin du dossier %@</string>
+	<key>Choisir un groupe existant</key>
+	<string>Choisir un groupe existant</string>
 	<key>Choisir une autre application…</key>
 	<string>Choisir une autre application…</string>
 	<key>Choisir une note</key>
@@ -256,6 +260,8 @@
 	<string>De la droite</string>
 	<key>De la gauche</key>
 	<string>De la gauche</string>
+	<key>Descendre</key>
+	<string>Descendre</string>
 	<key>Dimensions</key>
 	<string>Dimensions</string>
 	<key>Disques externes et serveurs connectés</key>
@@ -318,6 +324,8 @@
 	<string>En haut à gauche</string>
 	<key>En photo : %@ — fenêtre ouverte sur un autre bureau.</key>
 	<string>En photo : %@ — fenêtre ouverte sur un autre bureau.</string>
+	<key>Enregistrer</key>
+	<string>Enregistrer</string>
 	<key>Envoi vers iCloud en cours</key>
 	<string>Envoi vers iCloud en cours</string>
 	<key>Envoi vers iCloud en cours…</key>
@@ -358,8 +366,12 @@
 	<string>Flouter l'arrière-plan quand le Finder est ouvert</string>
 	<key>Fond</key>
 	<string>Fond</string>
+	<key>Garde ici les liens que tu colles souvent : ils restent, sans limite. Le + en ajoute un ; le clic droit sur un élément copié aussi.</key>
+	<string>Garde ici les liens que tu colles souvent : ils restent, sans limite. Le + en ajoute un ; le clic droit sur un élément copié aussi.</string>
 	<key>Garder dans le mini-Dock</key>
 	<string>Garder dans le mini-Dock</string>
+	<key>Garder dans les liens…</key>
+	<string>Garder dans les liens…</string>
 	<key>Garder les zones remplies à l'écran quand Side est fermé</key>
 	<string>Garder les zones remplies à l'écran quand Side est fermé</string>
 	<key>Garder un historique du copier-coller (7 jours)</key>
@@ -388,6 +400,8 @@
 	<string>Glisser quatre doigts sur le trackpad</string>
 	<key>Grande zone</key>
 	<string>Grande zone</string>
+	<key>Groupe (facultatif)</key>
+	<string>Groupe (facultatif)</string>
 	<key>Général</key>
 	<string>Général</string>
 	<key>Hauteur du Finder</key>
@@ -532,6 +546,10 @@
 	<string>Les zones où poser des fichiers en attente, à côté du Finder de Side.</string>
 	<key>Lien</key>
 	<string>Lien</string>
+	<key>Lien ou texte à coller</key>
+	<string>Lien ou texte à coller</string>
+	<key>Liens</key>
+	<string>Liens</string>
 	<key>Lire les informations</key>
 	<string>Lire les informations</string>
 	<key>Liste</key>
@@ -544,10 +562,16 @@
 	<string>Masquer le mini-Dock</string>
 	<key>Mini-Dock</key>
 	<string>Mini-Dock</string>
+	<key>Modifier le lien</key>
+	<string>Modifier le lien</string>
+	<key>Modifier…</key>
+	<string>Modifier…</string>
 	<key>Modifié le</key>
 	<string>Modifié le</string>
 	<key>Mon site</key>
 	<string>Mon site</string>
+	<key>Monter</key>
+	<string>Monter</string>
 	<key>Mot de passe</key>
 	<string>Mot de passe</string>
 	<key>Moyenne</key>
@@ -564,6 +588,8 @@
 	<string>Non connecté</string>
 	<key>Note %@</key>
 	<string>Note %@</string>
+	<key>Nouveau lien</key>
+	<string>Nouveau lien</string>
 	<key>Nouvel onglet (⌘T)</key>
 	<string>Nouvel onglet (⌘T)</string>
 	<key>Opacité</key>
@@ -790,6 +816,8 @@
 	<string>Square n'agrandit jamais ces applications.</string>
 	<key>Suivant</key>
 	<string>Suivant</string>
+	<key>Supprimer</key>
+	<string>Supprimer</string>
 	<key>Supprimer cette zone</key>
 	<string>Supprimer cette zone</string>
 	<key>Supprimer de l'historique</key>
@@ -826,6 +854,8 @@
 	<string>Texte</string>
 	<key>Tiroir</key>
 	<string>Tiroir</string>
+	<key>Titre (facultatif)</key>
+	<string>Titre (facultatif)</string>
 	<key>Titres</key>
 	<string>Titres</string>
 	<key>Titres, artistes, albums, playlists</key>

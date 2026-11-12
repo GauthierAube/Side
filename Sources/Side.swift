@@ -825,6 +825,14 @@ final class PressePapiers: ObservableObject {
         }
     }
 
+    /// Met un texte dans le presse-papiers sans l'ajouter à l'historique (un lien gardé, par exemple).
+    func ecrireSansHistorique(_ texte: String) {
+        let pb = NSPasteboard.general
+        pb.clearContents()
+        pb.setString(texte, forType: .string)
+        compte = pb.changeCount
+    }
+
     func supprimer(_ c: Copie) { elements.removeAll { $0.id == c.id }; sauver() }
     func vider() { elements.removeAll { !$0.epingle }; sauver() }
 }

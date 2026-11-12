@@ -8,6 +8,12 @@ Il est mis à jour à chaque modification, en même temps que le code.
 
 ## 12/11/2026, nuit
 
+### Presse-papiers : une section « Liens » qu'on retrouve toujours
+- En haut du volet, les liens (ou petits textes) qu'on colle souvent : ils restent, sans limite de nombre ni de durée, rangés par groupes qu'on replie d'un clic.
+- Un clic copie le lien (sans l'ajouter à l'historique) ; le clic droit l'ouvre, le modifie, le monte, le descend ou le supprime. On peut aussi le glisser ailleurs.
+- Le + ajoute un lien : l'adresse, et si on veut un titre et un groupe. Sans titre, Side prend celui du site. Le clic droit sur un élément copié propose « Garder dans les liens… ».
+- La recherche du volet cherche aussi dans les liens ; chaque lien montre l'icône de son site.
+
 ### Presse-papiers : les images restent, les liens ont leur aperçu
 - **Les images** copiées n'étaient gardées qu'en mémoire : elles disparaissaient à chaque redémarrage de Side. Les 40 dernières sont maintenant gardées sur le Mac (lisibles par toi seul), et effacées avec l'historique.
 - **Une image copiée depuis un navigateur** arrivait avec son adresse, et Side gardait l'adresse au lieu de l'image. C'est l'image qui est gardée.
