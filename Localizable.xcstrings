@@ -1993,6 +1993,16 @@
         }
       }
     },
+    "Grande image": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Large Image"
+          }
+        }
+      }
+    },
     "Grande zone": {
       "localizations": {
         "en": {
@@ -3223,6 +3233,16 @@
         }
       }
     },
+    "Petite image": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Small Image"
+          }
+        }
+      }
+    },
     "Placer dans la corbeille": {
       "localizations": {
         "en": {
@@ -3429,6 +3449,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Presentation"
+          }
+        }
+      }
+    },
+    "Présentation des liens": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Link Appearance"
           }
         }
       }
@@ -3879,6 +3909,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Shrink to show everything"
+          }
+        }
+      }
+    },
+    "Sans image": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No Image"
           }
         }
       }

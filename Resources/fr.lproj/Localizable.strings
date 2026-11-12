@@ -404,6 +404,8 @@
 	<string>Glisser quatre doigts %@</string>
 	<key>Glisser quatre doigts sur le trackpad</key>
 	<string>Glisser quatre doigts sur le trackpad</string>
+	<key>Grande image</key>
+	<string>Grande image</string>
 	<key>Grande zone</key>
 	<string>Grande zone</string>
 	<key>Groupe (facultatif)</key>
@@ -650,6 +652,8 @@
 	<string>Passer en faux plein écran</string>
 	<key>Passer la publicité (quand YouTube le propose)</key>
 	<string>Passer la publicité (quand YouTube le propose)</string>
+	<key>Petite image</key>
+	<string>Petite image</string>
 	<key>Placer dans la corbeille</key>
 	<string>Placer dans la corbeille</string>
 	<key>Playlist</key>
@@ -692,6 +696,8 @@
 	<string>Précédent</string>
 	<key>Présentation</key>
 	<string>Présentation</string>
+	<key>Présentation des liens</key>
+	<string>Présentation des liens</string>
 	<key>Présentation par icônes</key>
 	<string>Présentation par icônes</string>
 	<key>Quand la place manque</key>
@@ -782,6 +788,8 @@
 	<string>Rétablir</string>
 	<key>Rétrécir pour tout afficher</key>
 	<string>Rétrécir pour tout afficher</string>
+	<key>Sans image</key>
+	<string>Sans image</string>
 	<key>Se connecter</key>
 	<string>Se connecter</string>
 	<key>Se connecter à %@</key>

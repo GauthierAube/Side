@@ -8,6 +8,10 @@ Il est mis à jour à chaque modification, en même temps que le code.
 
 ## 12/11/2026, nuit
 
+### Presse-papiers : trois présentations pour les liens
+- Un petit bouton de réglage, en haut du volet, choisit la présentation des cartes de liens : grande image (comme avant), petite image à gauche (avec l'icône du site dans un rond, sur son coin), ou sans image.
+- Le choix vaut pour le presse-papiers comme pour les liens enregistrés ; il se trouve aussi dans Réglages › Général › Presse-papiers.
+
 ### Presse-papiers : un onglet « Enregistrés » pour les liens qu'on retrouve toujours
 - Le volet a deux onglets, comme dans les apps d'Apple : « Presse-papiers » (l'historique, 7 jours) et « Enregistrés » (les liens ou petits textes qu'on colle souvent, gardés sans limite de nombre ni de durée).
 - **Glisser** un élément du presse-papiers sur les onglets l'enregistre aussitôt, avec le titre de sa page. En restant un instant sur les onglets, « Enregistrés » s'ouvre : on lâche alors l'élément sur le groupe voulu. Un lien glissé depuis un navigateur marche aussi.

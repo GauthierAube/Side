@@ -10,6 +10,26 @@ import Combine
 
 // MARK: - Réglages
 
+/// Comment une carte de lien se présente, dans le presse-papiers comme dans les liens enregistrés.
+enum PresentationLien: String, CaseIterable {
+    case grande, petite, sans
+
+    var titre: String {
+        switch self {
+        case .grande: return String(localized: "Grande image")
+        case .petite: return String(localized: "Petite image")
+        case .sans: return String(localized: "Sans image")
+        }
+    }
+    var symbole: String {
+        switch self {
+        case .grande: return "rectangle.inset.topleading.filled"
+        case .petite: return "rectangle.leadinghalf.inset.filled"
+        case .sans: return "list.bullet"
+        }
+    }
+}
+
 final class ConfigPresse: ObservableObject {
     static let commun = ConfigPresse()
     private let d = UserDefaults.standard
@@ -22,6 +42,8 @@ final class ConfigPresse: ObservableObject {
     @Published var fermerApresCopie: Bool { didSet { d.set(fermerApresCopie, forKey: "presseFermer") } }
     /// Montrer l'aperçu officiel des liens (image et titre du site). Il faut pour cela contacter le site.
     @Published var apercuLiens: Bool { didSet { d.set(apercuLiens, forKey: "presseApercuLiens") } }
+    /// La présentation des cartes de liens : grande image, petite image à gauche, ou sans image.
+    @Published var presentation: PresentationLien { didSet { d.set(presentation.rawValue, forKey: "pressePresentation") } }
     /// Raccourci clavier : -1 = aucun, sinon le code de la touche. Au départ : Contrôle + Option + V.
     @Published var touche: Int { didSet { d.set(touche, forKey: "presseTouche") } }
     @Published var mods: Int { didSet { d.set(mods, forKey: "presseMods") } }
@@ -60,6 +82,7 @@ final class ConfigPresse: ObservableObject {
 
     private init() {
         apercuLiens = d.object(forKey: "presseApercuLiens") as? Bool ?? true
+        presentation = d.string(forKey: "pressePresentation").flatMap(PresentationLien.init) ?? .grande
         touche = d.object(forKey: "presseTouche") as? Int ?? kVK_ANSI_V
         mods = d.object(forKey: "presseMods") as? Int ?? (controlKey | optionKey)
         libelle = d.string(forKey: "presseLibelle") ?? "⌃⌥V"
@@ -97,6 +120,10 @@ struct ReglagesVoletPresse: View {
         Toggle("Refermer le volet après avoir copié", isOn: $presse.fermerApresCopie)
         Toggle("Aperçu des liens (l'image et le titre du site)", isOn: $presse.apercuLiens)
             .help("Pour cela, Side contacte le site du lien, quand le volet l'affiche.")
+        Picker("Présentation des liens", selection: $presse.presentation) {
+            ForEach(PresentationLien.allCases, id: \.self) { Text($0.titre).tag($0) }
+        }
+        .disabled(!presse.apercuLiens)
         LabeledContent("Le volet glisse depuis le bord droit de l'écran") {
             Button("Afficher le volet") { VoletPresse.commun.basculer() }
         }
@@ -214,6 +241,29 @@ final class ApercuLien: ObservableObject {
     }
 }
 
+/// La petite image d'un lien : l'image de partage du site en carré, et l'icône du site dans un rond, sur son coin.
+private struct VignetteLien: View {
+    let image: NSImage
+    let icone: NSImage?
+
+    var body: some View {
+        Color.clear.frame(width: 64, height: 64)
+            .overlay(Image(nsImage: image).resizable().scaledToFill())
+            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+            .overlay(alignment: .bottomTrailing) {
+                if let icone {
+                    Image(nsImage: icone).resizable().scaledToFill().frame(width: 22, height: 22)
+                        .background(Color.white)
+                        .clipShape(Circle())
+                        .overlay(Circle().strokeBorder(Color(nsColor: .windowBackgroundColor), lineWidth: 2))
+                        .shadow(color: .black.opacity(0.25), radius: 2, y: 1)
+                        .offset(x: 6, y: 6)
+                }
+            }
+            .padding(.trailing, 4).padding(.bottom, 4)
+    }
+}
+
 private struct ApercuLienVue: View {
     let texte: String
     @ObservedObject private var apercu: ApercuLien
@@ -228,14 +278,16 @@ private struct ApercuLienVue: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            if presse.apercuLiens, let image = apercu.image {
+            if presse.apercuLiens, presse.presentation == .grande, let image = apercu.image {
                 // L'image de partage du site, comme dans Messages.
                 Color.clear.frame(height: 130)
                     .overlay(Image(nsImage: image).resizable().scaledToFill())
                     .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
             }
             HStack(alignment: .top, spacing: 8) {
-                if presse.apercuLiens, let icone = apercu.icone {
+                if presse.apercuLiens, presse.presentation == .petite, let image = apercu.image {
+                    VignetteLien(image: image, icone: apercu.icone)
+                } else if presse.apercuLiens, let icone = apercu.icone {
                     Image(nsImage: icone).resizable().scaledToFit().frame(width: 18, height: 18)
                         .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
                 }
@@ -381,15 +433,19 @@ private struct LigneLien: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 9) {
-            if lien.url != nil, presse.apercuLiens, let image = apercu.image {
+            if lien.url != nil, presse.apercuLiens, presse.presentation == .grande, let image = apercu.image {
                 Color.clear.frame(height: 120)
                     .overlay(Image(nsImage: image).resizable().scaledToFill())
                     .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
             }
             HStack(alignment: .top, spacing: 10) {
-                IconeLien(lien: lien)
+                if lien.url != nil, presse.apercuLiens, presse.presentation == .petite, let image = apercu.image {
+                    VignetteLien(image: image, icone: apercu.icone)
+                } else {
+                    IconeLien(lien: lien)
+                }
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(verbatim: lien.titre).font(.body.weight(.semibold)).lineLimit(2)
+                    Text(verbatim: lien.titre).font(.body.weight(.semibold)).lineLimit(presse.presentation == .petite ? 3 : 2)
                     Text(verbatim: lien.url != nil ? lien.detail : lien.texte)
                         .font(.caption).foregroundStyle(.secondary).lineLimit(lien.url != nil ? 1 : 3).truncationMode(.middle)
                 }
@@ -701,6 +757,7 @@ struct VoletPresseVue: View {
     @State private var copiee: UUID?
     @State private var lienCopie: UUID?
     @ObservedObject private var liens = LiensGardes.commun
+    @ObservedObject private var reglages = ConfigPresse.commun
     /// L'onglet affiché : 0 = presse-papiers, 1 = enregistrés. Retenu d'une fois sur l'autre.
     @AppStorage("presseOnglet") private var onglet = 0
     @State private var ongletsVises = false
@@ -740,6 +797,16 @@ struct VoletPresseVue: View {
                     guard vise else { return }
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) { if ongletsVises { onglet = 1 } }
                 }
+                Menu {
+                    Picker("Présentation des liens", selection: $reglages.presentation) {
+                        ForEach(PresentationLien.allCases, id: \.self) { p in Label(p.titre, systemImage: p.symbole).tag(p) }
+                    }
+                    .pickerStyle(.inline)
+                    .disabled(!reglages.apercuLiens)
+                    Toggle("Aperçu des liens (l'image et le titre du site)", isOn: $reglages.apercuLiens)
+                } label: { Image(systemName: "slider.horizontal.3") }
+                .menuStyle(.borderlessButton).menuIndicator(.hidden).fixedSize()
+                .help("Présentation des liens").accessibilityLabel("Présentation des liens")
                 if onglet == 1 {
                     Button { liens.brouillon = LienGarde(titre: "", texte: "") } label: { Image(systemName: "plus") }
                         .buttonStyle(.borderless).help("Ajouter un lien").accessibilityLabel("Ajouter un lien")

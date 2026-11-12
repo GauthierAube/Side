@@ -404,6 +404,8 @@
 	<string>Swipe four fingers %@</string>
 	<key>Glisser quatre doigts sur le trackpad</key>
 	<string>Swipe four fingers on the trackpad</string>
+	<key>Grande image</key>
+	<string>Large Image</string>
 	<key>Grande zone</key>
 	<string>Main Area</string>
 	<key>Groupe (facultatif)</key>
@@ -650,6 +652,8 @@
 	<string>Fill the Screen Instead</string>
 	<key>Passer la publicité (quand YouTube le propose)</key>
 	<string>Skip the ad (when YouTube allows it)</string>
+	<key>Petite image</key>
+	<string>Small Image</string>
 	<key>Placer dans la corbeille</key>
 	<string>Move to Trash</string>
 	<key>Playlist</key>
@@ -692,6 +696,8 @@
 	<string>Back</string>
 	<key>Présentation</key>
 	<string>Presentation</string>
+	<key>Présentation des liens</key>
+	<string>Link Appearance</string>
 	<key>Présentation par icônes</key>
 	<string>Icon View</string>
 	<key>Quand la place manque</key>
@@ -782,6 +788,8 @@
 	<string>Redo</string>
 	<key>Rétrécir pour tout afficher</key>
 	<string>Shrink to show everything</string>
+	<key>Sans image</key>
+	<string>No Image</string>
 	<key>Se connecter</key>
 	<string>Connect</string>
 	<key>Se connecter à %@</key>
