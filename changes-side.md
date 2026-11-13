@@ -8,6 +8,9 @@ Il est mis à jour à chaque modification, en même temps que le code.
 
 ## 13/11/2026
 
+### Finder : Imprimer
+- Clic droit sur un fichier : « Imprimer » le confie à son application pour l'imprimer, comme Fichier > Imprimer dans le Finder. Avec plusieurs fichiers sélectionnés, ils sont tous imprimés.
+
 ### Finder : la zone de dépôt compte comme le Finder
 - Avec « Fermer quand la souris en sort », passer la souris sur la zone de dépôt ne referme plus le Finder.
 

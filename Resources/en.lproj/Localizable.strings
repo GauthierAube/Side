@@ -584,6 +584,10 @@ Press Esc to cancel.</string>
 	<string>Couldn't Rename “%@”</string>
 	<key>Impossible de télécharger « %@ »</key>
 	<string>Couldn't Download “%@”</string>
+	<key>Imprimer</key>
+	<string>Print</string>
+	<key>Imprimer les %lld éléments</key>
+	<string>Print %lld Items</string>
 	<key>Informations</key>
 	<string>Information</string>
 	<key>Installer depuis GitHub</key>

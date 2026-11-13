@@ -584,6 +584,10 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Impossible de renommer « %@ »</string>
 	<key>Impossible de télécharger « %@ »</key>
 	<string>Impossible de télécharger « %@ »</string>
+	<key>Imprimer</key>
+	<string>Imprimer</string>
+	<key>Imprimer les %lld éléments</key>
+	<string>Imprimer les %lld éléments</string>
 	<key>Informations</key>
 	<string>Informations</string>
 	<key>Installer depuis GitHub</key>

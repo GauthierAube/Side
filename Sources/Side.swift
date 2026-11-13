@@ -6457,6 +6457,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
             }
             m.addItem(withTitle: String(localized: "Ouvrir avec"), action: nil, keyEquivalent: "").submenu = sous
         }
+        // Imprimer, comme Fichier > Imprimer dans le Finder : le fichier est confié à son application, qui l'imprime.
+        if !item.isFolder, !apps.isEmpty {
+            let plusieurs = Selection.shared.nombre > 1 && Selection.shared.contient(url)
+            ajouter(plusieurs ? String(localized: "Imprimer les \(Selection.shared.nombre) éléments") : String(localized: "Imprimer"),
+                    #selector(mImprimer), symbole: "printer")
+        }
         let v = try? url.resourceValues(forKeys: [.isUbiquitousItemKey, .ubiquitousItemDownloadingStatusKey])
         if v?.isUbiquitousItem == true {
             if v?.ubiquitousItemDownloadingStatus == .current {
@@ -6561,6 +6567,22 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
     @objc private func mOuvrir() { if let u = cible { ouvrir(u) } }
     @objc private func mReveler() { if let u = cible { reveler(u) } }
     @objc private func mCoupDOeil() { if let u = cible { coupDOeil(u) } }
+    /// Imprimer : chaque fichier (la sélection, si l'élément visé en fait partie) est ouvert par son application « pour
+    /// impression ». C'est le mécanisme de macOS, celui de Fichier > Imprimer dans le Finder.
+    @objc private func mImprimer() {
+        guard let u = cible else { return }
+        let sel = Selection.shared
+        let urls = (sel.nombre > 1 && sel.contient(u) ? Array(sel.urls) : [u]).filter { !Fichiers.item($0).isFolder }
+        guard !urls.isEmpty else { return }
+        let c = NSWorkspace.OpenConfiguration()
+        c.isForPrinting = true
+        hide()
+        for url in urls {
+            NSWorkspace.shared.open(url, configuration: c) { _, erreur in
+                if erreur != nil { DispatchQueue.main.async { NSSound.beep() } }
+            }
+        }
+    }
 
     @objc private func mOuvrirAvec(_ sender: NSMenuItem) {
         guard let u = cible, let app = sender.representedObject as? URL else { return }

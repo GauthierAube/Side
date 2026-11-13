@@ -2883,6 +2883,26 @@
         }
       }
     },
+    "Imprimer": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Print"
+          }
+        }
+      }
+    },
+    "Imprimer les %lld éléments": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Print %lld Items"
+          }
+        }
+      }
+    },
     "Informations": {
       "localizations": {
         "en": {
