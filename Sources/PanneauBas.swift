@@ -196,6 +196,37 @@ final class FenetrePanneauBas: NSPanel {
     override var canBecomeMain: Bool { false }
 }
 
+/// Une icône de la barre du tiroir : un clic l'affiche, on la glisse pour changer l'ordre (comme dans le Dock),
+/// le clic droit ouvre ses actions.
+final class IcôneBarreBas: NSImageView {
+    var auClic: (() -> Void)?
+    var auGlisser: ((CGFloat) -> Void)?       // déplacement vertical depuis le début du glisser
+    var auLâcher: (() -> Void)?
+    var auMenu: ((NSEvent) -> Void)?
+    private var départ: NSPoint?
+    private var glisse = false
+    override func acceptsFirstMouse(for event: NSEvent?) -> Bool { true }
+    override func mouseDown(with event: NSEvent) { départ = event.locationInWindow; glisse = false }
+    override func mouseDragged(with event: NSEvent) {
+        guard let d = départ else { return }
+        let dy = event.locationInWindow.y - d.y
+        if !glisse, abs(dy) > 4 { glisse = true }
+        if glisse { auGlisser?(dy) }
+    }
+    override func mouseUp(with event: NSEvent) {
+        if glisse { auLâcher?() } else { auClic?() }
+        départ = nil; glisse = false
+    }
+    override func rightMouseDown(with event: NSEvent) { auMenu?(event) }
+}
+
+/// Une ligne de menu qui exécute une action (les menus du tiroir sont construits à la volée).
+final class ActionMenuBas: NSObject {
+    let action: () -> Void
+    init(_ action: @escaping () -> Void) { self.action = action }
+    @objc func agir() { action() }
+}
+
 /// Photo d'une tuile. Un clic dessus la fait venir en entier dans le panneau.
 final class ImageTuileBas: NSImageView {
     var auClic: (() -> Void)?
@@ -367,9 +398,17 @@ final class SelecteurTuilesBas {
         fond.material = .menu
         fond.blendingMode = .behindWindow
         fond.state = .active
-        fond.wantsLayer = true
-        fond.layer?.cornerRadius = 10
-        fond.layer?.masksToBounds = true
+        // Coins arrondis par un masque, comme le recommande Apple pour un fond flou : arrondir son calque laissait
+        // dépasser un petit coin carré clair (le fond de la fenêtre et son ombre restaient carrés).
+        let r: CGFloat = 10
+        let masque = NSImage(size: NSSize(width: 2 * r + 1, height: 2 * r + 1), flipped: false) { rect in
+            NSColor.black.setFill()
+            NSBezierPath(roundedRect: rect, xRadius: r, yRadius: r).fill()
+            return true
+        }
+        masque.capInsets = NSEdgeInsets(top: r, left: r, bottom: r, right: r)
+        masque.resizingMode = .stretch
+        fond.maskImage = masque
         let defilant = NSScrollView(frame: fond.bounds)
         defilant.drawsBackground = false
         defilant.hasVerticalScroller = hauteur > visible
@@ -571,7 +610,12 @@ final class PanneauBas: NSObject {
     private var dernierAppui = Date.distantPast         // dernière fois où le bouton de la souris était enfoncé
     private var libérée: String?                        // la tuile qui sort du panneau en grand : on ne la range pas
     /// Les boutons jaune et vert de chaque tuile visible (coordonnées globales), pour les intercepter. Lus par le filtre de clics.
-    static var boutonsVerts: [(nom: String, cadre: CGRect)] = []
+    static var boutonsVerts: [(nom: String, cadre: CGRect)] = [] {
+        didSet {
+            let cadres = boutonsVerts.map(\.cadre)
+            if Thread.isMainThread { CachesBoutonsVerts.placer(cadres) } else { DispatchQueue.main.async { CachesBoutonsVerts.placer(cadres) } }
+        }
+    }
     static var boutonsJaunes: [(nom: String, cadre: CGRect)] = []
     private static var clicAvalé = false
     private var ouvert = false { didSet { PanneauBas.estOuvertBrut = ouvert } }
@@ -663,6 +707,7 @@ final class PanneauBas: NSObject {
             Corbeille.montrer()
         default:
             if commande.hasPrefix("mini:"), let t = Double(commande.dropFirst(5)) { suivreDoigts(1 + CGFloat(t)); return }
+            if commande.hasPrefix("js "), let y = pagesWeb.values.first(where: { $0.estUnYouTube }) { y.essaiScript(String(commande.dropFirst(3))); return }
             // « youtube https://… » : ouvre ce lien dans la tuile YouTube (pour les essais, et pour d'autres apps).
             if commande.hasPrefix("youtube "), let u = URL(string: String(commande.dropFirst(8))) {
                 pagesWeb.values.first(where: { $0.estUnYouTube })?.ouvrir(u)
@@ -743,6 +788,12 @@ final class PanneauBas: NSObject {
         let tête: CGFloat = médias.isEmpty ? 0 : LecteurYouTubeBas.largeurMini + marge     // le coin multimédia à sa largeur minimum
         return max(720, largeurAppMini + tête + largeurColonne + 3 * marge)
     }
+    /// La taille maximum des applications qui refusent de grandir (la Calculette…), apprise en les posant : [largeur, hauteur].
+    /// Une telle application est centrée dans sa place du tiroir, au lieu d'être collée dans un coin avec du vide à côté.
+    private var taillesMaxi: [String: [Double]] {
+        get { (UserDefaults.standard.dictionary(forKey: "tiroirTaillesMaxi") as? [String: [Double]]) ?? [:] }
+        set { UserDefaults.standard.set(newValue, forKey: "tiroirTaillesMaxi") }
+    }
     /// La hauteur minimum de chaque application du tiroir (celles qui refusent d'être plus basses), apprise en les posant.
     private var hauteursMini: [String: CGFloat] {
         get { (UserDefaults.standard.dictionary(forKey: "tiroirHauteursMini") as? [String: Double])?.mapValues { CGFloat($0) } ?? [:] }
@@ -779,9 +830,33 @@ final class PanneauBas: NSObject {
     private var sensV: CGFloat { enHaut ? -1 : 1 }
     private let largeurColonne: CGFloat = 56
     /// La colonne d'icônes, à droite : une par application du tiroir ; celle qu'on regarde est mise en avant.
-    private var icônesColonne: [ImageTuileBas] = []
+    private var icônesColonne: [IcôneBarreBas] = []
+    /// Pendant qu'on glisse une icône de la barre : son rang de départ, et le rang où elle irait si on la lâchait.
+    private var glisseIcône: (de: Int, vers: Int)?
+    private var pasIcônes: CGFloat = 40
+    private var hautIcônes: CGFloat = 0
+    private var xIcônes: CGFloat = 0
     private var cheminsColonne: [String] = []
     private let repèreColonne = NSView()
+    /// Le fond de la colonne : une barre flottante, floue et teintée comme le Finder de Side (même réglage d'opacité).
+    private lazy var barreColonne: NSVisualEffectView = {
+        let v = NSVisualEffectView()
+        v.material = .popover
+        v.blendingMode = .behindWindow
+        v.state = .active
+        v.wantsLayer = true
+        v.layer?.cornerRadius = 16
+        v.layer?.cornerCurve = .continuous
+        v.layer?.masksToBounds = true
+        v.layer?.borderWidth = 0.5
+        v.layer?.borderColor = NSColor(white: 0.5, alpha: 0.25).cgColor
+        let t = TeinteBas()
+        t.wantsLayer = true
+        t.autoresizingMask = [.width, .height]
+        v.addSubview(t)
+        bandeVue.addSubview(v, positioned: .below, relativeTo: plus)
+        return v
+    }()
     /// Pendant le mini carrousel (geste à quatre doigts prolongé) : le rang de l'application au départ.
     private var navDepart: Int?
     private var navDepuisOuvert = false
@@ -832,8 +907,13 @@ final class PanneauBas: NSObject {
         if uneApp {
             let b = bande(c), h = b.height
             let x = b.minX + débutTuiles, w = max(200, b.width - débutTuiles - largeurColonne - marge)
+            let maxi = taillesMaxi
             return emprunts.indices.map { i in
-                CGRect(x: x, y: b.minY + sensV * (CGFloat(i) * (h + marge) - défilement), width: w, height: h)
+                let y = b.minY + sensV * (CGFloat(i) * (h + marge) - défilement)
+                // Une application qui refuse de grandir est centrée dans sa place.
+                guard let m = maxi[emprunts[i].bundle], m.count == 2 else { return CGRect(x: x, y: y, width: w, height: h) }
+                let wi = min(w, CGFloat(m[0])), hi = min(h, CGFloat(m[1]))
+                return CGRect(x: (x + (w - wi) / 2).rounded(), y: (y + (h - hi) / 2).rounded(), width: wi, height: hi)
             }
         }
         let b = bande(c), retenue = disposition
@@ -868,7 +948,10 @@ final class PanneauBas: NSObject {
     /// Les tuiles entièrement visibles : ce sont les seules dont la vraie fenêtre est à l'écran.
     private func entières(_ c: CGRect) -> [(EmpruntBas, CGRect)] {
         let b = bande(c)
-        if uneApp { return zip(emprunts, zones(c)).filter { abs($0.1.minY - b.minY) < 1 }.map { ($0.0, $0.1) } }
+        if uneApp {
+            let pas = b.height + marge
+            return zip(emprunts, zones(c)).enumerated().filter { abs(CGFloat($0.offset) * pas - défilement) < 1 }.map { ($0.element.0, $0.element.1) }
+        }
         return zip(emprunts, zones(c)).filter { $0.1.minX >= b.minX - 1 && $0.1.maxX <= b.maxX + 1 }.map { ($0.0, $0.1) }
     }
 
@@ -1135,16 +1218,26 @@ final class PanneauBas: NSObject {
         guard let p = panneau else { return }
         let b = bande(p.frame)
         if uneApp {
-            // La colonne de droite : le « + » en haut, la roue dentée en bas, et entre les deux une icône par application.
+            // La colonne de droite, réunie dans une seule barre flottante comme le Dock de la grille : le « + » en haut,
+            // une icône par application, la roue dentée en bas. Elle est centrée en hauteur et ne prend que sa place.
             let x = b.width - largeurColonne + (largeurColonne - largeurPlus) / 2
-            let r = NSRect(x: x, y: b.height - largeurPlus, width: largeurPlus, height: largeurPlus)
-            let bas = NSRect(x: x, y: 0, width: largeurPlus, height: largeurPlus)
+            let n = CGFloat(emprunts.count)
+            let pasIcône: CGFloat = min(44, max(34, (b.height - 2 * largeurPlus - 40) / max(n, 1)))
+            let hauteurBarre = 2 * largeurPlus + n * pasIcône + 24
+            let bas0 = ((b.height - hauteurBarre) / 2).rounded()
+            let r = NSRect(x: x, y: bas0 + hauteurBarre - largeurPlus - 4, width: largeurPlus, height: largeurPlus)
+            let bas = NSRect(x: x, y: bas0 + 4, width: largeurPlus, height: largeurPlus)
             if animé { plus.animator().frame = r; roue.animator().frame = bas } else { plus.frame = r; roue.frame = bas }
-            placerColonne(x: x, haut: r.minY - 10, bas: bas.maxY + 10, animé: animé)
+            let fond = NSRect(x: x - 4, y: bas0, width: largeurPlus + 8, height: hauteurBarre)
+            barreColonne.isHidden = false
+            barreColonne.frame = fond
+            barreColonne.subviews.first?.frame = barreColonne.bounds      // la teinte couvre toute la barre
+            placerColonne(x: x, haut: r.minY - 8, pas: pasIcône, animé: animé)
             return
         }
         icônesColonne.forEach { $0.isHidden = true }
         repèreColonne.isHidden = true
+        barreColonne.isHidden = true
         let fin = (zones(p.frame).last?.maxX ?? (b.minX - défilement + largeurTête)) + marge
         let r = NSRect(x: fin - b.minX, y: (b.height - largeurPlus) / 2, width: largeurPlus, height: largeurPlus)
         // La roue dentée : même colonne et même taille que la case « + », posée en bas, au niveau du bas des tuiles.
@@ -1153,42 +1246,131 @@ final class PanneauBas: NSObject {
     }
 
     /// Les icônes des applications du tiroir, dans la colonne de droite. Un clic amène l'application.
-    private func placerColonne(x: CGFloat, haut: CGFloat, bas: CGFloat, animé: Bool) {
+    private func placerColonne(x: CGFloat, haut: CGFloat, pas: CGFloat, animé: Bool) {
         let chemins = emprunts.map(\.chemin)
         if chemins != cheminsColonne {
             cheminsColonne = chemins
             icônesColonne.forEach { $0.removeFromSuperview() }
             icônesColonne = emprunts.indices.map { i in
-                let v = ImageTuileBas(frame: .zero)
+                let v = IcôneBarreBas(frame: .zero)
                 v.imageScaling = .scaleProportionallyUpOrDown
                 v.image = NSWorkspace.shared.icon(forFile: emprunts[i].chemin)
                 v.toolTip = emprunts[i].nom
                 v.auClic = { [weak self] in self?.montrerTuile(i) }
+                v.auGlisser = { [weak self] dy in self?.glisserIcône(i, dy) }
+                v.auLâcher = { [weak self] in self?.lâcherIcône() }
+                v.auMenu = { [weak self] ev in self?.menuIcône(i, ev, v) }
                 bandeVue.addSubview(v)
                 return v
             }
         }
         if repèreColonne.superview == nil {
             repèreColonne.wantsLayer = true
-            repèreColonne.layer?.cornerRadius = 12
+            repèreColonne.layer?.cornerRadius = 10
             repèreColonne.layer?.cornerCurve = .continuous
-            repèreColonne.layer?.backgroundColor = NSColor(white: 1, alpha: 0.18).cgColor
-            bandeVue.addSubview(repèreColonne, positioned: .below, relativeTo: nil)
+            bandeVue.addSubview(repèreColonne, positioned: .above, relativeTo: barreColonne)
         }
-        let côté: CGFloat = 32, pas: CGFloat = min(44, max(34, (haut - bas) / CGFloat(max(emprunts.count, 1))))
+        // La mise en avant suit le mode clair ou sombre, comme la sélection d'un élément du Dock.
+        var teinte = NSColor.clear.cgColor
+        bandeVue.effectiveAppearance.performAsCurrentDrawingAppearance { teinte = NSColor.labelColor.withAlphaComponent(0.14).cgColor }
+        repèreColonne.layer?.backgroundColor = teinte
+        let côté: CGFloat = 34
         let courant = rangCourant
+        pasIcônes = pas; hautIcônes = haut; xIcônes = x
+        guard glisseIcône == nil else { return }          // pendant un glisser, c'est lui qui place les icônes
         for (i, v) in icônesColonne.enumerated() {
             v.isHidden = false
             let y = haut - CGFloat(i + 1) * pas + (pas - côté) / 2
             let r = NSRect(x: x + (largeurPlus - côté) / 2, y: y, width: côté, height: côté)
             if animé { v.animator().frame = r } else { v.frame = r }
-            v.alphaValue = i == courant ? 1 : 0.55
+            v.alphaValue = 1                       // toutes nettes : seule la mise en avant distingue l'application affichée
             if i == courant {
-                let f = r.insetBy(dx: -5, dy: -5)
+                let f = r.insetBy(dx: -4, dy: -4)
                 if animé { repèreColonne.animator().frame = f } else { repèreColonne.frame = f }
             }
         }
         repèreColonne.isHidden = emprunts.isEmpty
+    }
+
+    // MARK: La barre du tiroir : réorganiser au glisser, clic droit
+
+    private func cadreIcône(rang: Int) -> NSRect {
+        let côté: CGFloat = 34
+        return NSRect(x: xIcônes + (largeurPlus - côté) / 2, y: hautIcônes - CGFloat(rang + 1) * pasIcônes + (pasIcônes - côté) / 2,
+                      width: côté, height: côté)
+    }
+
+    /// L'icône suit la souris ; les autres s'écartent pour lui faire place, comme dans le Dock.
+    private func glisserIcône(_ i: Int, _ dy: CGFloat) {
+        guard icônesColonne.indices.contains(i) else { return }
+        let n = icônesColonne.count
+        let vers = max(0, min(n - 1, i - Int((dy / pasIcônes).rounded())))
+        let avant = glisseIcône?.vers
+        glisseIcône = (i, vers)
+        let v = icônesColonne[i]
+        var r = cadreIcône(rang: i)
+        r.origin.y += dy
+        v.frame = r
+        v.layer?.zPosition = 10
+        repèreColonne.isHidden = true
+        guard avant != vers else { return }
+        NSAnimationContext.runAnimationGroup { ctx in
+            ctx.duration = 0.18
+            ctx.timingFunction = CAMediaTimingFunction(controlPoints: 0.2, 0.9, 0.3, 1)
+            for (j, autre) in icônesColonne.enumerated() where j != i {
+                // Le rang de cette icône une fois la glissée insérée à sa nouvelle place.
+                var rang = j
+                if i < vers, j > i, j <= vers { rang -= 1 }
+                if i > vers, j >= vers, j < i { rang += 1 }
+                autre.animator().frame = cadreIcône(rang: rang)
+            }
+        }
+    }
+
+    private func lâcherIcône() {
+        guard let g = glisseIcône else { return }
+        glisseIcône = nil
+        guard g.de != g.vers, emprunts.indices.contains(g.de) else { déplacerImages(animé: true); return }
+        // L'application affichée reste affichée : seul l'ordre change.
+        let affichée = emprunts.indices.contains(rangCourant) ? emprunts[rangCourant].nom : nil
+        var liste = emprunts
+        let e = liste.remove(at: g.de)
+        liste.insert(e, at: g.vers)
+        emprunts = liste
+        journalBas("%@ passe au rang %d (barre)", e.nom, g.vers + 1)
+        if let affichée, let i = emprunts.firstIndex(where: { $0.nom == affichée }), let p = panneau {
+            défilement = arrêts(p.frame).débuts[i]
+        }
+        cheminsColonne = []                                 // les icônes se refont dans le nouvel ordre
+        déplacerImages(animé: false)
+    }
+
+    /// Clic droit sur une icône de la barre : ses actions.
+    private func menuIcône(_ i: Int, _ ev: NSEvent, _ vue: NSView) {
+        guard emprunts.indices.contains(i) else { return }
+        let e = emprunts[i]
+        let m = NSMenu()
+        var actions: [ActionMenuBas] = []
+        func ajouter(_ titre: String, _ symbole: String, _ f: @escaping () -> Void) {
+            let a = ActionMenuBas(f)
+            actions.append(a)
+            let it = m.addItem(withTitle: titre, action: #selector(ActionMenuBas.agir), keyEquivalent: "")
+            it.target = a
+            it.representedObject = a
+            it.image = NSImage(systemSymbolName: symbole, accessibilityDescription: nil)
+        }
+        if i != rangCourant { ajouter(String(localized: "Afficher"), "eye", { [weak self] in self?.montrerTuile(i) }) }
+        if e.note == nil {
+            ajouter(String(localized: "Passer en plein écran"), "arrow.up.left.and.arrow.down.right", { [weak self] in self?.passerEnPleinEcran(nom: e.nom) })
+        }
+        ajouter(String(localized: "Retirer du tiroir"), "minus.circle", { [weak self] in self?.retirerSansFermer(nom: e.nom) })
+        m.addItem(.separator())
+        ajouter(String(localized: "Quitter \(e.nom)"), "xmark.circle", { [weak self] in
+            guard let self else { return }
+            if let a = self.app(e) { if e.note != nil { self.retirerSansFermer(nom: e.nom) } else { a.terminate() } }
+        })
+        NSMenu.popUpContextMenu(m, with: ev, for: vue)
+        _ = actions
     }
 
     private func déplacerImages(animé: Bool) {
@@ -1361,7 +1543,11 @@ final class PanneauBas: NSObject {
     /// La place de l'application affichée dans le tiroir, en coordonnées de l'écran (origine en bas à gauche).
     private func zoneÉcran() -> CGRect? {
         guard let p = panneau, emprunts.indices.contains(rangCourant) else { return nil }
-        let z = bande(p.frame)
+        return zoneÉcran(pour: p.frame)
+    }
+    /// La place de l'application dans un tiroir posé à ce cadre (coordonnées de l'écran, origine en bas à gauche).
+    private func zoneÉcran(pour cadreTiroir: CGRect) -> CGRect {
+        let z = bande(cadreTiroir)
         let x = z.minX + débutTuiles, w = max(200, z.width - débutTuiles - largeurColonne - marge)
         let haut = NSScreen.screens.first?.frame.height ?? 0
         return CGRect(x: x, y: haut - z.maxY, width: w, height: z.height)
@@ -1383,7 +1569,9 @@ final class PanneauBas: NSObject {
     /// p : 0 = caché, 1 = à sa place ; au-delà (une app à la fois), le mini carrousel suit les doigts.
     func suivreDoigts(_ p: CGFloat) {
         guard suiviDoigts, ouvert else { return }
-        if uneApp, !fermetureSuivie, navDepuisOuvert || p > 1, emprunts.count > 1 {
+        // Une fois le sélecteur apparu, les doigts peuvent monter et descendre librement : le tiroir ne se referme jamais
+        // pendant le geste ; au lâcher, l'application choisie prend la place et le tiroir reste ouvert.
+        if uneApp, !fermetureSuivie, navDepuisOuvert || navDepart != nil || p > 1, emprunts.count > 1 {
             if !navDepuisOuvert { poser(1) }
             if navDepart == nil { ouvrirMiniCarrousel() }
             guard let d = navDepart else { return }
@@ -1701,12 +1889,15 @@ final class PanneauBas: NSObject {
                 guard PanneauBas.estOuvertBrut else { return Unmanaged.passUnretained(ev) }
                 if let vert = PanneauBas.boutonsVerts.first(where: { $0.cadre.contains(ev.location) }) {
                     PanneauBas.clicAvalé = true
-                    PanneauBas.commun.sortirEnGrand(nom: vert.nom)
+                    // Le bouton vert sort l'application du tiroir, à sa taille, au centre de l'écran : ce sont de petites
+                    // applications, pas faites pour remplir l'écran. Elle reviendra dans le tiroir à sa prochaine ouverture.
+                    DispatchQueue.main.async { PanneauBas.commun.sortirAuCentre(nom: vert.nom) }
                     return nil
                 }
-                if let jaune = PanneauBas.boutonsJaunes.first(where: { $0.cadre.contains(ev.location) }) {
+                if PanneauBas.boutonsJaunes.contains(where: { $0.cadre.contains(ev.location) }) {
                     PanneauBas.clicAvalé = true
-                    PanneauBas.commun.retirerSansFermer(nom: jaune.nom)
+                    // Le bouton jaune range, comme partout dans macOS : le tiroir se referme, l'application y reste.
+                    DispatchQueue.main.async { PanneauBas.commun.fermerParLeJaune() }
                     return nil
                 }
                 return Unmanaged.passUnretained(ev)
@@ -1929,6 +2120,38 @@ final class PanneauBas: NSObject {
         retirer(i)
     }
 
+    /// Bouton jaune d'une tuile : le tiroir se referme, l'application y reste rangée.
+    func fermerParLeJaune() {
+        journalBas("bouton jaune : le tiroir se referme")
+        fermer(rendreLaMain: true)
+    }
+
+    /// Bouton vert d'une tuile : l'application sort du tiroir, à sa taille, au milieu de l'écran (sans dépasser les trois quarts
+    /// de l'écran). Sa photo glisse de sa place dans le tiroir jusqu'au centre pendant que le tiroir s'en va.
+    /// Elle reste une application du tiroir : elle y retourne à sa prochaine ouverture.
+    func sortirAuCentre(nom: String) {
+        guard let i = emprunts.firstIndex(where: { $0.nom == nom }), let principal = NSScreen.screens.first,
+              let ecran = panneau?.screen ?? NSScreen.main else { return }
+        let e = emprunts[i]
+        guard let f = fenetre(e), let c = AXBas.cadre(f) else { return }
+        journalBas("%@ sort du tiroir au centre", nom)
+        let image = photo(e, taille: c.size, fraîche: true)
+        let v = ecran.visibleFrame
+        let taille = Self.redimensionnable(f) ? CGSize(width: min(c.width, v.width * 0.75), height: min(c.height, v.height * 0.75)) : c.size
+        let centre = CGRect(x: (v.midX - taille.width / 2).rounded(), y: (v.midY - taille.height / 2).rounded(),
+                            width: taille.width, height: taille.height)                     // origine en bas à gauche
+        let cible = CGRect(x: centre.minX, y: principal.frame.height - centre.maxY, width: taille.width, height: taille.height)
+        fermer(rendreLaMain: false)
+        TransitionFenetre.animer(image, de: TransitionFenetre.versÉcran(c), vers: centre, durée: 0.32,
+                                 arrondiDépart: 12, arrondiArrivée: 12) { [weak self] in
+            guard let self else { return }
+            if let a = self.app(e), a.isHidden { a.unhide() }
+            if let f = self.fenetre(e) { AXBas.placer(f, cible); AXBas.lever(f) }
+            self.app(e)?.activate(options: [])
+            TransitionFenetre.effacer(après: 0.12)
+        }
+    }
+
     /// Bouton vert : la fenêtre quitte le panneau et remplit l'écran
     /// (un faux plein écran, sans changement d'espace). Elle reviendra dans le panneau à sa prochaine ouverture.
     func sortirEnGrand(nom: String) {
@@ -2102,18 +2325,38 @@ final class PanneauBas: NSObject {
         if !emprunts.contains(where: { $0.bundle == bundle && $0.note == nil }) { ajouter(url) }
         journalBas("%@ envoyée au tiroir", a.localizedName ?? bundle)
         guard let i = emprunts.firstIndex(where: { $0.bundle == bundle && $0.note == nil }) else { return }
+        let e = emprunts[i]
         tuileÀMontrer = i
+        // La transition : la fenêtre rétrécit jusqu'à sa place dans le tiroir, pendant que le tiroir arrive.
+        if !ouvert, uneApp, let f = fenetre(e), let c = AXBas.cadre(f), let ecran = NSScreen.main {
+            let image = photo(e, taille: c.size, fraîche: true)
+            let départ = TransitionFenetre.versÉcran(c)
+            // Le tiroir s'ouvre directement sur elle.
+            if let p = panneau ?? Optional(construire()) { panneau = p; défilement = arrêts(cadre(ecran)).débuts.indices.contains(i) ? CGFloat(i) * (bande(cadre(ecran)).height + marge) : 0 }
+            // Une fenêtre à taille fixe (la Calculette) garde sa taille : la photo rétrécit jusqu'à sa vraie place, pas plus.
+            let zone = zoneÉcran(pour: cadre(ecran))
+            let arrivée = Self.redimensionnable(f) ? zone
+                : CGRect(x: zone.minX, y: zone.maxY - min(c.height, zone.height), width: min(c.width, zone.width), height: min(c.height, zone.height))
+            AXBas.placer(f, CGRect(x: (NSScreen.screens.first?.frame.maxX ?? 0) - 1, y: c.minY, width: c.width, height: c.height))   // la photo la remplace
+            TransitionFenetre.animer(image, de: départ, vers: arrivée, durée: 0.42, arrondiDépart: 10, arrondiArrivée: 20) {
+                TransitionFenetre.effacer(après: 0.35)        // le temps que la vraie fenêtre se pose dans le tiroir
+            }
+            ouvrir()
+            return
+        }
         if !ouvert { ouvrir() } else { montrerTuile(i) }
     }
 
     /// L'application de cette tuile quitte le tiroir et remplit l'écran, comme une application de travail.
+    /// Sa photo grandit de sa place dans le tiroir jusqu'à tout l'écran, pendant que le tiroir s'en va.
     func passerEnPleinEcran(nom: String) {
         guard let i = emprunts.firstIndex(where: { $0.nom == nom }) else { return }
         let e = emprunts[i]
         journalBas("%@ passe en plein écran", nom)
-        if ouvert { fermer(rendreLaMain: false) }
-        retirer(i)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) { [weak self] in
+        let f = fenetre(e), c = f.flatMap { AXBas.cadre($0) }
+        let image = c.map { photo(e, taille: $0.size, fraîche: true) }
+        let visible = NSScreen.main?.visibleFrame ?? .zero
+        let finale = { [weak self] in
             guard let self, let a = self.app(e) else { return }
             if a.isHidden { a.unhide() }
             var v: CFTypeRef?
@@ -2121,6 +2364,33 @@ final class PanneauBas: NSObject {
             if let f = (v as? [AXUIElement])?.first { Agrandir.basculer(f, seulementAgrandir: true); AXBas.lever(f) }
             a.activate(options: [])
         }
+        // La tuile quitte le tiroir sans que sa fenêtre soit rendue au milieu de l'écran : elle ira droit à sa place finale.
+        numéros[e.nom] = nil
+        emprunts.remove(at: i)
+        if ouvert { fermer(rendreLaMain: false) } else { recharger(versLaFin: false) }
+        if let c, let f, ouvert == false, image != nil {
+            // Une fenêtre à taille fixe ne remplira pas l'écran : la photo va seulement à sa place, en haut à gauche.
+            let vers = Self.redimensionnable(f) ? visible : CGRect(x: visible.minX, y: visible.maxY - c.height, width: c.width, height: c.height)
+            TransitionFenetre.animer(image, de: TransitionFenetre.versÉcran(c), vers: vers, durée: 0.4, arrondiDépart: 20, arrondiArrivée: 0) {
+                finale()
+                TransitionFenetre.effacer(après: 0.15)
+            }
+        } else {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { finale() }
+        }
+    }
+
+    /// La fenêtre accepte-t-elle qu'on change sa taille ?
+    static func redimensionnable(_ f: AXUIElement) -> Bool {
+        var ok: DarwinBoolean = false
+        guard AXUIElementIsAttributeSettable(f, kAXSizeAttribute as CFString, &ok) == .success, ok.boolValue else { return false }
+        // Certaines la déclarent modifiable mais n'ont pas de bouton vert utilisable (taille fixe).
+        var b: CFTypeRef?
+        AXUIElementCopyAttributeValue(f, kAXFullScreenButtonAttribute as CFString, &b)
+        guard let b, CFGetTypeID(b) == AXUIElementGetTypeID() else { return true }
+        var actif: CFTypeRef?
+        AXUIElementCopyAttributeValue(b as! AXUIElement, kAXEnabledAttribute as CFString, &actif)
+        return (actif as? Bool) ?? true
     }
 
     /// ⌃⌥↓ : l'application de devant va au tiroir. ⌃⌥↑ : l'application de devant, si elle est dans le tiroir, passe en plein écran.
@@ -2430,6 +2700,18 @@ final class PanneauBas: NSObject {
     /// (le champ de recherche de Mots de passe, par exemple). Side le reprend, et repasse aussitôt sous les tuiles.
     private func rendreLeClavier(_ liste: [EmpruntBas]) {
         guard !PanneauBas.menuOuvert, mainRendue != serie, Date().timeIntervalSince(dernierLever) > 0.3 else { return }
+        // Une app à la fois : le clavier va directement à l'application affichée, dès l'ouverture et à chaque changement,
+        // sans avoir à cliquer dedans.
+        if uneApp, emprunts.indices.contains(rangCourant) {
+            let e = emprunts[rangCourant]
+            guard liste.contains(where: { $0.nom == e.nom }), let f = fenetre(e) else { return }
+            mainRendue = serie
+            if NSWorkspace.shared.frontmostApplication?.bundleIdentifier != e.bundle { app(e)?.activate(options: []) }
+            AXBas.lever(f)
+            AXUIElementSetAttributeValue(f, kAXFocusedAttribute as CFString, kCFBooleanTrue)
+            journalBas("clavier donné à %@", e.nom)
+            return
+        }
         let devant = NSWorkspace.shared.frontmostApplication?.bundleIdentifier
         guard let devant, liste.contains(where: { $0.bundle == devant }) else { return }
         // Toutes les tuiles visibles ont leur fenêtre, devant le tiroir (une note encore en train de s'ouvrir : on attend).
@@ -2476,6 +2758,24 @@ final class PanneauBas: NSObject {
         let aSaTaille = abs(avant.width - zone.width) < 2 && abs(avant.height - zone.height) < 2
         // Bien placée six vérifications de suite (ou l'application refuse la taille demandée) : on la laisse tranquille.
         if aSaPlace && (aSaTaille || replacements[e.nom, default: 0] >= 2) {
+            if uneApp, !aSaTaille, e.note == nil {
+                let maxi = taillesMaxi[e.bundle]
+                // Plus grande que la taille maximum retenue : l'application a changé d'avis, on l'oublie.
+                if let m = maxi, m.count == 2, avant.width > CGFloat(m[0]) + 3 || avant.height > CGFloat(m[1]) + 3 {
+                    var t = taillesMaxi; t[e.bundle] = nil; taillesMaxi = t
+                    journalBas("%@ : taille maximum oubliée", e.nom)
+                    stables[e.nom] = 0; replacements[e.nom] = 0
+                    return
+                }
+                // Plus petite que sa place, et elle refuse de grandir : on retient sa taille, elle sera centrée.
+                let pluspetite = avant.width < zone.width - 3 || avant.height < zone.height - 3
+                if pluspetite, avant.width <= zone.width + 3, avant.height <= zone.height + 3 {
+                    var t = taillesMaxi; t[e.bundle] = [Double(avant.width.rounded()), Double(avant.height.rounded())]; taillesMaxi = t
+                    journalBas("%@ : taille fixe %.0f × %.0f, centrée dans le tiroir", e.nom, avant.width, avant.height)
+                    stables[e.nom] = 0; replacements[e.nom] = 0
+                    return
+                }
+            }
             if !aSaTaille, abs(avant.height - zone.height) > 3 { refusHauteur.insert(e.nom) }
             // Plus haute que le tiroir : une application ne doit jamais dépasser. Le tiroir retient sa hauteur minimum et grandit.
             if avant.height > zone.height + 3, (hauteursMini[e.bundle] ?? 0) < avant.height {

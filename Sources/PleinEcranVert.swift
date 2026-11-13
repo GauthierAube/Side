@@ -8,6 +8,11 @@ enum BoutonVert {
         get { UserDefaults.standard.object(forKey: "boutonVertFaux") as? Bool ?? true }
         set { UserDefaults.standard.set(newValue, forKey: "boutonVertFaux") }
     }
+    /// Le bouton jaune d'une application de travail la range dans le tiroir (Option + clic : le Dock, comme d'habitude).
+    static var jauneVersTiroir: Bool {
+        get { UserDefaults.standard.object(forKey: "jauneVersTiroir") as? Bool ?? true }
+        set { UserDefaults.standard.set(newValue, forKey: "jauneVersTiroir") }
+    }
     private static var filtre: CFMachPort?
     private static var clicAvalé = false
     private static let systeme: AXUIElement = {
@@ -30,8 +35,21 @@ enum BoutonVert {
                 BoutonVert.clicAvalé = false
                 return nil
             }
-            guard BoutonVert.actif, !ev.flags.contains(.maskShift), !ev.flags.contains(.maskAlternate),
-                  let fenetre = BoutonVert.fenetreDuBoutonVert(ev.location) else { return Unmanaged.passUnretained(ev) }
+            guard !ev.flags.contains(.maskShift), !ev.flags.contains(.maskAlternate),
+                  let (fenetre, jaune) = BoutonVert.fenetreDuBouton(ev.location) else { return Unmanaged.passUnretained(ev) }
+            if jaune {
+                // Bouton jaune d'une application de travail : elle rejoint le tiroir (au lieu de se cacher dans le Dock).
+                guard BoutonVert.jauneVersTiroir else { return Unmanaged.passUnretained(ev) }
+                var pid: pid_t = 0
+                guard AXUIElementGetPid(fenetre, &pid) == .success else { return Unmanaged.passUnretained(ev) }
+                BoutonVert.clicAvalé = true
+                DispatchQueue.main.async {
+                    journal("Square: bouton jaune → tiroir")
+                    PanneauBas.commun.envoyerAuTiroir(pid: pid)
+                }
+                return nil
+            }
+            guard BoutonVert.actif else { return Unmanaged.passUnretained(ev) }
             BoutonVert.clicAvalé = true
             DispatchQueue.main.async {
                 journal("Square: bouton vert → faux plein écran")
@@ -50,8 +68,8 @@ enum BoutonVert {
         return (v as? String) ?? ""
     }
 
-    /// Si le clic tombe sur le bouton vert d'une fenêtre ordinaire, renvoie cette fenêtre.
-    private static func fenetreDuBoutonVert(_ p: CGPoint) -> AXUIElement? {
+    /// Si le clic tombe sur le bouton vert (ou jaune) d'une fenêtre ordinaire, renvoie cette fenêtre, et si c'est le jaune.
+    private static func fenetreDuBouton(_ p: CGPoint) -> (AXUIElement, Bool)? {
         // Tri rapide, sans interroger aucune application : le clic est-il dans le coin haut gauche de la fenêtre du dessus ?
         let infos = (CGWindowListCopyWindowInfo([.optionOnScreenOnly, .excludeDesktopElements], kCGNullWindowID) as? [[String: Any]]) ?? []
         // Le panneau du bas de Side, s'il est ouvert : il gère lui-même le bouton vert de ses tuiles.
@@ -72,7 +90,8 @@ enum BoutonVert {
         if let panneauSide, panneauSide.insetBy(dx: -2, dy: -2).contains(r) { return nil }
         var el: AXUIElement?
         let etat = AXUIElementCopyElementAtPosition(systeme, Float(p.x), Float(p.y), &el)
-        guard etat == .success, let el, texte(el, kAXSubroleAttribute) == "AXFullScreenButton" else {
+        let sousRole = el.map { texte($0, kAXSubroleAttribute) } ?? ""
+        guard etat == .success, let el, sousRole == "AXFullScreenButton" || sousRole == "AXMinimizeButton" else {
             journal("Square: clic près du coin d'une fenêtre, pas sur le bouton vert (état %d, rôle %@, sous-rôle %@)", Int(etat.rawValue),
                     el.map { texte($0, kAXRoleAttribute) } ?? "-", el.map { texte($0, kAXSubroleAttribute) } ?? "-")
             return nil
@@ -83,6 +102,6 @@ enum BoutonVert {
         let fenetre = v as! AXUIElement
         // Déjà dans un plein écran d'Apple : le bouton vert sert à en sortir, on laisse macOS faire.
         if AX.vrai(fenetre, "AXFullScreen") { return nil }
-        return fenetre
+        return (fenetre, sousRole == "AXMinimizeButton")
     }
 }

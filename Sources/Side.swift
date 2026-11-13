@@ -4550,7 +4550,7 @@ struct ReglagesView: View {
                 LabeledContent("Envoyer l'application de devant au tiroir") { Text(verbatim: "⌃⌥↓").monospaced().foregroundStyle(.secondary) }
                 LabeledContent("Passer l'application du tiroir en plein écran") { Text(verbatim: "⌃⌥↑").monospaced().foregroundStyle(.secondary) }
             } header: { Text("Changer de place") } footer: {
-                note("Aussi au clic droit sur une case de la grille (« Envoyer au tiroir »), et dans la liste du « + » du tiroir (le bouton bleu de chaque application).")
+                note("Le plus simple : le bouton jaune d'une application l'envoie au tiroir, et le bouton vert d'une application du tiroir la remet en plein écran (Option + clic : le comportement habituel de macOS). Aussi au clic droit sur une case de la grille, et dans la liste du « + » du tiroir.")
             }
             Section {
                 RaccourciPresseLigne()

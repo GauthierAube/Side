@@ -233,6 +233,16 @@
         }
       }
     },
+    "Afficher": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show"
+          }
+        }
+      }
+    },
     "Afficher Side": {
       "localizations": {
         "en": {
@@ -863,16 +873,6 @@
         }
       }
     },
-    "Aussi au clic droit sur une case de la grille (« Envoyer au tiroir »), et dans la liste du « + » du tiroir (le bouton bleu de chaque application).": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Also by right-clicking a grid tile (“Send to Drawer”), and in the drawer's “+” list (the blue button next to each app)."
-          }
-        }
-      }
-    },
     "Automatique": {
       "localizations": {
         "en": {
@@ -999,6 +999,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Edge"
+          }
+        }
+      }
+    },
+    "Bouton jaune : ranger l'application dans le tiroir": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yellow button: put the app in the drawer"
           }
         }
       }
@@ -3203,6 +3213,16 @@
         }
       }
     },
+    "Le plus simple : le bouton jaune d'une application l'envoie au tiroir, et le bouton vert d'une application du tiroir la remet en plein écran (Option + clic : le comportement habituel de macOS). Aussi au clic droit sur une case de la grille, et dans la liste du « + » du tiroir.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The simplest way: an app's yellow button sends it to the drawer, and the green button of a drawer app makes it full screen again (Option-click keeps macOS's usual behavior). Also by right-clicking a grid tile, and in the drawer's “+” list."
+          }
+        }
+      }
+    },
     "Le port 8765 du Mac est déjà pris. Fermez l'application qui l'utilise et réessayez.": {
       "localizations": {
         "en": {
@@ -3799,6 +3819,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Opacity"
+          }
+        }
+      }
+    },
+    "Option + clic sur le bouton jaune : l'application se range dans le Dock, comme d'habitude.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Option-click the yellow button to minimize the app to the Dock, as usual."
           }
         }
       }
@@ -4803,6 +4833,16 @@
         }
       }
     },
+    "Retirer du tiroir": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove from Drawer"
+          }
+        }
+      }
+    },
     "Revenir au dossier précédent": {
       "localizations": {
         "en": {
@@ -5089,6 +5129,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Side, Square and Mulot are three small free apps made to work together."
+          }
+        }
+      }
+    },
+    "Sortir du tiroir": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Take out of the drawer"
           }
         }
       }

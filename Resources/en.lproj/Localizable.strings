@@ -52,6 +52,8 @@
 	<string>Email Address</string>
 	<key>Affichage</key>
 	<string>Display</string>
+	<key>Afficher</key>
+	<string>Show</string>
 	<key>Afficher Side</key>
 	<string>Show Side</string>
 	<key>Afficher dans la barre latérale</key>
@@ -182,8 +184,6 @@ Press Esc to cancel.</string>
 	<string>No apps.</string>
 	<key>Aucune note trouvée dans Notes</key>
 	<string>No notes found in Notes</string>
-	<key>Aussi au clic droit sur une case de la grille (« Envoyer au tiroir »), et dans la liste du « + » du tiroir (le bouton bleu de chaque application).</key>
-	<string>Also by right-clicking a grid tile (“Send to Drawer”), and in the drawer's “+” list (the blue button next to each app).</string>
 	<key>Automatique</key>
 	<string>Automatic</string>
 	<key>Automatique (langue du Mac)</key>
@@ -210,6 +210,8 @@ Press Esc to cancel.</string>
 	<string>Welcome to the Drawer</string>
 	<key>Bord</key>
 	<string>Edge</string>
+	<key>Bouton jaune : ranger l'application dans le tiroir</key>
+	<string>Yellow button: put the app in the drawer</string>
 	<key>Bouton vert</key>
 	<string>Green Button</string>
 	<key>Bureau</key>
@@ -650,6 +652,8 @@ Press Esc to cancel.</string>
 	<string>Swiping the other way closes the Finder. Note: macOS already uses these gestures, up for Mission Control and down for App Exposé. So that both don't trigger together, set them to “Off” in System Settings &gt; Trackpad &gt; More Gestures. Side doesn't change these settings itself.</string>
 	<key>Le même fond flou sert au Finder de Side, au volet du presse-papiers et aux onglets du coin multimédia du tiroir : cette opacité vaut pour tous.</key>
 	<string>The same blurred background is used by Side's Finder, the clipboard panel and the media tabs in the drawer: this opacity applies to all of them.</string>
+	<key>Le plus simple : le bouton jaune d'une application l'envoie au tiroir, et le bouton vert d'une application du tiroir la remet en plein écran (Option + clic : le comportement habituel de macOS). Aussi au clic droit sur une case de la grille, et dans la liste du « + » du tiroir.</key>
+	<string>The simplest way: an app's yellow button sends it to the drawer, and the green button of a drawer app makes it full screen again (Option-click keeps macOS's usual behavior). Also by right-clicking a grid tile, and in the drawer's “+” list.</string>
 	<key>Le port 8765 du Mac est déjà pris. Fermez l'application qui l'utilise et réessayez.</key>
 	<string>Port 8765 on this Mac is already in use. Quit the app using it and try again.</string>
 	<key>Le presse-papiers</key>
@@ -770,6 +774,8 @@ Press Esc to cancel.</string>
 	<string>Tab</string>
 	<key>Opacité</key>
 	<string>Opacity</string>
+	<key>Option + clic sur le bouton jaune : l'application se range dans le Dock, comme d'habitude.</key>
+	<string>Option-click the yellow button to minimize the app to the Dock, as usual.</string>
 	<key>Options avancées</key>
 	<string>Advanced</string>
 	<key>Organisation</key>
@@ -970,6 +976,8 @@ Press Esc to cancel.</string>
 	<string>Remove from Dock</string>
 	<key>Retirer du mini-Dock</key>
 	<string>Remove from Mini Dock</string>
+	<key>Retirer du tiroir</key>
+	<string>Remove from Drawer</string>
 	<key>Revenir au dossier précédent</key>
 	<string>Go back to the previous folder</string>
 	<key>Revoir la présentation</key>
@@ -1028,6 +1036,8 @@ Press Esc to cancel.</string>
 	<string>Side restarts to change the language.</string>
 	<key>Side, Square et Mulot sont trois petites applications gratuites, faites pour aller ensemble.</key>
 	<string>Side, Square and Mulot are three small free apps made to work together.</string>
+	<key>Sortir du tiroir</key>
+	<string>Take out of the drawer</string>
 	<key>Souris : ouvrir le Finder</key>
 	<string>Mouse: open the Finder</string>
 	<key>Souris et trackpad</key>

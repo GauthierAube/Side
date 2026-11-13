@@ -643,8 +643,7 @@ final class Case: NSView {
     private(set) var imageActuelle: CGImage?
 
     var survol = false { didSet {
-        majBordure(); fermer.isHidden = !(survol && fermable)
-        for b in subviews where b.identifier?.rawValue == "badge" { b.isHidden = !survol }
+        majBordure(); fermer.isHidden = !(survol && fermable); versTiroir.isHidden = !(survol && fermable)
     } }
     var courant = false { didSet { majBordure() } }
 
@@ -691,12 +690,7 @@ final class Case: NSView {
         petiteIcone.shadow = { let o = NSShadow(); o.shadowColor = NSColor(white: 0, alpha: 0.45); o.shadowBlurRadius = 8
                                o.shadowOffset = NSSize(width: 0, height: -3); return o }()
 
-        if numero <= 9 {
-            let badge = Pastille(texte: "\(numero)")
-            badge.identifier = NSUserInterfaceItemIdentifier("badge")
-            badge.isHidden = true                 // le chiffre ne se montre qu'au survol
-            addSubview(badge)
-        }
+        // (Plus de numéro au survol depuis le 13/11/2026 : ⌘1 à ⌘9 suivent toujours l'ordre des cases.)
 
         fermer.bezelStyle = .circular
         fermer.isBordered = false
@@ -710,8 +704,23 @@ final class Case: NSView {
         fermer.action = #selector(clicFermer)
         fermer.isHidden = true
         addSubview(fermer)
+        // À côté de la croix : envoyer l'application dans le tiroir.
+        versTiroir.bezelStyle = .circular
+        versTiroir.isBordered = false
+        versTiroir.image = NSImage(systemSymbolName: "arrow.down.circle.fill", accessibilityDescription: String(localized: "Envoyer au tiroir"))?
+            .withSymbolConfiguration(NSImage.SymbolConfiguration(pointSize: 24, weight: .medium)
+                .applying(NSImage.SymbolConfiguration(paletteColors: [.white, NSColor(white: 0.1, alpha: 0.85)])))
+        versTiroir.shadow = fermer.shadow
+        versTiroir.toolTip = String(localized: "Envoyer au tiroir")
+        versTiroir.target = self
+        versTiroir.action = #selector(clicTiroir)
+        versTiroir.isHidden = true
+        addSubview(versTiroir)
         majBordure()
     }
+    private let versTiroir = NSButton()
+    var auTiroir: (() -> Void)?
+    @objc private func clicTiroir() { auTiroir?() }
 
     required init?(coder: NSCoder) { fatalError() }
 
@@ -759,7 +768,7 @@ final class Case: NSView {
         let c = min(v.width, v.height) * 0.34
         grandeIcone.frame = NSRect(x: v.midX - c / 2, y: v.midY - c / 2, width: c, height: c)
         fermer.frame = NSRect(x: v.maxX - 40, y: v.maxY - 40, width: 34, height: 34)
-        for b in subviews where b.identifier?.rawValue == "badge" { b.frame = NSRect(x: v.minX + 10, y: v.maxY - 38, width: 28, height: 28) }
+        versTiroir.frame = NSRect(x: v.maxX - 78, y: v.maxY - 40, width: 34, height: 34)
         // L'icône, centrée et droite, à cheval sur le bord bas de la vignette.
         let cote: CGFloat = 58
         petiteIcone.frame = NSRect(x: v.midX - cote / 2, y: v.minY - 24, width: cote, height: cote)
@@ -938,6 +947,7 @@ final class Grille: NSView {
             let c = Case(tuile: t, numero: i + 1)
             c.courant = t.cle == courante
             c.auFermer = { [weak self] in self?.auFermer?(t) }
+            c.auTiroir = { [weak self] in self?.auTiroir?(t) }
             c.montrer(Images.commun.image(pour: t, espaces: espaces))
             addSubview(c)
             return c

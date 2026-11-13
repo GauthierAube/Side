@@ -75,11 +75,10 @@ Le script compile Side, l'installe dans `~/Applications` et le lance. Une icône
 - YouTube change souvent sa page : les réglages propres à YouTube peuvent demander une mise à jour.
 - AirDrop n'est pas pris en charge. La corbeille s'affiche dans la carte, mais demande l'« Accès complet au disque ». Pour le réseau, Side repère les ordinateurs mais la première connexion se fait dans le Finder.
 
-## Les applications compagnes
+## L'application compagne
 
-Side va bien avec deux autres petites applications, signalées dans ses réglages :
+Side va bien avec une autre petite application, signalée dans ses réglages :
 
-- Square (bientôt publié) : les applications en plein écran, en grille, et un Dock.
 - [Mulot](https://github.com/GauthierAube/Mulot) : les boutons et les gestes de la souris MX Master, sans le logiciel de Logitech.
 
 ## Licence

@@ -44,8 +44,8 @@ final class CarrouselTiroir {
         panneau = p
         sensY = enHaut ? 1 : -1
         p.setFrame(ecran.frame, display: false)
-        // Des cartes à la proportion de l'application, en miniature (un peu plus d'un cinquième de sa hauteur).
-        hauteur = max(80, min(140, (zone.height * 0.22).rounded()))
+        // Des cartes à la proportion de l'application, en miniature (un quart de sa hauteur).
+        hauteur = max(90, min(160, (zone.height * 0.25).rounded()))
         largeur = (hauteur * max(1.2, min(2.4, zone.width / max(zone.height, 1)))).rounded()
         centre = CGPoint(x: zone.midX - ecran.frame.minX, y: zone.midY - ecran.frame.minY)
         CATransaction.begin()

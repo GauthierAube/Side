@@ -22,6 +22,8 @@ enum FondNoir {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
             var wid: CGWindowID = 0, pid: pid_t = 0
             guard _AXUIElementGetWindow(el, &wid) == .success, AXUIElementGetPid(el, &pid) == .success, let c = AX.cadre(el) else { return }
+            // Une fenêtre rangée dans le tiroir n'a pas de fond noir : elle vit dans le tiroir, pas en plein écran.
+            guard !Relevé.fenetresDuTiroir().contains(wid) else { oublier(wid); return }
             let manque = zone.width - c.width > 16 || zone.height - c.height > 16
             guard manque, c.width >= 320, c.height >= 200 else { oublier(wid); return }
             // Collée en haut de l'écran (centrée en largeur) : la bande noire reste en bas.
@@ -56,6 +58,9 @@ enum FondNoir {
         let visibles = Set(infos.compactMap { $0[kCGWindowNumber as String] as? CGWindowID })
         // Les fenêtres fermées sont oubliées (une fenêtre seulement cachée, application masquée, est gardée).
         for (w, pid) in suivies where !visibles.contains(w) && NSRunningApplication(processIdentifier: pid) == nil { suivies[w] = nil }
+        // Les fenêtres passées dans le tiroir sont oubliées : le fond noir ne doit jamais recouvrir le tiroir.
+        let tiroir = Relevé.fenetresDuTiroir()
+        for w in suivies.keys where tiroir.contains(w) { suivies[w] = nil }
         if suivies.isEmpty { cacher(); minuteur?.invalidate(); minuteur = nil; return }
         // La fenêtre d'application la plus en avant (ni Square, ni barre des menus, ni fenêtre invisible).
         let premiere = infos.first { i in

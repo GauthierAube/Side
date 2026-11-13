@@ -52,6 +52,8 @@
 	<string>Adresse e-mail</string>
 	<key>Affichage</key>
 	<string>Affichage</string>
+	<key>Afficher</key>
+	<string>Afficher</string>
 	<key>Afficher Side</key>
 	<string>Afficher Side</string>
 	<key>Afficher dans la barre latérale</key>
@@ -182,8 +184,6 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Aucune application.</string>
 	<key>Aucune note trouvée dans Notes</key>
 	<string>Aucune note trouvée dans Notes</string>
-	<key>Aussi au clic droit sur une case de la grille (« Envoyer au tiroir »), et dans la liste du « + » du tiroir (le bouton bleu de chaque application).</key>
-	<string>Aussi au clic droit sur une case de la grille (« Envoyer au tiroir »), et dans la liste du « + » du tiroir (le bouton bleu de chaque application).</string>
 	<key>Automatique</key>
 	<string>Automatique</string>
 	<key>Automatique (langue du Mac)</key>
@@ -210,6 +210,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Bienvenue dans le tiroir</string>
 	<key>Bord</key>
 	<string>Bord</string>
+	<key>Bouton jaune : ranger l'application dans le tiroir</key>
+	<string>Bouton jaune : ranger l'application dans le tiroir</string>
 	<key>Bouton vert</key>
 	<string>Bouton vert</string>
 	<key>Bureau</key>
@@ -650,6 +652,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Le geste dans l'autre sens referme le Finder. Attention : macOS utilise déjà ces gestes, vers le haut pour Mission Control et vers le bas pour « Exposé des apps ». Pour que les deux ne se déclenchent pas ensemble, mets-les sur « Désactivé » dans Réglages Système &gt; Trackpad &gt; Autres gestes. Side ne change pas ces réglages lui-même.</string>
 	<key>Le même fond flou sert au Finder de Side, au volet du presse-papiers et aux onglets du coin multimédia du tiroir : cette opacité vaut pour tous.</key>
 	<string>Le même fond flou sert au Finder de Side, au volet du presse-papiers et aux onglets du coin multimédia du tiroir : cette opacité vaut pour tous.</string>
+	<key>Le plus simple : le bouton jaune d'une application l'envoie au tiroir, et le bouton vert d'une application du tiroir la remet en plein écran (Option + clic : le comportement habituel de macOS). Aussi au clic droit sur une case de la grille, et dans la liste du « + » du tiroir.</key>
+	<string>Le plus simple : le bouton jaune d'une application l'envoie au tiroir, et le bouton vert d'une application du tiroir la remet en plein écran (Option + clic : le comportement habituel de macOS). Aussi au clic droit sur une case de la grille, et dans la liste du « + » du tiroir.</string>
 	<key>Le port 8765 du Mac est déjà pris. Fermez l'application qui l'utilise et réessayez.</key>
 	<string>Le port 8765 du Mac est déjà pris. Fermez l'application qui l'utilise et réessayez.</string>
 	<key>Le presse-papiers</key>
@@ -770,6 +774,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Onglet</string>
 	<key>Opacité</key>
 	<string>Opacité</string>
+	<key>Option + clic sur le bouton jaune : l'application se range dans le Dock, comme d'habitude.</key>
+	<string>Option + clic sur le bouton jaune : l'application se range dans le Dock, comme d'habitude.</string>
 	<key>Options avancées</key>
 	<string>Options avancées</string>
 	<key>Organisation</key>
@@ -970,6 +976,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Retirer du Dock</string>
 	<key>Retirer du mini-Dock</key>
 	<string>Retirer du mini-Dock</string>
+	<key>Retirer du tiroir</key>
+	<string>Retirer du tiroir</string>
 	<key>Revenir au dossier précédent</key>
 	<string>Revenir au dossier précédent</string>
 	<key>Revoir la présentation</key>
@@ -1028,6 +1036,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Side redémarre pour changer de langue.</string>
 	<key>Side, Square et Mulot sont trois petites applications gratuites, faites pour aller ensemble.</key>
 	<string>Side, Square et Mulot sont trois petites applications gratuites, faites pour aller ensemble.</string>
+	<key>Sortir du tiroir</key>
+	<string>Sortir du tiroir</string>
 	<key>Souris : ouvrir le Finder</key>
 	<string>Souris : ouvrir le Finder</string>
 	<key>Souris et trackpad</key>

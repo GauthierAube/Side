@@ -406,7 +406,14 @@ final class LecteurYouTubeBas: NSView, WKNavigationDelegate, WKUIDelegate, WKScr
           + '#frosted-glass.with-chipbar{height:56px!important}'
           // La vidéo a des coins arrondis, comme sur le site de YouTube (sauf en plein écran).
           // (Une découpe, et non un « overflow » : la vidéo est dessinée à part par le Mac, et l'overflow la faisait disparaître.)
-          + 'html:not(.side-plein) ytd-watch-flexy #movie_player{clip-path:inset(0 round 12px)!important}'
+          // L'image de la vidéo est dessinée à part par le Mac : elle ignore tout arrondi (découpe, coins). On pose donc par-dessus
+          // ses coins un liseré de la couleur du fond de la page, à l'extérieur d'un cadre arrondi : la vidéo paraît arrondie.
+          + 'html:not(.side-plein) ytd-watch-flexy #movie_player::after{content:"";position:absolute;left:0;top:0;right:0;bottom:0;border-radius:12px;'
+          + 'box-shadow:0 0 0 40px var(--yt-spec-base-background,#0f0f0f);pointer-events:none;z-index:2}'
+          // Le fond derrière la vidéo doit être uni pour que ce liseré ne se voie pas : la lueur colorée de YouTube (mode
+          // « ambiance ») est retirée dans la tuile, et le lecteur prend la couleur du fond.
+          + 'html:not(.side-plein) ytd-watch-flexy #cinematics,html:not(.side-plein) ytd-watch-flexy #cinematics-container{display:none!important}'
+          + 'html:not(.side-plein) ytd-watch-flexy #movie_player{background:var(--yt-spec-base-background,#0f0f0f)!important}'
           // Dans la tuile, YouTube colle la vidéo aux bords quand la page est étroite : on lui rend les mêmes marges qu'au reste de la page.
           + 'html:not(.side-plein) ytd-watch-flexy:not([is-two-columns_]) #player-container-outer{padding:0 24px!important;box-sizing:border-box!important}'
           + 'html:not(.side-plein) ytd-watch-flexy:not([is-two-columns_]) #full-bleed-container{padding:0 24px!important;box-sizing:border-box!important}'
@@ -437,6 +444,10 @@ final class LecteurYouTubeBas: NSView, WKNavigationDelegate, WKUIDelegate, WKScr
         if fenetreVideo != nil { rentrerDansLeTiroir() } else { pleinCadre() }
     }
     var adresseEnCours: String { page.url?.absoluteString ?? "" }
+    /// Pour les essais : évalue un petit script dans la page et note le résultat dans le journal.
+    func essaiScript(_ code: String) {
+        page.evaluateJavaScript(code) { r, e in journalBas("YouTube (essai) : %@", r.map { "\($0)" } ?? (e.map { "\($0)" } ?? "rien")) }
+    }
     /// Pour les essais : note dans le journal si la vidéo est en pause.
     func noterEtat() {
         page.evaluateJavaScript("(function(){var v=document.querySelector('video');return v?(v.paused?'en pause':'en lecture'):'aucune vidéo'})()") { r, _ in

@@ -334,6 +334,8 @@ struct SectionsTiroir: View {
                 Toggle("Une application à la fois", isOn: $tiroir.uneApp)
                     .help("Le tiroir montre une seule application ; prolonge le geste à quatre doigts pour passer aux autres.")
                 LargeurTiroirLigne()
+                Toggle("Bouton jaune : ranger l'application dans le tiroir", isOn: Binding(get: { BoutonVert.jauneVersTiroir }, set: { BoutonVert.jauneVersTiroir = $0 }))
+                    .help("Option + clic sur le bouton jaune : l'application se range dans le Dock, comme d'habitude.")
                 Toggle("Fond derrière les tuiles", isOn: $tiroir.fond)
             }
         case .multimedia:

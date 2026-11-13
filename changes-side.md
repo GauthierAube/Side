@@ -8,6 +8,34 @@ Il est mis à jour à chaque modification, en même temps que le code.
 
 ## 13/11/2026
 
+### Applications à taille fixe et liste d'ajout
+- Une application qui refuse de grandir (la Calculette…) est centrée dans sa place du tiroir, au lieu d'être collée à gauche avec du vide à côté. Sa taille est retenue.
+- Liste « + » : plus de petit coin carré clair qui dépasse (coins arrondis par un masque).
+
+### Boutons jaune et vert dans le tiroir
+- **Vert** : l'application sort du tiroir à sa taille, au centre de l'écran, avec un petit glissement (plus d'agrandissement en plein écran). Elle reste une application du tiroir et y retourne à sa prochaine ouverture.
+- **Jaune** : range, comme partout dans macOS : le tiroir se referme, l'application y reste.
+- Le menu d'Apple « Déplacer et redimensionner » ne s'ouvre plus au survol du bouton vert d'une application du tiroir.
+
+### Fond noir à l'ouverture du tiroir
+- Le fond noir posé derrière les vidéos à proportions fixes prenait certaines applications du tiroir (Mots de passe, une note) pour de telles vidéos et recouvrait tout l'écran. Les fenêtres du tiroir sont désormais ignorées.
+
+### Grille, barre du tiroir, transitions et icône
+- **Grille** : plus de numéros au survol des cases. À côté de la croix, une flèche vers le bas envoie l'application au tiroir.
+- **Barre du tiroir** : on glisse les icônes pour changer l'ordre, comme dans le Dock (les autres s'écartent). Clic droit sur une icône : Afficher, Passer en plein écran, Retirer du tiroir, Quitter.
+- **Transitions** : passer du tiroir au plein écran (ou l'inverse) n'est plus saccadé. Une photo de la fenêtre grandit en un seul mouvement de sa place dans le tiroir jusqu'à tout l'écran, ou rétrécit jusqu'au tiroir pendant qu'il s'ouvre ; la vraie fenêtre se pose à l'arrivée. Une fenêtre à taille fixe (la Calculette) garde sa taille.
+- **Icône** : un triptyque, trois volets pour trois sortes d'applications (le Finder à gauche, les applications de travail au centre, le tiroir en bas).
+
+### Changer une application de place avec les boutons des fenêtres
+- **Bouton jaune** d'une application de travail : elle rejoint le tiroir (qui s'ouvre sur elle), au lieu de se cacher dans le Dock. Option + clic : le Dock, comme d'habitude. Réglage : Réglages › Tiroir.
+- **Bouton vert** d'une application du tiroir : elle en sort pour de bon et remplit l'écran.
+- Les raccourcis ⌃⌥↓ et ⌃⌥↑, le clic droit de la grille et la liste du « + » restent possibles.
+
+### Le reste
+- Colonne du tiroir réunie dans une seule barre flottante (fond flou réglable comme le Finder), icônes nettes, l'application affichée mise en avant.
+- Vidéo YouTube du tiroir : ses coins sont arrondis par un liseré de la couleur du fond posé par-dessus (l'image de la vidéo, dessinée à part par le Mac, ignore tout arrondi) ; la lueur colorée de YouTube derrière la vidéo est retirée dans la tuile.
+- Mini carrousel : une fois apparu, il ne referme jamais le tiroir pendant que les doigts sont posés, même en redescendant.
+
 ### Tiroir : sa largeur se règle
 - Tirer le bord gauche du tiroir (celui du coin multimédia) ou son bord droit le réduit ou l'élargit ; il reste centré, et l'application affichée suit. Le pointeur devient une double flèche horizontale sur ces bords.
 - Réglages › Tiroir › « Largeur du tiroir » : la même chose, de 30 % à 100 % de l'écran.
@@ -16,7 +44,9 @@ Il est mis à jour à chaque modification, en même temps que le code.
 - Quand la place manque, le coin multimédia cède d'abord (jusqu'à sa largeur minimum) et l'application garde la sienne, comme dans les vues partagées de macOS. Le tiroir peut ainsi rétrécir même avec Réglages Système.
 - Une application plus haute que le tiroir (Réglages Système) ne dépasse plus : le tiroir retient sa hauteur minimum et grandit.
 - Le mini carrousel est une roue, comme les sélecteurs à molette d'Apple : en tournant, les cartes rapetissent et s'effacent vers l'arrière, puis reviennent de l'autre côté en grossissant. Plus de saut au moment de faire le tour.
-- Cartes du mini carrousel un peu plus grandes (un cinquième de la hauteur de l'application, de 80 à 140 points).
+- Cartes du mini carrousel un peu plus grandes (un quart de la hauteur de l'application, de 90 à 160 points).
+- Coins arrondis de la vidéo YouTube rétablis : l'image de la vidéo, dessinée à part par le Mac, est arrondie elle-même.
+- Le clavier va directement à l'application affichée dans le tiroir, dès l'ouverture et à chaque changement d'application : plus besoin de cliquer dedans.
 
 ### Tiroir : une application à la fois
 - Le tiroir montre le coin multimédia (fixe, à gauche) et une seule application, sur toute la place restante.
