@@ -2,9 +2,13 @@
 
 # Side
 
-Deux panneaux qui apparaissent par-dessus n'importe quelle app du Mac, même en plein écran : un petit Finder, et un tiroir pour la musique, la vidéo et les applications qu'on veut garder sous la main.
+Une app pour organiser le Mac autour de trois sortes d'applications :
 
-On les fait venir d'un geste, on s'en sert, on les referme. Pas besoin de quitter l'app en cours ni de changer de bureau.
+- **les applications de travail** (navigateur, mail, montage…) : chacune remplit l'écran, sur un seul bureau, et une grille ou quatre doigts passent de l'une à l'autre ;
+- **les applications de passage** (une note, un réglage, la musique) : rangées dans un tiroir qu'on ouvre d'un geste, le temps d'un coup d'œil ;
+- **le Finder**, toujours disponible par-dessus tout.
+
+Depuis novembre 2026, Side contient aussi Square (le plein écran et la grille), qui était une app à part.
 
 ## Ce que fait Side
 
@@ -17,12 +21,19 @@ On les fait venir d'un geste, on s'en sert, on les referme. Pas besoin de quitte
 - **Des colonnes épinglées** : glisser un dossier sur le bord droit de la carte le garde affiché en colonne.
 - **Un historique du copier-coller**, gardé 7 jours : un volet glisse depuis le bord droit de l'écran, par un coin (en bas à droite par défaut) ou un raccourci clavier (⌃⌥V par défaut). Chaque élément copié y est une carte selon sa nature (image, lien, couleur, fichier…) ; un clic la recopie. Un second onglet, « Enregistrés », garde pour toujours, par groupes, les liens qu'on colle souvent : il suffit d'y glisser un élément.
 
+### Le plein écran (ex-Square)
+
+- **Le bouton vert** remplit l'écran sans le plein écran d'Apple : tout reste sur un seul bureau, et Side passe par-dessus. Les nouvelles fenêtres peuvent s'agrandir toutes seules ; une vidéo aux proportions fixes (QuickTime) se pose sur un fond noir.
+- **La grille** : un coin de l'écran ou ⌥ Tab affiche toutes les applications de travail en vignettes, avec un Dock. On y change l'ordre, on partage l'écran entre deux à quatre fenêtres, on ferme une application.
+- **Quatre doigts vers la gauche ou la droite** : un carrousel passe d'une application à l'autre. ⌘1 à ⌘9 vont droit à l'une d'elles.
+- **Changer de place** : ⌃⌥↓ envoie l'application de devant au tiroir, ⌃⌥↑ la ramène en plein écran (aussi au clic droit dans la grille).
+
 ### Le tiroir
 
 Il arrive du bord opposé au Finder (du bas, en général).
 
 - **Multimédia** : YouTube dans une page intégrée, un lecteur Spotify, ou n'importe quel site ajouté dans les réglages (Deezer, Apple Music, Twitch…). Un seul est affiché, les autres continuent de jouer, même tiroir fermé.
-- **Tes applications** : la case « + » range une application dans le tiroir. Sa fenêtre y reste, à côté des autres, dans une bande qu'on fait défiler ; elle ne traîne plus sur le bureau.
+- **Tes applications** : la case « + » range une application dans le tiroir ; sa fenêtre ne traîne plus sur le bureau. Le tiroir en montre une à la fois, sur toute la place : prolonger le geste à quatre doigts fait apparaître un mini carrousel vertical, comme celui du plein écran, et une colonne d'icônes à droite permet d'en choisir une. (Les afficher toutes en bande reste possible dans les réglages.)
 - **S'ouvre comme le Finder** : son propre coin actif, son raccourci (⌃⌥Espace par défaut), quatre doigts dans l'autre sens.
 
 ### Les réglages

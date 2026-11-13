@@ -46,6 +46,8 @@ final class ConfigTiroir: ObservableObject {
     /// Quatre doigts vers le haut ouvrent le tiroir (quand le Finder de Side est fermé).
     @Published var quatreDoigts: Bool { didSet { d.set(quatreDoigts, forKey: "tiroirQuatreDoigts"); GestePanneauBas.actif = quatreDoigts } }
     @Published var fermerAuClic: Bool { didSet { d.set(fermerAuClic, forKey: "tiroirFermerAuClic") } }
+    /// Le tiroir montre une application à la fois (les autres défilent au geste), ou toutes en bande.
+    @Published var uneApp: Bool { didSet { d.set(uneApp, forKey: "tiroirUneApp"); GestePanneauBas.navigation = uneApp; PanneauBas.commun.majDisposition() } }
     /// Le fond flouté derrière les tuiles. Retiré au départ depuis le 13/11/2026 : les tuiles flottent seules, plus légères.
     @Published var fond: Bool { didSet { d.set(fond, forKey: "tiroirFond"); PanneauBas.commun.majFond() } }
     /// Couper les publicités dans la page YouTube du tiroir. Désactivé au départ : c'est contraire aux conditions de YouTube,
@@ -65,6 +67,9 @@ final class ConfigTiroir: ObservableObject {
         libelle = d.string(forKey: "tiroirLibelle") ?? String(localized: "⌃⌥Espace")
         quatreDoigts = d.object(forKey: "tiroirQuatreDoigts") as? Bool ?? true
         fermerAuClic = d.object(forKey: "tiroirFermerAuClic") as? Bool ?? true
+        let une = d.object(forKey: "tiroirUneApp") as? Bool ?? true
+        uneApp = une
+        GestePanneauBas.navigation = une
         fond = d.object(forKey: "tiroirFond") as? Bool ?? false
         couperPubs = d.bool(forKey: "tiroirCouperPubs")
         masquerShorts = d.bool(forKey: "tiroirMasquerShorts")
@@ -131,7 +136,8 @@ final class ConfigTiroir: ObservableObject {
 final class ConfigSquare: ObservableObject {
     static let commun = ConfigSquare()
     static let bundle = "com.gauthieraube.square"
-    static var installe: Bool { NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundle) != nil }
+    /// La grille fait partie de l'app depuis la fusion : elle est toujours là.
+    static var installe: Bool { true }
     private let d = UserDefaults.standard
 
     @Published var coin: Coin { didSet { d.set(coin.rawValue, forKey: "coinSquare") } }
@@ -175,11 +181,7 @@ final class ConfigSquare: ObservableObject {
         guard Date().timeIntervalSince(debut!) >= 0.05 else { return }
         arme = false
         debut = nil
-        if NSRunningApplication.runningApplications(withBundleIdentifier: Self.bundle).isEmpty, let u = NSWorkspace.shared.urlForApplication(withBundleIdentifier: Self.bundle) {
-            NSWorkspace.shared.openApplication(at: u, configuration: NSWorkspace.OpenConfiguration())
-            return
-        }
-        DistributedNotificationCenter.default().postNotificationName(.init(Self.bundle + ".commande"), object: "grille", userInfo: nil, deliverImmediately: true)
+        Programme.appli.grilleParLeCoin()
     }
 }
 
@@ -213,8 +215,8 @@ struct CoinsActifsView: View {
             Label("Finder", systemImage: "folder.fill").tag("finder")
             Label("Tiroir", systemImage: "rectangle.bottomthird.inset.filled").tag("tiroir")
             Label("Presse-papiers", systemImage: "doc.on.clipboard.fill").tag("presse")
-            if ConfigSquare.installe || square.coin != .aucun {
-                Label("Grille de Square", systemImage: "square.grid.2x2.fill").tag("square")
+            if true {
+                Label("Grille des applications", systemImage: "square.grid.2x2.fill").tag("square")
             }
         }
         .labelsHidden()
@@ -256,6 +258,25 @@ struct CoinsActifsView: View {
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 10)
+    }
+}
+
+// MARK: - Largeur du tiroir
+
+/// La largeur du tiroir, en part de l'écran : la même que celle obtenue en tirant un de ses côtés (il reste centré).
+struct LargeurTiroirLigne: View {
+    @AppStorage("tiroirLargeur") private var largeur: Double = 1
+
+    var body: some View {
+        LabeledContent("Largeur du tiroir") {
+            HStack {
+                Slider(value: Binding(get: { largeur <= 0 ? 1 : largeur }, set: { largeur = $0 }), in: 0.3...1)
+                    .frame(width: 190)
+                Text(verbatim: "\(Int(((largeur <= 0 ? 1 : largeur) * 100).rounded())) %").monospacedDigit()
+                    .foregroundStyle(.secondary).frame(width: 50, alignment: .trailing)
+            }
+        }
+        .help("Se règle aussi en tirant le bord gauche ou droit du tiroir ouvert.")
     }
 }
 
@@ -310,6 +331,9 @@ struct SectionsTiroir: View {
             } footer: { note(String(localized: "Attention : si le tiroir arrive du haut, le Finder arrivera du bas.")) }
             Section {
                 Toggle("Fermer d'un clic en dehors", isOn: $tiroir.fermerAuClic)
+                Toggle("Une application à la fois", isOn: $tiroir.uneApp)
+                    .help("Le tiroir montre une seule application ; prolonge le geste à quatre doigts pour passer aux autres.")
+                LargeurTiroirLigne()
                 Toggle("Fond derrière les tuiles", isOn: $tiroir.fond)
             }
         case .multimedia:

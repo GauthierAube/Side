@@ -20,6 +20,8 @@
 	<string>%lld of %lld</string>
 	<key>%lld éléments</key>
 	<string>%lld items</string>
+	<key>+ %lld %%</key>
+	<string>+%lld%%</string>
 	<key>, ou </key>
 	<string>, or </string>
 	<key>1 colonne</key>
@@ -48,6 +50,8 @@
 	<string>Address copied: paste it into “Redirect URIs”.</string>
 	<key>Adresse e-mail</key>
 	<string>Email Address</string>
+	<key>Affichage</key>
+	<string>Display</string>
 	<key>Afficher Side</key>
 	<string>Show Side</string>
 	<key>Afficher dans la barre latérale</key>
@@ -62,8 +66,14 @@
 	<string>View as List</string>
 	<key>Afficher la corbeille</key>
 	<string>Show the Trash</string>
+	<key>Afficher la corbeille au bout du Dock</key>
+	<string>Show the Trash at the end of the Dock</string>
+	<key>Afficher la grille  (%@)</key>
+	<string>Show Grid  (%@)</string>
 	<key>Afficher la vidéo</key>
 	<string>Show Video</string>
+	<key>Afficher le Dock dans la grille</key>
+	<string>Show the Dock in the grid</string>
 	<key>Afficher le chemin de ce dossier</key>
 	<string>Show the path of this folder</string>
 	<key>Afficher le volet</key>
@@ -72,8 +82,14 @@
 	<string>Show item info</string>
 	<key>Afficher toutes les extensions de fichiers</key>
 	<string>Show all filename extensions</string>
+	<key>Agrandir chaque nouvelle fenêtre</key>
+	<string>Make each new window fill the screen</string>
+	<key>Agrandir la fenêtre en cours  (⌃⌥ Entrée)</key>
+	<string>Fill the Screen with Current Window  (⌃⌥ Return)</string>
 	<key>Ajouter</key>
 	<string>Add</string>
+	<key>Ajouter au Dock</key>
+	<string>Add to Dock</string>
 	<key>Ajouter au panneau</key>
 	<string>Add to the Drawer</string>
 	<key>Ajouter au tiroir</key>
@@ -102,6 +118,8 @@
 	<string>Album</string>
 	<key>Albums</key>
 	<string>Albums</string>
+	<key>Aller à la fenêtre 1, 2, 3…</key>
+	<string>Go to window 1, 2, 3…</string>
 	<key>Amener le pointeur dans un coin de l'écran ouvre le Finder, le tiroir ou le presse-papiers.</key>
 	<string>Moving the pointer into a corner of the screen opens the Finder, the drawer or the clipboard.</string>
 	<key>Annuler</key>
@@ -112,12 +130,24 @@
 	<string>Link previews (the site's image and title)</string>
 	<key>Apparence</key>
 	<string>Appearance</string>
+	<key>Apparition après un geste vif</key>
+	<string>Delay after a quick swipe</string>
 	<key>Applications</key>
 	<string>Applications</string>
 	<key>Applications compagnes</key>
 	<string>Companion Apps</string>
+	<key>Applications du tiroir de Side</key>
+	<string>Apps in Side's drawer</string>
 	<key>Applications ouvertes</key>
 	<string>Open Apps</string>
+	<key>Appuyez sur le nouveau raccourci.
+Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
+Échap pour annuler.</key>
+	<string>Press the new shortcut.
+It needs at least one of ⌃ ⌥ ⇧ or ⌘ (or a key from F1 to F20).
+Press Esc to cancel.</string>
+	<key>Après un geste vif, le carrousel apparaît…</key>
+	<string>After a quick swipe, the carousel appears…</string>
 	<key>Arrière-plan</key>
 	<string>Background</string>
 	<key>Artiste</key>
@@ -144,16 +174,24 @@
 	<string>No results for “%@”.</string>
 	<key>Aucun élément</key>
 	<string>No items</string>
+	<key>Aucune</key>
+	<string>None</string>
 	<key>Aucune app</key>
 	<string>No apps</string>
 	<key>Aucune application.</key>
 	<string>No apps.</string>
 	<key>Aucune note trouvée dans Notes</key>
 	<string>No notes found in Notes</string>
+	<key>Aussi au clic droit sur une case de la grille (« Envoyer au tiroir »), et dans la liste du « + » du tiroir (le bouton bleu de chaque application).</key>
+	<string>Also by right-clicking a grid tile (“Send to Drawer”), and in the drawer's “+” list (the blue button next to each app).</string>
 	<key>Automatique</key>
 	<string>Automatic</string>
 	<key>Automatique (langue du Mac)</key>
 	<string>Automatic (Mac language)</string>
+	<key>Autoriser « Accessibilité »…</key>
+	<string>Allow “Accessibility”…</string>
+	<key>Autoriser « Enregistrement de l'écran »…</key>
+	<string>Allow “Screen Recording”…</string>
 	<key>Autres actions</key>
 	<string>More actions</string>
 	<key>Avancer de 10 secondes</key>
@@ -166,10 +204,22 @@
 	<string>Coming soon on GitHub</string>
 	<key>Bienvenue dans Side</key>
 	<string>Welcome to Side</string>
+	<key>Bienvenue dans Square</key>
+	<string>Welcome to Square</string>
 	<key>Bienvenue dans le tiroir</key>
 	<string>Welcome to the Drawer</string>
+	<key>Bord</key>
+	<string>Edge</string>
+	<key>Bouton vert</key>
+	<string>Green Button</string>
 	<key>Bureau</key>
 	<string>Desktop</string>
+	<key>Carrousel</key>
+	<string>Carousel</string>
+	<key>Carrousel à quatre doigts</key>
+	<string>Four-Finger Carousel</string>
+	<key>Cases vides</key>
+	<string>Empty tiles</string>
 	<key>Ce que le Finder de Side affiche, et comment.</key>
 	<string>What Side's Finder shows, and how.</string>
 	<key>Ce que tu copies apparaîtra ici.</key>
@@ -178,16 +228,22 @@
 	<string>Settings for all of Side.</string>
 	<key>Cercle</key>
 	<string>Circle</string>
+	<key>Changer de place</key>
+	<string>Move Between Places</string>
 	<key>Changer la largeur</key>
 	<string>Change the width</string>
 	<key>Changer…</key>
 	<string>Change…</string>
 	<key>Chaque geste, vers le haut ou vers le bas, ouvre ou ferme le Finder. Attention : macOS utilise déjà ces gestes, vers le haut pour Mission Control et vers le bas pour « Exposé des apps ». Pour que les deux ne se déclenchent pas ensemble, mets-les sur « Désactivé » dans Réglages Système &gt; Trackpad &gt; Autres gestes. Side ne change pas ces réglages lui-même.</key>
 	<string>Each swipe, up or down, opens or closes the Finder. Note: macOS already uses these gestures, up for Mission Control and down for App Exposé. So that both don't trigger together, set them to “Off” in System Settings &gt; Trackpad &gt; More Gestures. Side doesn't change these settings itself.</string>
+	<key>Chaque nouvelle fenêtre de travail remplit l'écran toute seule, sans passer en plein écran d'Apple.</key>
+	<string>Each new document window fills the screen on its own, without going into macOS full screen.</string>
 	<key>Chargement…</key>
 	<string>Loading…</string>
 	<key>Chemin du dossier %@</key>
 	<string>Path of folder %@</string>
+	<key>Choisir</key>
+	<string>Choose</string>
 	<key>Choisir un groupe existant</key>
 	<string>Choose an existing group</string>
 	<key>Choisir une application…</key>
@@ -198,8 +254,10 @@
 	<string>Choose how to open it in Settings.</string>
 	<key>Choisis le dossier à épingler dans Side</key>
 	<string>Choose the folder to pin in Side</string>
-	<key>Choisis pour chaque coin ce qu'il ouvre : le Finder, le tiroir, le presse-papiers, la grille de Square (s'il est installé), ou rien. Revenir dans le coin referme. Si macOS utilise déjà ce coin, désactive-le dans Réglages Système &gt; Bureau et Dock &gt; Coins actifs.</key>
-	<string>Choose what each corner opens: the Finder, the drawer, the clipboard, the Square grid (if Square is installed), or nothing. Going back to the corner closes it. If macOS already uses that corner, turn it off in System Settings &gt; Desktop &amp; Dock &gt; Hot Corners.</string>
+	<key>Choisis pour chaque coin ce qu'il ouvre : le Finder, le tiroir, le presse-papiers, la grille des applications, ou rien. Revenir dans le coin referme. Si macOS utilise déjà ce coin, désactive-le dans Réglages Système &gt; Bureau et Dock &gt; Coins actifs.</key>
+	<string>Choose what each corner opens: the Finder, the drawer, the clipboard, the app grid, or nothing. Going back to the corner closes it. If macOS already uses that corner, turn it off in System Settings &gt; Desktop &amp; Dock &gt; Hot Corners.</string>
+	<key>Clavier</key>
+	<string>Keyboard</string>
 	<key>Clic : recopier. Clic droit : épingler. On peut aussi le glisser ailleurs.</key>
 	<string>Click: copy again. Right-click: pin. You can also drag it elsewhere.</string>
 	<key>Clique pour replier. Glisse un dossier ici pour l'ajouter aux favoris.</key>
@@ -208,6 +266,10 @@
 	<string>Click a shortcut, then type the new combination: it must include Command, Control or Option. Escape cancels. The Escape key always closes both the Finder and the drawer.</string>
 	<key>Coin</key>
 	<string>Corner</string>
+	<key>Coin actif</key>
+	<string>Hot corner</string>
+	<key>Coin de l'écran</key>
+	<string>Screen Corner</string>
 	<key>Coins actifs</key>
 	<string>Hot Corners</string>
 	<key>Coller</key>
@@ -256,6 +318,8 @@
 	<string>Created</string>
 	<key>Dans iCloud, pas encore sur ce Mac. Clique pour le télécharger.</key>
 	<string>In iCloud, not yet on this Mac. Click to download it.</string>
+	<key>Dans la grille : glisser une case sur le milieu d'une autre change l'ordre ; la glisser sur un bord partage l'écran entre les deux fenêtres ; deux doigts vers le haut sur une case ferment l'application.</key>
+	<string>In the grid: drag a tile onto the middle of another to change the order; drag it onto an edge to split the screen between the two windows; swipe up with two fingers on a tile to quit the app.</string>
 	<key>Dans le tiroir</key>
 	<string>In the Drawer</string>
 	<key>Date (les plus récents d'abord)</key>
@@ -270,6 +334,8 @@
 	<string>Dimensions</string>
 	<key>Disques externes et serveurs connectés</key>
 	<string>External disks and connected servers</string>
+	<key>Dock</key>
+	<string>Dock</string>
 	<key>Documents</key>
 	<string>Documents</string>
 	<key>Dossier précédent</key>
@@ -296,12 +362,16 @@
 	<string>Disconnect</string>
 	<key>Déconnecter le compte Spotify</key>
 	<string>Disconnect Spotify Account</string>
+	<key>Dépannage</key>
+	<string>Troubleshooting</string>
 	<key>Dépose ici</key>
 	<string>Drop here</string>
 	<key>Dépose ici des fichiers pour les garder sous la main, puis glisse-les où tu veux.</key>
 	<string>Drop files here to keep them at hand, then drag them wherever you want.</string>
 	<key>Dépose une app ici pour l'ajouter au mini-Dock</key>
 	<string>Drop an app here to add it to the mini Dock</string>
+	<key>Désactivé</key>
+	<string>Off</string>
 	<key>Désépingler</key>
 	<string>Unpin</string>
 	<key>Déverrouillée : se cache quand Side se ferme. Clique pour la garder à l'écran.</key>
@@ -322,6 +392,8 @@
 	<string>Bottom Left</string>
 	<key>En effectuant une recherche</key>
 	<string>When performing a search</string>
+	<key>En haut</key>
+	<string>Top</string>
 	<key>En haut à droite</key>
 	<string>Top Right</string>
 	<key>En haut à gauche</key>
@@ -332,10 +404,16 @@
 	<string>Save</string>
 	<key>Enregistrés</key>
 	<string>Saved</string>
+	<key>Entrée</key>
+	<string>Return</string>
 	<key>Envoi vers iCloud en cours</key>
 	<string>Uploading to iCloud</string>
 	<key>Envoi vers iCloud en cours…</key>
 	<string>Uploading to iCloud…</string>
+	<key>Envoyer au tiroir</key>
+	<string>Send to Drawer</string>
+	<key>Envoyer l'application de devant au tiroir</key>
+	<string>Send the front app to the drawer</string>
 	<key>Espace</key>
 	<string>Space</string>
 	<key>Espace : aperçu</key>
@@ -350,6 +428,12 @@
 	<string>Draw a circle with the pointer, in one quick movement, without clicking, to open the Finder. It can be rough, small or large, in either direction. The circle doesn't close the Finder: click outside it, or use Escape, the corner or the shortcut.</string>
 	<key>Favoris</key>
 	<string>Favorites</string>
+	<key>Fenêtres</key>
+	<string>Windows</string>
+	<key>Fenêtres en plein écran d'Apple</key>
+	<string>Windows in macOS full screen</string>
+	<key>Fermer</key>
+	<string>Close</string>
 	<key>Fermer d'un clic en dehors</key>
 	<string>Close with a click outside</string>
 	<key>Fermer l'onglet</key>
@@ -390,6 +474,8 @@
 	<string>Gesture</string>
 	<key>Geste de la souris</key>
 	<string>Mouse gesture</string>
+	<key>Gestes</key>
+	<string>Gestures</string>
 	<key>Gestes de macOS</key>
 	<string>macOS gestures</string>
 	<key>Glisse ici un élément du presse-papiers, ou ajoute un lien avec le +. Il restera là, sans limite.</key>
@@ -408,12 +494,18 @@
 	<string>Swipe four fingers %@</string>
 	<key>Glisser quatre doigts sur le trackpad</key>
 	<string>Swipe four fingers on the trackpad</string>
+	<key>Grand</key>
+	<string>Large</string>
 	<key>Grande image</key>
 	<string>Large Image</string>
 	<key>Grande zone</key>
 	<string>Main Area</string>
-	<key>Grille de Square</key>
-	<string>Square Grid</string>
+	<key>Grille</key>
+	<string>Grid</string>
+	<key>Grille des applications</key>
+	<string>App Grid</string>
+	<key>Grossissement au survol</key>
+	<string>Magnification on hover</string>
 	<key>Groupe (facultatif)</key>
 	<string>Group (optional)</string>
 	<key>Général</key>
@@ -468,6 +560,10 @@
 	<string>Installed</string>
 	<key>Intensité</key>
 	<string>Intensity</string>
+	<key>Inversé</key>
+	<string>Reversed</string>
+	<key>Jamais agrandies</key>
+	<string>Never fill the screen</string>
 	<key>L'aperçu montre l'image et le titre du site : pour cela, Side contacte le site du lien, seulement quand le volet l'affiche. La présentation vaut pour le presse-papiers comme pour l'onglet « Enregistrés ». Les liens enregistrés restent sur ce Mac.</key>
 	<string>The preview shows the site's image and title: to do this, Side contacts the link's website, only when the panel shows it. The appearance applies to both the clipboard and the Saved tab. Saved links stay on this Mac.</string>
 	<key>L'historique du copier-coller est désactivé dans les réglages de Side.</key>
@@ -482,6 +578,10 @@
 	<string>The “+” tile puts an app in the drawer: it stays there, within reach.</string>
 	<key>La connexion n'a pas abouti. Vous pouvez fermer cette page et réessayer depuis le panneau.</key>
 	<string>The connection didn’t go through. You can close this page and try again from the drawer.</string>
+	<key>La grille</key>
+	<string>The Grid</string>
+	<key>La liste des applications s'ouvre toujours du côté intérieur de l'écran, avec sa pointe dirigée vers le Dock.</key>
+	<string>The app list always opens toward the inside of the screen, with its arrow pointing at the Dock.</string>
 	<key>La musique et les petites applis : un coup d'œil, et on referme.</key>
 	<string>Music and small apps: take a quick look, then close it.</string>
 	<key>La note « %@ » est introuvable dans Notes : renommée ou supprimée. Retire sa tuile et choisis-la de nouveau avec le +.</key>
@@ -492,6 +592,8 @@
 	<string>The gear, below the “+” tile, opens Settings.</string>
 	<key>La rubrique « Dossiers récents » montre les derniers dossiers où tu as travaillé, en grille.</key>
 	<string>The “Recent Folders” section shows the last folders you worked in, as a grid.</string>
+	<key>La touche choisie avec un chiffre de 1 à 9 mène droit à la fenêtre de ce numéro, dans l'ordre des cases de la grille (le numéro s'affiche au survol d'une case). Attention : ces raccourcis sont alors pris à toutes les applications. ⌘ + chiffre sert par exemple à changer d'onglet dans Safari ou de présentation dans le Finder ; ⌃ + chiffre n'est presque jamais utilisé.</key>
+	<string>The chosen key with a number from 1 to 9 goes straight to the window with that number, in the order of the grid's tiles (the number appears when you hover over a tile). Note: these shortcuts are then taken from all other apps. For example, ⌘ + number switches tabs in Safari or views in the Finder; ⌃ + number is almost never used.</string>
 	<key>La vidéo est en plein écran</key>
 	<string>The video is full screen</string>
 	<key>La vidéo remplit la tuile (ou reprend sa place)</key>
@@ -510,8 +612,14 @@
 	<string>Width (without pinned columns)</string>
 	<key>Largeur d'une colonne</key>
 	<string>Column width</string>
+	<key>Largeur du tiroir</key>
+	<string>Drawer Width</string>
 	<key>Largeur du volet</key>
 	<string>Panel width</string>
+	<key>Le Dock</key>
+	<string>The Dock</string>
+	<key>Le Dock affiché dans la grille.</key>
+	<string>The Dock shown in the grid.</string>
 	<key>Le Finder</key>
 	<string>The Finder</string>
 	<key>Le Finder arrive</key>
@@ -524,8 +632,14 @@
 	<string>The Finder always closes with the keyboard shortcut, the Escape key, a shake, or by going back to the hot corner.</string>
 	<key>Le bouton lecture l'ouvre</key>
 	<string>The play button opens it</string>
+	<key>Le bouton vert</key>
+	<string>The Green Button</string>
+	<key>Le bouton vert remplit l'écran</key>
+	<string>The green button fills the screen</string>
 	<key>Le coin %@</key>
 	<string>The %@ corner</string>
+	<key>Le coin qui affiche la grille se choisit avec les autres coins actifs : Finder, tiroir, presse-papiers.</key>
+	<string>The corner that shows the grid is chosen along with the other hot corners: Finder, drawer, clipboard.</string>
 	<key>Le compte Spotify n'est pas connecté.</key>
 	<string>The Spotify account isn’t connected.</string>
 	<key>Le dernier dossier consulté</key>
@@ -552,6 +666,8 @@
 	<string>The drawer comes in from the top of the screen: its gesture is four fingers %@. It's only available if the Finder itself opens with four fingers “Up”.</string>
 	<key>Le tiroir arrive du haut de l'écran, à l'opposé du Finder : quatre doigts %@ l'ouvrent, dans l'autre sens le referment. Il suit les doigts.</key>
 	<string>The drawer comes in from the top of the screen, opposite the Finder: four fingers %@ open it, the other way closes it. It follows your fingers.</string>
+	<key>Le tiroir montre une seule application ; prolonge le geste à quatre doigts pour passer aux autres.</key>
+	<string>The drawer shows a single app; keep the four-finger swipe going to move to the others.</string>
 	<key>Le tiroir prend toujours le bord opposé au Finder : du haut quand le Finder vient du bas, du bas dans tous les autres cas. Le geste à quatre doigts s'inverse avec lui.</key>
 	<string>The drawer always takes the edge opposite the Finder: from the top when the Finder comes from the bottom, from the bottom in all other cases. The four-finger gesture flips with it.</string>
 	<key>Le tiroir, second panneau de Side.</key>
@@ -570,12 +686,20 @@
 	<string>Play / Pause</string>
 	<key>Les %lld éléments qu'elle contient seront supprimés définitivement. Cette action est irréversible.</key>
 	<string>The %lld items it contains will be deleted permanently. You can't undo this action.</string>
+	<key>Les applications de travail remplissent l'écran, sans le plein écran d'Apple.</key>
+	<string>Work apps fill the screen, without Apple's full screen.</string>
+	<key>Les applications rangées dans le tiroir du bas de Side gardent leur place dans le tiroir : Square ne les agrandit pas. Leur liste se règle dans Side (Réglages &gt; Tiroir du bas).</key>
+	<string>Apps kept in Side's bottom drawer stay in the drawer: Square doesn't make them fill the screen. Set the list in Side (Settings &gt; Bottom Drawer).</string>
 	<key>Les applications rangées dans le tiroir.</key>
 	<string>The apps kept in the drawer.</string>
 	<key>Les boutons et les gestes de la souris MX Master, sans le logiciel de Logitech.</key>
 	<string>The buttons and gestures of the MX Master mouse, without Logitech’s software.</string>
+	<key>Les cartes suivent les doigts</key>
+	<string>Cards follow fingers</string>
 	<key>Les deux</key>
 	<string>Both</string>
+	<key>Les en sortir</key>
+	<string>Take Them Out</string>
 	<key>Les textes, les fichiers et les 40 dernières images copiés sont gardés 7 jours sur ce Mac ; ce que tu épingles (clic droit) est gardé sans limite. Les mots de passe ne sont jamais écrits sur le disque. Décocher l'historique efface tout.</key>
 	<string>Copied text, files and the last 40 images are kept for 7 days on this Mac; what you pin (right-click) is kept with no limit. Passwords are never written to disk. Turning off history erases everything.</string>
 	<key>Les zones où poser des fichiers en attente, à côté du Finder de Side.</key>
@@ -602,6 +726,8 @@
 	<string>Hide Shorts</string>
 	<key>Masquer les Shorts retire leurs rangées, leur onglet et les vidéos courtes, tout de suite. Couper les publicités est contraire aux conditions d'utilisation de YouTube : à activer en connaissance de cause, pris en compte au prochain lancement de Side.</key>
 	<string>Hide Shorts removes their rows, their tab and short videos, right away. Blocking ads goes against YouTube's terms of service: turn it on knowingly; it takes effect the next time Side launches.</string>
+	<key>Milieu</key>
+	<string>Middle</string>
 	<key>Mini-Dock</key>
 	<string>Mini Dock</string>
 	<key>Modifier le lien</key>
@@ -610,6 +736,8 @@
 	<string>Edit…</string>
 	<key>Modifié le</key>
 	<string>Modified</string>
+	<key>Molette</key>
+	<string>Scroll wheel</string>
 	<key>Mon site</key>
 	<string>My site</string>
 	<key>Monter</key>
@@ -622,6 +750,8 @@
 	<string>Media</string>
 	<key>Musique et vidéo, au début du tiroir.</key>
 	<string>Music and video, at the start of the drawer.</string>
+	<key>Même bureau</key>
+	<string>Same desktop</string>
 	<key>Nom</key>
 	<string>Name</string>
 	<key>Nombre de dossiers récents</key>
@@ -634,12 +764,16 @@
 	<string>New Link</string>
 	<key>Nouvel onglet (⌘T)</key>
 	<string>New Tab (⌘T)</string>
+	<key>Nouvelles fenêtres</key>
+	<string>New Windows</string>
 	<key>Onglet</key>
 	<string>Tab</string>
 	<key>Opacité</key>
 	<string>Opacity</string>
 	<key>Options avancées</key>
 	<string>Advanced</string>
+	<key>Organisation</key>
+	<string>Organization</string>
 	<key>Ouvert le</key>
 	<string>Last opened</string>
 	<key>Ouverture et fermeture</key>
@@ -686,10 +820,20 @@
 	<string>Share…</string>
 	<key>Passer</key>
 	<string>Skip</string>
+	<key>Passer d'une application à l'autre</key>
+	<string>Switch between apps</string>
 	<key>Passer en faux plein écran</key>
 	<string>Fill the Screen Instead</string>
+	<key>Passer en plein écran</key>
+	<string>Make Full Screen</string>
+	<key>Passer l'application du tiroir en plein écran</key>
+	<string>Make the drawer app full screen</string>
 	<key>Passer la publicité (quand YouTube le propose)</key>
 	<string>Skip the ad (when YouTube allows it)</string>
+	<key>Pendant que tu règles la taille, le vrai carrousel s'affiche au milieu de l'écran. Apparition : plus court, le carrousel vient plus tôt mais un simple effleurement risque de l'afficher ; plus long, c'est l'inverse.</key>
+	<string>While you adjust the size, the real carousel appears in the middle of the screen. Delay: shorter, the carousel appears sooner but a simple flick may show it; longer, the opposite.</string>
+	<key>Petit</key>
+	<string>Small</string>
 	<key>Petite image</key>
 	<string>Small Image</string>
 	<key>Placer dans la corbeille</key>
@@ -700,6 +844,8 @@
 	<string>Playlist</string>
 	<key>Playlists</key>
 	<string>Playlists</string>
+	<key>Plein écran</key>
+	<string>Full Screen</string>
 	<key>Plein écran d'Apple : macOS empêche d'y afficher les tuiles.</key>
 	<string>macOS full screen: macOS doesn’t allow the tiles to show here.</string>
 	<key>Plus tard</key>
@@ -708,6 +854,8 @@
 	<string>Podcast</string>
 	<key>Podcasts</key>
 	<string>Podcasts</string>
+	<key>Position</key>
+	<string>Position</string>
 	<key>Position du texte</key>
 	<string>Label position</string>
 	<key>Position et taille</key>
@@ -742,18 +890,34 @@
 	<string>When space runs out</string>
 	<key>Quand le Finder de Side se referme.</key>
 	<string>When Side's Finder closes.</string>
+	<key>Quatre doigts</key>
+	<string>Four Fingers</string>
 	<key>Quatre doigts %@</key>
 	<string>Four fingers %@</string>
+	<key>Quatre doigts vers la gauche ou la droite</key>
+	<string>Four fingers left or right</string>
+	<key>Quatre doigts vers la gauche ou la droite, pour passer d'une application de travail à l'autre.</key>
+	<string>Four fingers left or right to move from one work app to another.</string>
+	<key>Quitter %@</key>
+	<string>Quit %@</string>
 	<key>Quitter Side</key>
 	<string>Quit Side</string>
+	<key>Quitter Square</key>
+	<string>Quit Square</string>
+	<key>Raccourci</key>
+	<string>Shortcut</string>
 	<key>Raccourci %@</key>
 	<string>Shortcut %@</string>
+	<key>Raccourci de Square</key>
+	<string>Square Shortcut</string>
 	<key>Raccourci « %@ ». Dépose un fichier pour le lui passer.</key>
 	<string>Shortcut “%@”. Drop a file to pass it along.</string>
 	<key>Raccourcis clavier</key>
 	<string>Keyboard Shortcuts</string>
 	<key>Ramener dans le tiroir</key>
 	<string>Bring Back to Drawer</string>
+	<key>Ranger</key>
+	<string>Arrange</string>
 	<key>Recentrer</key>
 	<string>Recenter</string>
 	<key>Recherche</key>
@@ -770,6 +934,8 @@
 	<string>Search for an app</string>
 	<key>Recherche…</key>
 	<string>Searching…</string>
+	<key>Recopier le Dock de macOS</key>
+	<string>Copy the macOS Dock</string>
 	<key>Reculer de 10 secondes</key>
 	<string>Skip back 10 seconds</string>
 	<key>Refermer Side après un dépôt</key>
@@ -780,8 +946,12 @@
 	<string>Rename</string>
 	<key>Renommer « %@ »</key>
 	<string>Rename “%@”</string>
+	<key>Repartir du Dock de macOS</key>
+	<string>Start over from the macOS Dock</string>
 	<key>Replacer à côté de Side</key>
 	<string>Move Back Next to Side</string>
+	<key>Resserrer la grille</key>
+	<string>Tighten Grid</string>
 	<key>Reste sous la main</key>
 	<string>Stays at hand</string>
 	<key>Retirer</key>
@@ -796,6 +966,8 @@
 	<string>Remove from Favorites</string>
 	<key>Retirer des favorites</key>
 	<string>Remove from Favorites</string>
+	<key>Retirer du Dock</key>
+	<string>Remove from Dock</string>
 	<key>Retirer du mini-Dock</key>
 	<string>Remove from Mini Dock</string>
 	<key>Revenir au dossier précédent</key>
@@ -820,6 +992,8 @@
 	<string>Drawer Settings…</string>
 	<key>Réglages…</key>
 	<string>Settings…</string>
+	<key>Régler les coins actifs…</key>
+	<string>Set Hot Corners…</string>
 	<key>Réseau</key>
 	<string>Network</string>
 	<key>Réseau (ordinateurs qui partagent des fichiers)</key>
@@ -836,10 +1010,14 @@
 	<string>Connect to %@</string>
 	<key>Se connecter à « %@ » dans le Finder. Une fois connecté, il apparaît ici et se parcourt dans Side.</key>
 	<string>Connect to “%@” in the Finder. Once connected, it appears here and can be browsed in Side.</string>
+	<key>Se règle aussi en tirant le bord gauche ou droit du tiroir ouvert.</key>
+	<string>Also set by dragging the left or right edge of the open drawer.</string>
 	<key>Secouer le pointeur</key>
 	<string>Shake the pointer</string>
 	<key>Secousse</key>
 	<string>Shake</string>
+	<key>Sens</key>
+	<string>Direction</string>
 	<key>Sensibilité</key>
 	<string>Sensitivity</string>
 	<key>Side a aussi un tiroir, pour tes applications à usage rapide. Il va s'ouvrir pour se présenter.</key>
@@ -882,6 +1060,8 @@
 	<string>Tags</string>
 	<key>Taille</key>
 	<string>Size</string>
+	<key>Taille des cartes</key>
+	<string>Card size</string>
 	<key>Taille des coins</key>
 	<string>Corner size</string>
 	<key>Taille des icônes</key>
@@ -894,6 +1074,8 @@
 	<string>Type the shortcut…</string>
 	<key>Tapez pour chercher dans Spotify.</key>
 	<string>Type to search Spotify.</string>
+	<key>Tard</key>
+	<string>Late</string>
 	<key>Terminer</key>
 	<string>Done</string>
 	<key>Tes applications en plein écran, en grille, et un Dock.</key>
@@ -926,6 +1108,8 @@
 	<string>Select All</string>
 	<key>Toutes les applications</key>
 	<string>All Applications</string>
+	<key>Toutes tes applications de travail en vignettes, pour passer de l'une à l'autre.</key>
+	<string>All your work apps as thumbnails, to move from one to another.</string>
 	<key>Trackpad : ouvrir le Finder</key>
 	<string>Trackpad: open the Finder</string>
 	<key>Trackpad : ouvrir le tiroir</key>
@@ -950,10 +1134,16 @@
 	<string>Another Website…</string>
 	<key>Un cercle avec la souris</key>
 	<string>A circle with the mouse</string>
+	<key>Un clic remplit l'écran en restant sur le même bureau ; un second rend à la fenêtre sa taille. Maj + clic ou Option + clic gardent le plein écran d'Apple.</key>
+	<string>One click fills the screen while staying on the same desktop; a second click restores the window's size. Shift-click or Option-click keeps macOS full screen.</string>
+	<key>Un effleurement rapide change d'application sans rien afficher. Un geste posé fait apparaître le carrousel, et l'application du centre passe devant quand les doigts se lèvent. Le geste ne s'active que s'il n'y a qu'un seul bureau ; sinon macOS glisse d'un bureau à l'autre.</key>
+	<string>A quick flick switches apps without showing anything. A slower swipe brings up the carousel, and the app in the center comes to the front when you lift your fingers. The gesture only works when there is a single desktop; otherwise macOS swipes between desktops.</string>
 	<key>Un raccourci pour le Finder, le tiroir et le presse-papiers.</key>
 	<string>A shortcut for the Finder, the drawer and the clipboard.</string>
 	<key>Une application du Mac se range plutôt dans « Applications ».</key>
 	<string>A Mac app goes in “Applications” instead.</string>
+	<key>Une application à la fois</key>
+	<string>One App at a Time</string>
 	<key>Une secousse de souris</key>
 	<string>A shake of the mouse</string>
 	<key>Une seule note…</key>
@@ -968,6 +1158,8 @@
 	<string>Down</string>
 	<key>Vers le haut</key>
 	<string>Up</string>
+	<key>Vers « Vite » : il apparaît plus tôt, mais un simple effleurement risque de l'afficher. Vers « Tard » : l'inverse.</key>
+	<string>Toward “Soon”: it appears earlier, but a simple flick may show it. Toward “Late”: the opposite.</string>
 	<key>Vide</key>
 	<string>Empty</string>
 	<key>Vider</key>
@@ -982,6 +1174,8 @@
 	<string>Empty the Zone</string>
 	<key>Vidéos suivantes</key>
 	<string>Up Next</string>
+	<key>Vite</key>
+	<string>Soon</string>
 	<key>Voir la vidéo</key>
 	<string>Watch Video</string>
 	<key>Voir le tiroir</key>
@@ -1014,6 +1208,8 @@
 	<string>and %lld more</string>
 	<key>https://…</key>
 	<string>https://…</string>
+	<key>l'application</key>
+	<string>the app</string>
 	<key>le coin %@</key>
 	<string>the %@ corner</string>
 	<key>macOS réserve le contenu de la corbeille aux applications qui ont l'« Accès complet au disque ». Ouvre le réglage, active Side dans la liste, puis relance Side : la corbeille s'affichera dans la carte.</key>
@@ -1028,8 +1224,14 @@
 	<string>up</string>
 	<key>À droite</key>
 	<string>Right</string>
+	<key>À gauche</key>
+	<string>Left</string>
 	<key>À gauche, la musique et la vidéo : YouTube, Spotify ou le site de ton choix.</key>
 	<string>On the left, music and video: YouTube, Spotify or a site of your choice.</string>
+	<key>À sa première utilisation, ce Dock est une copie de celui de macOS ; ensuite il vit sa vie. Son premier bouton ouvre la liste de toutes les applications : Entrée ajoute au Dock l'application choisie, Suppr l'en retire. Un clic droit sur une icône permet de la retirer du Dock ou de quitter l'application.</key>
+	<string>The first time you use it, this Dock is a copy of the macOS Dock; after that it has a life of its own. Its first button opens the list of all apps: Return adds the selected app to the Dock, Delete removes it. Right-click an icon to remove it from the Dock or quit the app.</string>
+	<key>À utiliser seulement s'il reste des fenêtres dans un plein écran d'Apple : elles en sortent et remplissent l'écran à la place.</key>
+	<string>Use only if some windows are still in macOS full screen: they leave it and fill the screen instead.</string>
 	<key>Écoutés récemment</key>
 	<string>Recently Played</string>
 	<key>Édition</key>
@@ -1060,7 +1262,13 @@
 	<string>–</string>
 	<key>••••••••••  (mot de passe)</key>
 	<string>••••••••••  (password)</string>
+	<key>⌃ + chiffre</key>
+	<string>⌃ + number</string>
 	<key>⌃⌥Espace</key>
 	<string>⌃⌥Space</string>
+	<key>⌘ + chiffre</key>
+	<string>⌘ + number</string>
+	<key>⌥ + chiffre</key>
+	<string>⌥ + number</string>
 </dict>
 </plist>

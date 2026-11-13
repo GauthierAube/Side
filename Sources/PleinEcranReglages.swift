@@ -1,0 +1,213 @@
+// La fenêtre de réglages de Square, construite comme celle de Side et comme les Réglages Système de macOS :
+// une barre latérale à gauche avec des rubriques à pastille colorée, et à droite le contenu en groupes.
+import AppKit
+import SwiftUI
+import ServiceManagement
+
+/// Les réglages, tels que la fenêtre les affiche. Chaque changement est enregistré tout de suite.
+final class ReglagesModele: ObservableObject {
+    static let commun = ReglagesModele()
+    @Published var auDemarrage = SMAppService.mainApp.status == .enabled {
+        didSet {
+            guard auDemarrage != (SMAppService.mainApp.status == .enabled) else { return }
+            if auDemarrage { try? SMAppService.mainApp.register() } else { try? SMAppService.mainApp.unregister() }
+        }
+    }
+    @Published var raccourci = Raccourci.actuel.nom
+    @Published var toucheDirecte = Appli.toucheDirecte {
+        didSet { Appli.toucheDirecte = toucheDirecte; Programme.appli.brancherRaccourcisDirects() }
+    }
+    @Published var coin = CoinGrille.choix { didSet { CoinGrille.choix = coin } }
+    @Published var agrandirAuto = AgrandirAuto.actif { didSet { AgrandirAuto.actif = agrandirAuto } }
+    @Published var boutonVert = BoutonVert.actif { didSet { BoutonVert.actif = boutonVert } }
+    @Published var dockAffiche = DockGrille.affiche { didSet { DockGrille.affiche = dockAffiche } }
+    @Published var dockCote = DockGrille.cote { didSet { DockGrille.cote = dockCote } }
+    @Published var dockCorbeille = DockGrille.corbeille { didSet { DockGrille.corbeille = dockCorbeille } }
+    @Published var dockTaille = DockGrille.tailleIcones { didSet { DockGrille.tailleIcones = dockTaille } }
+    @Published var dockLoupe = DockGrille.loupe { didSet { DockGrille.loupe = dockLoupe } }
+    @Published var glisse = Glisse.actif { didSet { Glisse.actif = glisse } }
+    @Published var inverse = Glisse.inverse { didSet { Glisse.inverse = inverse } }
+    @Published var tailleCartes = Double(Carrousel.taille) { didSet { Carrousel.taille = CGFloat(tailleCartes.rounded()) } }
+    @Published var delai = Glisse.attente { didSet { Glisse.attente = (delai * 100).rounded() / 100 } }
+
+    /// Relit ce qui a pu changer ailleurs (le raccourci, modifié dans sa propre petite fenêtre).
+    func relire() {
+        raccourci = Raccourci.actuel.nom
+    }
+}
+
+/// Les rubriques de la barre latérale.
+enum VoletReglages: String, CaseIterable, Identifiable {
+    case grille, dock, gestes, fenetres, general
+    var id: String { rawValue }
+    var titre: String {
+        switch self {
+        case .grille: return String(localized: "Grille")
+        case .dock: return String(localized: "Dock")
+        case .gestes: return String(localized: "Gestes")
+        case .fenetres: return String(localized: "Fenêtres")
+        case .general: return String(localized: "Général")
+        }
+    }
+    var symbole: String {
+        switch self {
+        case .grille: return "square.grid.2x2.fill"
+        case .dock: return "dock.rectangle"
+        case .gestes: return "hand.draw.fill"
+        case .fenetres: return "macwindow"
+        case .general: return "gearshape.fill"
+        }
+    }
+    var couleur: Color {
+        switch self {
+        case .grille: return .blue
+        case .dock: return .green
+        case .gestes: return .orange
+        case .fenetres: return .purple
+        case .general: return .gray
+        }
+    }
+}
+
+/// Le contenu d'une rubrique « Plein écran » des réglages de l'app (grille, Dock, gestes, fenêtres).
+/// Il s'affiche dans la fenêtre de réglages commune (voir `ReglagesView`, dans Side.swift).
+struct ContenuPleinEcran: View {
+    let volet: VoletReglages
+    @ObservedObject var m = ReglagesModele.commun
+
+    var body: some View {
+        contenu
+            .onReceive(NotificationCenter.default.publisher(for: NSWindow.didBecomeKeyNotification)) { _ in m.relire() }
+    }
+
+    private func curseur(_ titre: LocalizedStringKey,_ valeur: Binding<Double>, _ plage: ClosedRange<Double>, _ texte: String,
+                         pendant: ((Bool) -> Void)? = nil) -> some View {
+        LabeledContent(titre) {
+            HStack {
+                Slider(value: valeur, in: plage) { enCours in pendant?(enCours) }.frame(width: 190)
+                Text(texte).monospacedDigit().foregroundStyle(.secondary).frame(width: 84, alignment: .trailing)
+            }
+        }
+    }
+
+    private func note(_ texte: LocalizedStringKey) -> some View {
+        Text(texte).font(.caption).foregroundStyle(.secondary)
+    }
+
+    @ViewBuilder private var contenu: some View {
+        switch volet {
+        case .grille:
+            Section {
+                LabeledContent("Raccourci") {
+                    HStack {
+                        Text(m.raccourci).foregroundStyle(.secondary)
+                        Button("Changer…") { Programme.appli.reglerLeRaccourci() }
+                    }
+                }
+                Picker("Aller à la fenêtre 1, 2, 3…", selection: $m.toucheDirecte) {
+                    Text("⌘ + chiffre").tag("cmd")
+                    Text("⌥ + chiffre").tag("opt")
+                    Text("⌃ + chiffre").tag("ctrl")
+                    Text("Désactivé").tag("aucun")
+                }
+            } header: { Text("Clavier") } footer: {
+                note("La touche choisie avec un chiffre de 1 à 9 mène droit à la fenêtre de ce numéro, dans l'ordre des cases de la grille (le numéro s'affiche au survol d'une case). Attention : ces raccourcis sont alors pris à toutes les applications. ⌘ + chiffre sert par exemple à changer d'onglet dans Safari ou de présentation dans le Finder ; ⌃ + chiffre n'est presque jamais utilisé.")
+            }
+            Section {
+                LabeledContent("Coin actif") {
+                    Button("Régler les coins actifs…") { Volet.demandeDirecte(.coins) }
+                }
+            } header: { Text("Coin de l'écran") } footer: {
+                note("Le coin qui affiche la grille se choisit avec les autres coins actifs : Finder, tiroir, presse-papiers.")
+            }
+            Section {
+                LabeledContent("Cases vides") {
+                    Button("Resserrer la grille") {
+                        UserDefaults.standard.removeObject(forKey: "placesCases")
+                        UserDefaults.standard.removeObject(forKey: "placesApps")
+                    }
+                }
+            } header: { Text("Organisation") } footer: {
+                note("Dans la grille : glisser une case sur le milieu d'une autre change l'ordre ; la glisser sur un bord partage l'écran entre les deux fenêtres ; deux doigts vers le haut sur une case ferment l'application.")
+            }
+        case .dock:
+            Section {
+                Toggle("Afficher le Dock dans la grille", isOn: $m.dockAffiche)
+                Picker("Position", selection: $m.dockCote) {
+                    Text("En bas").tag("bas")
+                    Text("En haut").tag("haut")
+                    Text("À gauche").tag("gauche")
+                    Text("À droite").tag("droite")
+                }
+                .pickerStyle(.segmented)
+                .disabled(!m.dockAffiche)
+                Toggle("Afficher la corbeille au bout du Dock", isOn: $m.dockCorbeille).disabled(!m.dockAffiche)
+            } header: { Text("Affichage") } footer: {
+                note("La liste des applications s'ouvre toujours du côté intérieur de l'écran, avec sa pointe dirigée vers le Dock.")
+            }
+            Section {
+                curseur("Taille des icônes", $m.dockTaille, 30...72, "\(Int(m.dockTaille.rounded())) pt")
+                curseur("Grossissement au survol", $m.dockLoupe, 1...2,
+                        m.dockLoupe < 1.005 ? String(localized: "Aucun") : String(localized: "+ \(Int(((m.dockLoupe - 1) * 100).rounded())) %"))
+            } header: { Text("Icônes") }
+            .disabled(!m.dockAffiche)
+            Section {
+                LabeledContent("Repartir du Dock de macOS") {
+                    Button("Recopier le Dock de macOS") { DockGrille.apps = DockGrille.appsDuDock() }
+                }
+            } header: { Text("Applications") } footer: {
+                note("À sa première utilisation, ce Dock est une copie de celui de macOS ; ensuite il vit sa vie. Son premier bouton ouvre la liste de toutes les applications : Entrée ajoute au Dock l'application choisie, Suppr l'en retire. Un clic droit sur une icône permet de la retirer du Dock ou de quitter l'application.")
+            }
+        case .gestes:
+            Section {
+                Toggle("Passer d'une application à l'autre", isOn: $m.glisse)
+                Picker("Sens", selection: $m.inverse) {
+                    Text("Les cartes suivent les doigts").tag(false)
+                    Text("Inversé").tag(true)
+                }
+                .pickerStyle(.segmented)
+                .disabled(!m.glisse)
+            } header: { Text("Quatre doigts vers la gauche ou la droite") } footer: {
+                note("Un effleurement rapide change d'application sans rien afficher. Un geste posé fait apparaître le carrousel, et l'application du centre passe devant quand les doigts se lèvent. Le geste ne s'active que s'il n'y a qu'un seul bureau ; sinon macOS glisse d'un bureau à l'autre.")
+            }
+            Section {
+                curseur("Taille des cartes", $m.tailleCartes,
+                        Double(Carrousel.tailles.lowerBound)...Double(Carrousel.tailles.upperBound),
+                        "\(Int(m.tailleCartes.rounded())) pt") { enCours in Programme.appli.apercuDuCarrousel(enCours) }
+                    .onChange(of: m.tailleCartes) { _, _ in Programme.appli.apercuDuCarrousel(true) }
+                curseur("Apparition après un geste vif", $m.delai, 0.04...0.35, String(format: "%.2f s", m.delai))
+            } header: { Text("Carrousel") } footer: {
+                note("Pendant que tu règles la taille, le vrai carrousel s'affiche au milieu de l'écran. Apparition : plus court, le carrousel vient plus tôt mais un simple effleurement risque de l'afficher ; plus long, c'est l'inverse.")
+            }
+            .disabled(!m.glisse)
+        case .fenetres:
+            Section {
+                Toggle("Agrandir chaque nouvelle fenêtre", isOn: $m.agrandirAuto)
+            } header: { Text("Nouvelles fenêtres") } footer: {
+                note("Chaque nouvelle fenêtre de travail remplit l'écran toute seule, sans passer en plein écran d'Apple.")
+            }
+            Section {
+                LabeledContent("Applications du tiroir de Side") {
+                    Text(AgrandirAuto.tuilesDeSide.isEmpty ? String(localized: "Aucune") : "\(AgrandirAuto.tuilesDeSide.count)").foregroundStyle(.secondary)
+                }
+            } header: { Text("Jamais agrandies") } footer: {
+                note("Les applications rangées dans le tiroir du bas de Side gardent leur place dans le tiroir : Square ne les agrandit pas. Leur liste se règle dans Side (Réglages > Tiroir du bas).")
+            }
+            Section {
+                Toggle("Le bouton vert remplit l'écran", isOn: $m.boutonVert)
+            } header: { Text("Bouton vert") } footer: {
+                note("Un clic remplit l'écran en restant sur le même bureau ; un second rend à la fenêtre sa taille. Maj + clic ou Option + clic gardent le plein écran d'Apple.")
+            }
+            Section {
+                LabeledContent("Fenêtres en plein écran d'Apple") {
+                    Button("Les en sortir") { Agrandir.convertirTout() }
+                }
+            } header: { Text("Dépannage") } footer: {
+                note("À utiliser seulement s'il reste des fenêtres dans un plein écran d'Apple : elles en sortent et remplissent l'écran à la place.")
+            }
+        case .general:
+            EmptyView()
+        }
+    }
+}
+

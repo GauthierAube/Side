@@ -254,16 +254,20 @@ final class FondPanneauBas: NSVisualEffectView {
 /// Une ligne de la liste « + » : icône, nom, et à droite un signe moins (retirer) ou plus (ajouter).
 final class LigneSelecteurBas: NSView {
     var auClic: (() -> Void)?
+    /// Le second bouton de la ligne (à gauche du premier), s'il y en a un.
+    var auClic2: (() -> Void)?
     private var zone: NSTrackingArea?
+    private let aSecond: Bool
 
-    init(icone: NSImage?, nom: String, signe: String?, couleur: NSColor) {
+    init(icone: NSImage?, nom: String, signe: String?, couleur: NSColor, signe2: String? = nil, aide2: String? = nil) {
+        aSecond = signe2 != nil
         super.init(frame: .zero)
         wantsLayer = true
         layer?.cornerRadius = 6
         let texte = NSTextField(labelWithString: nom)
         texte.font = .systemFont(ofSize: 13)
         texte.lineBreakMode = .byTruncatingTail
-        texte.frame = NSRect(x: icone == nil ? 10 : 36, y: 6, width: 206, height: 18)
+        texte.frame = NSRect(x: icone == nil ? 10 : 36, y: 6, width: signe2 == nil ? 206 : 180, height: 18)
         addSubview(texte)
         if let icone {
             let v = NSImageView(image: icone)
@@ -277,11 +281,24 @@ final class LigneSelecteurBas: NSView {
             v.frame = NSRect(x: 252, y: 6, width: 18, height: 18)
             addSubview(v)
         }
+        if let signe2 {
+            let v = NSImageView(image: NSImage(systemSymbolName: signe2, accessibilityDescription: aide2) ?? NSImage())
+            v.contentTintColor = .controlAccentColor
+            v.frame = NSRect(x: 226, y: 6, width: 18, height: 18)
+            v.toolTip = aide2
+            addSubview(v)
+        }
     }
     required init?(coder: NSCoder) { fatalError() }
 
     override func acceptsFirstMouse(for event: NSEvent?) -> Bool { true }
-    override func mouseUp(with event: NSEvent) { if bounds.contains(convert(event.locationInWindow, from: nil)) { auClic?() } }
+    override func mouseUp(with event: NSEvent) {
+        let p = convert(event.locationInWindow, from: nil)
+        guard bounds.contains(p) else { return }
+        // Le second bouton (plein écran) a sa propre zone ; le reste de la ligne garde l'action habituelle.
+        if aSecond, p.x >= 220, p.x < 248, let a = auClic2 { a(); return }
+        auClic?()
+    }
     override func updateTrackingAreas() {
         super.updateTrackingAreas()
         if let zone { removeTrackingArea(zone) }
@@ -296,7 +313,14 @@ final class LigneSelecteurBas: NSView {
 /// La petite liste qui s'ouvre au-dessus de la case « + » : les tuiles du panneau (à retirer) et les applications
 /// ouvertes (à ajouter). C'est une fenêtre de Side, posée au-dessus de tout, et non un menu du système.
 final class SelecteurTuilesBas {
-    struct Ligne { let icone: NSImage?; let nom: String; let signe: String?; let couleur: NSColor; let action: (() -> Void)? }
+    struct Ligne {
+        let icone: NSImage?; let nom: String; let signe: String?; let couleur: NSColor; let action: (() -> Void)?
+        /// Un second bouton, à gauche du premier (« Passer en plein écran » pour une app du tiroir).
+        var signe2: String? = nil; var aide2: String? = nil; var action2: (() -> Void)? = nil
+        init(icone: NSImage?, nom: String, signe: String?, couleur: NSColor, action: (() -> Void)?) {
+            self.icone = icone; self.nom = nom; self.signe = signe; self.couleur = couleur; self.action = action
+        }
+    }
     private var fenetre: NSPanel?
     private var ecoutes: [Any] = []
     var ouvert: Bool { fenetre != nil }
@@ -316,7 +340,8 @@ final class SelecteurTuilesBas {
                 y += 22
             }
             for l in lignes {
-                let v = LigneSelecteurBas(icone: l.icone, nom: l.nom, signe: l.signe, couleur: l.couleur)
+                let v = LigneSelecteurBas(icone: l.icone, nom: l.nom, signe: l.signe, couleur: l.couleur, signe2: l.signe2, aide2: l.aide2)
+                if let a2 = l.action2 { v.auClic2 = { [weak self] in self?.fermer(); a2() } }
                 v.auClic = { [weak self] in self?.fermer(); l.action?() }
                 vues.append((v, y, 30))
                 y += 31
@@ -411,6 +436,21 @@ final class PanneauBas: NSObject {
     }
     static var tirageHauteur = false            // on est en train de tirer le bord du tiroir (suivi par le filtre d'événements)
     static var departHauteur: CGFloat = 0
+    /// Les côtés du tiroir, à gauche (le bord du coin multimédia) et à droite : on les tire pour réduire ou élargir tout le tiroir,
+    /// qui reste centré. -1 : côté gauche, 1 : côté droit, 0 : aucun.
+    static var tirageLargeur = 0
+    static var departLargeur: CGFloat = 0
+    static var curseurCôté = false
+    /// Le dernier écart de la souris pendant qu'on tire un bord, et s'il y a déjà un recalcul en route.
+    static var écartEnAttente: CGFloat = 0
+    static var recalculPrévu = false
+    static func surUnCôté(_ p: CGPoint) -> Int {
+        let c = cadreBrut
+        guard p.y >= c.minY + 4, p.y <= c.maxY - 4 else { return 0 }
+        if p.x >= c.minX - 8, p.x <= c.minX + 10, tiroirSous(p) || p.x < c.minX { return -1 }
+        if p.x >= c.maxX - 10, p.x <= c.maxX + 8, tiroirSous(p) || p.x > c.maxX { return 1 }
+        return 0
+    }
     private static var filtre: CFMachPort?
 
     private let idRaccourci: UInt32 = 1
@@ -486,7 +526,16 @@ final class PanneauBas: NSObject {
     private var largeurTête: CGFloat {
         guard !médias.isEmpty else { return 0 }
         let place = (NSScreen.main?.visibleFrame.width ?? 1440) - 2 * marge      // jamais plus large que la bande
-        return min(LecteurYouTubeBas.largeurCommune, place)
+        guard uneApp else { return min(LecteurYouTubeBas.largeurCommune, place) }
+        // Une app à la fois : quand la place manque, c'est le coin multimédia qui cède d'abord (jusqu'à sa largeur minimum),
+        // pour que l'application garde au moins la largeur qu'elle exige, comme dans les vues partagées de macOS.
+        let tiroir = (panneau?.frame.width ?? place + 2 * marge) - 2 * marge
+        let libre = tiroir - largeurAppMini - largeurColonne - 2 * marge
+        return max(LecteurYouTubeBas.largeurMini, min(LecteurYouTubeBas.largeurCommune, place, libre))
+    }
+    /// La plus grande des largeurs minimum des applications du tiroir (360 points si aucune n'en impose).
+    private var largeurAppMini: CGFloat {
+        max(360, emprunts.compactMap { largeursMini[$0.bundle] }.max() ?? 0)
     }
     /// Où commencent les tuiles des applications, après le coin multimédia.
     private var débutTuiles: CGFloat { médias.isEmpty ? 0 : largeurTête + marge }
@@ -555,6 +604,7 @@ final class PanneauBas: NSObject {
     private var serie = 0                       // pour abandonner les attentes d'une ouverture précédente
 
     func brancher() {
+        brancherChangerDAvis()
         // Pendant qu'un menu de Side est affiché, le tiroir n'active aucune application (le menu se refermerait).
         NotificationCenter.default.addObserver(forName: NSMenu.didBeginTrackingNotification, object: nil, queue: .main) { _ in PanneauBas.menuOuvert = true }
         NotificationCenter.default.addObserver(forName: NSMenu.didEndTrackingNotification, object: nil, queue: .main) { _ in PanneauBas.menuOuvert = false }
@@ -603,12 +653,16 @@ final class PanneauBas: NSObject {
             Volet.demande = .coins
             AppDelegate.shared.ouvrirReglages()
         case "video-etat": pagesWeb.values.first(where: { $0.estUnYouTube })?.noterEtat()
+        // Pour les essais : joue le geste du mini carrousel (« mini:debut », « mini:0.5 » pour un trajet, « mini:fin »).
+        case "mini:debut": commencerNavigation()
+        case "mini:fin": lacherDoigts(ouvrir: true, elan: 0)
         case "video":                                     // la vidéo YouTube du tiroir : en plein écran, ou de retour
             pagesWeb.values.first(where: { $0.estUnYouTube })?.basculerPleinEcran()
         case "corbeille":                                 // la carte Finder, ouverte sur la corbeille
             if !AppDelegate.shared.estOuvert { AppDelegate.shared.basculer() }
             Corbeille.montrer()
         default:
+            if commande.hasPrefix("mini:"), let t = Double(commande.dropFirst(5)) { suivreDoigts(1 + CGFloat(t)); return }
             // « youtube https://… » : ouvre ce lien dans la tuile YouTube (pour les essais, et pour d'autres apps).
             if commande.hasPrefix("youtube "), let u = URL(string: String(commande.dropFirst(8))) {
                 pagesWeb.values.first(where: { $0.estUnYouTube })?.ouvrir(u)
@@ -672,6 +726,40 @@ final class PanneauBas: NSObject {
     // MARK: Géométrie
 
     /// Hauteur du panneau, choisie en tirant son bord haut. 0 : jamais réglée (la moitié basse de l'écran).
+    /// La largeur du tiroir, en part de l'écran (1 = toute la largeur), réglée en tirant un de ses côtés.
+    private var largeurChoisie: CGFloat {
+        get { let v = UserDefaults.standard.double(forKey: "tiroirLargeur"); return v > 0 ? CGFloat(v) : 1 }
+        set { UserDefaults.standard.set(Double(newValue), forKey: "tiroirLargeur") }
+    }
+    private var largeurAuDépart: CGFloat = 0
+    /// La largeur minimum de chaque application du tiroir (celles qui refusent d'être plus étroites), apprise en les posant.
+    private var largeursMini: [String: CGFloat] {
+        get { (UserDefaults.standard.dictionary(forKey: "tiroirLargeursMini") as? [String: Double])?.mapValues { CGFloat($0) } ?? [:] }
+        set { UserDefaults.standard.set(newValue.mapValues { Double($0) }, forKey: "tiroirLargeursMini") }
+    }
+    /// La largeur du tiroir en dessous de laquelle une de ses applications ne tiendrait plus.
+    private var largeurTiroirMini: CGFloat {
+        guard uneApp else { return 720 }
+        let tête: CGFloat = médias.isEmpty ? 0 : LecteurYouTubeBas.largeurMini + marge     // le coin multimédia à sa largeur minimum
+        return max(720, largeurAppMini + tête + largeurColonne + 3 * marge)
+    }
+    /// La hauteur minimum de chaque application du tiroir (celles qui refusent d'être plus basses), apprise en les posant.
+    private var hauteursMini: [String: CGFloat] {
+        get { (UserDefaults.standard.dictionary(forKey: "tiroirHauteursMini") as? [String: Double])?.mapValues { CGFloat($0) } ?? [:] }
+        set { UserDefaults.standard.set(newValue.mapValues { Double($0) }, forKey: "tiroirHauteursMini") }
+    }
+    /// Le tiroir est plus étroit qu'une de ses applications ne l'accepte : il s'élargit et tout se replace.
+    private func respecterLesLargeursMini() {
+        guard ouvert, let p = panneau, let ecran = p.screen ?? NSScreen.main else { return }
+        let fin = cadre(ecran)
+        guard abs(fin.width - p.frame.width) > 1 || abs(fin.height - p.frame.height) > 1 else { return }
+        p.setFrame(fin, display: true)
+        disposerLeFond(fin)
+        poser(1)
+        déplacerImages(animé: false)
+        installer(déjàArrivé: true)
+    }
+
     private var hauteurChoisie: CGFloat {
         get { CGFloat(UserDefaults.standard.double(forKey: "panneauBasHauteur")) }
         set { UserDefaults.standard.set(Double(newValue), forKey: "panneauBasHauteur") }
@@ -682,12 +770,41 @@ final class PanneauBas: NSObject {
     /// Le tiroir arrive toujours du bord opposé au Finder de Side : du bas en général, du haut quand le Finder vient du bas.
     private var enHaut: Bool { ConfigTiroir.enHaut }
 
+    // MARK: Une application à la fois (13/11/2026)
+    // Le tiroir montre le coin multimédia, puis UNE application sur toute la place restante. Les autres sont rangées au-dessus
+    // ou au-dessous, comme des cartes : on passe de l'une à l'autre en prolongeant le geste à quatre doigts (la carte suit les doigts),
+    // ou par la colonne d'icônes à droite. L'ancienne bande de tuiles reste disponible dans les réglages.
+    private var uneApp: Bool { ConfigTiroir.commun.uneApp }
+    /// Sens de l'empilement à l'écran : les cartes suivent les doigts (vers le haut pour un tiroir du bas, vers le bas sinon).
+    private var sensV: CGFloat { enHaut ? -1 : 1 }
+    private let largeurColonne: CGFloat = 56
+    /// La colonne d'icônes, à droite : une par application du tiroir ; celle qu'on regarde est mise en avant.
+    private var icônesColonne: [ImageTuileBas] = []
+    private var cheminsColonne: [String] = []
+    private let repèreColonne = NSView()
+    /// Pendant le mini carrousel (geste à quatre doigts prolongé) : le rang de l'application au départ.
+    private var navDepart: Int?
+    private var navDepuisOuvert = false
+    /// Trajet des doigts pour passer d'une application à la suivante, en « trajets d'ouverture » (0,3 hauteur de trackpad) :
+    /// 0,07 hauteur de trackpad, comme le carrousel du plein écran (très sensible).
+    private let parApp: CGFloat = 0.07 / 0.3
+    /// La carte regardée (le rang le plus proche du défilement).
+    private var rangCourant: Int {
+        guard let p = panneau else { return 0 }
+        let h = bande(p.frame).height + marge
+        return max(0, min(emprunts.count - 1, Int((défilement / max(h, 1)).rounded())))
+    }
+
     /// Emplacement du panneau (coordonnées AppKit) : collé au bas (ou au haut) de l'écran, à la hauteur choisie.
     private func cadre(_ ecran: NSScreen) -> CGRect {
         let z = ecran.visibleFrame
         let voulue = hauteurChoisie > 0 ? hauteurChoisie : (z.height * 0.52).rounded()
-        let h = min(max(voulue, hauteurMini), (z.height * 0.94).rounded())
-        return CGRect(x: z.minX, y: enHaut ? z.maxY - h : z.minY, width: z.width, height: h)
+        // Jamais plus bas que l'application la plus haute du tiroir (elle dépasserait), ni que le minimum habituel.
+        let hApps = (emprunts.compactMap { hauteursMini[$0.bundle] }.max() ?? 0) + 2 * marge
+        let h = min(max(voulue, hauteurMini, hApps), (z.height * 0.94).rounded())
+        // Réduit, le tiroir reste centré ; jamais moins que le coin multimédia et une application (720 points au moins).
+        let w = min(z.width, max(min(largeurTiroirMini, z.width), (z.width * largeurChoisie).rounded()))
+        return CGRect(x: (z.midX - w / 2).rounded(), y: enHaut ? z.maxY - h : z.minY, width: w, height: h)
     }
 
     /// Le panneau en coordonnées globales (origine en haut à gauche), comme les fenêtres des autres applications.
@@ -712,6 +829,13 @@ final class PanneauBas: NSObject {
 
     /// Place de chaque tuile, l'une après l'autre le long de la bande (coordonnées globales).
     private func zones(_ c: CGRect) -> [CGRect] {
+        if uneApp {
+            let b = bande(c), h = b.height
+            let x = b.minX + débutTuiles, w = max(200, b.width - débutTuiles - largeurColonne - marge)
+            return emprunts.indices.map { i in
+                CGRect(x: x, y: b.minY + sensV * (CGFloat(i) * (h + marge) - défilement), width: w, height: h)
+            }
+        }
         let b = bande(c), retenue = disposition
         var x = b.minX - défilement + débutTuiles      // le coin multimédia ouvre la bande
         let haut = b.minY
@@ -728,6 +852,10 @@ final class PanneauBas: NSObject {
 
     /// Les décalages où une tuile commence pile au début de la bande, et le plus grand décalage possible.
     private func arrêts(_ c: CGRect) -> (débuts: [CGFloat], maxi: CGFloat) {
+        if uneApp {
+            let h = bande(c).height + marge
+            return (emprunts.indices.map { CGFloat($0) * h }, max(0, CGFloat(emprunts.count - 1) * h))
+        }
         let b = bande(c), ancien = défilement
         défilement = 0
         let zs = zones(c)
@@ -740,6 +868,7 @@ final class PanneauBas: NSObject {
     /// Les tuiles entièrement visibles : ce sont les seules dont la vraie fenêtre est à l'écran.
     private func entières(_ c: CGRect) -> [(EmpruntBas, CGRect)] {
         let b = bande(c)
+        if uneApp { return zip(emprunts, zones(c)).filter { abs($0.1.minY - b.minY) < 1 }.map { ($0.0, $0.1) } }
         return zip(emprunts, zones(c)).filter { $0.1.minX >= b.minX - 1 && $0.1.maxX <= b.maxX + 1 }.map { ($0.0, $0.1) }
     }
 
@@ -973,8 +1102,9 @@ final class PanneauBas: NSObject {
         choixMédia.montrer(liste.map { ($0.id, $0.nom) }, choisi: choisi)
         poignéeMédia.isHidden = liste.isEmpty
         let h = max(0, seul ? hauteur : hauteur - hauteurChoix - 6)
-        let s = NSRect(x: -défilement, y: 0, width: largeurTête, height: h)
-        let c = NSRect(x: -défilement, y: hauteur - hauteurChoix, width: largeurTête, height: hauteurChoix)
+        let x0 = uneApp ? 0 : -défilement          // une app à la fois : le coin multimédia reste fixe
+        let s = NSRect(x: x0, y: 0, width: largeurTête, height: h)
+        let c = NSRect(x: x0, y: hauteur - hauteurChoix, width: largeurTête, height: hauteurChoix)
         poignéeMédia.frame = NSRect(x: s.maxX - 9, y: 0, width: 9, height: h)
         let courant = liste.first { $0.id == choisi }
         lecteur.isHidden = courant?.genre != "spotify"
@@ -1004,11 +1134,61 @@ final class PanneauBas: NSObject {
     private func placerPlus(animé: Bool) {
         guard let p = panneau else { return }
         let b = bande(p.frame)
+        if uneApp {
+            // La colonne de droite : le « + » en haut, la roue dentée en bas, et entre les deux une icône par application.
+            let x = b.width - largeurColonne + (largeurColonne - largeurPlus) / 2
+            let r = NSRect(x: x, y: b.height - largeurPlus, width: largeurPlus, height: largeurPlus)
+            let bas = NSRect(x: x, y: 0, width: largeurPlus, height: largeurPlus)
+            if animé { plus.animator().frame = r; roue.animator().frame = bas } else { plus.frame = r; roue.frame = bas }
+            placerColonne(x: x, haut: r.minY - 10, bas: bas.maxY + 10, animé: animé)
+            return
+        }
+        icônesColonne.forEach { $0.isHidden = true }
+        repèreColonne.isHidden = true
         let fin = (zones(p.frame).last?.maxX ?? (b.minX - défilement + largeurTête)) + marge
         let r = NSRect(x: fin - b.minX, y: (b.height - largeurPlus) / 2, width: largeurPlus, height: largeurPlus)
         // La roue dentée : même colonne et même taille que la case « + », posée en bas, au niveau du bas des tuiles.
         let bas = NSRect(x: r.minX, y: 0, width: largeurPlus, height: largeurPlus)
         if animé { plus.animator().frame = r; roue.animator().frame = bas } else { plus.frame = r; roue.frame = bas }
+    }
+
+    /// Les icônes des applications du tiroir, dans la colonne de droite. Un clic amène l'application.
+    private func placerColonne(x: CGFloat, haut: CGFloat, bas: CGFloat, animé: Bool) {
+        let chemins = emprunts.map(\.chemin)
+        if chemins != cheminsColonne {
+            cheminsColonne = chemins
+            icônesColonne.forEach { $0.removeFromSuperview() }
+            icônesColonne = emprunts.indices.map { i in
+                let v = ImageTuileBas(frame: .zero)
+                v.imageScaling = .scaleProportionallyUpOrDown
+                v.image = NSWorkspace.shared.icon(forFile: emprunts[i].chemin)
+                v.toolTip = emprunts[i].nom
+                v.auClic = { [weak self] in self?.montrerTuile(i) }
+                bandeVue.addSubview(v)
+                return v
+            }
+        }
+        if repèreColonne.superview == nil {
+            repèreColonne.wantsLayer = true
+            repèreColonne.layer?.cornerRadius = 12
+            repèreColonne.layer?.cornerCurve = .continuous
+            repèreColonne.layer?.backgroundColor = NSColor(white: 1, alpha: 0.18).cgColor
+            bandeVue.addSubview(repèreColonne, positioned: .below, relativeTo: nil)
+        }
+        let côté: CGFloat = 32, pas: CGFloat = min(44, max(34, (haut - bas) / CGFloat(max(emprunts.count, 1))))
+        let courant = rangCourant
+        for (i, v) in icônesColonne.enumerated() {
+            v.isHidden = false
+            let y = haut - CGFloat(i + 1) * pas + (pas - côté) / 2
+            let r = NSRect(x: x + (largeurPlus - côté) / 2, y: y, width: côté, height: côté)
+            if animé { v.animator().frame = r } else { v.frame = r }
+            v.alphaValue = i == courant ? 1 : 0.55
+            if i == courant {
+                let f = r.insetBy(dx: -5, dy: -5)
+                if animé { repèreColonne.animator().frame = f } else { repèreColonne.frame = f }
+            }
+        }
+        repèreColonne.isHidden = emprunts.isEmpty
     }
 
     private func déplacerImages(animé: Bool) {
@@ -1168,10 +1348,80 @@ final class PanneauBas: NSObject {
         fermetureSuivie = fermeture
     }
 
-    /// p : 0 = caché, 1 = à sa place.
+    /// Le tiroir est déjà ouvert et les doigts repartent dans le sens d'ouverture : le mini carrousel apparaît.
+    func commencerNavigation() {
+        guard uneApp, ouvert, enPlace, !suiviDoigts, emprunts.count > 1 else { return }
+        suiviDoigts = true
+        fermetureSuivie = false
+        navDepuisOuvert = true
+        ouvrirMiniCarrousel()
+        journalBas("quatre doigts (mini carrousel)")
+    }
+
+    /// La place de l'application affichée dans le tiroir, en coordonnées de l'écran (origine en bas à gauche).
+    private func zoneÉcran() -> CGRect? {
+        guard let p = panneau, emprunts.indices.contains(rangCourant) else { return nil }
+        let z = bande(p.frame)
+        let x = z.minX + débutTuiles, w = max(200, z.width - débutTuiles - largeurColonne - marge)
+        let haut = NSScreen.screens.first?.frame.height ?? 0
+        return CGRect(x: x, y: haut - z.maxY, width: w, height: z.height)
+    }
+
+    private func ouvrirMiniCarrousel() {
+        guard let p = panneau, let ecran = p.screen ?? NSScreen.main, let z = zoneÉcran() else { return }
+        let départ = rangCourant
+        navDepart = départ
+        let visibles = Set(entières(p.frame).map { $0.0.nom })
+        let imgs: [NSImage?] = emprunts.map { e in
+            // L'application affichée est rephotographiée (elle a pu changer) ; les autres gardent leur dernière photo.
+            photo(e, taille: z.size, fraîche: visibles.contains(e.nom)) ?? photos[e.nom]
+        }
+        let icos: [NSImage?] = emprunts.map { NSWorkspace.shared.icon(forFile: $0.chemin) }
+        CarrouselTiroir.commun.ouvrir(images: imgs, icones: icos, depart: départ, zone: z, ecran: ecran, enHaut: enHaut)
+    }
+
+    /// p : 0 = caché, 1 = à sa place ; au-delà (une app à la fois), le mini carrousel suit les doigts.
     func suivreDoigts(_ p: CGFloat) {
         guard suiviDoigts, ouvert else { return }
+        if uneApp, !fermetureSuivie, navDepuisOuvert || p > 1, emprunts.count > 1 {
+            if !navDepuisOuvert { poser(1) }
+            if navDepart == nil { ouvrirMiniCarrousel() }
+            guard let d = navDepart else { return }
+            // Sans fin : on peut monter ou descendre aussi loin qu'on veut, les applications reviennent en boucle.
+            let q = (p - 1) / parApp
+            CarrouselTiroir.commun.placer(CGFloat(d) + q, anime: false)
+            return
+        }
         poser(min(1, max(0, p)))
+    }
+
+    /// Doigts levés pendant le mini carrousel : la carte du centre grandit jusqu'à sa place, et l'application la remplace.
+    private func finirMiniCarrousel() {
+        guard let d = navDepart, let p = panneau else { return }
+        navDepart = nil
+        let depuisOuvert = navDepuisOuvert
+        navDepuisOuvert = false
+        let pos = CarrouselTiroir.commun.position, n = emprunts.count
+        var cible = CarrouselTiroir.commun.rangCentral
+        // Comme le carrousel du plein écran : un petit geste bref suffit pour passer à la voisine (en faisant le tour).
+        if cible == d, abs(pos - CGFloat(d)) > 0.22, abs(pos - CGFloat(d)) < 0.5 { cible = ((d + (pos > CGFloat(d) ? 1 : -1)) % n + n) % n }
+        if let z = zoneÉcran() { CarrouselTiroir.commun.fermer(sur: cible, zone: z) }
+        if cible != d {
+            journalBas("application du tiroir : %@", emprunts[cible].nom)
+            if depuisOuvert { _ = commencerDéfilement() }
+            défilement = arrêts(p.frame).débuts[cible]
+            déplacerImages(animé: false)
+        }
+        // Le temps que la carte arrive à sa place, puis la vraie fenêtre prend le relais.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.18) { [weak self] in
+            guard let self, self.ouvert else { return }
+            if depuisOuvert {
+                if cible != d { self.défile = false; self.installer(déjàArrivé: true) }
+            } else {
+                self.arrivé()
+                if cible != d { self.installer(déjàArrivé: true) }
+            }
+        }
     }
 
     /// Doigts levés : le panneau finit sa course sur sa lancée, dans un sens ou dans l'autre.
@@ -1179,6 +1429,8 @@ final class PanneauBas: NSObject {
         guard suiviDoigts else { return }
         suiviDoigts = false
         guard ouvert else { return }
+        // Le mini carrousel était affiché : l'application choisie prend la place.
+        if navDepart != nil { finirMiniCarrousel(); return }
         let reste = ouvrir ? 1 - q : q
         let suite = AppDelegate.elan(reste: reste, vitesse: ouvrir ? elan : -elan)
         if ouvrir {
@@ -1209,6 +1461,8 @@ final class PanneauBas: NSObject {
     private func terminerFermeture(rendreLaMain: Bool, duree: TimeInterval, courbe: CAMediaTimingFunction) {
         guard ouvert else { return }
         ouvert = false
+        // Un mini carrousel encore affiché disparaît avec le tiroir.
+        if navDepart != nil { navDepart = nil; navDepuisOuvert = false; CarrouselTiroir.commun.masquer() }
         suiviDoigts = false
         serie += 1
         minuteur?.invalidate()
@@ -1234,6 +1488,12 @@ final class PanneauBas: NSObject {
 
     /// La vidéo sort en plein écran : le tiroir se referme, sans rendre la main à l'application d'avant.
     func fermerPourLaVideo() { fermer(rendreLaMain: false) }
+
+    /// Le réglage « une application à la fois » a changé : le tiroir se referme, il se recomposera à la prochaine ouverture.
+    func majDisposition() {
+        défilement = 0
+        if ouvert { fermer(rendreLaMain: false) }
+    }
 
     /// « Masquer les Shorts » : appliqué aux pages YouTube déjà ouvertes.
     func appliquerShorts() { pagesWeb.values.forEach { $0.appliquerShorts(ConfigTiroir.commun.masquerShorts) } }
@@ -1307,6 +1567,32 @@ final class PanneauBas: NSObject {
         déplacerImages(animé: false)                      // toutes les tuiles prennent la nouvelle hauteur, ensemble
     }
 
+    fileprivate func commencerLargeur() {
+        guard let p = panneau, commencerDéfilement() else { return }
+        finDéfilement?.cancel()
+        largeurAuDépart = p.frame.width
+    }
+
+    /// `écart` : le chemin fait par la souris depuis le début, vers l'intérieur du tiroir (positif = plus étroit).
+    fileprivate func tirerLargeur(_ écart: CGFloat) {
+        guard ouvert, défile, let p = panneau, let ecran = p.screen ?? NSScreen.main else { return }
+        let z = ecran.visibleFrame
+        largeurChoisie = min(1, max(0.3, (largeurAuDépart - 2 * écart) / z.width))     // les deux côtés bougent ensemble
+        let fin = cadre(ecran)
+        p.setFrame(fin, display: true)
+        disposerLeFond(fin)
+        poser(1)
+        déplacerImages(animé: false)
+    }
+
+    fileprivate func finirLargeur() {
+        guard ouvert, défile else { return }
+        journalBas("largeur du tiroir : %.0f", panneau?.frame.width ?? 0)
+        défile = false
+        panneau?.invalidateShadow()
+        installer(déjàArrivé: true)
+    }
+
     fileprivate func finirHauteur() {
         guard ouvert, défile else { return }
         journalBas("hauteur du panneau : %.0f", panneau?.frame.height ?? 0)
@@ -1341,8 +1627,14 @@ final class PanneauBas: NSObject {
             if PanneauBas.tirageHauteur {
                 if type == .leftMouseDragged {
                     NSCursor.resizeUpDown.set()          // la double flèche reste pendant tout le geste
-                    let montee = PanneauBas.departHauteur - ev.location.y        // l'écran global compte vers le bas
-                    DispatchQueue.main.async { PanneauBas.commun.tirerHauteur(montee) }
+                    PanneauBas.écartEnAttente = PanneauBas.departHauteur - ev.location.y        // l'écran global compte vers le bas
+                    if !PanneauBas.recalculPrévu {
+                        PanneauBas.recalculPrévu = true
+                        DispatchQueue.main.async {
+                            PanneauBas.recalculPrévu = false
+                            PanneauBas.commun.tirerHauteur(PanneauBas.écartEnAttente)
+                        }
+                    }
                     return nil
                 }
                 if type == .leftMouseUp {
@@ -1351,16 +1643,47 @@ final class PanneauBas: NSObject {
                     return nil
                 }
             }
+            // Un côté du tiroir qu'on tire pour régler sa largeur (le tiroir reste centré).
+            if PanneauBas.tirageLargeur != 0 {
+                if type == .leftMouseDragged {
+                    NSCursor.resizeLeftRight.set()
+                    PanneauBas.écartEnAttente = (ev.location.x - PanneauBas.departLargeur) * CGFloat(-PanneauBas.tirageLargeur)
+                    // Un seul recalcul à la fois : s'il y en a déjà un en route, il prendra la dernière position.
+                    if !PanneauBas.recalculPrévu {
+                        PanneauBas.recalculPrévu = true
+                        DispatchQueue.main.async {
+                            PanneauBas.recalculPrévu = false
+                            PanneauBas.commun.tirerLargeur(PanneauBas.écartEnAttente)
+                        }
+                    }
+                    return nil
+                }
+                if type == .leftMouseUp {
+                    PanneauBas.tirageLargeur = 0
+                    DispatchQueue.main.async { PanneauBas.commun.finirLargeur() }
+                    return nil
+                }
+            }
             if type == .leftMouseDragged { return Unmanaged.passUnretained(ev) }
             if type == .mouseMoved {
                 // Au-dessus du bord : le pointeur devient une double flèche, pour montrer qu'on peut le tirer.
                 let dessus = PanneauBas.estOuvertBrut && PanneauBas.surLeBord(ev.location)
-                if dessus { NSCursor.resizeUpDown.set() } else if PanneauBas.curseurBord { NSCursor.arrow.set() }
+                let côté = !dessus && PanneauBas.estOuvertBrut && PanneauBas.surUnCôté(ev.location) != 0
+                if dessus { NSCursor.resizeUpDown.set() } else if côté { NSCursor.resizeLeftRight.set() }
+                else if PanneauBas.curseurBord || PanneauBas.curseurCôté { NSCursor.arrow.set() }
                 PanneauBas.curseurBord = dessus
+                PanneauBas.curseurCôté = côté
                 return Unmanaged.passUnretained(ev)
             }
             if type == .leftMouseDown, PanneauBas.estOuvertBrut {
                 let p = ev.location
+                let côté = PanneauBas.surUnCôté(p)
+                if côté != 0, !PanneauBas.surLeBord(p) {
+                    PanneauBas.tirageLargeur = côté
+                    PanneauBas.departLargeur = p.x
+                    DispatchQueue.main.async { PanneauBas.commun.commencerLargeur() }
+                    return nil
+                }
                 if PanneauBas.surLeBord(p) {
                     PanneauBas.tirageHauteur = true
                     PanneauBas.departHauteur = p.y
@@ -1413,6 +1736,7 @@ final class PanneauBas: NSObject {
     }
 
     func défiler(_ dx: CGFloat) {
+        guard !uneApp else { return }                // une app à la fois : on change d'app au geste à quatre doigts ou par la colonne
         guard let p = panneau, commencerDéfilement() else { return }
         défilement = min(max(0, défilement - dx), arrêts(p.frame).maxi)
         déplacerImages(animé: false)
@@ -1445,7 +1769,7 @@ final class PanneauBas: NSObject {
         finDéfilement?.cancel()
         let a = arrêts(p.frame), b = bande(p.frame), r = zones(p.frame)[i]
         // Déjà à gauche de la bande : on l'amène au début. À droite : juste assez pour qu'elle tienne en entier.
-        let cible = r.minX < b.minX ? a.débuts[i] : min(a.maxi, défilement + (r.maxX - b.maxX))
+        let cible = uneApp ? a.débuts[i] : (r.minX < b.minX ? a.débuts[i] : min(a.maxi, défilement + (r.maxX - b.maxX)))
         finirDéfilement(vers: cible)
     }
 
@@ -1513,7 +1837,7 @@ final class PanneauBas: NSObject {
                 }
                 if appuyé {
                     if enMainRetaillée { pousser(sauf: e.nom) }
-                    else if abs(c.midX - zone.midX) > 30 {
+                    else if !uneApp, abs(c.midX - zone.midX) > 30 {
                         // Comme dans la grille de Square : pendant qu'on la déplace, la tuile prend sa nouvelle place
                         // et les autres se poussent tout de suite pour la lui laisser.
                         let avant = emprunts.map(\.nom)
@@ -1522,7 +1846,7 @@ final class PanneauBas: NSObject {
                     }
                 } else {
                     // Lâchée : déplacée sans être élargie, elle prend le rang où vous l'avez posée. Puis tout se réaligne.
-                    if !enMainRetaillée, abs(c.midX - zone.midX) > 30 { changerDeRang(e, milieu: c.midX) }
+                    if !uneApp, !enMainRetaillée, abs(c.midX - zone.midX) > 30 { changerDeRang(e, milieu: c.midX) }
                     enMain = nil
                     recaler()
                     return
@@ -1710,7 +2034,13 @@ final class PanneauBas: NSObject {
         if selecteur.ouvert { selecteur.fermer(); return }
         func icone(_ chemin: String) -> NSImage { NSWorkspace.shared.icon(forFile: chemin) }
         let presentes = emprunts.enumerated().map { i, e in
-            SelecteurTuilesBas.Ligne(icone: icone(e.chemin), nom: e.nom, signe: "minus.circle.fill", couleur: .systemRed) { [weak self] in self?.retirer(i) }
+            var l = SelecteurTuilesBas.Ligne(icone: icone(e.chemin), nom: e.nom, signe: "minus.circle.fill", couleur: .systemRed) { [weak self] in self?.retirer(i) }
+            if e.note == nil {
+                l.signe2 = "arrow.up.left.and.arrow.down.right.circle.fill"
+                l.aide2 = String(localized: "Passer en plein écran")
+                l.action2 = { [weak self] in self?.passerEnPleinEcran(nom: e.nom) }
+            }
+            return l
         }
         let moi = Bundle.main.bundleIdentifier
         let ouvertes = NSWorkspace.shared.runningApplications.filter { a in
@@ -1761,6 +2091,49 @@ final class PanneauBas: NSObject {
         journalBas("tuile ajoutée : %@", nom)
         // La nouvelle tuile arrive au bout de la bande : on y défile pour la montrer.
         recharger(versLaFin: true)
+    }
+
+    // MARK: Changer d'avis : du plein écran au tiroir, et retour
+
+    /// L'application (de la grille, ou celle de devant) rejoint le tiroir, qui s'ouvre sur elle.
+    func envoyerAuTiroir(pid: pid_t) {
+        guard let a = NSRunningApplication(processIdentifier: pid), let url = a.bundleURL, let bundle = a.bundleIdentifier,
+              bundle != Bundle.main.bundleIdentifier else { NSSound.beep(); return }
+        if !emprunts.contains(where: { $0.bundle == bundle && $0.note == nil }) { ajouter(url) }
+        journalBas("%@ envoyée au tiroir", a.localizedName ?? bundle)
+        guard let i = emprunts.firstIndex(where: { $0.bundle == bundle && $0.note == nil }) else { return }
+        tuileÀMontrer = i
+        if !ouvert { ouvrir() } else { montrerTuile(i) }
+    }
+
+    /// L'application de cette tuile quitte le tiroir et remplit l'écran, comme une application de travail.
+    func passerEnPleinEcran(nom: String) {
+        guard let i = emprunts.firstIndex(where: { $0.nom == nom }) else { return }
+        let e = emprunts[i]
+        journalBas("%@ passe en plein écran", nom)
+        if ouvert { fermer(rendreLaMain: false) }
+        retirer(i)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) { [weak self] in
+            guard let self, let a = self.app(e) else { return }
+            if a.isHidden { a.unhide() }
+            var v: CFTypeRef?
+            AXUIElementCopyAttributeValue(AXUIElementCreateApplication(a.processIdentifier), kAXWindowsAttribute as CFString, &v)
+            if let f = (v as? [AXUIElement])?.first { Agrandir.basculer(f, seulementAgrandir: true); AXBas.lever(f) }
+            a.activate(options: [])
+        }
+    }
+
+    /// ⌃⌥↓ : l'application de devant va au tiroir. ⌃⌥↑ : l'application de devant, si elle est dans le tiroir, passe en plein écran.
+    private func brancherChangerDAvis() {
+        TouchesBas.ajouter(50, touche: UInt32(kVK_DownArrow), modifs: UInt32(controlKey | optionKey)) { [weak self] in
+            guard let a = NSWorkspace.shared.frontmostApplication else { return }
+            self?.envoyerAuTiroir(pid: a.processIdentifier)
+        }
+        TouchesBas.ajouter(51, touche: UInt32(kVK_UpArrow), modifs: UInt32(controlKey | optionKey)) { [weak self] in
+            guard let self, let b = NSWorkspace.shared.frontmostApplication?.bundleIdentifier,
+                  let e = self.emprunts.first(where: { $0.bundle == b }) else { NSSound.beep(); return }
+            self.passerEnPleinEcran(nom: e.nom)
+        }
     }
 
     private func retirer(_ i: Int) {
@@ -2104,6 +2477,23 @@ final class PanneauBas: NSObject {
         // Bien placée six vérifications de suite (ou l'application refuse la taille demandée) : on la laisse tranquille.
         if aSaPlace && (aSaTaille || replacements[e.nom, default: 0] >= 2) {
             if !aSaTaille, abs(avant.height - zone.height) > 3 { refusHauteur.insert(e.nom) }
+            // Plus haute que le tiroir : une application ne doit jamais dépasser. Le tiroir retient sa hauteur minimum et grandit.
+            if avant.height > zone.height + 3, (hauteursMini[e.bundle] ?? 0) < avant.height {
+                var m = hauteursMini
+                m[e.bundle] = avant.height.rounded(.up)
+                hauteursMini = m
+                journalBas("%@ : hauteur minimum %.0f, le tiroir grandit", e.nom, avant.height)
+                DispatchQueue.main.async { [weak self] in self?.respecterLesLargeursMini() }
+            }
+            // L'application refuse d'être aussi étroite (Réglages Système…) : on retient sa largeur minimum, et le tiroir
+            // ne pourra plus être réduit en dessous. S'il l'est déjà, il s'élargit tout de suite.
+            if uneApp, avant.width > zone.width + 3, (largeursMini[e.bundle] ?? 0) < avant.width {
+                var m = largeursMini
+                m[e.bundle] = avant.width.rounded(.up)
+                largeursMini = m
+                journalBas("%@ : largeur minimum %.0f, le tiroir s'élargit", e.nom, avant.width)
+                DispatchQueue.main.async { [weak self] in self?.respecterLesLargeursMini() }
+            }
             stables[e.nom, default: 0] += 1
             if stables[e.nom, default: 0] >= 6 { posées.insert(e.nom) }
             return
@@ -2219,6 +2609,8 @@ enum GestePanneauBas {
     static var actif = true
     /// Le tiroir arrive du haut de l'écran : tous les gestes sont alors inversés (vers le bas pour ouvrir). Lu hors du fil principal.
     static var enHaut = false
+    /// Une app à la fois : prolonger le geste fait défiler les applications. Lu hors du fil principal.
+    static var navigation = true
     private static var departs: [Int32: Float] = [:]
     private static var réservé = false       // le geste en cours est pour le panneau : Side l'ignore jusqu'au lever des doigts
     private static var suit = false
@@ -2268,7 +2660,21 @@ enum GestePanneauBas {
         guard doigts.count >= 4, let m = moyenne(doigts), abs(m) > 0.015 else { return panneauOuvert }
         if panneauOuvert {
             réservé = true
-            guard m < 0 else { return true }     // vers le haut, panneau déjà ouvert : rien à faire
+            if m > 0 {
+                // Panneau déjà ouvert, doigts dans le sens d'ouverture : une app à la fois, les applications défilent.
+                guard navigation else { return true }
+                fermeture = false
+                suit = true
+                progression = 1 + m / course
+                vitesse = 0
+                instant = maintenant
+                let p = progression
+                DispatchQueue.main.async {
+                    PanneauBas.commun.commencerNavigation()
+                    PanneauBas.commun.suivreDoigts(CGFloat(p))
+                }
+                return true
+            }
             fermeture = true
         } else if m > 0, !sideOuvert, sensSide == (enHaut ? "haut" : "bas"), actif {
             réservé = true

@@ -503,7 +503,11 @@ struct PresentationVue: View {
                 }
                 if etape > 0 { Button("Précédent") { etape -= 1 } }
                 Button(etape < Self.nombre - 1 ? String(localized: "Suivant") : String(localized: "Terminer")) {
-                    if etape < Self.nombre - 1 { etape += 1 } else { fermer() }
+                    if etape < Self.nombre - 1 { etape += 1 } else {
+                        fermer()
+                        // Puis la présentation du plein écran (la grille, le carrousel), qui fait partie de l'app depuis la fusion.
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { Accueil.montrer() }
+                    }
                 }
                 .buttonStyle(.borderedProminent)
                 .keyboardShortcut(.defaultAction)

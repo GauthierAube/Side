@@ -103,6 +103,16 @@
         }
       }
     },
+    "+ %lld %%": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "+%lld%%"
+          }
+        }
+      }
+    },
     ", ou ": {
       "localizations": {
         "en": {
@@ -213,6 +223,16 @@
         }
       }
     },
+    "Affichage": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Display"
+          }
+        }
+      }
+    },
     "Afficher Side": {
       "localizations": {
         "en": {
@@ -283,12 +303,42 @@
         }
       }
     },
+    "Afficher la corbeille au bout du Dock": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show the Trash at the end of the Dock"
+          }
+        }
+      }
+    },
+    "Afficher la grille  (%@)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show Grid  (%@)"
+          }
+        }
+      }
+    },
     "Afficher la vidéo": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Show Video"
+          }
+        }
+      }
+    },
+    "Afficher le Dock dans la grille": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show the Dock in the grid"
           }
         }
       }
@@ -333,12 +383,42 @@
         }
       }
     },
+    "Agrandir chaque nouvelle fenêtre": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Make each new window fill the screen"
+          }
+        }
+      }
+    },
+    "Agrandir la fenêtre en cours  (⌃⌥ Entrée)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fill the Screen with Current Window  (⌃⌥ Return)"
+          }
+        }
+      }
+    },
     "Ajouter": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Add"
+          }
+        }
+      }
+    },
+    "Ajouter au Dock": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add to Dock"
           }
         }
       }
@@ -483,6 +563,16 @@
         }
       }
     },
+    "Aller à la fenêtre 1, 2, 3…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Go to window 1, 2, 3…"
+          }
+        }
+      }
+    },
     "Amener le pointeur dans un coin de l'écran ouvre le Finder, le tiroir ou le presse-papiers.": {
       "localizations": {
         "en": {
@@ -533,6 +623,16 @@
         }
       }
     },
+    "Apparition après un geste vif": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delay after a quick swipe"
+          }
+        }
+      }
+    },
     "Applications": {
       "localizations": {
         "en": {
@@ -553,12 +653,42 @@
         }
       }
     },
+    "Applications du tiroir de Side": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apps in Side's drawer"
+          }
+        }
+      }
+    },
     "Applications ouvertes": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Open Apps"
+          }
+        }
+      }
+    },
+    "Appuyez sur le nouveau raccourci.\nIl faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).\nÉchap pour annuler.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Press the new shortcut.\nIt needs at least one of ⌃ ⌥ ⇧ or ⌘ (or a key from F1 to F20).\nPress Esc to cancel."
+          }
+        }
+      }
+    },
+    "Après un geste vif, le carrousel apparaît…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "After a quick swipe, the carousel appears…"
           }
         }
       }
@@ -693,6 +823,16 @@
         }
       }
     },
+    "Aucune": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "None"
+          }
+        }
+      }
+    },
     "Aucune app": {
       "localizations": {
         "en": {
@@ -723,6 +863,16 @@
         }
       }
     },
+    "Aussi au clic droit sur une case de la grille (« Envoyer au tiroir »), et dans la liste du « + » du tiroir (le bouton bleu de chaque application).": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Also by right-clicking a grid tile (“Send to Drawer”), and in the drawer's “+” list (the blue button next to each app)."
+          }
+        }
+      }
+    },
     "Automatique": {
       "localizations": {
         "en": {
@@ -739,6 +889,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Automatic (Mac language)"
+          }
+        }
+      }
+    },
+    "Autoriser « Accessibilité »…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allow “Accessibility”…"
+          }
+        }
+      }
+    },
+    "Autoriser « Enregistrement de l'écran »…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allow “Screen Recording”…"
           }
         }
       }
@@ -803,6 +973,16 @@
         }
       }
     },
+    "Bienvenue dans Square": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Welcome to Square"
+          }
+        }
+      }
+    },
     "Bienvenue dans le tiroir": {
       "localizations": {
         "en": {
@@ -813,12 +993,62 @@
         }
       }
     },
+    "Bord": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edge"
+          }
+        }
+      }
+    },
+    "Bouton vert": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Green Button"
+          }
+        }
+      }
+    },
     "Bureau": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Desktop"
+          }
+        }
+      }
+    },
+    "Carrousel": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Carousel"
+          }
+        }
+      }
+    },
+    "Carrousel à quatre doigts": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Four-Finger Carousel"
+          }
+        }
+      }
+    },
+    "Cases vides": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empty tiles"
           }
         }
       }
@@ -863,6 +1093,16 @@
         }
       }
     },
+    "Changer de place": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Move Between Places"
+          }
+        }
+      }
+    },
     "Changer la largeur": {
       "localizations": {
         "en": {
@@ -893,6 +1133,16 @@
         }
       }
     },
+    "Chaque nouvelle fenêtre de travail remplit l'écran toute seule, sans passer en plein écran d'Apple.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Each new document window fills the screen on its own, without going into macOS full screen."
+          }
+        }
+      }
+    },
     "Chargement…": {
       "localizations": {
         "en": {
@@ -909,6 +1159,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Path of folder %@"
+          }
+        }
+      }
+    },
+    "Choisir": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose"
           }
         }
       }
@@ -963,12 +1223,22 @@
         }
       }
     },
-    "Choisis pour chaque coin ce qu'il ouvre : le Finder, le tiroir, le presse-papiers, la grille de Square (s'il est installé), ou rien. Revenir dans le coin referme. Si macOS utilise déjà ce coin, désactive-le dans Réglages Système > Bureau et Dock > Coins actifs.": {
+    "Choisis pour chaque coin ce qu'il ouvre : le Finder, le tiroir, le presse-papiers, la grille des applications, ou rien. Revenir dans le coin referme. Si macOS utilise déjà ce coin, désactive-le dans Réglages Système > Bureau et Dock > Coins actifs.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Choose what each corner opens: the Finder, the drawer, the clipboard, the Square grid (if Square is installed), or nothing. Going back to the corner closes it. If macOS already uses that corner, turn it off in System Settings > Desktop & Dock > Hot Corners."
+            "value": "Choose what each corner opens: the Finder, the drawer, the clipboard, the app grid, or nothing. Going back to the corner closes it. If macOS already uses that corner, turn it off in System Settings > Desktop & Dock > Hot Corners."
+          }
+        }
+      }
+    },
+    "Clavier": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keyboard"
           }
         }
       }
@@ -1009,6 +1279,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Corner"
+          }
+        }
+      }
+    },
+    "Coin actif": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hot corner"
+          }
+        }
+      }
+    },
+    "Coin de l'écran": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Screen Corner"
           }
         }
       }
@@ -1253,6 +1543,16 @@
         }
       }
     },
+    "Dans la grille : glisser une case sur le milieu d'une autre change l'ordre ; la glisser sur un bord partage l'écran entre les deux fenêtres ; deux doigts vers le haut sur une case ferment l'application.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In the grid: drag a tile onto the middle of another to change the order; drag it onto an edge to split the screen between the two windows; swipe up with two fingers on a tile to quit the app."
+          }
+        }
+      }
+    },
     "Dans le tiroir": {
       "localizations": {
         "en": {
@@ -1319,6 +1619,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "External disks and connected servers"
+          }
+        }
+      }
+    },
+    "Dock": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dock"
           }
         }
       }
@@ -1453,6 +1763,16 @@
         }
       }
     },
+    "Dépannage": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Troubleshooting"
+          }
+        }
+      }
+    },
     "Dépose ici": {
       "localizations": {
         "en": {
@@ -1479,6 +1799,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Drop an app here to add it to the mini Dock"
+          }
+        }
+      }
+    },
+    "Désactivé": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Off"
           }
         }
       }
@@ -1583,6 +1913,16 @@
         }
       }
     },
+    "En haut": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Top"
+          }
+        }
+      }
+    },
     "En haut à droite": {
       "localizations": {
         "en": {
@@ -1633,6 +1973,16 @@
         }
       }
     },
+    "Entrée": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Return"
+          }
+        }
+      }
+    },
     "Envoi vers iCloud en cours": {
       "localizations": {
         "en": {
@@ -1649,6 +1999,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Uploading to iCloud…"
+          }
+        }
+      }
+    },
+    "Envoyer au tiroir": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send to Drawer"
+          }
+        }
+      }
+    },
+    "Envoyer l'application de devant au tiroir": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send the front app to the drawer"
           }
         }
       }
@@ -1719,6 +2089,36 @@
           "stringUnit": {
             "state": "translated",
             "value": "Favorites"
+          }
+        }
+      }
+    },
+    "Fenêtres": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Windows"
+          }
+        }
+      }
+    },
+    "Fenêtres en plein écran d'Apple": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Windows in macOS full screen"
+          }
+        }
+      }
+    },
+    "Fermer": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Close"
           }
         }
       }
@@ -1923,6 +2323,16 @@
         }
       }
     },
+    "Gestes": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gestures"
+          }
+        }
+      }
+    },
     "Gestes de macOS": {
       "localizations": {
         "en": {
@@ -2013,6 +2423,16 @@
         }
       }
     },
+    "Grand": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Large"
+          }
+        }
+      }
+    },
     "Grande image": {
       "localizations": {
         "en": {
@@ -2033,12 +2453,32 @@
         }
       }
     },
-    "Grille de Square": {
+    "Grille": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Square Grid"
+            "value": "Grid"
+          }
+        }
+      }
+    },
+    "Grille des applications": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "App Grid"
+          }
+        }
+      }
+    },
+    "Grossissement au survol": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Magnification on hover"
           }
         }
       }
@@ -2313,6 +2753,26 @@
         }
       }
     },
+    "Inversé": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reversed"
+          }
+        }
+      }
+    },
+    "Jamais agrandies": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Never fill the screen"
+          }
+        }
+      }
+    },
     "L'aperçu montre l'image et le titre du site : pour cela, Side contacte le site du lien, seulement quand le volet l'affiche. La présentation vaut pour le presse-papiers comme pour l'onglet « Enregistrés ». Les liens enregistrés restent sur ce Mac.": {
       "localizations": {
         "en": {
@@ -2383,6 +2843,26 @@
         }
       }
     },
+    "La grille": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The Grid"
+          }
+        }
+      }
+    },
+    "La liste des applications s'ouvre toujours du côté intérieur de l'écran, avec sa pointe dirigée vers le Dock.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The app list always opens toward the inside of the screen, with its arrow pointing at the Dock."
+          }
+        }
+      }
+    },
     "La musique et les petites applis : un coup d'œil, et on referme.": {
       "localizations": {
         "en": {
@@ -2429,6 +2909,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "The “Recent Folders” section shows the last folders you worked in, as a grid."
+          }
+        }
+      }
+    },
+    "La touche choisie avec un chiffre de 1 à 9 mène droit à la fenêtre de ce numéro, dans l'ordre des cases de la grille (le numéro s'affiche au survol d'une case). Attention : ces raccourcis sont alors pris à toutes les applications. ⌘ + chiffre sert par exemple à changer d'onglet dans Safari ou de présentation dans le Finder ; ⌃ + chiffre n'est presque jamais utilisé.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The chosen key with a number from 1 to 9 goes straight to the window with that number, in the order of the grid's tiles (the number appears when you hover over a tile). Note: these shortcuts are then taken from all other apps. For example, ⌘ + number switches tabs in Safari or views in the Finder; ⌃ + number is almost never used."
           }
         }
       }
@@ -2523,12 +3013,42 @@
         }
       }
     },
+    "Largeur du tiroir": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drawer Width"
+          }
+        }
+      }
+    },
     "Largeur du volet": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Panel width"
+          }
+        }
+      }
+    },
+    "Le Dock": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The Dock"
+          }
+        }
+      }
+    },
+    "Le Dock affiché dans la grille.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The Dock shown in the grid."
           }
         }
       }
@@ -2593,12 +3113,42 @@
         }
       }
     },
+    "Le bouton vert": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The Green Button"
+          }
+        }
+      }
+    },
+    "Le bouton vert remplit l'écran": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The green button fills the screen"
+          }
+        }
+      }
+    },
     "Le coin %@": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "The %@ corner"
+          }
+        }
+      }
+    },
+    "Le coin qui affiche la grille se choisit avec les autres coins actifs : Finder, tiroir, presse-papiers.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The corner that shows the grid is chosen along with the other hot corners: Finder, drawer, clipboard."
           }
         }
       }
@@ -2733,6 +3283,16 @@
         }
       }
     },
+    "Le tiroir montre une seule application ; prolonge le geste à quatre doigts pour passer aux autres.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The drawer shows a single app; keep the four-finger swipe going to move to the others."
+          }
+        }
+      }
+    },
     "Le tiroir prend toujours le bord opposé au Finder : du haut quand le Finder vient du bas, du bas dans tous les autres cas. Le geste à quatre doigts s'inverse avec lui.": {
       "localizations": {
         "en": {
@@ -2823,6 +3383,26 @@
         }
       }
     },
+    "Les applications de travail remplissent l'écran, sans le plein écran d'Apple.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Work apps fill the screen, without Apple's full screen."
+          }
+        }
+      }
+    },
+    "Les applications rangées dans le tiroir du bas de Side gardent leur place dans le tiroir : Square ne les agrandit pas. Leur liste se règle dans Side (Réglages > Tiroir du bas).": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apps kept in Side's bottom drawer stay in the drawer: Square doesn't make them fill the screen. Set the list in Side (Settings > Bottom Drawer)."
+          }
+        }
+      }
+    },
     "Les applications rangées dans le tiroir.": {
       "localizations": {
         "en": {
@@ -2843,12 +3423,32 @@
         }
       }
     },
+    "Les cartes suivent les doigts": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cards follow fingers"
+          }
+        }
+      }
+    },
     "Les deux": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Both"
+          }
+        }
+      }
+    },
+    "Les en sortir": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Take Them Out"
           }
         }
       }
@@ -2983,6 +3583,16 @@
         }
       }
     },
+    "Milieu": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Middle"
+          }
+        }
+      }
+    },
     "Mini-Dock": {
       "localizations": {
         "en": {
@@ -3019,6 +3629,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Modified"
+          }
+        }
+      }
+    },
+    "Molette": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scroll wheel"
           }
         }
       }
@@ -3083,6 +3703,16 @@
         }
       }
     },
+    "Même bureau": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Same desktop"
+          }
+        }
+      }
+    },
     "Nom": {
       "localizations": {
         "en": {
@@ -3143,6 +3773,16 @@
         }
       }
     },
+    "Nouvelles fenêtres": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New Windows"
+          }
+        }
+      }
+    },
     "Onglet": {
       "localizations": {
         "en": {
@@ -3169,6 +3809,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Advanced"
+          }
+        }
+      }
+    },
+    "Organisation": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Organization"
           }
         }
       }
@@ -3403,6 +4053,16 @@
         }
       }
     },
+    "Passer d'une application à l'autre": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Switch between apps"
+          }
+        }
+      }
+    },
     "Passer en faux plein écran": {
       "localizations": {
         "en": {
@@ -3413,12 +4073,52 @@
         }
       }
     },
+    "Passer en plein écran": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Make Full Screen"
+          }
+        }
+      }
+    },
+    "Passer l'application du tiroir en plein écran": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Make the drawer app full screen"
+          }
+        }
+      }
+    },
     "Passer la publicité (quand YouTube le propose)": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Skip the ad (when YouTube allows it)"
+          }
+        }
+      }
+    },
+    "Pendant que tu règles la taille, le vrai carrousel s'affiche au milieu de l'écran. Apparition : plus court, le carrousel vient plus tôt mais un simple effleurement risque de l'afficher ; plus long, c'est l'inverse.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "While you adjust the size, the real carousel appears in the middle of the screen. Delay: shorter, the carousel appears sooner but a simple flick may show it; longer, the opposite."
+          }
+        }
+      }
+    },
+    "Petit": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Small"
           }
         }
       }
@@ -3473,6 +4173,16 @@
         }
       }
     },
+    "Plein écran": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Full Screen"
+          }
+        }
+      }
+    },
     "Plein écran d'Apple : macOS empêche d'y afficher les tuiles.": {
       "localizations": {
         "en": {
@@ -3509,6 +4219,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Podcasts"
+          }
+        }
+      }
+    },
+    "Position": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Position"
           }
         }
       }
@@ -3683,12 +4403,52 @@
         }
       }
     },
+    "Quatre doigts": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Four Fingers"
+          }
+        }
+      }
+    },
     "Quatre doigts %@": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Four fingers %@"
+          }
+        }
+      }
+    },
+    "Quatre doigts vers la gauche ou la droite": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Four fingers left or right"
+          }
+        }
+      }
+    },
+    "Quatre doigts vers la gauche ou la droite, pour passer d'une application de travail à l'autre.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Four fingers left or right to move from one work app to another."
+          }
+        }
+      }
+    },
+    "Quitter %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quit %@"
           }
         }
       }
@@ -3703,12 +4463,42 @@
         }
       }
     },
+    "Quitter Square": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quit Square"
+          }
+        }
+      }
+    },
+    "Raccourci": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shortcut"
+          }
+        }
+      }
+    },
     "Raccourci %@": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Shortcut %@"
+          }
+        }
+      }
+    },
+    "Raccourci de Square": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Square Shortcut"
           }
         }
       }
@@ -3739,6 +4529,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Bring Back to Drawer"
+          }
+        }
+      }
+    },
+    "Ranger": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arrange"
           }
         }
       }
@@ -3823,6 +4623,16 @@
         }
       }
     },
+    "Recopier le Dock de macOS": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy the macOS Dock"
+          }
+        }
+      }
+    },
     "Reculer de 10 secondes": {
       "localizations": {
         "en": {
@@ -3873,12 +4683,32 @@
         }
       }
     },
+    "Repartir du Dock de macOS": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start over from the macOS Dock"
+          }
+        }
+      }
+    },
     "Replacer à côté de Side": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Move Back Next to Side"
+          }
+        }
+      }
+    },
+    "Resserrer la grille": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tighten Grid"
           }
         }
       }
@@ -3949,6 +4779,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Remove from Favorites"
+          }
+        }
+      }
+    },
+    "Retirer du Dock": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove from Dock"
           }
         }
       }
@@ -4073,6 +4913,16 @@
         }
       }
     },
+    "Régler les coins actifs…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set Hot Corners…"
+          }
+        }
+      }
+    },
     "Réseau": {
       "localizations": {
         "en": {
@@ -4153,6 +5003,16 @@
         }
       }
     },
+    "Se règle aussi en tirant le bord gauche ou droit du tiroir ouvert.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Also set by dragging the left or right edge of the open drawer."
+          }
+        }
+      }
+    },
     "Secouer le pointeur": {
       "localizations": {
         "en": {
@@ -4169,6 +5029,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Shake"
+          }
+        }
+      }
+    },
+    "Sens": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Direction"
           }
         }
       }
@@ -4383,6 +5253,16 @@
         }
       }
     },
+    "Taille des cartes": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Card size"
+          }
+        }
+      }
+    },
     "Taille des coins": {
       "localizations": {
         "en": {
@@ -4439,6 +5319,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Type to search Spotify."
+          }
+        }
+      }
+    },
+    "Tard": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Late"
           }
         }
       }
@@ -4603,6 +5493,16 @@
         }
       }
     },
+    "Toutes tes applications de travail en vignettes, pour passer de l'une à l'autre.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All your work apps as thumbnails, to move from one to another."
+          }
+        }
+      }
+    },
     "Trackpad : ouvrir le Finder": {
       "localizations": {
         "en": {
@@ -4723,6 +5623,26 @@
         }
       }
     },
+    "Un clic remplit l'écran en restant sur le même bureau ; un second rend à la fenêtre sa taille. Maj + clic ou Option + clic gardent le plein écran d'Apple.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "One click fills the screen while staying on the same desktop; a second click restores the window's size. Shift-click or Option-click keeps macOS full screen."
+          }
+        }
+      }
+    },
+    "Un effleurement rapide change d'application sans rien afficher. Un geste posé fait apparaître le carrousel, et l'application du centre passe devant quand les doigts se lèvent. Le geste ne s'active que s'il n'y a qu'un seul bureau ; sinon macOS glisse d'un bureau à l'autre.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A quick flick switches apps without showing anything. A slower swipe brings up the carousel, and the app in the center comes to the front when you lift your fingers. The gesture only works when there is a single desktop; otherwise macOS swipes between desktops."
+          }
+        }
+      }
+    },
     "Un raccourci pour le Finder, le tiroir et le presse-papiers.": {
       "localizations": {
         "en": {
@@ -4739,6 +5659,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "A Mac app goes in “Applications” instead."
+          }
+        }
+      }
+    },
+    "Une application à la fois": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "One App at a Time"
           }
         }
       }
@@ -4813,6 +5743,16 @@
         }
       }
     },
+    "Vers « Vite » : il apparaît plus tôt, mais un simple effleurement risque de l'afficher. Vers « Tard » : l'inverse.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toward “Soon”: it appears earlier, but a simple flick may show it. Toward “Late”: the opposite."
+          }
+        }
+      }
+    },
     "Vide": {
       "localizations": {
         "en": {
@@ -4879,6 +5819,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Up Next"
+          }
+        }
+      }
+    },
+    "Vite": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Soon"
           }
         }
       }
@@ -5043,6 +5993,16 @@
         }
       }
     },
+    "l'application": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "the app"
+          }
+        }
+      }
+    },
     "le coin %@": {
       "localizations": {
         "en": {
@@ -5113,12 +6073,42 @@
         }
       }
     },
+    "À gauche": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Left"
+          }
+        }
+      }
+    },
     "À gauche, la musique et la vidéo : YouTube, Spotify ou le site de ton choix.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "On the left, music and video: YouTube, Spotify or a site of your choice."
+          }
+        }
+      }
+    },
+    "À sa première utilisation, ce Dock est une copie de celui de macOS ; ensuite il vit sa vie. Son premier bouton ouvre la liste de toutes les applications : Entrée ajoute au Dock l'application choisie, Suppr l'en retire. Un clic droit sur une icône permet de la retirer du Dock ou de quitter l'application.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The first time you use it, this Dock is a copy of the macOS Dock; after that it has a life of its own. Its first button opens the list of all apps: Return adds the selected app to the Dock, Delete removes it. Right-click an icon to remove it from the Dock or quit the app."
+          }
+        }
+      }
+    },
+    "À utiliser seulement s'il reste des fenêtres dans un plein écran d'Apple : elles en sortent et remplissent l'écran à la place.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Use only if some windows are still in macOS full screen: they leave it and fill the screen instead."
           }
         }
       }
@@ -5273,12 +6263,42 @@
         }
       }
     },
+    "⌃ + chiffre": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⌃ + number"
+          }
+        }
+      }
+    },
     "⌃⌥Espace": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "⌃⌥Space"
+          }
+        }
+      }
+    },
+    "⌘ + chiffre": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⌘ + number"
+          }
+        }
+      }
+    },
+    "⌥ + chiffre": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⌥ + number"
           }
         }
       }

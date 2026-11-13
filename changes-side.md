@@ -8,6 +8,38 @@ Il est mis à jour à chaque modification, en même temps que le code.
 
 ## 13/11/2026
 
+### Tiroir : sa largeur se règle
+- Tirer le bord gauche du tiroir (celui du coin multimédia) ou son bord droit le réduit ou l'élargit ; il reste centré, et l'application affichée suit. Le pointeur devient une double flèche horizontale sur ces bords.
+- Réglages › Tiroir › « Largeur du tiroir » : la même chose, de 30 % à 100 % de l'écran.
+- Une application qui refuse d'être plus étroite (Réglages Système : 865 points) fixe la largeur minimum du tiroir : il ne peut plus être réduit en dessous, et s'élargit tout seul s'il l'était. Le tiroir apprend cette largeur la première fois qu'il pose l'application.
+- Plus fluide : la colonne d'icônes ne redemande plus les icônes à chaque mouvement, et tirer un bord ne recalcule le tiroir qu'une fois à la fois.
+- Quand la place manque, le coin multimédia cède d'abord (jusqu'à sa largeur minimum) et l'application garde la sienne, comme dans les vues partagées de macOS. Le tiroir peut ainsi rétrécir même avec Réglages Système.
+- Une application plus haute que le tiroir (Réglages Système) ne dépasse plus : le tiroir retient sa hauteur minimum et grandit.
+- Le mini carrousel est une roue, comme les sélecteurs à molette d'Apple : en tournant, les cartes rapetissent et s'effacent vers l'arrière, puis reviennent de l'autre côté en grossissant. Plus de saut au moment de faire le tour.
+- Cartes du mini carrousel un peu plus grandes (un cinquième de la hauteur de l'application, de 80 à 140 points).
+
+### Tiroir : une application à la fois
+- Le tiroir montre le coin multimédia (fixe, à gauche) et une seule application, sur toute la place restante.
+- Un geste court à quatre doigts l'ouvre sur la dernière application regardée. En prolongeant le geste, un **mini carrousel vertical** apparaît par-dessus l'application : le même que celui du plein écran, en miniature, aussi sensible (une application tous les 7 % de la hauteur du trackpad). Les cartes suivent les doigts ; doigts levés, celle du centre grandit jusqu'à sa place et l'application la remplace. Tiroir déjà ouvert, repartir dans le sens d'ouverture fait aussi apparaître le mini carrousel. Les cartes sont de vraies miniatures, et le mini carrousel tourne sans fin : après la dernière application revient la première, dans les deux sens.
+- À droite, une colonne : le « + » en haut, une icône par application (celle qu'on regarde est mise en avant, un clic en amène une autre), la roue dentée en bas.
+- Réglages › Tiroir › « Une application à la fois » : décoché, on retrouve la bande de tuiles.
+
+### Changer une application de place d'un geste
+- **⌃⌥↓** envoie l'application de devant au tiroir (qui s'ouvre sur elle) ; **⌃⌥↑** fait passer l'application du tiroir en plein écran.
+- Clic droit sur une case de la grille : « Envoyer au tiroir » (au-dessus de « Quitter »).
+- Dans la liste du « + » du tiroir, chaque application a un bouton bleu « Passer en plein écran ».
+- Le tiroir range une application entière, pas une seule fenêtre. Une application à taille fixe (la Calculette) quitte le tiroir sans pouvoir remplir l'écran.
+
+### Side et Square ne font plus qu'une app
+- **Avant :** deux apps qui se parlaient sans arrêt (coin de la grille, vidéo plein écran, fenêtres du tiroir), avec des réglages, une langue et des gestes en double.
+- **Maintenant :** une seule app. Elle garde tout de Side (réglages, liens, tuiles, autorisations) et reprend tout de Square : la grille (coin, ⌥ Tab, Dock), le carrousel à quatre doigts, l'agrandissement des fenêtres sans le plein écran d'Apple, l'écran partagé, les raccourcis ⌘1 à ⌘9, les vidéos sur fond noir.
+- Les réglages de Square sont repris une fois, tout seuls, au premier lancement. L'ancienne app Square est arrêtée et mise à la corbeille.
+- Une seule fenêtre de réglages : nouvelle rubrique « Plein écran » (Grille, Dock, Carrousel, Fenêtres). Les coins actifs proposent la « Grille des applications ».
+- Une seule icône dans la barre des menus, avec « Afficher la grille » et « Agrandir la fenêtre en cours ».
+- La présentation de Side se poursuit par celle du plein écran.
+- Mulot envoie toujours ses commandes de grille et de carrousel : l'app les écoute.
+- Le nom définitif de l'app reste à choisir ; l'identité technique de Side est gardée pour ne rien perdre.
+
 ### Finder : les raccourcis sur un clavier français
 - **La vraie cause du ⌘A qui ne marchait pas :** les raccourcis étaient repérés par l'emplacement des touches d'un clavier américain. Sur un clavier AZERTY, la touche A est ailleurs : ⌘A n'était jamais reconnu (et ⌘W réagissait à ⌘Z).
 - **Maintenant :** chaque raccourci est reconnu à sa lettre, quel que soit le clavier (AZERTY, QWERTY…).

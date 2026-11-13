@@ -4272,9 +4272,26 @@ enum Volet: String, CaseIterable, Identifiable {
         if let v = demande { demande = nil; return v }
         return a.firstIndex(of: "--volet").flatMap { $0 + 1 < a.count ? Volet(rawValue: a[$0 + 1]) : nil } ?? .general
     }
-    /// Volet demandé par une autre application (Square renvoie ici pour son coin actif).
+    /// Volet demandé (le plein écran renvoie ici, à sa rubrique ou à celle des coins actifs).
     static var demande: Volet?
+    /// Rouvre la fenêtre des réglages directement sur ce volet.
+    static func demandeDirecte(_ v: Volet) {
+        AppDelegate.shared.fermerReglages()
+        demande = v
+        AppDelegate.shared.ouvrirReglages()
+    }
+    /// La rubrique correspondante des réglages du plein écran.
+    var pleinEcran: VoletReglages? {
+        switch self {
+        case .grille: return .grille
+        case .dock: return .dock
+        case .carrousel: return .gestes
+        case .fenetres: return .fenetres
+        default: return nil
+        }
+    }
     case general, coins, clavier, gestes, apparence, fermeture, fichiers, colonnes, depot, tiroir, multimedia, applications, presse
+    case grille, dock, carrousel, fenetres          // le plein écran (ex-Square)
     var id: String { rawValue }
 
     /// Les rubriques de la barre latérale, avec leur intitulé.
@@ -4282,6 +4299,7 @@ enum Volet: String, CaseIterable, Identifiable {
         (nil, [.general]),
         (String(localized: "Ouvrir et fermer"), [.coins, .clavier, .gestes]),
         ("Finder", [.apparence, .fermeture, .fichiers, .colonnes, .depot]),
+        (String(localized: "Plein écran"), [.grille, .dock, .carrousel, .fenetres]),   // les applications de travail (ex-Square)
         (String(localized: "Tiroir"), [.tiroir, .multimedia, .applications]),     // le second panneau de Side, au bord opposé au Finder
         (String(localized: "Presse-papiers"), [.presse]),                         // le volet de droite : historique et liens enregistrés
     ]
@@ -4301,6 +4319,10 @@ enum Volet: String, CaseIterable, Identifiable {
         case .multimedia: return String(localized: "Multimédia")
         case .applications: return String(localized: "Applications")
         case .presse: return String(localized: "Historique et liens")
+        case .grille: return String(localized: "Grille")
+        case .dock: return String(localized: "Dock")
+        case .carrousel: return String(localized: "Carrousel")
+        case .fenetres: return String(localized: "Fenêtres")
         }
     }
     /// Une phrase sous le titre du volet, pour dire de quoi il s'agit.
@@ -4319,6 +4341,10 @@ enum Volet: String, CaseIterable, Identifiable {
         case .multimedia: return String(localized: "Musique et vidéo, au début du tiroir.")
         case .applications: return String(localized: "Les applications rangées dans le tiroir.")
         case .presse: return String(localized: "Le volet de droite : ce que tu as copié, et les liens que tu gardes.")
+        case .grille: return String(localized: "Toutes tes applications de travail en vignettes, pour passer de l'une à l'autre.")
+        case .dock: return String(localized: "Le Dock affiché dans la grille.")
+        case .carrousel: return String(localized: "Quatre doigts vers la gauche ou la droite, pour passer d'une application de travail à l'autre.")
+        case .fenetres: return String(localized: "Les applications de travail remplissent l'écran, sans le plein écran d'Apple.")
         }
     }
     var symbole: String {
@@ -4336,6 +4362,10 @@ enum Volet: String, CaseIterable, Identifiable {
         case .multimedia: return "play.rectangle.fill"
         case .applications: return "square.grid.2x2.fill"
         case .presse: return "doc.on.clipboard.fill"
+        case .grille: return "square.grid.2x2.fill"
+        case .dock: return "dock.rectangle"
+        case .carrousel: return "rectangle.stack.fill"
+        case .fenetres: return "macwindow"
         }
     }
     var couleur: Color {
@@ -4353,6 +4383,10 @@ enum Volet: String, CaseIterable, Identifiable {
         case .multimedia: return .red
         case .applications: return .mint
         case .presse: return .yellow
+        case .grille: return .blue
+        case .dock: return .green
+        case .carrousel: return .orange
+        case .fenetres: return .purple
         }
     }
 }
@@ -4485,13 +4519,15 @@ struct ReglagesView: View {
             }
         case .presse:
             ReglagesVoletPresse()
+        case .grille, .dock, .carrousel, .fenetres:
+            if let v = volet.pleinEcran { ContenuPleinEcran(volet: v) }
         case .coins:
             Section {
                 CoinsActifsView()
                 curseur("Taille des coins", $config.tailleCoin, 6...120, "\(Int(config.tailleCoin.rounded())) pt")
                     .disabled(config.coin == .aucun && tiroir.coin == .aucun && ConfigPresse.commun.coin == .aucun && ConfigSquare.commun.coin == .aucun)
             } footer: {
-                note("Choisis pour chaque coin ce qu'il ouvre : le Finder, le tiroir, le presse-papiers, la grille de Square (s'il est installé), ou rien. Revenir dans le coin referme. Si macOS utilise déjà ce coin, désactive-le dans Réglages Système > Bureau et Dock > Coins actifs.")
+                note("Choisis pour chaque coin ce qu'il ouvre : le Finder, le tiroir, le presse-papiers, la grille des applications, ou rien. Revenir dans le coin referme. Si macOS utilise déjà ce coin, désactive-le dans Réglages Système > Bureau et Dock > Coins actifs.")
             }
         case .clavier:
             Section("Finder") {
@@ -4510,6 +4546,12 @@ struct ReglagesView: View {
             Section {
                 RaccourciTiroirLigne()
             } header: { Text("Tiroir") }
+            Section {
+                LabeledContent("Envoyer l'application de devant au tiroir") { Text(verbatim: "⌃⌥↓").monospaced().foregroundStyle(.secondary) }
+                LabeledContent("Passer l'application du tiroir en plein écran") { Text(verbatim: "⌃⌥↑").monospaced().foregroundStyle(.secondary) }
+            } header: { Text("Changer de place") } footer: {
+                note("Aussi au clic droit sur une case de la grille (« Envoyer au tiroir »), et dans la liste du « + » du tiroir (le bouton bleu de chaque application).")
+            }
             Section {
                 RaccourciPresseLigne()
             } header: { Text("Presse-papiers") } footer: {
@@ -4959,6 +5001,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
 
         installerRaccourci()
         installerMenuEdition()
+        Programme.appli.demarrer()        // le plein écran (grille, carrousel, agrandissement) : l'ancien Square
         nettoyerDepot()
         creerDepot()
         if let e = NSScreen.main { placer(sur: e, anime: false) }   // fixe l'emplacement des zones de dépôt
@@ -5270,6 +5313,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         menu.removeAllItems()
         menu.addItem(withTitle: String(localized: "Afficher Side"), action: #selector(afficherEpingle), keyEquivalent: "").target = self
         menu.addItem(withTitle: String(localized: "Ajouter un dossier…"), action: #selector(choisirDossier), keyEquivalent: "").target = self
+        menu.addItem(.separator())
+        // Le plein écran (ex-Square).
+        menu.addItem(withTitle: String(localized: "Afficher la grille  (\(Raccourci.actuel.nom))"), action: #selector(Appli.basculerGrille),
+                     keyEquivalent: "").target = Programme.appli
+        menu.addItem(withTitle: String(localized: "Agrandir la fenêtre en cours  (⌃⌥ Entrée)"), action: #selector(Appli.agrandirActive),
+                     keyEquivalent: "").target = Programme.appli
         menu.addItem(.separator())
         menu.addItem(withTitle: String(localized: "Réglages…"), action: #selector(ouvrirReglages), keyEquivalent: ",").target = self
         // « Revoir la présentation » n'est plus dans ce menu : elle se relance depuis Réglages > Général.
@@ -7375,6 +7424,7 @@ enum Main {
     static func main() {
         reprendreAnciensReglages()
         deplacerAncienDossier()
+        reprendreReglagesDeSquare()
         let app = NSApplication.shared
         app.delegate = AppDelegate.shared
         app.setActivationPolicy(.accessory)
@@ -7385,6 +7435,18 @@ enum Main {
     /// on recopie une fois les anciens réglages (favoris, raccourci, position…) pour ne rien perdre.
     /// Les données (historique du copier-coller, fichiers déposés) étaient rangées dans « Application Support/Nook ».
     /// On renomme ce dossier une fois en « Side », avant que l'app ne s'en serve.
+    /// Side et Square ne font plus qu'une app (13/11/2026). Au premier lancement, les réglages de Square (coin, ordre des cases,
+    /// groupes, Dock, gestes, raccourcis…) sont recopiés une fois ici. Ceux qui existent déjà ici (langue…) sont gardés.
+    private static func reprendreReglagesDeSquare() {
+        let d = UserDefaults.standard
+        guard !d.bool(forKey: "reglagesSquareRepris") else { return }
+        d.set(true, forKey: "reglagesSquareRepris")
+        guard let anciens = UserDefaults(suiteName: "com.gauthieraube.square")?.persistentDomain(forName: "com.gauthieraube.square") else { return }
+        for (cle, valeur) in anciens where d.object(forKey: cle) == nil && !cle.hasPrefix("NS") && !cle.hasPrefix("Apple") {
+            d.set(valeur, forKey: cle)
+        }
+    }
+
     private static func deplacerAncienDossier() {
         let fm = FileManager.default
         let base = fm.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]

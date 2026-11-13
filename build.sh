@@ -41,6 +41,9 @@ else
 fi
 mkdir -p ~/Applications
 pkill -x Side || true
+# Square fait désormais partie de Side (13/11/2026) : l'ancienne app est arrêtée et mise à la corbeille (récupérable).
+pkill -x Square || true
+if [ -d ~/Applications/Square.app ]; then mv ~/Applications/Square.app ~/.Trash/Square-$(date +%Y%m%d-%H%M%S).app; fi
 pkill -x Nook || true
 pkill -x Tiroir || true
 sleep 0.5
