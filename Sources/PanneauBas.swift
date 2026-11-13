@@ -486,6 +486,7 @@ final class PanneauBas: NSObject {
     /// Le clic est décalé sur ce bord : c'est l'application qui se redimensionne elle-même, comme d'habitude sur le Mac
     /// (donc sans à-coups), et le tiroir ne fait que la suivre. `relais` est le décalage ajouté au pointeur pendant le geste.
     static var relais: CGPoint?
+    static var relaisHauteurSeule = false        // l'application affichée a une largeur fixe : pas de relais par les côtés
     static var relaisCôté = 0                    // 0 : le bord du haut (ou du bas) ; -1 : le bord gauche ; 1 : le droit
     /// La fenêtre de l'application affichée, si elle se laisse redimensionner (coordonnées globales). Tenue par la veille.
     static var fenêtreRelayable: CGRect?
@@ -719,6 +720,8 @@ final class PanneauBas: NSObject {
             AppDelegate.shared.ouvrirReglages()
         case "video-etat": pagesWeb.values.first(where: { $0.estUnYouTube })?.noterEtat()
         // Pour les essais : joue le geste du mini carrousel (« mini:debut », « mini:0.5 » pour un trajet, « mini:fin »).
+        case "tuile:0", "tuile:1", "tuile:2", "tuile:3":       // pour les essais : afficher l'application de ce rang
+            if let i = Int(commande.suffix(1)), emprunts.indices.contains(i) { montrerTuile(i) }
         case "mini:debut": commencerNavigation()
         case "mini:fin": lacherDoigts(ouvrir: true, elan: 0)
         case "video":                                     // la vidéo YouTube du tiroir : en plein écran, ou de retour
@@ -812,7 +815,14 @@ final class PanneauBas: NSObject {
     /// La taille maximum des applications qui refusent de grandir (la Calculette…), apprise en les posant : [largeur, hauteur].
     /// Une telle application est centrée dans sa place du tiroir, au lieu d'être collée dans un coin avec du vide à côté.
     private var taillesMaxi: [String: [Double]] {
-        get { (UserDefaults.standard.dictionary(forKey: "tiroirTaillesMaxi") as? [String: [Double]]) ?? [:] }
+        get {
+            // Les tailles retenues avant le 13/11/2026 bloquaient les deux dimensions à la fois : on repart de zéro, une fois.
+            if !UserDefaults.standard.bool(forKey: "tiroirTaillesMaxiParDimension") {
+                UserDefaults.standard.set(true, forKey: "tiroirTaillesMaxiParDimension")
+                UserDefaults.standard.removeObject(forKey: "tiroirTaillesMaxi")
+            }
+            return (UserDefaults.standard.dictionary(forKey: "tiroirTaillesMaxi") as? [String: [Double]]) ?? [:]
+        }
         set { UserDefaults.standard.set(newValue, forKey: "tiroirTaillesMaxi") }
     }
     /// La hauteur minimum de chaque application du tiroir (celles qui refusent d'être plus basses), apprise en les posant.
@@ -2072,7 +2082,8 @@ final class PanneauBas: NSObject {
                 let p = ev.location
                 let côté = PanneauBas.surUnCôté(p)
                 // Une application redimensionnable est affichée : le clic sur le bord du tiroir est relayé sur le bord de sa fenêtre.
-                if ConfigTiroir.commun.uneApp, let c = PanneauBas.fenêtreRelayable, côté != 0 || PanneauBas.surLeBord(p), c.width > 120, c.height > 120 {
+                if ConfigTiroir.commun.uneApp, let c = PanneauBas.fenêtreRelayable, côté != 0 || PanneauBas.surLeBord(p), c.width > 120, c.height > 120,
+                   PanneauBas.surLeBord(p) || !PanneauBas.relaisHauteurSeule {
                     let cible: CGPoint
                     if PanneauBas.surLeBord(p) {
                         cible = CGPoint(x: min(max(p.x, c.minX + 50), c.maxX - 50), y: ConfigTiroir.enHaut ? c.maxY - 1 : c.minY + 1)
@@ -2220,7 +2231,10 @@ final class PanneauBas: NSObject {
         // est bien à sa place dans le tiroir.
         if uneApp, tic % 3 == 0 {
             var relayable: CGRect?
-            if let (e, zone) = entières(p.frame).first, taillesMaxi[e.bundle] == nil, let f = fenetre(e), let c = AXBas.cadre(f),
+            // (Largeur fixe mais hauteur libre : le relais vaut pour le bord du haut seulement.)
+            let maxi = entières(p.frame).first.flatMap { taillesMaxi[$0.0.bundle] }
+            PanneauBas.relaisHauteurSeule = (maxi?.first ?? 100_000) < 50_000
+            if let (e, zone) = entières(p.frame).first, (maxi?.last ?? 100_000) > 50_000, let f = fenetre(e), let c = AXBas.cadre(f),
                abs(c.minX - zone.minX) < 30, abs(c.maxY - zone.maxY) < 30 || abs(c.minY - zone.minY) < 30, Self.redimensionnable(f) {
                 relayable = c
             }
@@ -3015,7 +3029,13 @@ final class PanneauBas: NSObject {
                 // Plus petite que sa place, et elle refuse de grandir : on retient sa taille, elle sera centrée.
                 let pluspetite = avant.width < zone.width - 3 || avant.height < zone.height - 3
                 if pluspetite, avant.width <= zone.width + 3, avant.height <= zone.height + 3 {
-                    var t = taillesMaxi; t[e.bundle] = [Double(avant.width.rounded()), Double(avant.height.rounded())]; taillesMaxi = t
+                    // Seule la dimension refusée est retenue : Réglages Système a une largeur fixe, mais sa hauteur est libre.
+                    let libre = 100_000.0
+                    let ancien = taillesMaxi[e.bundle] ?? [libre, libre]
+                    var t = taillesMaxi
+                    t[e.bundle] = [avant.width < zone.width - 3 ? Double(avant.width.rounded()) : (ancien.count == 2 ? ancien[0] : libre),
+                                   avant.height < zone.height - 3 ? Double(avant.height.rounded()) : (ancien.count == 2 ? ancien[1] : libre)]
+                    taillesMaxi = t
                     journalBas("%@ : taille fixe %.0f × %.0f, centrée dans le tiroir", e.nom, avant.width, avant.height)
                     stables[e.nom] = 0; replacements[e.nom] = 0
                     return

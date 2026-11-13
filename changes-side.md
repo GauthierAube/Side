@@ -16,6 +16,7 @@ Il est mis à jour à chaque modification, en même temps que le code.
 - Chaque partie a sa couleur et son symbole : Finder en bleu, plein écran en orange, tiroir en rose, presse-papiers en jaune. La barre latérale des réglages en reprend la couleur pour tous ses volets, et chaque volet affiche en tête la partie où l'on est (avec « désactivé » et un bouton « Activer » si elle est coupée).
 
 ### Tiroir : redimensionnement en direct
+- Une application à largeur fixe mais à hauteur libre (Réglages Système) prend maintenant toute la hauteur du tiroir, et se redimensionne en hauteur avec lui : la taille fixe est retenue dimension par dimension.
 - **Le relais** : attraper un bord du tiroir (haut, gauche, droite) revient à attraper le bord de la fenêtre de l'application affichée. C'est l'application qui se redimensionne elle-même, comme partout sur le Mac, et le tiroir (coin multimédia, barre d'icônes) ne fait que la suivre ; au lâcher, il se recentre. Les applications à taille fixe gardent l'ancien redimensionnement.
 - Après un redimensionnement rapide, une application occupée pouvait ignorer sa nouvelle taille (seul le coin multimédia suivait) : sa place est revérifiée juste après, et corrigée.
 - **Les applications du tiroir ne sont plus agrandies en plein écran** : depuis la fusion, l'agrandissement automatique ne retrouvait plus la liste du tiroir et agrandissait chaque application à sa première apparition (clignotements, application restée en grand, tuile crue fermée).
