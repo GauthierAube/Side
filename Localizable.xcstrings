@@ -204,6 +204,16 @@
         }
       }
     },
+    "Activer": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn On"
+          }
+        }
+      }
+    },
     "Adresse": {
       "localizations": {
         "en": {
@@ -3700,6 +3710,26 @@
         }
       }
     },
+    "Les parties de Side": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The parts of Side"
+          }
+        }
+      }
+    },
+    "Les petites applications et la musique, une à la fois.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Small apps and music, one at a time."
+          }
+        }
+      }
+    },
     "Les textes, les fichiers et les 40 dernières images copiés sont gardés 7 jours sur ce Mac ; ce que tu épingles (clic droit) est gardé sans limite. Les mots de passe ne sont jamais écrits sur le disque. Décocher l'historique efface tout.": {
       "localizations": {
         "en": {
@@ -5706,6 +5736,16 @@
         }
       }
     },
+    "Tes applications de travail en grand : la grille, le carrousel, les numéros.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your work apps full size: the grid, the carousel, the numbers."
+          }
+        }
+      }
+    },
     "Tes apps de travail prennent tout l'écran. La grille les montre toutes : clique sur celle que tu veux.": {
       "localizations": {
         "en": {
@@ -5752,6 +5792,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Your files on top of any app. Whatever you drop beside it stays at hand."
+          }
+        }
+      }
+    },
+    "Tes fichiers par-dessus n'importe quelle application, et les zones de dépôt.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your files on top of any app, and the drop zones."
           }
         }
       }
@@ -5832,6 +5882,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "All"
+          }
+        }
+      }
+    },
+    "Tout ce que tu as copié, et les liens que tu gardes.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Everything you copied, and the links you keep."
           }
         }
       }
@@ -6052,6 +6112,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "One App at a Time"
+          }
+        }
+      }
+    },
+    "Une partie coupée ne s'ouvre plus : ni par son coin, ni par son raccourci, ni par son geste. Ses réglages restent là pour le jour où tu la rallumes.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A part that is turned off no longer opens: not by its corner, its shortcut or its gesture. Its settings stay here for the day you turn it back on."
           }
         }
       }
@@ -6386,6 +6456,16 @@
         }
       }
     },
+    "désactivé": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "off"
+          }
+        }
+      }
+    },
     "et %lld de plus": {
       "localizations": {
         "en": {
@@ -6672,6 +6752,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "–"
+          }
+        }
+      }
+    },
+    "— désactivé": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "— off"
           }
         }
       }

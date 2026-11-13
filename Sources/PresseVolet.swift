@@ -973,6 +973,7 @@ final class VoletPresse {
     func suspendreRaccourci() { TouchesBas.retirer(idRaccourci) }
 
     func ouvrir(sur ecran: NSScreen? = nil) {
+        guard Partie.presse.active else { return }          // presse-papiers coupé dans les réglages
         guard !ouvert, !CaptureEcran.enCours,
               let e = ecran ?? NSScreen.screens.first(where: { $0.frame.contains(NSEvent.mouseLocation) }) ?? NSScreen.main else { return }
         let p = panneau ?? {

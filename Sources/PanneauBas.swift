@@ -3,6 +3,11 @@
 // posées côte à côte dans une bande qu'on fait défiler.
 // Il se referme au clic ailleurs, avec Échap, le même raccourci ou quatre doigts dans l'autre sens.
 import AppKit
+
+private extension Bool {
+    /// `condition.then { valeur }` : la valeur si c'est vrai, rien sinon.
+    func then<T>(_ f: () -> T) -> T? { self ? f() : nil }
+}
 import Carbon.HIToolbox
 import UniformTypeIdentifiers
 
@@ -250,10 +255,7 @@ final class PoigneeHauteurBas: NSView {
     private var depart: CGFloat = 0
     private var zone: NSTrackingArea?
 
-    override func draw(_ dirtyRect: NSRect) {
-        NSColor.labelColor.withAlphaComponent(0.28).setFill()
-        NSBezierPath(roundedRect: NSRect(x: bounds.midX - 20, y: bounds.midY - 2, width: 40, height: 4), xRadius: 2, yRadius: 2).fill()
-    }
+    // (Plus de petit trait dessiné : le tiroir se redimensionne par tous ses bords, le pointeur suffit à le signaler.)
     override func acceptsFirstMouse(for event: NSEvent?) -> Bool { true }
     override func resetCursorRects() { addCursorRect(bounds, cursor: .resizeUpDown) }
     override func mouseDown(with event: NSEvent) { depart = NSEvent.mouseLocation.y; auDebut?() }
@@ -480,6 +482,13 @@ final class PanneauBas: NSObject {
         }
         return false
     }
+    /// Le relais (13/11/2026) : attraper un bord du tiroir revient à attraper le bord de la fenêtre de l'application affichée.
+    /// Le clic est décalé sur ce bord : c'est l'application qui se redimensionne elle-même, comme d'habitude sur le Mac
+    /// (donc sans à-coups), et le tiroir ne fait que la suivre. `relais` est le décalage ajouté au pointeur pendant le geste.
+    static var relais: CGPoint?
+    static var relaisCôté = 0                    // 0 : le bord du haut (ou du bas) ; -1 : le bord gauche ; 1 : le droit
+    /// La fenêtre de l'application affichée, si elle se laisse redimensionner (coordonnées globales). Tenue par la veille.
+    static var fenêtreRelayable: CGRect?
     static var tirageHauteur = false            // on est en train de tirer le bord du tiroir (suivi par le filtre d'événements)
     static var departHauteur: CGFloat = 0
     /// Les côtés du tiroir, à gauche (le bord du coin multimédia) et à droite : on les tire pour réduire ou élargir tout le tiroir,
@@ -1438,6 +1447,7 @@ final class PanneauBas: NSObject {
 
     /// Met le panneau en place, caché sous le bord, avec les photos des tuiles : prêt à glisser.
     private func préparerOuverture() -> Bool {
+        guard Partie.tiroir.active else { journalBas("tiroir coupé dans les réglages : pas d'ouverture"); return false }
         // Pendant une capture d'écran, le tiroir ne s'ouvre par aucun geste.
         guard !ouvert, !CaptureEcran.enCours, let ecran = NSScreen.main else { return false }
         ouvert = true
@@ -1673,6 +1683,7 @@ final class PanneauBas: NSObject {
         veille?.invalidate()
         veille = nil
         PanneauBas.boutonsVerts = []
+        PanneauBas.fenêtreRelayable = nil
         PanneauBas.boutonsJaunes = []
         TouchesBas.retirer(idEchap)
         if let e = ecouteClics { NSEvent.removeMonitor(e) }
@@ -1753,24 +1764,160 @@ final class PanneauBas: NSObject {
 
     // MARK: Hauteur du panneau (on tire son bord haut, comme pour la carte de Side)
 
+    /// Une app à la fois : pendant qu'on tire un bord du tiroir, la vraie fenêtre de l'application suit en direct (elle se
+    /// redimensionne comme si on la tirait elle-même), au lieu d'être remplacée par une photo figée.
+    private var enDirect = false
+    private var étaitAppuyé = false
+    private var pointAppui = NSPoint.zero
+    private var suiviFenêtre = false
+    /// Le bouton a-t-il été enfoncé sur un bord gauche ou droit de cette fenêtre ? (Seul ce geste-là fait suivre le tiroir :
+    /// un clic sur la barre, ou une fenêtre qui se pose après un changement d'application, ne doit rien déplacer.)
+    private func appuiSurUnBord(_ c: CGRect) -> Bool {
+        let haut = NSScreen.screens.first?.frame.height ?? 0
+        let p = CGPoint(x: pointAppui.x, y: haut - pointAppui.y)
+        guard p.y > c.minY - 10, p.y < c.maxY + 10 else { return false }
+        return abs(p.x - c.maxX) < 60 || abs(p.x - c.minX) < 60
+    }
+    private var rangDirect = 0
+    private var finDirectÀ = Date.distantPast          // l'application affichée : elle le reste quelle que soit la nouvelle hauteur
+    private func commencerEnDirect() -> Bool {
+        guard uneApp, ouvert, enPlace, !sansFenêtres, !suiviDoigts, panneau != nil else { return false }
+        selecteur.fermer()
+        rangDirect = rangCourant
+        enDirect = true
+        return true
+    }
+    /// Pose la fenêtre de l'application affichée à sa place, pour le nouveau cadre du tiroir.
+    private func suivreEnDirect(_ fin: CGRect) {
+        // Le défilement se compte en hauteurs de tiroir : la hauteur change, il est recalculé pour garder la même application.
+        défilement = CGFloat(rangDirect) * (bande(fin).height + marge)
+        for (e, zone) in entières(fin) {
+            guard let f = fenetre(e) else { continue }
+            // Deux réglages au lieu de trois, dans le bon ordre : la fenêtre ne saute pas à chaque mouvement.
+            // Elle rapetisse : d'abord la taille, puis la place ; elle grandit : d'abord la place, puis la taille.
+            var p = zone.origin, t = zone.size
+            guard let vp = AXValueCreate(.cgPoint, &p), let vt = AXValueCreate(.cgSize, &t) else { continue }
+            let avant = AXBas.cadre(f)
+            let rapetisse = (avant?.height ?? 0) > zone.height || (avant?.width ?? 0) > zone.width
+            if rapetisse {
+                AXUIElementSetAttributeValue(f, kAXSizeAttribute as CFString, vt)
+                AXUIElementSetAttributeValue(f, kAXPositionAttribute as CFString, vp)
+            } else {
+                AXUIElementSetAttributeValue(f, kAXPositionAttribute as CFString, vp)
+                AXUIElementSetAttributeValue(f, kAXSizeAttribute as CFString, vt)
+            }
+        }
+    }
+
+    // MARK: Relais : l'application se redimensionne elle-même, le tiroir la suit
+
+    fileprivate func commencerRelais() {
+        selecteur.fermer()
+        rangDirect = rangCourant
+        enDirect = true                 // la veille ne touche à rien pendant le geste
+        journalBas("bord du tiroir : relayé à la fenêtre de l'application (côté %d)", PanneauBas.relaisCôté)
+    }
+
+    /// Le tiroir prend la taille qui va à la fenêtre, telle que l'application vient de la redimensionner.
+    fileprivate func suivreRelais() {
+        guard enDirect, let p = panneau, let e = entières(p.frame).first?.0 ?? emprunts.indices.contains(rangDirect).then({ emprunts[rangDirect] }),
+              let f = fenetre(e), let c = AXBas.cadre(f), let ecran = p.screen ?? NSScreen.main else { return }
+        let haut = NSScreen.screens.first?.frame.height ?? 0
+        let z = ecran.visibleFrame
+        var g = panneauGlobal(p.frame)
+        if PanneauBas.relaisCôté == 0 {
+            // Le bord tourné vers le milieu de l'écran suit la fenêtre ; l'autre reste collé au bord de l'écran.
+            if enHaut { g.size.height = max(200, c.maxY + marge - g.minY) }
+            else { let bas = g.maxY; g.origin.y = c.minY - marge; g.size.height = max(200, bas - g.minY) }
+        } else {
+            g.origin.x = max(z.minX, c.minX - débutTuiles - marge)
+            g.size.width = min(z.maxX - g.minX, c.width + débutTuiles + largeurColonne + 3 * marge)
+        }
+        let cadre = CGRect(x: g.minX, y: haut - g.maxY, width: g.width, height: g.height)
+        guard abs(cadre.minX - p.frame.minX) > 0.5 || abs(cadre.width - p.frame.width) > 0.5
+                || abs(cadre.minY - p.frame.minY) > 0.5 || abs(cadre.height - p.frame.height) > 0.5 else { return }
+        p.setFrame(cadre, display: true)
+        disposerLeFond(cadre)
+        défilement = CGFloat(rangDirect) * (bande(cadre).height + marge)
+    }
+
+    /// Bouton relâché : le tiroir retient sa nouvelle taille, se recale (bornes, centrage) et la fenêtre avec lui.
+    fileprivate func finirRelais() {
+        suivreRelais()
+        guard let p = panneau, let ecran = p.screen ?? NSScreen.main else { enDirect = false; return }
+        let z = ecran.visibleFrame
+        if PanneauBas.relaisCôté == 0 { hauteurChoisie = p.frame.height }
+        else { largeurChoisie = min(1, max(0.3, p.frame.width / z.width)) }
+        let fin = cadre(ecran)
+        if PanneauBas.relaisCôté == 0 { hauteurChoisie = fin.height }
+        let terminer = { [weak self] in
+            guard let self else { return }
+            self.disposerLeFond(fin)
+            self.finirEnDirect()
+        }
+        if abs(fin.minX - p.frame.minX) > 1 || abs(fin.width - p.frame.width) > 1 || abs(fin.height - p.frame.height) > 1 {
+            NSAnimationContext.runAnimationGroup({ ctx in
+                ctx.duration = 0.22
+                ctx.timingFunction = CAMediaTimingFunction(controlPoints: 0.2, 0.9, 0.25, 1)
+                p.animator().setFrame(fin, display: true)
+            }, completionHandler: terminer)
+        } else { terminer() }
+    }
+
     fileprivate func commencerHauteur() {
+        if commencerEnDirect() { hauteurAuDepart = panneau?.frame.height ?? 0; return }
         guard let p = panneau, commencerDéfilement() else { return }     // les tuiles deviennent des photos le temps du geste
         finDéfilement?.cancel()
         hauteurAuDepart = p.frame.height
     }
 
     fileprivate func tirerHauteur(_ montée: CGFloat) {
-        guard ouvert, défile, let p = panneau, let ecran = p.screen ?? NSScreen.main else { return }
+        guard ouvert, défile || enDirect, let p = panneau, let ecran = p.screen ?? NSScreen.main else { return }
         hauteurChoisie = hauteurAuDepart + (enHaut ? -montée : montée)          // bornée par cadre() : un minimum, et presque tout l'écran au plus
         let fin = cadre(ecran)
         hauteurChoisie = fin.height
         p.setFrame(fin, display: true)
         disposerLeFond(fin)
+        if enDirect { suivreEnDirect(fin); return }
         poser(1)
         déplacerImages(animé: false)                      // toutes les tuiles prennent la nouvelle hauteur, ensemble
     }
 
+    /// Pendant qu'on élargit (ou rétrécit) la fenêtre de l'application affichée par son bord : le tiroir change de largeur
+    /// avec elle, en direct. La barre d'icônes est poussée (ou ramenée) au lieu d'être recouverte.
+    private func suivreLaFenêtre(_ c: CGRect) {
+        guard let p = panneau, let ecran = p.screen ?? NSScreen.main else { return }
+        let z = ecran.visibleFrame
+        let x = max(z.minX, c.minX - débutTuiles - marge)
+        let l = min(z.maxX - x, max(min(largeurTiroirMini, z.width), c.width + débutTuiles + largeurColonne + 3 * marge))
+        var f = p.frame
+        guard abs(f.minX - x) > 0.5 || abs(f.width - l) > 0.5 else { return }
+        f.origin.x = x; f.size.width = l
+        p.setFrame(f, display: true)
+        disposerLeFond(f)
+    }
+
+    /// Fenêtre lâchée : le tiroir retient sa nouvelle largeur et revient au centre de l'écran, d'un mouvement doux.
+    private func recentrerAprèsLaFenêtre() {
+        guard let p = panneau, let ecran = p.screen ?? NSScreen.main else { return }
+        let z = ecran.visibleFrame
+        largeurChoisie = min(1, max(0.3, p.frame.width / z.width))
+        let fin = cadre(ecran)
+        journalBas("largeur du tiroir suivie depuis la fenêtre : %.0f", fin.width)
+        guard abs(fin.minX - p.frame.minX) > 1 || abs(fin.width - p.frame.width) > 1 else { recaler(); return }
+        NSAnimationContext.runAnimationGroup({ ctx in
+            ctx.duration = 0.25
+            ctx.timingFunction = CAMediaTimingFunction(controlPoints: 0.2, 0.9, 0.25, 1)
+            p.animator().setFrame(fin, display: true)
+        }) { [weak self] in
+            guard let self else { return }
+            self.disposerLeFond(fin)
+            self.recaler()
+        }
+    }
+
     fileprivate func commencerLargeur() {
+        if commencerEnDirect() { largeurAuDépart = panneau?.frame.width ?? 0; return }
         guard let p = panneau, commencerDéfilement() else { return }
         finDéfilement?.cancel()
         largeurAuDépart = p.frame.width
@@ -1778,17 +1925,19 @@ final class PanneauBas: NSObject {
 
     /// `écart` : le chemin fait par la souris depuis le début, vers l'intérieur du tiroir (positif = plus étroit).
     fileprivate func tirerLargeur(_ écart: CGFloat) {
-        guard ouvert, défile, let p = panneau, let ecran = p.screen ?? NSScreen.main else { return }
+        guard ouvert, défile || enDirect, let p = panneau, let ecran = p.screen ?? NSScreen.main else { return }
         let z = ecran.visibleFrame
         largeurChoisie = min(1, max(0.3, (largeurAuDépart - 2 * écart) / z.width))     // les deux côtés bougent ensemble
         let fin = cadre(ecran)
         p.setFrame(fin, display: true)
         disposerLeFond(fin)
+        if enDirect { suivreEnDirect(fin); return }
         poser(1)
         déplacerImages(animé: false)
     }
 
     fileprivate func finirLargeur() {
+        if enDirect { finirEnDirect(); return }
         guard ouvert, défile else { return }
         journalBas("largeur du tiroir : %.0f", panneau?.frame.width ?? 0)
         défile = false
@@ -1796,7 +1945,31 @@ final class PanneauBas: NSObject {
         installer(déjàArrivé: true)
     }
 
+    private func finirEnDirect() {
+        enDirect = false
+        finDirectÀ = Date()
+        refusHauteur = []
+        journalBas("tiroir redimensionné en direct : %.0f × %.0f", panneau?.frame.width ?? 0, panneau?.frame.height ?? 0)
+        panneau?.invalidateShadow()
+        if let p = panneau { suivreEnDirect(p.frame) }
+        stables = [:]; replacements = [:]; posées = []          // la fenêtre est revérifiée à sa nouvelle place
+        // Une application occupée peut ignorer la demande : on vérifie un peu plus tard qu'elle a bien pris sa place.
+        for délai in [0.15, 0.5, 1.2] {
+            DispatchQueue.main.asyncAfter(deadline: .now() + délai) { [weak self] in
+                guard let self, self.ouvert, !self.enDirect, !self.défile, let p = self.panneau else { return }
+                for (e, zone) in self.entières(p.frame) {
+                    guard let f = self.fenetre(e), let c = AXBas.cadre(f) else { journalBas("après redimensionnement : fenêtre de %@ introuvable", e.nom); continue }
+                    if abs(c.height - zone.height) > 3 || abs(c.width - zone.width) > 3 || abs(c.minY - zone.minY) > 3 {
+                        journalBas("après redimensionnement : %@ est en %.0f × %.0f au lieu de %.0f × %.0f, replacée", e.nom, c.width, c.height, zone.width, zone.height)
+                        AXBas.placer(f, zone)
+                    }
+                }
+            }
+        }
+    }
+
     fileprivate func finirHauteur() {
+        if enDirect { finirEnDirect(); return }
         guard ouvert, défile else { return }
         journalBas("hauteur du panneau : %.0f", panneau?.frame.height ?? 0)
         refusHauteur = []
@@ -1824,6 +1997,23 @@ final class PanneauBas: NSObject {
             }
             // Pendant une capture d'écran, le tiroir ne touche à aucun clic ni au pointeur.
             if CaptureEcran.enCours, !PanneauBas.tirageHauteur { return Unmanaged.passUnretained(ev) }
+            // Relais en cours : le geste continue sur le bord de la fenêtre de l'application, le tiroir suit.
+            if let d = PanneauBas.relais {
+                if type == .leftMouseDragged || type == .leftMouseUp {
+                    ev.location = CGPoint(x: ev.location.x + d.x, y: ev.location.y + d.y)
+                    if type == .leftMouseUp {
+                        PanneauBas.relais = nil
+                        DispatchQueue.main.async { PanneauBas.commun.finirRelais() }
+                    } else if !PanneauBas.recalculPrévu {
+                        PanneauBas.recalculPrévu = true
+                        DispatchQueue.main.async {
+                            PanneauBas.recalculPrévu = false
+                            PanneauBas.commun.suivreRelais()
+                        }
+                    }
+                    return Unmanaged.passUnretained(ev)
+                }
+            }
             // Le bord du tiroir qu'on tire pour régler sa hauteur. Les fenêtres des tuiles sont posées juste dessous, devant
             // le tiroir, et leur propre zone de redimensionnement déborde sur ce bord : sans ce filtre, c'est une fenêtre
             // qui attrapait le clic et se redimensionnait à la place du tiroir. Ici, le clic sur le bord est pour le tiroir.
@@ -1881,6 +2071,21 @@ final class PanneauBas: NSObject {
             if type == .leftMouseDown, PanneauBas.estOuvertBrut {
                 let p = ev.location
                 let côté = PanneauBas.surUnCôté(p)
+                // Une application redimensionnable est affichée : le clic sur le bord du tiroir est relayé sur le bord de sa fenêtre.
+                if ConfigTiroir.commun.uneApp, let c = PanneauBas.fenêtreRelayable, côté != 0 || PanneauBas.surLeBord(p), c.width > 120, c.height > 120 {
+                    let cible: CGPoint
+                    if PanneauBas.surLeBord(p) {
+                        cible = CGPoint(x: min(max(p.x, c.minX + 50), c.maxX - 50), y: ConfigTiroir.enHaut ? c.maxY - 1 : c.minY + 1)
+                        PanneauBas.relaisCôté = 0
+                    } else {
+                        cible = CGPoint(x: côté < 0 ? c.minX + 1 : c.maxX - 1, y: min(max(p.y, c.minY + 50), c.maxY - 50))
+                        PanneauBas.relaisCôté = côté < 0 ? -1 : 1
+                    }
+                    PanneauBas.relais = CGPoint(x: cible.x - p.x, y: cible.y - p.y)
+                    ev.location = cible
+                    DispatchQueue.main.async { PanneauBas.commun.commencerRelais() }
+                    return Unmanaged.passUnretained(ev)
+                }
                 if côté != 0, !PanneauBas.surLeBord(p) {
                     PanneauBas.tirageLargeur = côté
                     PanneauBas.departLargeur = p.x
@@ -1999,15 +2204,28 @@ final class PanneauBas: NSObject {
             else if ouvert { TouchesBas.ajouter(idEchap, touche: UInt32(kVK_Escape), modifs: 0) { [weak self] in self?.fermer(rendreLaMain: true) } }
         }
         if capture { return }
-        guard ouvert, enPlace, !défile, !suiviDoigts, !sansFenêtres, let p = panneau else {
+        guard ouvert, enPlace, !défile, !enDirect, !suiviDoigts, !sansFenêtres, let p = panneau else {
             PanneauBas.boutonsVerts = []; PanneauBas.boutonsJaunes = []; enMain = nil; return
         }
         tic += 1
         let appuyé = NSEvent.pressedMouseButtons & 1 != 0
+        if appuyé, !étaitAppuyé { pointAppui = NSEvent.mouseLocation }      // où le bouton a été enfoncé
+        étaitAppuyé = appuyé
         if appuyé { dernierAppui = Date() }
-        let geste = appuyé || Date().timeIntervalSince(dernierAppui) < 1     // c'est bien vous qui bougez la fenêtre
+        // C'est bien vous qui bougez la fenêtre (et pas le tiroir qu'on vient de redimensionner, dont la fenêtre se pose encore).
+        let geste = (appuyé || Date().timeIntervalSince(dernierAppui) < 1) && Date().timeIntervalSince(finDirectÀ) > 1.5
         let b = bande(p.frame)
         var verts: [(nom: String, cadre: CGRect)] = [], jaunes: [(nom: String, cadre: CGRect)] = []
+        // Pour le relais : la fenêtre de l'application affichée, si elle se redimensionne (pas une taille fixe) et qu'elle
+        // est bien à sa place dans le tiroir.
+        if uneApp, tic % 3 == 0 {
+            var relayable: CGRect?
+            if let (e, zone) = entières(p.frame).first, taillesMaxi[e.bundle] == nil, let f = fenetre(e), let c = AXBas.cadre(f),
+               abs(c.minX - zone.minX) < 30, abs(c.maxY - zone.maxY) < 30 || abs(c.minY - zone.minY) < 30, Self.redimensionnable(f) {
+                relayable = c
+            }
+            PanneauBas.fenêtreRelayable = relayable
+        }
         for (e, zone) in entières(p.frame) where posées.contains(e.nom) {
             if let a = app(e), a.isHidden { continue }
             // Certaines applications quittent quand on ferme leur fenêtre (Réglages Système) : c'est aussi un bouton rouge.
@@ -2040,6 +2258,8 @@ final class PanneauBas: NSObject {
                 if retaillée {
                     // Sa nouvelle largeur est retenue tout de suite, et les voisines se poussent pendant que vous tirez.
                     enMainRetaillée = true
+                    // Une app à la fois : le tiroir suit la fenêtre pendant qu'on la tire, la barre d'icônes est poussée.
+                    if uneApp, appuyé, appuiSurUnBord(c) { suivreLaFenêtre(c); suiviFenêtre = true }
                     var d = disposition
                     d[e.nom] = [0, 0, Double(min(max(c.width, 200), b.width)), 0]
                     disposition = d
@@ -2056,6 +2276,7 @@ final class PanneauBas: NSObject {
                 } else {
                     // Lâchée : déplacée sans être élargie, elle prend le rang où vous l'avez posée. Puis tout se réaligne.
                     if !uneApp, !enMainRetaillée, abs(c.midX - zone.midX) > 30 { changerDeRang(e, milieu: c.midX) }
+                    if uneApp, suiviFenêtre { suiviFenêtre = false; enMain = nil; recentrerAprèsLaFenêtre(); return }
                     enMain = nil
                     recaler()
                     return

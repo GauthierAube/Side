@@ -46,6 +46,8 @@
 	<string>Shelf Actions</string>
 	<key>Actions de la zone</key>
 	<string>Drop zone actions</string>
+	<key>Activer</key>
+	<string>Turn On</string>
 	<key>Adresse</key>
 	<string>Address</string>
 	<key>Adresse copiée : collez-la dans « Redirect URIs ».</key>
@@ -746,6 +748,10 @@ Press Esc to cancel.</string>
 	<string>Both</string>
 	<key>Les en sortir</key>
 	<string>Take Them Out</string>
+	<key>Les parties de Side</key>
+	<string>The parts of Side</string>
+	<key>Les petites applications et la musique, une à la fois.</key>
+	<string>Small apps and music, one at a time.</string>
 	<key>Les textes, les fichiers et les 40 dernières images copiés sont gardés 7 jours sur ce Mac ; ce que tu épingles (clic droit) est gardé sans limite. Les mots de passe ne sont jamais écrits sur le disque. Décocher l'historique efface tout.</key>
 	<string>Copied text, files and the last 40 images are kept for 7 days on this Mac; what you pin (right-click) is kept with no limit. Passwords are never written to disk. Turning off history erases everything.</string>
 	<key>Les zones où poser des fichiers en attente, à côté du Finder de Side.</key>
@@ -1146,6 +1152,8 @@ Press Esc to cancel.</string>
 	<string>Late</string>
 	<key>Terminer</key>
 	<string>Done</string>
+	<key>Tes applications de travail en grand : la grille, le carrousel, les numéros.</key>
+	<string>Your work apps full size: the grid, the carousel, the numbers.</string>
 	<key>Tes apps de travail prennent tout l'écran. La grille les montre toutes : clique sur celle que tu veux.</key>
 	<string>Your work apps fill the screen. The grid shows them all: click the one you want.</string>
 	<key>Tes dossiers</key>
@@ -1156,6 +1164,8 @@ Press Esc to cancel.</string>
 	<string>Your Files</string>
 	<key>Tes fichiers par-dessus n'importe quelle app. Ce que tu déposes à côté reste sous la main.</key>
 	<string>Your files on top of any app. Whatever you drop beside it stays at hand.</string>
+	<key>Tes fichiers par-dessus n'importe quelle application, et les zones de dépôt.</key>
+	<string>Your files on top of any app, and the drop zones.</string>
 	<key>Texte</key>
 	<string>Text</string>
 	<key>Tiroir</key>
@@ -1172,6 +1182,8 @@ Press Esc to cancel.</string>
 	<string>Always stay visible</string>
 	<key>Tout</key>
 	<string>All</string>
+	<key>Tout ce que tu as copié, et les liens que tu gardes.</key>
+	<string>Everything you copied, and the links you keep.</string>
 	<key>Tout ce que tu as copié, retrouvé d'un clic.</key>
 	<string>Everything you've copied, one click away.</string>
 	<key>Tout sélectionner</key>
@@ -1216,6 +1228,8 @@ Press Esc to cancel.</string>
 	<string>A Mac app goes in “Applications” instead.</string>
 	<key>Une application à la fois</key>
 	<string>One App at a Time</string>
+	<key>Une partie coupée ne s'ouvre plus : ni par son coin, ni par son raccourci, ni par son geste. Ses réglages restent là pour le jour où tu la rallumes.</key>
+	<string>A part that is turned off no longer opens: not by its corner, its shortcut or its gesture. Its settings stay here for the day you turn it back on.</string>
 	<key>Une petite app à la fois, à côté de ta musique. Continue le geste : les autres apps du tiroir défilent.</key>
 	<string>One small app at a time, next to your music. Keep swiping: the other drawer apps scroll by.</string>
 	<key>Une secousse de souris</key>
@@ -1282,6 +1296,8 @@ Press Esc to cancel.</string>
 	<string>copy</string>
 	<key>dossier sans titre</key>
 	<string>untitled folder</string>
+	<key>désactivé</key>
+	<string>off</string>
 	<key>et %lld de plus</key>
 	<string>and %lld more</string>
 	<key>https://…</key>
@@ -1340,6 +1356,8 @@ Press Esc to cancel.</string>
 	<string>Shelf</string>
 	<key>–</key>
 	<string>–</string>
+	<key>— désactivé</key>
+	<string>— off</string>
 	<key>••••••••••  (mot de passe)</key>
 	<string>••••••••••  (password)</string>
 	<key>⌃ + chiffre</key>

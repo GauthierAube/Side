@@ -39,7 +39,7 @@ enum BoutonVert {
                   let (fenetre, jaune) = BoutonVert.fenetreDuBouton(ev.location) else { return Unmanaged.passUnretained(ev) }
             if jaune {
                 // Bouton jaune d'une application de travail : elle rejoint le tiroir (au lieu de se cacher dans le Dock).
-                guard BoutonVert.jauneVersTiroir else { return Unmanaged.passUnretained(ev) }
+                guard BoutonVert.jauneVersTiroir, Partie.pleinEcran.active, Partie.tiroir.active else { return Unmanaged.passUnretained(ev) }
                 var pid: pid_t = 0
                 guard AXUIElementGetPid(fenetre, &pid) == .success else { return Unmanaged.passUnretained(ev) }
                 BoutonVert.clicAvalé = true
@@ -49,7 +49,7 @@ enum BoutonVert {
                 }
                 return nil
             }
-            guard BoutonVert.actif else { return Unmanaged.passUnretained(ev) }
+            guard BoutonVert.actif, Partie.pleinEcran.active else { return Unmanaged.passUnretained(ev) }
             BoutonVert.clicAvalé = true
             DispatchQueue.main.async {
                 journal("Square: bouton vert → faux plein écran")

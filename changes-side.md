@@ -8,6 +8,22 @@ Il est mis à jour à chaque modification, en même temps que le code.
 
 ## 13/11/2026
 
+### Finder : la zone de dépôt compte comme le Finder
+- Avec « Fermer quand la souris en sort », passer la souris sur la zone de dépôt ne referme plus le Finder.
+
+### Les quatre parties de Side, activables et reconnaissables
+- Réglages > Général : « Les parties de Side » permet d'activer ou de couper le Finder, le plein écran (grille, carrousel, agrandissement, numéros), le tiroir et le presse-papiers. Une partie coupée ne s'ouvre plus, ni par son coin, ni par son raccourci, ni par son geste ; ses réglages restent.
+- Chaque partie a sa couleur et son symbole : Finder en bleu, plein écran en orange, tiroir en rose, presse-papiers en jaune. La barre latérale des réglages en reprend la couleur pour tous ses volets, et chaque volet affiche en tête la partie où l'on est (avec « désactivé » et un bouton « Activer » si elle est coupée).
+
+### Tiroir : redimensionnement en direct
+- **Le relais** : attraper un bord du tiroir (haut, gauche, droite) revient à attraper le bord de la fenêtre de l'application affichée. C'est l'application qui se redimensionne elle-même, comme partout sur le Mac, et le tiroir (coin multimédia, barre d'icônes) ne fait que la suivre ; au lâcher, il se recentre. Les applications à taille fixe gardent l'ancien redimensionnement.
+- Après un redimensionnement rapide, une application occupée pouvait ignorer sa nouvelle taille (seul le coin multimédia suivait) : sa place est revérifiée juste après, et corrigée.
+- **Les applications du tiroir ne sont plus agrandies en plein écran** : depuis la fusion, l'agrandissement automatique ne retrouvait plus la liste du tiroir et agrandissait chaque application à sa première apparition (clignotements, application restée en grand, tuile crue fermée).
+- Pendant le redimensionnement, la fenêtre est posée en deux réglages dans le bon ordre (moins d'à-coups), et le tiroir ne suit une fenêtre que si on la tire vraiment par son bord.
+- Tirer un bord du tiroir (haut ou côtés) redimensionne en direct la vraie fenêtre de l'application affichée, comme si on la tirait elle-même ; plus de photo figée pendant le geste.
+- Élargir la fenêtre de l'application par son bord fait suivre le tiroir : la barre d'icônes est poussée au lieu d'être recouverte, puis le tiroir se recentre d'un mouvement doux.
+- Le petit trait au-dessus du tiroir est retiré (le tiroir se redimensionne par tous ses bords).
+
 ### Mes applications, grille et carrousel
 - Réglages : les lignes de « Mes applications » se réordonnent en les glissant vers le haut ou le bas (elles suivent la souris).
 - Réorganiser la grille change aussi les numéros de « Mes applications » : les deux façons de ranger disent la même chose.

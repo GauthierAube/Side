@@ -1642,6 +1642,7 @@ final class Appli: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     /// Va droit à la fenêtre numéro n + 1, dans l'ordre des cases de la grille.
     private func allerALaFenetre(_ n: Int) {
+        guard Partie.pleinEcran.active else { return }
         // Un numéro de « Mes applications » : va droit à cette application, et l'ouvre si elle ne l'est pas.
         let mes = MesApps.commun.liste
         if mes.indices.contains(n) {
@@ -2072,6 +2073,7 @@ final class Appli: NSObject, NSApplicationDelegate, NSMenuDelegate {
     }
 
     @objc func basculerGrille() {
+        guard Partie.pleinEcran.active || panneau?.isVisible == true else { return }     // plein écran coupé dans les réglages
         if panneau?.isVisible == true { fermerGrilleEnRevenant() } else { ouvrirGrille() }
     }
 

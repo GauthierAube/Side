@@ -4369,6 +4369,16 @@ enum Volet: String, CaseIterable, Identifiable {
         case .fenetres: return String(localized: "Les applications de travail remplissent l'écran, sans le plein écran d'Apple.")
         }
     }
+    /// La partie de Side dont ce volet fait partie (aucune pour les réglages communs).
+    var partie: Partie? {
+        switch self {
+        case .apparence, .fermeture, .fichiers, .colonnes, .depot: return .finder
+        case .grille, .dock, .carrousel, .fenetres: return .pleinEcran
+        case .tiroir, .multimedia, .applications: return .tiroir
+        case .presse: return .presse
+        default: return nil
+        }
+    }
     var symbole: String {
         switch self {
         case .general: return "gearshape.fill"
@@ -4418,6 +4428,7 @@ struct ReglagesView: View {
     @ObservedObject var store = AppDelegate.shared.store
     @ObservedObject var tiroir = ConfigTiroir.commun
     @State private var volet: Volet = Volet.depart
+    @State private var parties = 0          // change quand une partie est activée ou coupée : la barre latérale se redessine
     @State private var demarrage = SMAppService.mainApp.status == .enabled
     @State private var ecoute = false
 
@@ -4428,7 +4439,16 @@ struct ReglagesView: View {
             ScrollView(.vertical) {
                 VStack(alignment: .leading, spacing: 2) {
                     ForEach(Array(Volet.groupes.enumerated()), id: \.offset) { _, groupe in
-                        if let nom = groupe.0 {
+                        // Chaque partie de Side a son en-tête à sa couleur ; ses volets en reprennent la couleur.
+                        if let partie = groupe.1.first?.partie {
+                            HStack(spacing: 6) {
+                                EtiquettePartie(partie: partie, petite: true)
+                                if !partie.active {
+                                    Text("désactivé").font(.caption2).foregroundStyle(.secondary)
+                                }
+                            }
+                            .padding(.leading, 8).padding(.top, 16).padding(.bottom, 3)
+                        } else if let nom = groupe.0 {
                             Text(nom).font(.caption.weight(.semibold)).foregroundStyle(.secondary)
                                 .padding(.leading, 8).padding(.top, 12).padding(.bottom, 2)
                         }
@@ -4453,8 +4473,19 @@ struct ReglagesView: View {
             })
             Divider()
             VStack(alignment: .leading, spacing: 0) {
+                // En tête du volet : la partie de Side où l'on est, à sa couleur.
+                if let partie = volet.partie {
+                    HStack(spacing: 8) {
+                        EtiquettePartie(partie: partie)
+                        if !partie.active {
+                            Text("— désactivé").font(.callout).foregroundStyle(.secondary)
+                            Button("Activer") { partie.active = true }.controlSize(.small)
+                        }
+                    }
+                    .padding(.horizontal, 26).padding(.top, 14)
+                }
                 Text(volet.titre).font(.title2.weight(.semibold))
-                    .padding(.horizontal, 26).padding(.top, 16)
+                    .padding(.horizontal, 26).padding(.top, volet.partie == nil ? 16 : 4)
                 Text(volet.resume).font(.callout).foregroundStyle(.secondary)
                     .padding(.horizontal, 26).padding(.top, 2).padding(.bottom, 2)
                 Form { contenu }
@@ -4466,6 +4497,8 @@ struct ReglagesView: View {
         }
         .frame(minWidth: 800, maxWidth: .infinity, minHeight: 560, maxHeight: .infinity)   // remplit toute la fenêtre
         .ignoresSafeArea()
+        .id(parties)
+        .onReceive(NotificationCenter.default.publisher(for: Partie.changement)) { _ in parties += 1 }
     }
 
     private func ligne(_ v: Volet) -> some View {
@@ -4475,8 +4508,9 @@ struct ReglagesView: View {
                 .font(.system(size: 12, weight: .semibold))
                 .foregroundStyle(.white)
                 .frame(width: 24, height: 24)
-                .background(RoundedRectangle(cornerRadius: 6, style: .continuous).fill(v.couleur.gradient))
-            Text(v.titre)
+                .background(RoundedRectangle(cornerRadius: 6, style: .continuous).fill((v.partie?.couleur ?? v.couleur).gradient))
+                .opacity(v.partie?.active == false ? 0.45 : 1)
+            Text(v.titre).foregroundStyle(v.partie?.active == false ? Color.secondary : Color.primary)
             Spacer(minLength: 0)
         }
         .padding(.horizontal, 8)
@@ -4518,6 +4552,7 @@ struct ReglagesView: View {
     @ViewBuilder private var contenu: some View {
         switch volet {
         case .general:
+            SectionParties()
             Section {
                 Picker("Langue", selection: Binding(get: { Langue.choisie }, set: { Langue.choisir($0) })) {
                     ForEach(Langue.allCases) { Text($0.nom).tag($0) }
@@ -7229,6 +7264,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
     }
 
     private func show(sur e: NSScreen, suivi: Bool = false) {
+        guard Partie.finder.active else { journal("Finder coupé dans les réglages : pas d'ouverture"); return }
         // Pendant une capture d'écran, Side ne s'ouvre par aucun geste : on doit pouvoir viser un coin sans rien déclencher.
         if !visible, CaptureEcran.enCours { journal("ouverture ignorée : capture d'écran en cours"); return }
         journal("ouverture (déjà visible : \(visible))")
@@ -7510,7 +7546,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         // Par défaut la carte reste ouverte. Avec le réglage « Fermer quand la souris en sort »,
         // il se referme une fois que la souris y est entrée puis ressortie.
         guard config.fermerEnSortant else { debutDehors = nil; return }
-        if cadreCarte.insetBy(dx: -24, dy: -24).contains(p) || (config.presseDehors > 0 && surSide(p)) {
+        // La zone de dépôt, à côté du Finder, en fait partie : y aller ne compte pas comme une sortie.
+        let surLaZone = cadreDepot?.insetBy(dx: -24, dy: -24).contains(p) ?? false
+        if cadreCarte.insetBy(dx: -24, dy: -24).contains(p) || surLaZone || (config.presseDehors > 0 && surSide(p)) {
             debutDehors = nil
             if epingle && !modeTest { epingle = false }
             return

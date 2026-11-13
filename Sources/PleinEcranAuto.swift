@@ -15,7 +15,9 @@ enum AgrandirAuto {
     /// Les applications rangées dans le panneau du bas de Side (la liste est tenue par Side, on la relit à chaque fois) :
     /// leurs fenêtres restent dans le panneau, on ne les agrandit jamais.
     static var tuilesDeSide: Set<String> {
-        let liste = UserDefaults(suiteName: "com.gauthieraube.side")?.array(forKey: "panneauBasTuiles") as? [[String: String]] ?? []
+        // (Avant la fusion, Square lisait les réglages de Side par son nom. Depuis qu'ils ne font qu'une app, cette lecture
+        // ne renvoyait plus rien : les applications du tiroir étaient agrandies en plein écran à leur première apparition.)
+        let liste = UserDefaults.standard.array(forKey: "panneauBasTuiles") as? [[String: String]] ?? []
         return Set(liste.compactMap { $0["bundle"] })
     }
 
@@ -86,7 +88,7 @@ enum AgrandirAuto {
 
     /// Agrandit la fenêtre si c'est une vraie fenêtre de travail.
     static func examiner(_ el: AXUIElement) {
-        guard actif else { return }
+        guard actif, Partie.pleinEcran.active else { return }     // aussi coupé avec la partie « plein écran »
         var wid: CGWindowID = 0
         guard _AXUIElementGetWindow(el, &wid) == .success, wid != 0, !vues.contains(wid) else { return }
         // Bouton de souris enfoncé (fenêtre ou onglet en cours de déplacement) : on attend que vous ayez lâché.

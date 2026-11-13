@@ -46,6 +46,8 @@
 	<string>Actions de l'étagère</string>
 	<key>Actions de la zone</key>
 	<string>Actions de la zone</string>
+	<key>Activer</key>
+	<string>Activer</string>
 	<key>Adresse</key>
 	<string>Adresse</string>
 	<key>Adresse copiée : collez-la dans « Redirect URIs ».</key>
@@ -746,6 +748,10 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Les deux</string>
 	<key>Les en sortir</key>
 	<string>Les en sortir</string>
+	<key>Les parties de Side</key>
+	<string>Les parties de Side</string>
+	<key>Les petites applications et la musique, une à la fois.</key>
+	<string>Les petites applications et la musique, une à la fois.</string>
 	<key>Les textes, les fichiers et les 40 dernières images copiés sont gardés 7 jours sur ce Mac ; ce que tu épingles (clic droit) est gardé sans limite. Les mots de passe ne sont jamais écrits sur le disque. Décocher l'historique efface tout.</key>
 	<string>Les textes, les fichiers et les 40 dernières images copiés sont gardés 7 jours sur ce Mac ; ce que tu épingles (clic droit) est gardé sans limite. Les mots de passe ne sont jamais écrits sur le disque. Décocher l'historique efface tout.</string>
 	<key>Les zones où poser des fichiers en attente, à côté du Finder de Side.</key>
@@ -1146,6 +1152,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Tard</string>
 	<key>Terminer</key>
 	<string>Terminer</string>
+	<key>Tes applications de travail en grand : la grille, le carrousel, les numéros.</key>
+	<string>Tes applications de travail en grand : la grille, le carrousel, les numéros.</string>
 	<key>Tes apps de travail prennent tout l'écran. La grille les montre toutes : clique sur celle que tu veux.</key>
 	<string>Tes apps de travail prennent tout l'écran. La grille les montre toutes : clique sur celle que tu veux.</string>
 	<key>Tes dossiers</key>
@@ -1156,6 +1164,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Tes fichiers</string>
 	<key>Tes fichiers par-dessus n'importe quelle app. Ce que tu déposes à côté reste sous la main.</key>
 	<string>Tes fichiers par-dessus n'importe quelle app. Ce que tu déposes à côté reste sous la main.</string>
+	<key>Tes fichiers par-dessus n'importe quelle application, et les zones de dépôt.</key>
+	<string>Tes fichiers par-dessus n'importe quelle application, et les zones de dépôt.</string>
 	<key>Texte</key>
 	<string>Texte</string>
 	<key>Tiroir</key>
@@ -1172,6 +1182,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Toujours rester affichée</string>
 	<key>Tout</key>
 	<string>Tout</string>
+	<key>Tout ce que tu as copié, et les liens que tu gardes.</key>
+	<string>Tout ce que tu as copié, et les liens que tu gardes.</string>
 	<key>Tout ce que tu as copié, retrouvé d'un clic.</key>
 	<string>Tout ce que tu as copié, retrouvé d'un clic.</string>
 	<key>Tout sélectionner</key>
@@ -1216,6 +1228,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Une application du Mac se range plutôt dans « Applications ».</string>
 	<key>Une application à la fois</key>
 	<string>Une application à la fois</string>
+	<key>Une partie coupée ne s'ouvre plus : ni par son coin, ni par son raccourci, ni par son geste. Ses réglages restent là pour le jour où tu la rallumes.</key>
+	<string>Une partie coupée ne s'ouvre plus : ni par son coin, ni par son raccourci, ni par son geste. Ses réglages restent là pour le jour où tu la rallumes.</string>
 	<key>Une petite app à la fois, à côté de ta musique. Continue le geste : les autres apps du tiroir défilent.</key>
 	<string>Une petite app à la fois, à côté de ta musique. Continue le geste : les autres apps du tiroir défilent.</string>
 	<key>Une secousse de souris</key>
@@ -1282,6 +1296,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>copie</string>
 	<key>dossier sans titre</key>
 	<string>dossier sans titre</string>
+	<key>désactivé</key>
+	<string>désactivé</string>
 	<key>et %lld de plus</key>
 	<string>et %lld de plus</string>
 	<key>https://…</key>
@@ -1340,6 +1356,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Étagère</string>
 	<key>–</key>
 	<string>–</string>
+	<key>— désactivé</key>
+	<string>— désactivé</string>
 	<key>••••••••••  (mot de passe)</key>
 	<string>••••••••••  (mot de passe)</string>
 	<key>⌃ + chiffre</key>

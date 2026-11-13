@@ -112,6 +112,7 @@ final class MesApps: ObservableObject {
     /// Reprend la liste partagée, puis ouvre les applications de la liste qui ne le sont pas encore (sans voler la main).
     func demarrer() {
         lireICloud()
+        guard Partie.pleinEcran.active else { return }
         // Un autre Mac peut changer la liste pendant que Side tourne : on y jette un œil de temps en temps.
         veille = Timer.scheduledTimer(withTimeInterval: 60, repeats: true) { [weak self] _ in self?.lireICloud() }
         guard ouvrirAuLancement, !liste.isEmpty else { return }

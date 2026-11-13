@@ -94,6 +94,7 @@ enum Glisse {
 
     /// Appelé par macOS à chaque instant où des doigts touchent le trackpad (hors du fil principal).
     private static func recevoir(_ touches: UnsafeMutableRawPointer?, _ nombre: Int) {
+        let actif = Glisse.actif && Partie.pleinEcran.active     // aussi coupé avec la partie « plein écran »
         guard actif, let touches, nombre == 4 else {
             // Doigts levés : le carrousel choisit la fenêtre sous le cadre. (Un doigt levé un instant ne suffit pas.)
             if nombre < 3 || !actif {
