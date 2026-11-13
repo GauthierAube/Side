@@ -106,18 +106,32 @@ struct SceneAccueil: View {
     let etape: Int
     let t: Double
 
+    /// Seulement le petit écran, sans cadre ni trackpad : la présentation de Side l'encadre elle-même.
+    var nu = false
+    /// La scène ne revient pas à son point de départ : elle s'enchaîne avec la suivante dans la même boucle.
+    var sansRetour = false
+
+    @ViewBuilder private var ecran: some View {
+        switch etape {
+        case 0: grille
+        case 1: choisir
+        case 2: quatreDoigts
+        case 3: ranger
+        case 4: dock
+        case 10: troisPlaces
+        case 11: tiroirDefile
+        case 12: changerDAvis
+        default: boutonVert
+        }
+    }
+
     var body: some View {
+        if nu { ZStack { ecran }.frame(width: Ecran.taille.width, height: Ecran.taille.height) } else { avecCadre }
+    }
+
+    private var avecCadre: some View {
         VStack(spacing: 12) {
-            ZStack {
-                switch etape {
-                case 0: grille
-                case 1: choisir
-                case 2: quatreDoigts
-                case 3: ranger
-                case 4: dock
-                default: boutonVert
-                }
-            }
+            ZStack { ecran }
             .frame(width: Ecran.taille.width, height: Ecran.taille.height)
             .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
             .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).strokeBorder(Color.primary.opacity(0.25), lineWidth: 1.5))
@@ -129,7 +143,7 @@ struct SceneAccueil: View {
     /// 1. Le pointeur file dans le coin : la fenêtre rétrécit, les autres apparaissent en grille.
     private var grille: some View {
         let c = Ecran.cases()
-        let k = tranche(t, 0.30, 0.52) - tranche(t, 0.86, 0.97)
+        let k = tranche(t, 0.30, 0.52) - (sansRetour ? 0 : tranche(t, 0.86, 0.97))
         let coin = CoinGrille.choix
         let cible = CGPoint(x: coin.hasSuffix("g") ? 3 : 417, y: coin.hasPrefix("b") ? 259 : 3)
         let p = melange(CGPoint(x: 230, y: 160), cible, tranche(t, 0.06, 0.30))
@@ -147,13 +161,15 @@ struct SceneAccueil: View {
     /// 2. Dans la grille : on vise une fenêtre, un clic, elle reprend tout l'écran.
     private var choisir: some View {
         let c = Ecran.cases()
-        let k = tranche(t, 0.46, 0.64) - tranche(t, 0.88, 0.98)
+        let k = tranche(t, 0.46, 0.64) - (sansRetour ? 0 : tranche(t, 0.88, 0.98))
         let p = melange(CGPoint(x: 330, y: 236), CGPoint(x: c[2].midX, y: c[2].midY), tranche(t, 0.08, 0.32))
         return ZStack {
             FondEcran(sombre: 1 - k)
             ForEach([0, 1, 3], id: \.self) { i in Fenetrette(cadre: c[i], couleur: Ecran.couleurs[i], opacite: Double(1 - k)) }
             Fenetrette(cadre: melange(c[2], Ecran.plein, k), couleur: Ecran.couleurs[2], contour: t > 0.30 && k < 0.05)
-            Pointeur(en: p, clic: tranche(t, 0.38, 0.50))
+            Pointeur(en: p, clic: tranche(t, 0.38, 0.50)).opacity(sansRetour ? Double(1 - tranche(t, 0.64, 0.72)) : 1)
+            // Fin de la boucle : fondu vers l'application du début, pour que la boucle reparte sans saut.
+            if sansRetour { Fenetrette(cadre: Ecran.plein, couleur: Ecran.couleurs[0], opacite: Double(tranche(t, 0.90, 1.0))) }
         }
     }
 
@@ -161,7 +177,7 @@ struct SceneAccueil: View {
     private var quatreDoigts: some View {
         let apparition = tranche(t, 0.10, 0.18) - tranche(t, 0.52, 0.60)
         let pos = 0.0 + 1.0 * Double(tranche(t, 0.14, 0.50))                 // de la carte 0 à la carte 1
-        let zoom = tranche(t, 0.54, 0.70) - tranche(t, 0.90, 0.98)
+        let zoom = tranche(t, 0.54, 0.70)                                   // la carte choisie grandit, et reste
         let grande = CGSize(width: 150, height: 94), petit: CGFloat = 0.55
         let centre = CGPoint(x: 210, y: 136)
         return ZStack {
@@ -178,7 +194,7 @@ struct SceneAccueil: View {
             }
             // Doigts levés : la carte du centre devient la fenêtre de devant.
             Fenetrette(cadre: melange(CGRect(x: centre.x - 75, y: centre.y - 47, width: 150, height: 94), Ecran.plein, zoom),
-                       couleur: Ecran.couleurs[1], opacite: zoom > 0.01 ? 1 : 0)
+                       couleur: Ecran.couleurs[1], opacite: zoom > 0.01 ? Double(1 - tranche(t, 0.92, 1.0)) : 0)   // fondu : la boucle repart
         }
     }
 
@@ -299,140 +315,166 @@ struct SceneAccueil: View {
     }
 }
 
-// MARK: - La fenêtre de présentation
+// MARK: - Les scènes ajoutées à la fusion (13/11/2026) : les trois places, le tiroir, changer d'avis
 
-private struct PastilleAccueil: View {
-    let symbole: String?
-    let texte: String?
-    var body: some View {
-        HStack(spacing: 6) {
-            if let symbole { Image(systemName: symbole).font(.system(size: 13, weight: .semibold)) }
-            if let texte { Text(texte).font(.system(size: 13, weight: .medium)) }
-        }
-        .padding(.horizontal, 11).padding(.vertical, 6)
-        .background(Capsule().fill(Color.primary.opacity(0.09)))
-    }
-}
-
-struct AccueilVue: View {
-    @State var etape = 0
-    let fermer: () -> Void
-    static let nombre = 6
-    private static let periodes: [Double] = [4.2, 4.2, 4.8, 7.0, 4.8, 4.6]
+/// Le tiroir dessiné : le coin multimédia à gauche, une seule application, la barre d'icônes à droite.
+private struct TiroirDessin: View {
+    let cadre: CGRect
+    var app: Int? = 1                // couleur de l'application affichée (nil : sa place est vide, les cartes défilent)
+    var choisie = 0                  // l'icône mise en avant dans la barre
+    static func zoneApp(_ r: CGRect) -> CGRect { CGRect(x: r.minX + 90, y: r.minY, width: r.width - 90 - 30, height: r.height) }
 
     var body: some View {
-        VStack(spacing: 14) {
-            // Les points d'avancement, comme dans Side.
-            HStack(spacing: 5) {
-                ForEach(0..<Self.nombre, id: \.self) { i in
-                    Capsule().fill(i == etape ? Color.accentColor : Color.primary.opacity(0.18))
-                        .frame(width: i == etape ? 18 : 6, height: 6)
+        ZStack {
+            // La musique.
+            let m = CGRect(x: cadre.minX, y: cadre.minY, width: 82, height: cadre.height)
+            ZStack {
+                RoundedRectangle(cornerRadius: 9, style: .continuous).fill(Color(white: 0.12))
+                VStack(spacing: 7) {
+                    Image(systemName: "music.note").font(.system(size: 18, weight: .semibold))
+                        .foregroundStyle(Color(red: 0.12, green: 0.84, blue: 0.38))
+                    Capsule().fill(Color.white.opacity(0.35)).frame(width: 40, height: 3)
                 }
             }
-            .padding(.top, 4)
-            Text(titre).font(.title2.weight(.semibold))
-            TimelineView(.animation) { horloge in
-                let periode = Self.periodes[etape]
-                SceneAccueil(etape: etape, t: horloge.date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: periode) / periode)
-            }
-            HStack(spacing: 8) { pastilles }.frame(height: 30)
-            HStack {
-                if etape < Self.nombre - 1 { Button("Passer") { fermer() }.buttonStyle(.plain).foregroundStyle(.secondary) }
-                Spacer()
-                if etape == Self.nombre - 1 {
-                    Button("Réglages…") { fermer(); Programme.appli.ouvrirReglages() }
+            .frame(width: m.width, height: m.height)
+            .shadow(color: .black.opacity(0.3), radius: 5, y: 2)
+            .position(x: m.midX, y: m.midY)
+            if let app { Fenetrette(cadre: Self.zoneApp(cadre), couleur: Ecran.couleurs[app % 6]) }
+            // La barre d'icônes flottante.
+            let b = CGRect(x: cadre.maxX - 22, y: cadre.midY - 42, width: 20, height: 84)
+            ZStack {
+                Capsule().fill(Color.white.opacity(0.85))
+                VStack(spacing: 5) {
+                    ForEach(0..<4, id: \.self) { i in
+                        RoundedRectangle(cornerRadius: 3.5, style: .continuous).fill(Ecran.couleurs[(i + 1) % 6].gradient)
+                            .frame(width: 12, height: 12)
+                            .overlay(RoundedRectangle(cornerRadius: 4.5, style: .continuous)
+                                .strokeBorder(Color(nsColor: orange), lineWidth: 1.5).padding(-2).opacity(i == choisie ? 1 : 0))
+                    }
                 }
-                if etape > 0 { Button("Précédent") { etape -= 1 } }
-                Button(etape < Self.nombre - 1 ? String(localized: "Suivant") : String(localized: "Terminer")) {
-                    if etape < Self.nombre - 1 { etape += 1 } else { fermer() }
-                }
-                .buttonStyle(.borderedProminent)
-                .keyboardShortcut(.defaultAction)
             }
-        }
-        .padding(.horizontal, 24).padding(.top, 34).padding(.bottom, 18)
-        .frame(width: 520)
-        .background(Color(nsColor: .windowBackgroundColor))
-    }
-
-    private var titre: String {
-        [String(localized: "La grille"), String(localized: "Choisir"), String(localized: "Quatre doigts"),
-         String(localized: "Ranger"), String(localized: "Le Dock"), String(localized: "Le bouton vert")][min(etape, 5)]
-    }
-
-    private static let symbolesCoin = ["hd": "arrow.up.right", "hg": "arrow.up.left", "bd": "arrow.down.right", "bg": "arrow.down.left"]
-
-    @ViewBuilder private var pastilles: some View {
-        switch etape {
-        case 0:
-            if let s = Self.symbolesCoin[CoinGrille.choix] { PastilleAccueil(symbole: s, texte: String(localized: "Coin de l'écran")) }
-            PastilleAccueil(symbole: "keyboard", texte: Raccourci.actuel.nom)
-        case 1:
-            PastilleAccueil(symbole: "cursorarrow.click", texte: nil)
-            PastilleAccueil(symbole: "computermouse", texte: String(localized: "Molette"))
-            if Appli.toucheDirecte != "aucun" {
-                PastilleAccueil(symbole: nil, texte: (["cmd": "⌘", "opt": "⌥", "ctrl": "⌃"][Appli.toucheDirecte] ?? "") + " 1 … 9")
-            }
-        case 2:
-            PastilleAccueil(symbole: "hand.draw", texte: "←  →")
-        case 3:
-            PastilleAccueil(symbole: "arrow.left.arrow.right", texte: String(localized: "Milieu"))
-            PastilleAccueil(symbole: "rectangle.split.2x1", texte: String(localized: "Bord"))
-            PastilleAccueil(symbole: "arrow.up", texte: String(localized: "Fermer"))
-        case 4:
-            PastilleAccueil(symbole: "plus.app", texte: nil)
-            PastilleAccueil(symbole: "cursorarrow.click", texte: nil)
-        default:
-            PastilleAccueil(symbole: "macwindow", texte: String(localized: "Même bureau"))
+            .frame(width: b.width, height: b.height)
+            .shadow(color: .black.opacity(0.25), radius: 4, y: 2)
+            .position(x: b.midX, y: b.midY)
         }
     }
 }
 
-/// La fenêtre de présentation : affichée une fois, à la première ouverture, puis sur demande depuis les réglages.
-enum Accueil {
-    private static var fenetre: NSWindow?
-
-    static var vu: Bool {
-        get { UserDefaults.standard.bool(forKey: "accueilVu") }
-        set { UserDefaults.standard.set(newValue, forKey: "accueilVu") }
-    }
-
-    static func montrer() {
-        if fenetre == nil {
-            let w = NSWindow(contentViewController: NSHostingController(rootView: AccueilVue(fermer: { Accueil.fermer() })))
-            w.title = String(localized: "Bienvenue dans Square")
-            w.styleMask = [.titled, .closable, .fullSizeContentView]
-            w.titlebarAppearsTransparent = true
-            w.titleVisibility = .hidden
-            w.isReleasedWhenClosed = false
-            w.level = .floating
-            fenetre = w
-        }
-        fenetre?.center()
-        NSApp.activate(ignoringOtherApps: true)
-        fenetre?.makeKeyAndOrderFront(nil)
-    }
-
-    static func fermer() {
-        vu = true
-        fenetre?.close()
-        fenetre = nil
-    }
-
-    /// Pour les essais : dessine chaque étape, à plusieurs instants de sa boucle, dans des images.
-    static func images(vers dossier: URL) {
-        for etape in 0..<AccueilVue.nombre {
-            for (n, t) in [0.2, 0.45, 0.62, 0.82].enumerated() {
-                let vue = NSHostingView(rootView: SceneAccueil(etape: etape, t: t).padding(10).background(Color(nsColor: .windowBackgroundColor)))
-                vue.frame = NSRect(x: 0, y: 0, width: 440, height: 356)
-                let w = NSWindow(contentRect: vue.frame, styleMask: [.borderless], backing: .buffered, defer: false)
-                w.contentView = vue
-                vue.layoutSubtreeIfNeeded()
-                guard let rep = vue.bitmapImageRepForCachingDisplay(in: vue.bounds) else { continue }
-                vue.cacheDisplay(in: vue.bounds, to: rep)
-                try? rep.representation(using: .png, properties: [:])?
-                    .write(to: dossier.appendingPathComponent("accueil-\(etape + 1)-\(n + 1).png"))
+/// Le Finder dessiné : une carte claire avec sa barre latérale et quelques fichiers.
+private struct FinderDessin: View {
+    let cadre: CGRect
+    var body: some View {
+        ZStack(alignment: .topLeading) {
+            RoundedRectangle(cornerRadius: 10, style: .continuous).fill(Color(white: 0.97))
+            UnevenRoundedRectangle(topLeadingRadius: 10, bottomLeadingRadius: 10, style: .continuous)
+                .fill(Color(white: 0.88)).frame(width: cadre.width * 0.32)
+            VStack(alignment: .leading, spacing: 6) {
+                ForEach(0..<4, id: \.self) { i in Capsule().fill(Color(white: 0.68)).frame(width: [26, 20, 24, 16][i], height: 5) }
             }
+            .padding(.leading, 7).padding(.top, 12)
+            LazyVGrid(columns: Array(repeating: GridItem(.fixed(22), spacing: 8), count: 3), spacing: 10) {
+                ForEach(0..<6, id: \.self) { i in
+                    Image(systemName: i < 3 ? "folder.fill" : "doc.fill").resizable().scaledToFit().frame(width: 20, height: 20)
+                        .foregroundStyle(i < 3 ? AnyShapeStyle(Color(red: 0.36, green: 0.56, blue: 0.96).gradient) : AnyShapeStyle(Color(white: 0.62)))
+                }
+            }
+            .padding(.leading, cadre.width * 0.32 + 8).padding(.top, 16)
+        }
+        .frame(width: cadre.width, height: cadre.height)
+        .shadow(color: .black.opacity(0.35), radius: 8, y: 3)
+        .position(x: cadre.midX, y: cadre.midY)
+    }
+}
+
+/// Une touche du clavier dessinée.
+private struct ToucheDessin: View {
+    let texte: String
+    var body: some View {
+        Text(texte).font(.system(size: 15, weight: .semibold, design: .rounded)).foregroundStyle(Color(white: 0.2))
+            .padding(.horizontal, 10).padding(.vertical, 5)
+            .background(RoundedRectangle(cornerRadius: 7, style: .continuous).fill(Color.white))
+            .shadow(color: .black.opacity(0.35), radius: 4, y: 2)
+    }
+}
+
+extension SceneAccueil {
+    /// Le tiroir, du bas de l'écran (ou du haut, s'il est réglé ainsi) : k = 1 ouvert, 0 caché.
+    fileprivate func tiroirCadre(_ k: CGFloat) -> CGRect {
+        let h: CGFloat = 104
+        let y = ConfigTiroir.enHaut ? Ecran.barre + 5 - (h + 16) * (1 - k) : 262 - 7 - h + (h + 16) * (1 - k)
+        return CGRect(x: 18, y: y, width: 384, height: h)
+    }
+
+    /// Le Finder, ouvert (k = 1) ou rangé (k = 0), du bord choisi dans les réglages (le haut, en général).
+    fileprivate func finderCadre(_ k: CGFloat) -> CGRect {
+        switch Config.shared.bord {
+        case .bas: return CGRect(x: 90, y: 262 - 8 - 112 + 130 * (1 - k), width: 240, height: 112)
+        case .gauche: return CGRect(x: 8 - 190 * (1 - k), y: 24, width: 170, height: 118)
+        case .droite: return CGRect(x: 420 - 178 + 190 * (1 - k), y: 24, width: 170, height: 118)
+        case .plein: return CGRect(x: 90, y: 26, width: 240, height: 112)
+        default: return CGRect(x: 90, y: Ecran.barre + 5 - 130 * (1 - k), width: 240, height: 112)
+        }
+    }
+
+    /// 1. Les trois places : une application de travail en grand, le Finder qui arrive de son bord, le tiroir du bord opposé.
+    var troisPlaces: some View {
+        let kF = tranche(t, 0.10, 0.26) - tranche(t, 0.84, 0.95)
+        let kT = tranche(t, 0.34, 0.50) - tranche(t, 0.84, 0.95)
+        return ZStack {
+            FondEcran()
+            Fenetrette(cadre: Ecran.plein, couleur: Ecran.couleurs[0])
+            FinderDessin(cadre: finderCadre(kF)).opacity(Config.shared.bord == .plein ? Double(kF) : (kF > 0.001 ? 1 : 0))
+            TiroirDessin(cadre: tiroirCadre(kT), app: 2, choisie: 1).opacity(kT > 0.001 ? 1 : 0)
+        }
+    }
+
+    /// 4. Le tiroir : il monte avec une seule application. Le geste continue : les applications du tiroir défilent en cartes,
+    /// sur une roue ; doigts levés, la carte du centre prend la place.
+    var tiroirDefile: some View {
+        let k = tranche(t, 0.06, 0.22) - tranche(t, 0.90, 0.98)
+        let r = tiroirCadre(k), zone = TiroirDessin.zoneApp(r)
+        let cartes = tranche(t, 0.28, 0.33) - tranche(t, 0.64, 0.69)
+        let pos = 2 * tranche(t, 0.32, 0.62)                     // de la première application à la troisième
+        let apres = t > 0.64
+        let sens: CGFloat = ConfigTiroir.enHaut ? 1 : -1
+        let largeur: CGFloat = 92, hauteur: CGFloat = 58
+        return ZStack {
+            FondEcran()
+            Fenetrette(cadre: Ecran.plein, couleur: Ecran.couleurs[0])
+            Color.black.opacity(0.25 * Double(cartes))
+            TiroirDessin(cadre: r, app: cartes > 0.5 ? nil : (apres ? 3 : 1), choisie: apres ? 2 : (cartes > 0.5 ? Int(pos.rounded()) : 0))
+                .opacity(k > 0.001 ? 1 : 0)
+            ForEach(0..<4, id: \.self) { i in
+                let d = CGFloat(i) - pos
+                let proche = 1 - min(abs(d), 1)
+                let s = (0.62 + 0.38 * proche) * max(0.4, 1 - 0.18 * abs(d))
+                Fenetrette(cadre: CGRect(x: zone.midX - largeur * s / 2, y: zone.midY + sens * d * 46 - hauteur * s / 2,
+                                         width: largeur * s, height: hauteur * s),
+                           couleur: Ecran.couleurs[(i + 1) % 6], opacite: Double(cartes) * Double(max(0, 1 - 0.45 * abs(d))),
+                           contour: proche > 0.5)
+            }
+        }
+    }
+
+    /// 5. Changer d'avis : le bouton jaune d'une application de travail la range dans le tiroir. Dans le tiroir, le bouton vert
+    /// la ressort : elle se pose au centre de l'écran, à sa taille (pas en plein écran).
+    var changerDAvis: some View {
+        let monte = tranche(t, 0.24, 0.38) - tranche(t, 0.62, 0.74)
+        let ouvert = tiroirCadre(1), zone = TiroirDessin.zoneApp(ouvert)
+        let centre = CGRect(x: 120, y: 78, width: 180, height: 112)
+        let cadre: CGRect = t < 0.60 ? melange(Ecran.plein, zone, tranche(t, 0.24, 0.38)) : melange(zone, centre, tranche(t, 0.62, 0.74))
+        let jaune = CGPoint(x: Ecran.plein.minX + 22, y: Ecran.plein.minY + 8)
+        let vert = CGPoint(x: zone.minX + 34, y: zone.minY + 8)
+        let p: CGPoint = t < 0.40 ? melange(CGPoint(x: 250, y: 190), jaune, tranche(t, 0.04, 0.16))
+                                  : melange(CGPoint(x: 300, y: 120), vert, tranche(t, 0.42, 0.54))
+        let pointeurVisible = (1 - tranche(t, 0.24, 0.30)) + (tranche(t, 0.40, 0.44) - tranche(t, 0.62, 0.68))
+        return ZStack {
+            FondEcran()
+            Fenetrette(cadre: Ecran.plein, couleur: Ecran.couleurs[0])
+            TiroirDessin(cadre: tiroirCadre(monte), app: nil, choisie: 1).opacity(monte > 0.001 ? 1 : 0)
+            Fenetrette(cadre: cadre, couleur: Ecran.couleurs[2], feux: true)
+                .opacity(Double(tranche(t, 0.0, 0.04) - tranche(t, 0.92, 0.98)))
+            Pointeur(en: p, clic: t < 0.40 ? tranche(t, 0.16, 0.26) : tranche(t, 0.54, 0.64)).opacity(Double(pointeurVisible))
         }
     }
 }

@@ -174,6 +174,7 @@
       }
     },
     "Accède à tes fichiers et dossiers": {
+      "extractionState": "stale",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -189,6 +190,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Shelf Actions"
+          }
+        }
+      }
+    },
+    "Actions de la zone": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drop zone actions"
           }
         }
       }
@@ -604,6 +615,7 @@
       }
     },
     "Aperçu": {
+      "extractionState": "stale",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -643,6 +655,16 @@
         }
       }
     },
+    "Application compagne": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Companion app"
+          }
+        }
+      }
+    },
     "Applications": {
       "localizations": {
         "en": {
@@ -653,22 +675,12 @@
         }
       }
     },
-    "Applications compagnes": {
+    "Applications du tiroir": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Companion Apps"
-          }
-        }
-      }
-    },
-    "Applications du tiroir de Side": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Apps in Side's drawer"
+            "value": "Drawer apps"
           }
         }
       }
@@ -853,6 +865,16 @@
         }
       }
     },
+    "Aucune application pour l'instant. Ajoute celles avec qui tu travailles tous les jours.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No apps yet. Add the ones you work with every day."
+          }
+        }
+      }
+    },
     "Aucune application.": {
       "localizations": {
         "en": {
@@ -894,6 +916,7 @@
       }
     },
     "Autoriser « Accessibilité »…": {
+      "extractionState": "stale",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -904,6 +927,7 @@
       }
     },
     "Autoriser « Enregistrement de l'écran »…": {
+      "extractionState": "stale",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -933,6 +957,16 @@
         }
       }
     },
+    "Bande": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Strip"
+          }
+        }
+      }
+    },
     "Barre latérale et fichiers": {
       "localizations": {
         "en": {
@@ -953,32 +987,12 @@
         }
       }
     },
-    "Bientôt sur GitHub": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Coming soon on GitHub"
-          }
-        }
-      }
-    },
     "Bienvenue dans Side": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Welcome to Side"
-          }
-        }
-      }
-    },
-    "Bienvenue dans Square": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Welcome to Square"
           }
         }
       }
@@ -994,11 +1008,23 @@
       }
     },
     "Bord": {
+      "extractionState": "stale",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Edge"
+          }
+        }
+      }
+    },
+    "Bouton jaune": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yellow button"
           }
         }
       }
@@ -1103,6 +1129,26 @@
         }
       }
     },
+    "Ces applications restent à leur taille : elles ne remplissent jamais l'écran toutes seules.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "These apps keep their size: they never fill the screen on their own."
+          }
+        }
+      }
+    },
+    "Changer d'avis": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change your mind"
+          }
+        }
+      }
+    },
     "Changer de place": {
       "localizations": {
         "en": {
@@ -1129,6 +1175,27 @@
           "stringUnit": {
             "state": "translated",
             "value": "Change…"
+          }
+        }
+      }
+    },
+    "Chaque application garde son numéro : sa case dans la grille, sa place dans le carrousel et son raccourci (par exemple ⌘ 1 pour la première). Glisse une ligne vers le haut ou le bas pour changer son numéro — ou réorganise la grille elle-même, c'est retenu ici aussi. Tu peux aussi déposer une application depuis le Finder sur « Ajouter ». Si une application n'est pas ouverte, son raccourci l'ouvre.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Each app keeps its number: its tile in the grid, its place in the carousel and its shortcut (for example ⌘ 1 for the first one). Drag a row up or down to change its number — or reorder the grid itself, it's remembered here too. You can also drop an app from the Finder onto “Add”. If an app isn't open, its shortcut opens it."
+          }
+        }
+      }
+    },
+    "Chaque application garde son numéro : sa case dans la grille, sa place dans le carrousel et son raccourci (par exemple ⌘ 1 pour la première). Glisse une ligne vers le haut ou le bas pour changer son numéro, ou dépose une application depuis le Finder sur « Ajouter ». Si une application n'est pas ouverte, son raccourci l'ouvre.": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Each app keeps its number: its tile in the grid, its place in the carousel and its shortcut (for example ⌘ 1 for the first one). Drag a row up or down to change its number — or reorder the grid itself, it's remembered here too. You can also drop an app from the Finder onto “Add”. If an app isn't open, its shortcut opens it."
           }
         }
       }
@@ -1174,6 +1241,7 @@
       }
     },
     "Choisir": {
+      "extractionState": "stale",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -1259,6 +1327,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Click: copy again. Right-click: pin. You can also drag it elsewhere."
+          }
+        }
+      }
+    },
+    "Clic droit dans la barre": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Right-click in the bar"
           }
         }
       }
@@ -1649,6 +1728,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Documents"
+          }
+        }
+      }
+    },
+    "Dossier": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Folder"
           }
         }
       }
@@ -2124,6 +2213,7 @@
       }
     },
     "Fermer": {
+      "extractionState": "stale",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -2253,6 +2343,16 @@
         }
       }
     },
+    "Forme": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shape"
+          }
+        }
+      }
+    },
     "Garder dans le mini-Dock": {
       "localizations": {
         "en": {
@@ -2289,6 +2389,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Keep a copy-and-paste history (7 days)"
+          }
+        }
+      }
+    },
+    "Garder à l'écran quand Side est fermé": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep on screen when Side is closed"
           }
         }
       }
@@ -2363,6 +2473,16 @@
         }
       }
     },
+    "Glisse la pile pour emmener tous les fichiers": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drag the stack to take all the files"
+          }
+        }
+      }
+    },
     "Glisse le titre pour déplacer la colonne": {
       "localizations": {
         "en": {
@@ -2379,6 +2499,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Drag to change the width"
+          }
+        }
+      }
+    },
+    "Glisse pour changer le numéro": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drag to change the number"
           }
         }
       }
@@ -2409,6 +2539,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Drag a file: it appears here. What you drop in it stays at hand, even with Side closed."
+          }
+        }
+      }
+    },
+    "Glisse à quatre doigts : les apps défilent, lâche sur celle que tu veux.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Swipe with four fingers: your apps scroll by, let go on the one you want."
           }
         }
       }
@@ -2589,6 +2729,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Couldn't Show Info"
+          }
+        }
+      }
+    },
+    "Impossible d'écrire dans iCloud Drive.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't write to iCloud Drive."
           }
         }
       }
@@ -2783,6 +2933,16 @@
         }
       }
     },
+    "Jaune : au tiroir": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yellow: to the drawer"
+          }
+        }
+      }
+    },
     "L'aperçu montre l'image et le titre du site : pour cela, Side contacte le site du lien, seulement quand le volet l'affiche. La présentation vaut pour le presse-papiers comme pour l'onglet « Enregistrés ». Les liens enregistrés restent sur ce Mac.": {
       "localizations": {
         "en": {
@@ -2854,6 +3014,7 @@
       }
     },
     "La grille": {
+      "extractionState": "stale",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -2874,6 +3035,7 @@
       }
     },
     "La musique et les petites applis : un coup d'œil, et on referme.": {
+      "extractionState": "stale",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -2923,7 +3085,18 @@
         }
       }
     },
+    "La touche choisie avec un chiffre de 1 à 9 mène droit à l'application de ce numéro dans « Mes applications », puis aux autres fenêtres dans l'ordre des cases de la grille. Attention : ces raccourcis sont alors pris à toutes les applications. ⌘ + chiffre sert par exemple à changer d'onglet dans Safari ou de présentation dans le Finder ; ⌃ + chiffre n'est presque jamais utilisé.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The chosen key with a number from 1 to 9 goes straight to the app with that number in “My apps”, then to the other windows in the order of the grid tiles. Note: these shortcuts are then taken from every app. ⌘ + number is used, for example, to switch tabs in Safari or views in the Finder; ⌃ + number is almost never used."
+          }
+        }
+      }
+    },
     "La touche choisie avec un chiffre de 1 à 9 mène droit à la fenêtre de ce numéro, dans l'ordre des cases de la grille (le numéro s'affiche au survol d'une case). Attention : ces raccourcis sont alors pris à toutes les applications. ⌘ + chiffre sert par exemple à changer d'onglet dans Safari ou de présentation dans le Finder ; ⌃ + chiffre n'est presque jamais utilisé.": {
+      "extractionState": "stale",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -2953,12 +3126,12 @@
         }
       }
     },
-    "La visite guidée de Side, en cinq étapes": {
+    "La visite guidée de Side, en sept étapes": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The guided tour of Side, in five steps"
+            "value": "The guided tour of Side, in seven steps"
           }
         }
       }
@@ -3044,6 +3217,7 @@
       }
     },
     "Le Dock": {
+      "extractionState": "stale",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -3103,12 +3277,54 @@
         }
       }
     },
+    "Le Finder par-dessus tout, tes apps de travail en grand, les petites apps dans le tiroir.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The Finder on top of everything, your work apps full screen, small apps in the drawer."
+          }
+        }
+      }
+    },
     "Le Finder se ferme toujours avec le raccourci clavier, la touche Échap, une secousse ou en revenant dans le coin actif.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "The Finder always closes with the keyboard shortcut, the Escape key, a shake, or by going back to the hot corner."
+          }
+        }
+      }
+    },
+    "Le Finder sur le côté, tes apps de travail en grand, les petites apps dans le tiroir.": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The Finder on the side, your work apps full screen, small apps in the drawer."
+          }
+        }
+      }
+    },
+    "Le bouton jaune range une app dans le tiroir. Dans le tiroir, le bouton vert la ressort au centre de l'écran.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The yellow button puts an app away in the drawer. In the drawer, the green button takes it back out, to the center of the screen."
+          }
+        }
+      }
+    },
+    "Le bouton jaune range une app dans le tiroir. ⌃⌥↑ la remet en grand, ⌃⌥↓ la renvoie au tiroir.": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The yellow button puts an app away in the drawer. ⌃⌥↑ brings it back full screen, ⌃⌥↓ sends it to the drawer."
           }
         }
       }
@@ -3124,6 +3340,7 @@
       }
     },
     "Le bouton vert": {
+      "extractionState": "stale",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -3209,6 +3426,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "The same blurred background is used by Side's Finder, the clipboard panel and the media tabs in the drawer: this opacity applies to all of them."
+          }
+        }
+      }
+    },
+    "Le plein écran": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Full screen"
           }
         }
       }
@@ -3413,12 +3640,12 @@
         }
       }
     },
-    "Les applications rangées dans le tiroir du bas de Side gardent leur place dans le tiroir : Square ne les agrandit pas. Leur liste se règle dans Side (Réglages > Tiroir du bas).": {
+    "Les applications du tiroir y gardent leur place : elles ne sont jamais agrandies. Leur liste se règle dans Réglages > Tiroir > Applications.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Apps kept in Side's bottom drawer stay in the drawer: Square doesn't make them fill the screen. Set the list in Side (Settings > Bottom Drawer)."
+            "value": "Drawer apps keep their place in the drawer: they are never enlarged. Their list is set in Settings > Drawer > Apps."
           }
         }
       }
@@ -3603,7 +3830,18 @@
         }
       }
     },
+    "Mes applications": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "My apps"
+          }
+        }
+      }
+    },
     "Milieu": {
+      "extractionState": "stale",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -3654,6 +3892,7 @@
       }
     },
     "Molette": {
+      "extractionState": "stale",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -3724,6 +3963,7 @@
       }
     },
     "Même bureau": {
+      "extractionState": "stale",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -3913,6 +4153,16 @@
         }
       }
     },
+    "Ouvrir ces applications au lancement de Side": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open these apps when Side launches"
+          }
+        }
+      }
+    },
     "Ouvrir dans le Finder": {
       "localizations": {
         "en": {
@@ -4063,6 +4313,16 @@
         }
       }
     },
+    "Partager entre mes Mac (iCloud Drive)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Share between my Macs (iCloud Drive)"
+          }
+        }
+      }
+    },
     "Partager…": {
       "localizations": {
         "en": {
@@ -4073,12 +4333,32 @@
         }
       }
     },
+    "Partagé dans iCloud Drive, dossier Side.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shared in iCloud Drive, Side folder."
+          }
+        }
+      }
+    },
     "Passer": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Skip"
+          }
+        }
+      }
+    },
+    "Passer d'une app à l'autre": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Switch between apps"
           }
         }
       }
@@ -4129,16 +4409,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Skip the ad (when YouTube allows it)"
-          }
-        }
-      }
-    },
-    "Pendant que tu règles la taille, le vrai carrousel s'affiche au milieu de l'écran. Apparition : plus court, le carrousel vient plus tôt mais un simple effleurement risque de l'afficher ; plus long, c'est l'inverse.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "While you adjust the size, the real carousel appears in the middle of the screen. Delay: shorter, the carousel appears sooner but a simple flick may show it; longer, the opposite."
           }
         }
       }
@@ -4434,6 +4704,7 @@
       }
     },
     "Quatre doigts": {
+      "extractionState": "stale",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -4449,6 +4720,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Four fingers %@"
+          }
+        }
+      }
+    },
+    "Quatre doigts %@, puis ↑ ↓": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Four fingers %@, then ↑ ↓"
           }
         }
       }
@@ -4493,16 +4774,6 @@
         }
       }
     },
-    "Quitter Square": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Quit Square"
-          }
-        }
-      }
-    },
     "Raccourci": {
       "localizations": {
         "en": {
@@ -4523,12 +4794,12 @@
         }
       }
     },
-    "Raccourci de Square": {
+    "Raccourci de la grille": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Square Shortcut"
+            "value": "Grid shortcut"
           }
         }
       }
@@ -4564,6 +4835,7 @@
       }
     },
     "Ranger": {
+      "extractionState": "stale",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -4733,6 +5005,26 @@
         }
       }
     },
+    "Replier": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Collapse"
+          }
+        }
+      }
+    },
+    "Replier la zone": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Collapse the drop zone"
+          }
+        }
+      }
+    },
     "Resserrer la grille": {
       "localizations": {
         "en": {
@@ -4744,6 +5036,7 @@
       }
     },
     "Reste sous la main": {
+      "extractionState": "stale",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -4789,6 +5082,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Remove from Shelf"
+          }
+        }
+      }
+    },
+    "Retirer de la liste": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove from the list"
           }
         }
       }
@@ -4889,6 +5192,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Nothing to show yet."
+          }
+        }
+      }
+    },
+    "Roue sans fin": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Endless wheel"
+          }
+        }
+      }
+    },
+    "Roue sans fin : les cartes tournent comme dans le tiroir, et après la dernière application revient la première. Bande : les cartes en ligne, qui s'arrêtent aux deux bouts. Pendant que tu règles la taille, le vrai carrousel s'affiche au milieu de l'écran. Apparition : plus court, le carrousel vient plus tôt mais un simple effleurement risque de l'afficher ; plus long, c'est l'inverse.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Endless wheel: the cards turn as in the drawer, and after the last app comes the first again. Strip: the cards in a row, which stop at both ends. While you adjust the size, the real carousel appears in the middle of the screen. Appearance: shorter, the carousel comes sooner but a mere flick may show it; longer, the opposite."
           }
         }
       }
@@ -5103,6 +5426,16 @@
         }
       }
     },
+    "Side et Mulot sont deux petites applications gratuites, faites pour aller ensemble.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Side and Mulot are two small free apps, made to work together."
+          }
+        }
+      }
+    },
     "Side n'a pas le droit de lire la corbeille": {
       "localizations": {
         "en": {
@@ -5119,16 +5452,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Side restarts to change the language."
-          }
-        }
-      }
-    },
-    "Side, Square et Mulot sont trois petites applications gratuites, faites pour aller ensemble.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Side, Square and Mulot are three small free apps made to work together."
           }
         }
       }
@@ -5219,16 +5542,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Spotify denied this access (%@)."
-          }
-        }
-      }
-    },
-    "Square n'agrandit jamais ces applications.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Square never makes these apps fill the screen."
           }
         }
       }
@@ -5393,12 +5706,12 @@
         }
       }
     },
-    "Tes applications en plein écran, en grille, et un Dock.": {
+    "Tes apps de travail prennent tout l'écran. La grille les montre toutes : clique sur celle que tu veux.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Your apps full screen, in a grid, plus a Dock."
+            "value": "Your work apps fill the screen. The grid shows them all: click the one you want."
           }
         }
       }
@@ -5429,6 +5742,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Your Files"
+          }
+        }
+      }
+    },
+    "Tes fichiers par-dessus n'importe quelle app. Ce que tu déposes à côté reste sous la main.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your files on top of any app. Whatever you drop beside it stays at hand."
           }
         }
       }
@@ -5583,6 +5906,16 @@
         }
       }
     },
+    "Trois places": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Three places"
+          }
+        }
+      }
+    },
     "Type": {
       "localizations": {
         "en": {
@@ -5723,6 +6056,16 @@
         }
       }
     },
+    "Une petite app à la fois, à côté de ta musique. Continue le geste : les autres apps du tiroir défilent.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "One small app at a time, next to your music. Keep swiping: the other drawer apps scroll by."
+          }
+        }
+      }
+    },
     "Une secousse de souris": {
       "localizations": {
         "en": {
@@ -5799,6 +6142,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Toward “Soon”: it appears earlier, but a simple flick may show it. Toward “Late”: the opposite."
+          }
+        }
+      }
+    },
+    "Vert : au centre": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Green: to the center"
           }
         }
       }
@@ -5899,6 +6252,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "See the Drawer"
+          }
+        }
+      }
+    },
+    "Voir les fichiers un par un": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "See the files one by one"
           }
         }
       }
@@ -6039,6 +6402,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "https://…"
+          }
+        }
+      }
+    },
+    "iCloud Drive n'est pas activé sur ce Mac.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iCloud Drive isn't turned on on this Mac."
           }
         }
       }
@@ -6329,6 +6702,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "⌃⌥Space"
+          }
+        }
+      }
+    },
+    "⌃⌥↑ : plein écran": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⌃⌥↑: full screen"
           }
         }
       }

@@ -1599,29 +1599,7 @@ final class Appli: NSObject, NSApplicationDelegate, NSMenuDelegate {
         Images.commun.capturer(Relevé.tout().espaces) {}
     }
 
-    // MARK: Menu
-
-    func menuNeedsUpdate(_ menu: NSMenu) {
-        menu.removeAllItems()
-        func ajouter(_ titre: String, _ action: Selector, à m: NSMenu = menu) -> NSMenuItem {
-            let i = m.addItem(withTitle: titre, action: action, keyEquivalent: "")
-            i.target = self
-            return i
-        }
-        // Le menu ne garde que les actions ; tous les réglages sont dans la fenêtre « Réglages… ».
-        _ = ajouter(String(localized: "Afficher la grille  (\(Raccourci.actuel.nom))"), #selector(basculerGrille))
-        _ = ajouter(String(localized: "Agrandir la fenêtre en cours  (⌃⌥ Entrée)"), #selector(agrandirActive))
-        menu.addItem(.separator())
-        let reglages = ajouter(String(localized: "Réglages…"), #selector(ouvrirReglages))
-        reglages.keyEquivalent = ","
-        if !AXIsProcessTrusted() || !Images.autorisé {
-            menu.addItem(.separator())
-            if !AXIsProcessTrusted() { _ = ajouter(String(localized: "Autoriser « Accessibilité »…"), #selector(ouvrirAccessibilité)) }
-            if !Images.autorisé { _ = ajouter(String(localized: "Autoriser « Enregistrement de l'écran »…"), #selector(ouvrirCapture)) }
-        }
-        menu.addItem(.separator())
-        menu.addItem(withTitle: String(localized: "Quitter Square"), action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
-    }
+    // (L'ancien menu de Square, dans la barre des menus, n'existe plus : Side a le sien.)
 
     @objc func agrandirActive() {
         // Le menu vient de se fermer : on laisse l'application d'avant reprendre la main.
@@ -1664,6 +1642,25 @@ final class Appli: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     /// Va droit à la fenêtre numéro n + 1, dans l'ordre des cases de la grille.
     private func allerALaFenetre(_ n: Int) {
+        // Un numéro de « Mes applications » : va droit à cette application, et l'ouvre si elle ne l'est pas.
+        let mes = MesApps.commun.liste
+        if mes.indices.contains(n) {
+            let b = mes[n].bundle
+            if panneau?.isVisible == true { fermerGrille() }
+            let (tous, courants) = Relevé.tout()
+            let apps = construire(tous)
+            if let t = apps.first(where: { NSRunningApplication(processIdentifier: $0.pid)?.bundleIdentifier == b }) {
+                let ecran = Ecrans.identifiant(ecranSousLaSouris())
+                guard t.cle != cléCourante(tous, courants, ecran: ecran) else { return }
+                journal("Square: raccourci %d → %@ (mes applications)", n + 1, mes[n].nom)
+                espaces = tous
+                Bascule.aller(t, espaces: tous)
+            } else if let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: b) {
+                journal("Square: raccourci %d → ouvre %@", n + 1, mes[n].nom)
+                NSWorkspace.shared.openApplication(at: url, configuration: NSWorkspace.OpenConfiguration(), completionHandler: nil)
+            }
+            return
+        }
         if panneau?.isVisible == true {
             if grille.cases.indices.contains(n) { choisir(grille.cases[n].tuile, depuis: grille.cases[n]) }
             return
@@ -1714,7 +1711,8 @@ final class Appli: NSObject, NSApplicationDelegate, NSMenuDelegate {
             carrouselCrans = 0
             guard !carrouselApps.isEmpty else { return }
         }
-        carrouselCrans = min(max(carrouselCrans + d, -carrouselDepart), carrouselApps.count - 1 - carrouselDepart)
+        carrouselCrans += d                    // une roue sans fin : on fait le tour
+        if !Carrousel.roue { carrouselCrans = min(max(carrouselCrans, -carrouselDepart), carrouselApps.count - 1 - carrouselDepart) }
         Carrousel.commun.placer(CGFloat(carrouselDepart + carrouselCrans), anime: true)
         carrouselAttente?.invalidate()
         carrouselAttente = Timer.scheduledTimer(withTimeInterval: 0.6, repeats: false) { [weak self] _ in
@@ -1726,8 +1724,27 @@ final class Appli: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     /// Pour la fenêtre de réglages : changer le raccourci, et montrer ou cacher l'aperçu du carrousel.
     func reglerLeRaccourci() { changerRaccourci() }
+    /// L'aperçu des réglages s'efface tout seul peu après le dernier changement, ou au premier clic, où qu'il soit.
     func apercuDuCarrousel(_ visible: Bool) {
-        if visible { apercuCarrousel(anime: !Carrousel.commun.visible) } else { Carrousel.commun.masquer() }
+        finApercu?.invalidate(); finApercu = nil
+        guard visible else { fermerApercu(); return }
+        apercuCarrousel(anime: !Carrousel.commun.visible)
+        finApercu = Timer.scheduledTimer(withTimeInterval: 1.6, repeats: false) { [weak self] _ in self?.fermerApercu() }
+        if clicsApercu.isEmpty {
+            if let g = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown], handler: { [weak self] _ in self?.fermerApercu() }) { clicsApercu.append(g) }
+            if let l = NSEvent.addLocalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown], handler: { [weak self] e in
+                // Un clic sur le curseur de taille garde l'aperçu (on est en train de régler) ; ailleurs, il le ferme.
+                if !(e.window?.contentView?.hitTest(e.locationInWindow) is NSSlider) { self?.fermerApercu() }
+                return e
+            }) { clicsApercu.append(l) }
+        }
+    }
+    private var finApercu: Timer?
+    private var clicsApercu: [Any] = []
+    private func fermerApercu() {
+        finApercu?.invalidate(); finApercu = nil
+        clicsApercu.forEach { NSEvent.removeMonitor($0) }; clicsApercu = []
+        Carrousel.commun.masquer()
     }
 
 
@@ -1840,8 +1857,15 @@ final class Appli: NSObject, NSApplicationDelegate, NSMenuDelegate {
     }
 
     /// Pas de boucle (essayée puis retirée le 12/11 : on s'y perd) : on s'arrête aux deux bouts.
+    /// Comme le mini carrousel du tiroir (13/11/2026) : une roue sans fin. Après la dernière fenêtre revient la première.
     private func carrouselPosition(_ q: CGFloat) -> CGFloat {
-        min(max(CGFloat(carrouselDepart) + q, 0), CGFloat(carrouselApps.count - 1))
+        let p = CGFloat(carrouselDepart) + q
+        return Carrousel.roue ? p : min(max(p, 0), CGFloat(carrouselApps.count - 1))     // la bande s'arrête aux deux bouts
+    }
+    /// Le rang de la fenêtre sous la position p, en faisant le tour.
+    private func carrouselRang(_ p: CGFloat) -> Int {
+        let n = max(carrouselApps.count, 1)
+        return ((Int(p.rounded()) % n) + n) % n
     }
 
     func carrouselSuivre(_ q: CGFloat) {
@@ -1852,8 +1876,8 @@ final class Appli: NSObject, NSApplicationDelegate, NSMenuDelegate {
     /// Doigts levés : la fenêtre sous le cadre passe devant. Un petit geste bref suffit pour passer à la voisine.
     func carrouselFin(_ q: CGFloat) {
         guard !carrouselApps.isEmpty else { return }
-        var cible = Int(carrouselPosition(q).rounded())
-        if cible == carrouselDepart, abs(q) > 0.22 { cible = min(max(carrouselDepart + (q > 0 ? 1 : -1), 0), carrouselApps.count - 1) }
+        var cible = carrouselRang(carrouselPosition(q))
+        if cible == carrouselDepart, abs(q) > 0.22, abs(q) < 0.5 { cible = carrouselRang(CGFloat(carrouselDepart + (q > 0 ? 1 : -1))) }
         Carrousel.commun.fermer(sur: cible)
         let apps = carrouselApps
         carrouselApps = []
@@ -1913,7 +1937,7 @@ final class Appli: NSObject, NSApplicationDelegate, NSMenuDelegate {
         Touches.retirer(idGrille)
         let w = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 380, height: 120), styleMask: [.titled, .closable],
                          backing: .buffered, defer: false)
-        w.title = String(localized: "Raccourci de Square")
+        w.title = String(localized: "Raccourci de la grille")
         w.isReleasedWhenClosed = false
         let t = NSTextField(wrappingLabelWithString: String(localized: "Appuyez sur le nouveau raccourci.\nIl faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).\nÉchap pour annuler."))
         t.alignment = .center
@@ -2005,11 +2029,21 @@ final class Appli: NSObject, NSApplicationDelegate, NSMenuDelegate {
         }
         // Une fenêtre qui vient de quitter son groupe ne reprend pas la case du groupe : elle ira sur la première case libre.
         places = places.filter { vivantes.contains($0.key) }
+        func app(_ t: Tuile) -> String { NSRunningApplication(processIdentifier: t.pid)?.bundleIdentifier ?? "?" }
+        // « Mes applications » (réglages) : chacune a sa case réservée, celle de son numéro. Les premières cases leur
+        // appartiennent, même quand l'application est fermée ; les autres fenêtres se rangent après.
+        let numerotees = MesApps.commun.bundles
+        var reservees: [String: Int] = [:]
+        for t in haut {
+            if let i = numerotees.firstIndex(of: app(t)), !reservees.values.contains(i) { reservees[t.cle] = i }
+        }
+        for (cle, p) in places where reservees[cle] == nil && p < numerotees.count { places[cle] = nil }
+        for (cle, i) in reservees { places[cle] = i }
         var vues: Set<Int> = []
         for cle in places.keys.sorted() { if let p = places[cle], !vues.insert(p).inserted { places[cle] = nil } }
+        for (cle, i) in reservees { places[cle] = i }
         var souvenirs = (reglages.dictionary(forKey: "placesApps") as? [String: Int]) ?? [:]
-        func app(_ t: Tuile) -> String { NSRunningApplication(processIdentifier: t.pid)?.bundleIdentifier ?? "?" }
-        var prises = Set(places.values)
+        var prises = Set(places.values).union(0..<numerotees.count)
         for t in haut where places[t.cle] == nil {
             var p = 0
             if let ancienne = souvenirs[app(t)], !prises.contains(ancienne) { p = ancienne } else { while prises.contains(p) { p += 1 } }
@@ -2186,6 +2220,7 @@ final class Appli: NSObject, NSApplicationDelegate, NSMenuDelegate {
             for (cle, p) in nouvelles { places[cle] = p }
             UserDefaults.standard.set(places, forKey: "placesCases")
             UserDefaults.standard.removeObject(forKey: "placesApps")
+            retenirDansMesApps(places)
             redessinerGrille()
             return
         case .partager(let autre, let cote):
@@ -2201,7 +2236,29 @@ final class Appli: NSObject, NSApplicationDelegate, NSMenuDelegate {
         }
         UserDefaults.standard.set(places, forKey: "placesCases")
         UserDefaults.standard.removeObject(forKey: "placesApps")     // les anciennes places par application ne valent plus
+        retenirDansMesApps(places)
         redessinerGrille(transition: true)
+    }
+
+    /// Réorganiser la grille change aussi les numéros de « Mes applications » (réglages) : les deux façons de ranger
+    /// disent la même chose. Les applications numérotées prennent l'ordre de leurs nouvelles cases ; une application
+    /// numérotée mais fermée garde son rang.
+    private func retenirDansMesApps(_ places: [String: Int]) {
+        let mes = MesApps.commun.liste
+        guard mes.count > 1 else { return }
+        var rang: [String: Double] = [:]
+        for (i, a) in mes.enumerated() { rang[a.bundle] = Double(i) + 0.5 }
+        var vus: Set<String> = []
+        for t in tuiles.sorted(by: { (places[$0.cle] ?? .max) < (places[$1.cle] ?? .max) }) {
+            guard let b = NSRunningApplication(processIdentifier: t.pid)?.bundleIdentifier, rang[b] != nil,
+                  let p = places[t.cle], vus.insert(b).inserted else { continue }
+            rang[b] = Double(p)
+        }
+        let nouvel = mes.sorted { (rang[$0.bundle] ?? 0) < (rang[$1.bundle] ?? 0) }
+        if nouvel != mes {
+            journal("Square: mes applications réordonnées depuis la grille : %@", nouvel.map(\.nom).joined(separator: ", "))
+            MesApps.commun.liste = nouvel
+        }
     }
 
     /// Les fenêtres qui partagent l'écran avec celle-ci, elle comprise (elle seule si elle n'est dans aucun groupe).

@@ -8,6 +8,58 @@ Il est mis à jour à chaque modification, en même temps que le code.
 
 ## 13/11/2026
 
+### Mes applications, grille et carrousel
+- Réglages : les lignes de « Mes applications » se réordonnent en les glissant vers le haut ou le bas (elles suivent la souris).
+- Réorganiser la grille change aussi les numéros de « Mes applications » : les deux façons de ranger disent la même chose.
+- Carrousel : une petite pastille ronde avec le numéro de la case est posée sur le coin de l'icône de chaque application, pour savoir où l'on est.
+- Réglages du carrousel : l'aperçu s'efface tout seul peu après le dernier réglage, ou au premier clic (il restait affiché).
+
+### Carrousel plein écran : la roue du tiroir, couchée
+- Roue resserrée, cartes plus petites. Réglages, Carrousel : « Forme » permet de choisir entre la bande (par défaut, qui s'arrête aux deux bouts) et la roue sans fin.
+- Le carrousel à quatre doigts reprend le mini carrousel du tiroir, à l'horizontale : les cartes sont posées sur une roue, rapetissent et s'effacent en s'éloignant, puis reviennent de l'autre côté. Il tourne sans fin : après la dernière fenêtre revient la première (avant, il s'arrêtait aux deux bouts).
+- Même chose avec la molette ou les crans de la souris.
+
+### Nettoyage d'après la fusion avec Square
+- Réglages, Général : Square ne figure plus parmi les applications compagnes (il fait partie de Side) ; il ne reste que Mulot.
+- Les textes qui parlaient de Square comme d'une application à part sont réécrits (tiroir, fenêtres, raccourci de la grille). L'ancien menu de Square, inutilisé, est retiré.
+- « La visite guidée de Side, en sept étapes » (elle en avait cinq avant la fusion).
+
+### Tiroir : le glissement horizontal revient aux applications
+- Avec une application à la fois, le glissement à deux doigts de côté n'est plus pris par le tiroir : on peut de nouveau balayer un message dans Messages ou Mail, revenir en arrière dans Safari…
+
+### Mes applications : un numéro pour chaque application de travail
+- Réglages, Grille : une liste numérotée de 1 à 9 (Safari en 1, Claude en 2, Mail en 3…). On ajoute une application avec le bouton ou en la déposant depuis le Finder, on glisse une ligne sur une autre pour changer son numéro.
+- Chaque application garde sa case dans la grille, sa place dans le carrousel et son raccourci (⌘ + chiffre). Si elle n'est pas ouverte, son raccourci l'ouvre.
+- Au lancement de Side, les applications de la liste qui ne sont pas ouvertes s'ouvrent, dans l'ordre (réglable).
+- Partage entre plusieurs Mac : un petit fichier dans iCloud Drive (dossier Side), relu au lancement et chaque minute.
+
+### Tiroir : pas de Finder
+- Le Finder ne peut plus être mis dans le tiroir (il n'a souvent aucune fenêtre à prêter, et Side a son propre Finder). Un Finder déjà ajouté en est retiré.
+- Clic droit (ou ⌃-clic) sur la carte d'une application du tiroir : le même menu que sur son icône de la barre.
+
+### Zone de dépôt refaite sur le modèle de Dropover
+- **Plus de zones vides en trop** : la croix retire la zone (il en reste toujours une), et les zones vides restées d'avant sont retirées. Attraper un fichier ne montre plus qu'une zone ; les suivantes naissent de la secousse.
+- **Quatre zones au plus, sur la hauteur du Finder** : les zones s'empilent (la nouvelle au-dessus) et rapetissent ensemble s'il le faut pour ne jamais dépasser la hauteur du Finder de Side.
+- **Secousse fiable** : pendant un glisser, Side suit lui-même le pointeur (macOS ne transmettait pas toujours les mouvements, notamment avec des dossiers ou depuis la zone elle-même).
+- **Nouvelle zone seulement à la secousse** : une zone vide n'apparaît plus toute seule dès qu'on attrape un fichier. Elle se crée en secouant ce qu'on tient (une seule zone vide à la fois). Sans secousse, on pose dans une zone déjà là.
+- **Captures d'écran** : chaque capture va dans sa propre zone (vide ou nouvelle), jamais dans une zone qui contient déjà quelque chose.
+- **Taille** : la tuile fait 198 × 207 points, comme l'étagère de Dropover (au lieu de 150 × 150), avec de grands coins arrondis.
+- **La pile** : les fichiers déposés s'empilent en vignettes (aperçu du fichier). Attraper la pile les emmène tous d'un coup.
+- **Dépliée** : la pastille « 3 éléments › » (ou un double-clic sur la pile) ouvre la grille des fichiers, avec nom et poids, pour les prendre un par un ; la flèche de retour la replie.
+- **Ce qui sort de la zone la quitte** : un fichier déposé ailleurs disparaît de la zone, et une zone vidée se referme.
+- La croix vide la zone ; le cadenas est remplacé par « Garder à l'écran quand Side est fermé » dans le menu.
+- Un clic dans la zone ne peut plus refermer le Finder de Side.
+
+### Quatre doigts : réponse immédiate après une pause
+- Side attendait en arrière-plan et macOS le mettait en sommeil (App Nap) au bout de quelques minutes : le premier geste à quatre doigts tardait. Side reste maintenant toujours prêt (sans empêcher la veille du Mac).
+- Au réveil du Mac, le trackpad est relancé s'il a cessé d'envoyer ses touches.
+
+### Une seule présentation
+- Retouches : le Finder arrive de son bord réglé (le haut) dans « Trois places » ; les animations ne reviennent plus en arrière avant de recommencer (grille, carrousel, Finder) ; « Changer d'avis » montre le bouton jaune qui range au tiroir, puis le bouton vert du tiroir qui ressort l'app au centre de l'écran (pas en plein écran).
+- Les présentations de Side et de Square, qui s'enchaînaient dans deux fenêtres (onze écrans), deviennent une seule présentation de sept écrans : Trois places, Le plein écran, Passer d'une app à l'autre, Le tiroir (avec le défilement des apps aux quatre doigts), Changer d'avis (bouton jaune, ⌃⌥↑ / ⌃⌥↓, clic droit dans la barre), Le Finder, Le presse-papiers.
+- Le mot d'accueil séparé du tiroir n'apparaît plus.
+- Presse-papiers : mêmes coins arrondis que le Finder.
+
 ### Applications à taille fixe et liste d'ajout
 - Une application qui refuse de grandir (la Calculette…) est centrée dans sa place du tiroir, au lieu d'être collée à gauche avec du vide à côté. Sa taille est retenue.
 - Liste « + » : plus de petit coin carré clair qui dépasse (coins arrondis par un masque).

@@ -172,19 +172,29 @@ private struct FondP: View {
 struct ScenePresentation: View {
     let etape: Int
     let t: Double
+    /// Seulement le petit écran, sans cadre ni trackpad : la présentation l'encadre elle-même.
+    var nu = false
+    /// La scène ne revient pas à son point de départ : elle s'enchaîne avec la suivante dans la même boucle.
+    var sansRetour = false
+
+    @ViewBuilder private var ecran: some View {
+        switch etape {
+        case 0: ouvrir
+        // Fichiers et dossiers, en deux temps dans la même boucle : un dossier ajouté aux favoris, puis l'aperçu d'un fichier.
+        case 1: if t < 0.5 { dossiers(t * 2) } else { fichiers((t - 0.5) * 2) }
+        case 2: depot
+        case 3: tiroir
+        default: pressePapiers
+        }
+    }
 
     var body: some View {
+        if nu { ZStack { ecran }.frame(width: EcranP.taille.width, height: EcranP.taille.height) } else { avecCadre }
+    }
+
+    private var avecCadre: some View {
         VStack(spacing: 12) {
-            ZStack {
-                switch etape {
-                case 0: ouvrir
-                // Fichiers et dossiers, en deux temps dans la même boucle : un dossier ajouté aux favoris, puis l'aperçu d'un fichier.
-                case 1: if t < 0.5 { dossiers(t * 2) } else { fichiers((t - 0.5) * 2) }
-                case 2: depot
-                case 3: tiroir
-                default: pressePapiers
-                }
-            }
+            ZStack { ecran }
             .frame(width: EcranP.taille.width, height: EcranP.taille.height)
             .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
             .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).strokeBorder(Color.primary.opacity(0.25), lineWidth: 1.5))
@@ -227,7 +237,7 @@ struct ScenePresentation: View {
     /// 1. Un geste (le coin, ici) : la carte arrive par-dessus l'application, puis repart.
     private var ouvrir: some View {
         // Avec les quatre doigts, la carte suit le geste ; sinon, c'est le pointeur qui va dans le coin.
-        let k = (doigtsFinder ? tranche(t, 0.16, 0.44) : tranche(t, 0.30, 0.50)) - tranche(t, 0.84, 0.97)
+        let k = (doigtsFinder ? tranche(t, 0.16, 0.44) : tranche(t, 0.30, 0.50)) - (sansRetour ? 0 : tranche(t, 0.84, 0.97))
         let coin: CGPoint = {
             switch Config.shared.coin {
             case .hautGauche: return CGPoint(x: 3, y: 3)
@@ -290,7 +300,7 @@ struct ScenePresentation: View {
 
     /// 4. Pendant un glisser, la zone de dépôt apparaît à côté de la carte. Ce qu'on y pose reste là, même Side refermé.
     private var depot: some View {
-        let k = 1 - (tranche(t, 0.62, 0.76) - tranche(t, 0.93, 0.99))            // la carte se referme, puis revient
+        let k = 1 - (tranche(t, 0.62, 0.76) - (sansRetour ? 0 : tranche(t, 0.93, 0.99)))   // la carte se referme, puis revient
         let c = EcranP.carte(1), cMobile = EcranP.carte(k)
         let aDroite = Config.shared.bord != .droite
         let zone = CGRect(x: aDroite ? min(c.maxX + 8, 420 - 56) : max(c.minX - 56, 6), y: c.midY - 24, width: 48, height: 48)
@@ -464,13 +474,73 @@ private struct PastilleP: View {
     }
 }
 
+/// Le trackpad, sous le petit écran : quatre doigts qui glissent, puis se lèvent.
+private struct TrackpadP: View {
+    enum Geste { case haut, bas, gauche, tiroir(versLeBas: Bool) }
+    let geste: Geste
+    let t: Double
+    var debut = 0.0, fin = 1.0                   // la part de la boucle où le geste a lieu
+
+    var body: some View {
+        let u = min(max((t - debut) / (fin - debut), 0), 1)
+        // Les doigts se lèvent à la fin du geste, au moment où l'écran réagit.
+        let poses = tranche(u, 0.04, 0.10) - tranche(u, 0.50, 0.56)
+        var decalage = CGSize.zero
+        var fleche = "arrow.up"
+        switch geste {
+        case .haut: decalage.height = 15 - 30 * tranche(u, 0.12, 0.50)
+        case .bas: decalage.height = -15 + 30 * tranche(u, 0.12, 0.50); fleche = "arrow.down"
+        case .gauche: decalage.width = 14 - 44 * tranche(u, 0.12, 0.50); fleche = "arrow.left.and.right"
+        case .tiroir(let versLeBas):
+            // Le tiroir s'ouvre, puis les doigts continuent : les applications défilent.
+            let s: CGFloat = versLeBas ? 1 : -1
+            decalage.height = s * (-16 + 14 * tranche(u, 0.10, 0.28) + 18 * tranche(u, 0.40, 0.75))
+            fleche = "arrow.up.and.down"
+        }
+        let pose2 = { () -> CGFloat in
+            if case .tiroir = geste { return tranche(u, 0.04, 0.08) - tranche(u, 0.80, 0.86) }
+            return poses
+        }()
+        return ZStack {
+            RoundedRectangle(cornerRadius: 10, style: .continuous).fill(Color.primary.opacity(0.10))
+            RoundedRectangle(cornerRadius: 10, style: .continuous).strokeBorder(Color.primary.opacity(0.22), lineWidth: 1)
+            HStack(spacing: 7) {
+                ForEach(0..<4, id: \.self) { i in
+                    Circle().fill(Color.accentColor).frame(width: 13, height: 13).offset(y: [3, -3, -4, 2][i])
+                }
+            }
+            .offset(decalage)
+            .opacity(Double(pose2))
+            Image(systemName: fleche).font(.system(size: 13, weight: .bold)).foregroundStyle(Color.accentColor).offset(x: 58)
+        }
+        .frame(width: 150)
+        .opacity(t > fin ? 0 : 1)                // le geste est fini : le trackpad laisse la place au reste de la scène
+    }
+}
+
+/// La présentation de Side, une seule pour toute l'app depuis la fusion avec Square (13/11/2026) : sept écrans organisés
+/// autour des trois places des applications (le Finder, le plein écran, le tiroir), puis le presse-papiers.
 struct PresentationVue: View {
     @State var etape = 0
     let fermer: () -> Void
-    static let nombre = 5
-    private static let periodes: [Double] = [4.6, 10.0, 6.0, 4.6, 5.4]
+    static let nombre = 7
+    private static let periodes: [Double] = [5.0, 8.4, 4.8, 7.0, 7.6, 10.6, 5.4]
     @ObservedObject private var config = Config.shared
     @ObservedObject private var presse = ConfigPresse.commun
+
+    private static var titres: [String] {
+        [String(localized: "Trois places"), String(localized: "Le plein écran"), String(localized: "Passer d'une app à l'autre"),
+         String(localized: "Le tiroir"), String(localized: "Changer d'avis"), String(localized: "Le Finder"), String(localized: "Le presse-papiers")]
+    }
+    private static var phrases: [String] {
+        [String(localized: "Le Finder par-dessus tout, tes apps de travail en grand, les petites apps dans le tiroir."),
+         String(localized: "Tes apps de travail prennent tout l'écran. La grille les montre toutes : clique sur celle que tu veux."),
+         String(localized: "Glisse à quatre doigts : les apps défilent, lâche sur celle que tu veux."),
+         String(localized: "Une petite app à la fois, à côté de ta musique. Continue le geste : les autres apps du tiroir défilent."),
+         String(localized: "Le bouton jaune range une app dans le tiroir. Dans le tiroir, le bouton vert la ressort au centre de l'écran."),
+         String(localized: "Tes fichiers par-dessus n'importe quelle app. Ce que tu déposes à côté reste sous la main."),
+         String(localized: "Tout ce que tu as copié, retrouvé d'un clic.")]
+    }
 
     var body: some View {
         VStack(spacing: 14) {
@@ -482,17 +552,20 @@ struct PresentationVue: View {
             }
             .padding(.top, 4)
             VStack(spacing: 4) {
-                Text([String(localized: "Le Finder"), String(localized: "Accède à tes fichiers et dossiers"), String(localized: "La zone de dépôt"), String(localized: "Le tiroir"), String(localized: "Le presse-papiers")][min(etape, 4)])
-                    .font(.title2.weight(.semibold))
-                // Une ligne d'explication, seulement là où le dessin ne suffit pas : à quoi servent le tiroir et le presse-papiers.
-                Text(etape == 3 ? String(localized: "La musique et les petites applis : un coup d'œil, et on referme.")
-                     : (etape == 4 ? String(localized: "Tout ce que tu as copié, retrouvé d'un clic.") : " "))
-                    .font(.callout).foregroundStyle(.secondary)
+                Text(Self.titres[etape]).font(.title2.weight(.semibold))
+                Text(Self.phrases[etape]).font(.callout).foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center).frame(height: 36, alignment: .top)
             }
             TimelineView(.animation) { horloge in
                 let periode = Self.periodes[etape]
-                ScenePresentation(etape: etape,
-                                  t: horloge.date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: periode) / periode)
+                let t = horloge.date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: periode) / periode
+                VStack(spacing: 12) {
+                    Self.ecran(etape, t)
+                        .frame(width: EcranP.taille.width, height: EcranP.taille.height)
+                        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                        .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).strokeBorder(Color.primary.opacity(0.25), lineWidth: 1.5))
+                    Self.trackpad(etape, t).frame(height: 62)
+                }
             }
             HStack(spacing: 8) { pastilles }.frame(height: 30)
             HStack {
@@ -503,19 +576,43 @@ struct PresentationVue: View {
                 }
                 if etape > 0 { Button("Précédent") { etape -= 1 } }
                 Button(etape < Self.nombre - 1 ? String(localized: "Suivant") : String(localized: "Terminer")) {
-                    if etape < Self.nombre - 1 { etape += 1 } else {
-                        fermer()
-                        // Puis la présentation du plein écran (la grille, le carrousel), qui fait partie de l'app depuis la fusion.
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { Accueil.montrer() }
-                    }
+                    if etape < Self.nombre - 1 { etape += 1 } else { fermer() }
                 }
                 .buttonStyle(.borderedProminent)
                 .keyboardShortcut(.defaultAction)
             }
         }
         .padding(.horizontal, 24).padding(.top, 34).padding(.bottom, 18)
-        .frame(width: 520)
+        .frame(width: 540)
         .background(Color(nsColor: .windowBackgroundColor))
+    }
+
+    /// Le petit écran de chaque étape. Les scènes du plein écran viennent de l'ancienne présentation de Square.
+    @ViewBuilder static func ecran(_ etape: Int, _ t: Double) -> some View {
+        switch etape {
+        case 0: SceneAccueil(etape: 10, t: t, nu: true)
+        // La grille, puis le choix d'une app dans la grille, dans la même boucle.
+        case 1: if t < 0.5 { SceneAccueil(etape: 0, t: t * 2, nu: true, sansRetour: true) } else { SceneAccueil(etape: 1, t: (t - 0.5) * 2, nu: true, sansRetour: true) }
+        case 2: SceneAccueil(etape: 2, t: t, nu: true)
+        case 3: SceneAccueil(etape: 11, t: t, nu: true)
+        case 4: SceneAccueil(etape: 12, t: t, nu: true)
+        // Ouvrir le Finder, puis la zone de dépôt.
+        case 5: if t < 0.44 { ScenePresentation(etape: 0, t: t / 0.44, nu: true, sansRetour: true) } else { ScenePresentation(etape: 2, t: (t - 0.44) / 0.56, nu: true, sansRetour: true) }
+        default: ScenePresentation(etape: 4, t: t, nu: true)
+        }
+    }
+
+    /// Le trackpad sous l'écran, seulement pour les étapes qui se font aux quatre doigts (une place vide ailleurs).
+    @ViewBuilder static func trackpad(_ etape: Int, _ t: Double) -> some View {
+        let doigtsTiroir = ConfigTiroir.commun.quatreDoigts && ConfigTiroir.gestePossible
+        let c = Config.shared
+        switch etape {
+        case 2: TrackpadP(geste: .gauche, t: t)
+        case 3 where doigtsTiroir: TrackpadP(geste: .tiroir(versLeBas: ConfigTiroir.enHaut), t: t)
+        case 5 where c.quatreDoigts:
+            TrackpadP(geste: c.sensDoigts == "bas" || (c.sensDoigts == "deux" && c.bord != .bas) ? .bas : .haut, t: t, debut: 0, fin: 0.44)
+        default: Color.clear
+        }
     }
 
     private func symbole(_ c: Coin) -> String {
@@ -527,31 +624,43 @@ struct PresentationVue: View {
         }
     }
 
+    private static let symbolesCoinGrille = ["hd": "arrow.up.right", "hg": "arrow.up.left", "bd": "arrow.down.right", "bg": "arrow.down.left"]
+
     /// Les déclencheurs réglés, en pastilles : on ne montre que ceux qui servent vraiment.
     @ViewBuilder private var pastilles: some View {
         switch etape {
         case 0:
+            PastilleP(symbole: "folder", texte: String(localized: "Finder"))
+            PastilleP(symbole: "macwindow", texte: String(localized: "Plein écran"))
+            PastilleP(symbole: "rectangle.bottomthird.inset.filled", texte: String(localized: "Tiroir"))
+        case 1:
+            if let s = Self.symbolesCoinGrille[CoinGrille.choix] { PastilleP(symbole: s, texte: String(localized: "Coin de l'écran")) }
+            PastilleP(symbole: "keyboard", texte: Raccourci.actuel.nom)
+            if Appli.toucheDirecte != "aucun" {
+                PastilleP(symbole: nil, texte: (["cmd": "⌘", "opt": "⌥", "ctrl": "⌃"][Appli.toucheDirecte] ?? "") + " 1 … 9")
+            }
+        case 2:
+            PastilleP(symbole: "hand.draw", texte: "←  →")
+        case 3:
+            if ConfigTiroir.commun.quatreDoigts && ConfigTiroir.gestePossible {
+                PastilleP(symbole: "hand.draw", texte: String(localized: "Quatre doigts \(ConfigTiroir.enHaut ? "↓" : "↑"), puis ↑ ↓"))
+            }
+            if ConfigTiroir.commun.touche != -1 { PastilleP(symbole: "keyboard", texte: ConfigTiroir.commun.libelle) }
+            if ConfigTiroir.commun.coin != .aucun { PastilleP(symbole: symbole(ConfigTiroir.commun.coin), texte: String(localized: "Coin")) }
+        case 4:
+            PastilleP(symbole: "minus.circle", texte: String(localized: "Jaune : au tiroir"))
+            PastilleP(symbole: "arrow.up.left.and.arrow.down.right.circle", texte: String(localized: "Vert : au centre"))
+            PastilleP(symbole: "keyboard", texte: String(localized: "⌃⌥↑ : plein écran"))
+        case 5:
             if config.quatreDoigts {
                 PastilleP(symbole: "hand.draw", texte: String(localized: "Quatre doigts \(config.sensDoigts == "haut" ? "↑" : (config.sensDoigts == "bas" ? "↓" : "↑ ↓"))"))
             }
             if config.coin != .aucun { PastilleP(symbole: symbole(config.coin), texte: String(localized: "Coin")) }
             if config.secouer { PastilleP(symbole: "cursorarrow.motionlines", texte: config.cercle ? String(localized: "Cercle") : String(localized: "Secousse")) }
             if config.touche != -1 { PastilleP(symbole: "keyboard", texte: config.libelle) }
-        case 1:
-            PastilleP(symbole: "star", texte: String(localized: "Favoris"))
-            PastilleP(symbole: "space", texte: String(localized: "Aperçu"))
-            PastilleP(symbole: "cursorarrow.click.2", texte: String(localized: "Ouvrir"))
-        case 2:
-            PastilleP(symbole: "tray.and.arrow.down", texte: String(localized: "Reste sous la main"))
-        case 4:
+        default:
             if presse.coin != .aucun { PastilleP(symbole: symbole(presse.coin), texte: String(localized: "Coin")) }
             if presse.touche != -1 { PastilleP(symbole: "keyboard", texte: presse.libelle) }
-        default:
-            if ConfigTiroir.commun.quatreDoigts && ConfigTiroir.gestePossible {
-                PastilleP(symbole: "hand.draw", texte: String(localized: "Quatre doigts \(ConfigTiroir.enHaut ? "↓" : "↑")"))
-            }
-            if ConfigTiroir.commun.touche != -1 { PastilleP(symbole: "keyboard", texte: ConfigTiroir.commun.libelle) }
-            if ConfigTiroir.commun.coin != .aucun { PastilleP(symbole: symbole(ConfigTiroir.commun.coin), texte: String(localized: "Coin")) }
         }
     }
 }
@@ -585,8 +694,8 @@ enum PresentationSide {
     /// Pour les essais : dessine chaque étape, à plusieurs instants de sa boucle, dans des images.
     static func images(vers dossier: URL) {
         for etape in 0..<PresentationVue.nombre {
-            for (n, t) in [0.22, 0.46, 0.60, 0.80].enumerated() {
-                let vue = NSHostingView(rootView: ScenePresentation(etape: etape, t: t).padding(10).background(Color(nsColor: .windowBackgroundColor)))
+            for (n, t) in [0.15, 0.30, 0.45, 0.60, 0.75, 0.90].enumerated() {
+                let vue = NSHostingView(rootView: VStack(spacing: 12) { PresentationVue.ecran(etape, t).frame(width: 420, height: 262); PresentationVue.trackpad(etape, t).frame(height: 62) }.padding(10).background(Color(nsColor: .windowBackgroundColor)))
                 vue.frame = NSRect(x: 0, y: 0, width: 440, height: 356)
                 let w = NSWindow(contentRect: vue.frame, styleMask: [.borderless], backing: .buffered, defer: false)
                 w.contentView = vue

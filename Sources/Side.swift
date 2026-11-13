@@ -17,7 +17,8 @@ enum Reglages {
     static let margeCarte: CGFloat = 12             // espace entre la carte et les bords de l'écran
     static let rayonCarte: CGFloat = 24
     static let delaiOuverture: TimeInterval = 0.03  // souris immobile dans le coin
-    static let carreDepot: CGFloat = 150            // côté d'une zone de dépôt flottante
+    static let carreDepot: CGFloat = 198            // largeur d'une zone de dépôt flottante (celle de l'étagère de Dropover)
+    static let hauteurDepot: CGFloat = 207          // sa hauteur
     static let barreApps: CGFloat = 66              // hauteur du mini-Dock, espace compris
     static let debord: CGFloat = 40                 // place laissée au rebond de l'animation
     static let delaiFermeture: TimeInterval = 0.35  // souris sortie de la carte
@@ -1117,7 +1118,7 @@ enum Fichiers {
 
 /// L'étagère garde des fichiers sous la main sans les déplacer : elle ne retient que leur emplacement.
 enum Etagere {
-    static let maximum = 6
+    static let maximum = 4          // quatre zones au plus : empilées, elles tiennent sur la hauteur du Finder
     /// Nombre de zones de dépôt : une seule au départ, on peut en ajouter en dessous.
     static var nombre: Int {
         get {
@@ -1405,6 +1406,10 @@ final class Store: ObservableObject {
     @Published var glisseDossier = false
     /// Au moins une zone de dépôt contient quelque chose : elle reste alors affichée, en petit.
     @Published var depotRempli = false
+    /// La zone de dépôt flottante dépliée en grille (son numéro), s'il y en a une.
+    @Published var depotDeplie: Int? = nil
+    /// Taille des zones flottantes (1 = 198 × 207 points) : réduite pour que la pile de zones tienne sur la hauteur du Finder.
+    @Published var echelleDepot: CGFloat = 1
     /// Il y a de la place à droite de la carte : les zones de dépôt y flottent, en carrés.
     /// Sinon (carte en pleine largeur, ou sur le côté), elles s'affichent dans la grande zone.
     @Published var depotDehors = false
@@ -2671,11 +2676,11 @@ struct ZonesFlottantes: View {
         let versHaut = config.bord == .haut
         VStack(spacing: 8) {
             ForEach(versHaut ? store.etageres.reversed() : store.etageres) { zone in
-                ZoneCarree(column: zone, store: store, glisse: store.glisse)
+                ZoneCarree(column: zone, store: store, glisse: store.glisse, deplie: store.depotDeplie == zone.indexEtagere)
             }
         }
-        .frame(width: Reglages.carreDepot)
-        .frame(maxHeight: .infinity, alignment: versHaut ? .bottom : .top)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: versHaut ? .bottomLeading : .topLeading)
+        .animation(.spring(response: 0.3, dampingFraction: 0.85), value: store.depotDeplie)
         .animation(.spring(response: 0.32, dampingFraction: 0.78), value: store.glisse)
         .animation(.spring(response: 0.32, dampingFraction: 0.78), value: store.depotRempli)
     }
@@ -2685,18 +2690,26 @@ struct ZoneCarree: View {
     @ObservedObject var column: Column
     let store: Store
     let glisse: Bool
+    var deplie = false
     @ObservedObject var config = Config.shared
 
     var body: some View {
         if glisse || !column.items.isEmpty {
-            let forme = RoundedRectangle(cornerRadius: 22, style: .continuous)
-            EtagereView(column: column, store: store)
-                .frame(width: Reglages.carreDepot, height: Reglages.carreDepot)
+            let forme = RoundedRectangle(cornerRadius: DepotFlottant.rayon, style: .continuous)
+            let grande = deplie && !column.items.isEmpty
+            let e = grande ? 1 : store.echelleDepot
+            let l = grande ? DepotFlottant.depliee.width : Reglages.carreDepot
+            let h = grande ? DepotFlottant.depliee.height : Reglages.hauteurDepot
+            EtagereFlottante(column: column, store: store)
+                .frame(width: l, height: h)
                 .background(ZStack {
                     VisualEffect()
                     Color(nsColor: .windowBackgroundColor).opacity(config.opacite)
                 }.clipShape(forme))
-                .transition(.scale(scale: 0.7, anchor: .leading).combined(with: .opacity))
+                // Réduite d'un bloc quand plusieurs zones doivent tenir sur la hauteur du Finder.
+                .scaleEffect(e, anchor: .topLeading)
+                .frame(width: l * e, height: h * e, alignment: .topLeading)
+                .transition(.opacity)
         }
     }
 }
@@ -4101,7 +4114,16 @@ final class DepartGlisser: NSObject, NSDraggingSource {
     func draggingSession(_ session: NSDraggingSession, sourceOperationMaskFor context: NSDraggingContext) -> NSDragOperation {
         [.move, .copy, .link, .generic]
     }
+    /// Ce qui est parti d'une zone de dépôt flottante : une fois déposé ailleurs, la zone l'oublie (comme l'étagère de Dropover).
+    var sortis: (urls: [URL], zone: Int)?
     func draggingSession(_ session: NSDraggingSession, endedAt screenPoint: NSPoint, operation: NSDragOperation) {
+        if let s = sortis {
+            sortis = nil
+            AppDelegate.shared.noter("zone de dépôt : glisser terminé en \(screenPoint), opération \(operation.rawValue), \(s.urls.count) fichier(s)")
+            if operation != [], !(AppDelegate.shared.cadreDepot?.contains(screenPoint) ?? false) {
+                s.urls.forEach { Etagere.retirer($0, s.zone) }
+            }
+        }
         // Le fichier est peut-être parti ailleurs : on rafraîchit, et la zone de dépôt oublie ce qui n'est plus là.
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { AppDelegate.shared.apresGlisser() }
     }
@@ -4505,7 +4527,7 @@ struct ReglagesView: View {
             }
             SectionCompagnes()
             Section("Présentation") {
-                LabeledContent("La visite guidée de Side, en cinq étapes") {
+                LabeledContent("La visite guidée de Side, en sept étapes") {
                     Button("Revoir la présentation") { AppDelegate.shared.revoirAccueil() }
                 }
             }
@@ -4889,6 +4911,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
     /// La place de chaque vue est lue au moment du clic : toujours juste, même pendant une animation.
     private func surSide(_ p: NSPoint) -> Bool {
         if cadreSeule.contains(p) { return true }
+        if let zone = cadreDepot, zone.contains(p) { return true }     // la zone de dépôt fait partie de Side
         for v in reperes.allObjects {
             guard let w = v.window, w.isVisible, !v.isHiddenOrHasHiddenAncestor else { continue }
             if w.convertToScreen(v.convert(v.bounds, to: nil)).insetBy(dx: -6, dy: -6).contains(p) { return true }
@@ -4931,6 +4954,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
     private var ancreDepot: NSPoint = .zero   // coin haut-gauche de la fenêtre des zones de dépôt (bas-gauche si `zonesVersHaut`)
     /// Carte venue du haut : les zones de dépôt se rangent en bas de la carte et s'empilent vers le haut.
     private var zonesVersHaut: Bool { config.bord == .haut }
+    private var suiviSecousse: Timer?         // lit la secousse pendant un glisser
     private var ancrePerso: NSPoint?          // l'endroit où tu l'as déplacée à la main, s'il y en a un
     private var placementAuto = false
     private var accesDemande = false
@@ -4948,6 +4972,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
     private var prise: (souris: NSPoint, fenetre: NSPoint, carte: NSRect)?   // déplacement en cours
     private var ecran: NSScreen?
 
+    private var activiteEveil: NSObjectProtocol?
+
     func applicationDidFinishLaunching(_ note: Notification) {
         UserDefaults.standard.removeObject(forKey: LecteurYouTubeBas.cleFenetreVideo)   // plus de vidéo en plein écran d'une fois sur l'autre
         // Pour les essais : « --image-presentation dossier » dessine chaque étape de la présentation dans des images, puis quitte.
@@ -4955,6 +4981,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
             PresentationSide.images(vers: URL(fileURLWithPath: CommandLine.arguments[i + 1]))
             exit(0)
         }
+        // Side attend en arrière-plan, sans fenêtre : macOS le mettait en sommeil (« App Nap ») au bout de quelques minutes,
+        // et le premier geste à quatre doigts tardait à répondre. On lui dit que Side doit toujours réagir tout de suite.
+        // (Cela n'empêche pas le Mac de se mettre en veille.)
+        activiteEveil = ProcessInfo.processInfo.beginActivity(options: .userInitiatedAllowingIdleSystemSleep,
+                                                              reason: "Side répond aux gestes du trackpad")
         // Première ouverture : la présentation de Side.
         if !UserDefaults.standard.bool(forKey: "accueilVu"), CommandLine.arguments.count == 1 {
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) { PresentationSide.montrer() }
@@ -5002,6 +5033,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         installerRaccourci()
         installerMenuEdition()
         Programme.appli.demarrer()        // le plein écran (grille, carrousel, agrandissement) : l'ancien Square
+        if CommandLine.arguments.count == 1 { MesApps.commun.demarrer() }   // « Mes applications » : tout se met en place
         nettoyerDepot()
         creerDepot()
         if let e = NSScreen.main { placer(sur: e, anime: false) }   // fixe l'emplacement des zones de dépôt
@@ -5067,6 +5099,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
             // Un clic un peu « glissé » reste un clic : on tolère 12 points de mouvement.
             guard self.visible, self.config.fermerAuClic, !self.modeTest,
                   hypot(p.x - debut.x, p.y - debut.y) < 12, !self.surSide(p) else { return }
+            self.journal("clic ailleurs en \(p) : fermeture (zone de dépôt : \(String(describing: self.cadreDepot)))")
             self.hide()
         }
         // Les bords de la carte passent avant tout le reste : pointeur de redimensionnement, puis tirer pour agrandir.
@@ -5539,7 +5572,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
             derniereSecousse = maintenant
             demiTours = []
             // Pendant un glisser-déposer, carte ouverte : secouer ajoute une zone de dépôt en dessous.
-            if glisserActif && (visible || zoneSecouee) { store.ajouterZone() }
+            // (Une seule zone vide à la fois : secouer encore n'en ajoute pas d'autres.)
+            if glisserActif && (visible || zoneSecouee) {
+                if !store.etageres.contains(where: { $0.items.isEmpty }) { store.ajouterZone() }
+            }
             // Side fermé, un fichier sous la souris : la zone de dépôt apparaît seule, près du pointeur (façon Dropover).
             else if glisserActif && appGlissee == nil && glisseContientFichier() { ouvrirZoneSecouee() }
             else if config.secouer { basculer() }
@@ -5554,9 +5590,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         // Pas encore à l'écran : elle arrive à côté du pointeur. Déjà là (elle contient des fichiers) : elle ne bouge pas.
         if depotPanel?.isVisible != true {
             let ici = NSEvent.mouseLocation
-            ancrePerso = NSPoint(x: ici.x + 24, y: ici.y + (zonesVersHaut ? -1 : 1) * Reglages.carreDepot / 2)
+            ancrePerso = NSPoint(x: ici.x + 24, y: ici.y + (zonesVersHaut ? -1 : 1) * Reglages.hauteurDepot / 2)
         }
         zoneSecouee = true
+        // Les zones déjà là sont toutes remplies : la secousse en crée une nouvelle, vide.
+        if !store.etageres.contains(where: { $0.items.isEmpty }) { store.ajouterZone() }
         // Ce qu'on y pose reste à l'écran un moment, même cadenas ouvert (comme pour une capture).
         captureJusqua = ProcessInfo.processInfo.systemUptime + 60
     }
@@ -5662,20 +5700,24 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         }
     }
 
-    /// Une capture d'écran vient d'être enregistrée : elle va dans la zone des captures
-    /// (celle qui en contient déjà), sinon dans une zone vide, sinon dans une nouvelle zone en dessous.
+    /// Une capture d'écran vient d'être enregistrée : elle va dans sa propre zone (une zone vide, sinon une nouvelle),
+    /// jamais dans une zone qui contient déjà quelque chose. Seulement s'il n'y a plus de place pour une zone de plus,
+    /// elle rejoint la zone des captures précédentes.
     func recevoirCapture(_ url: URL) {
         // Déjà déposée à la main depuis la vignette de macOS (même nom) : on ne la met pas deux fois.
         let nom = url.lastPathComponent
         if (0..<store.etageres.count).contains(where: { Etagere.fichiers($0).contains { $0.lastPathComponent == nom } }) { return }
         let rangees = Captures.rangees
         let n = store.etageres.count
-        var zone = (0..<n).first { i in
-            let f = Etagere.fichiers(i)
-            return !f.isEmpty && f.allSatisfy { rangees.contains($0.path) }
-        } ?? (0..<n).first { Etagere.items($0).isEmpty }
+        var zone = (0..<n).first { Etagere.items($0).isEmpty }
         if zone == nil, Etagere.nombre < Etagere.maximum { store.ajouterZone(); zone = store.etageres.count - 1 }
-        let i = zone ?? 0
+        if zone == nil {
+            zone = (0..<n).last { i in
+                let f = Etagere.fichiers(i)
+                return !f.isEmpty && f.allSatisfy { rangees.contains($0.path) }
+            }
+        }
+        let i = zone ?? max(0, n - 1)
         let chemin = url.resolvingSymlinksInPath().standardizedFileURL.path
         Captures.rangees = rangees.filter { FileManager.default.fileExists(atPath: $0) }.union([chemin])
         Etagere.ajouter(url, i)
@@ -6018,13 +6060,36 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         switch ev.type {
         case .leftMouseDown:
             departGlisser = nil
+            departPile = nil
             if let item = survole, let f = ev.window, f === panel || f === depotPanel, !ev.modifierFlags.contains(.control),
                bordSous(NSEvent.mouseLocation) == nil {   // pas sur un bord de la carte : là, on redimensionne
                 departGlisser = (ev.locationInWindow, item, f)
+            } else if let pile = pileSurvolee, let f = ev.window, f === depotPanel, pile.items.count > 1 {
+                departPile = (ev.locationInWindow, pile)
             }
         case .leftMouseUp:
             departGlisser = nil
+            departPile = nil
         case .leftMouseDragged:
+            // La pile d'une zone de dépôt : tous ses fichiers partent ensemble.
+            if let d = departPile, let f = depotPanel, ev.window === f, let vue = f.contentView,
+               hypot(ev.locationInWindow.x - d.point.x, ev.locationInWindow.y - d.point.y) >= 5 {
+                departPile = nil
+                let ici = vue.convert(ev.locationInWindow, from: nil)
+                let urls = d.pile.items.map(\.url)
+                let elements: [NSDraggingItem] = urls.enumerated().map { i, u in
+                    let e = NSDraggingItem(pasteboardWriter: u as NSURL)
+                    let icone = NSWorkspace.shared.icon(forFile: u.path)
+                    icone.size = NSSize(width: 48, height: 48)
+                    let d = CGFloat(min(i, 4)) * 5
+                    e.setDraggingFrame(NSRect(x: ici.x - 24 + d, y: ici.y - 24 - d, width: 48, height: 48), contents: icone)
+                    return e
+                }
+                DepartGlisser.shared.sortis = (urls, d.pile.indexEtagere)
+                journal("zone de dépôt : la pile part (\(urls.count) fichiers)")
+                vue.beginDraggingSession(with: elements, event: ev, source: DepartGlisser.shared)
+                return nil
+            }
             guard let d = departGlisser, ev.window === d.fenetre, let vue = d.fenetre.contentView,
                   hypot(ev.locationInWindow.x - d.point.x, ev.locationInWindow.y - d.point.y) >= 5 else { return ev }
             departGlisser = nil
@@ -6033,12 +6098,23 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
             icone.size = NSSize(width: 48, height: 48)
             let ici = vue.convert(ev.locationInWindow, from: nil)
             element.setDraggingFrame(NSRect(x: ici.x - 24, y: ici.y - 24, width: 48, height: 48), contents: icone)
+            // Parti d'une zone de dépôt flottante : elle l'oubliera une fois déposé ailleurs.
+            if d.fenetre === depotPanel, let zone = survoleColonne, zone.estEtagere { DepartGlisser.shared.sortis = ([d.item.url], zone.indexEtagere) }
             vue.beginDraggingSession(with: [element], event: ev, source: DepartGlisser.shared)
             return nil
         default: break
         }
         return ev
     }
+
+    /// La pile d'une zone de dépôt flottante, sous la souris : l'attraper emmène tous ses fichiers.
+    private weak var pileSurvolee: Column?
+    private var departPile: (point: NSPoint, pile: Column)?
+    func survolerPile(_ colonne: Column, _ dedans: Bool) {
+        if dedans { pileSurvolee = colonne } else if pileSurvolee === colonne { pileSurvolee = nil }
+    }
+    /// Le cadre de la fenêtre des zones de dépôt, si elle est à l'écran.
+    var cadreDepot: NSRect? { depotPanel?.isVisible == true ? depotPanel?.frame : nil }
 
     func survoler(_ item: FileItem, _ colonne: Column, _ dedans: Bool) {
         if dedans { survole = item; survoleColonne = colonne } else if survole == item { survole = nil }
@@ -6958,7 +7034,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
     /// La fenêtre des zones de dépôt. Indépendante de la carte : elle reste à l'écran, sur tous les
     /// bureaux, tant qu'une zone contient quelque chose — même quand Side est fermé.
     private func creerDepot() {
-        let p = NSPanel(contentRect: NSRect(x: 0, y: 0, width: Reglages.carreDepot, height: Reglages.carreDepot),
+        let p = NSPanel(contentRect: NSRect(x: 0, y: 0, width: Reglages.carreDepot, height: Reglages.hauteurDepot),
                         styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
         p.isOpaque = false
         p.backgroundColor = .clear
@@ -6971,7 +7047,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         // Contenu : la poignée en haut, les zones en dessous.
         let conteneur = NSView(frame: p.contentView!.bounds)
         let zones = NSHostingView(rootView: ZonesFlottantes(store: store))
-        zones.frame = NSRect(x: 0, y: 0, width: conteneur.bounds.width, height: conteneur.bounds.height - PoigneeDepot.hauteur)
+        zones.frame = conteneur.bounds          // toute la fenêtre : l'ancienne poignée n'existe plus
         zones.autoresizingMask = [.width, .height]
         let poignee = PoigneeDepot(frame: NSRect(x: 0, y: conteneur.bounds.height - PoigneeDepot.hauteur,
                                                  width: conteneur.bounds.width, height: PoigneeDepot.hauteur))
@@ -6996,12 +7072,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
             store.$glisse.sink { [weak self] _ in DispatchQueue.main.async { self?.majDepot() } },
             store.$depotRempli.sink { [weak self] _ in DispatchQueue.main.async { self?.majDepot() } },
             store.$etageres.sink { [weak self] _ in DispatchQueue.main.async { self?.majDepot() } },
+            store.$depotDeplie.sink { [weak self] _ in DispatchQueue.main.async { self?.majDepot() } },
         ]
     }
 
     /// Affiche, place ou cache la fenêtre des zones de dépôt.
     private func majDepot() {
         guard let depotPanel else { return }
+        // Hors glisser, une zone vide en plus ne sert à rien : elle est retirée (il en reste toujours une).
+        if !store.glisse, store.etageres.count > 1, store.etageres.contains(where: { $0.items.isEmpty }) {
+            store.nettoyerZones()
+            return            // nettoyerZones change la liste des zones, ce qui rappelle majDepot
+        }
         // Visibles : pendant un glisser, ou si une zone est remplie — et, cadenas ouvert, seulement tant que Side est ouvert.
         let remplies = store.etageres.filter { !$0.items.isEmpty }.count
         let visibles = store.glisse ? store.etageres.count : ((visible || config.depotReste || captureVisible) ? remplies : 0)
@@ -7022,16 +7104,26 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
             }
             return
         }
-        let hauteur = CGFloat(store.etageres.count) * (Reglages.carreDepot + 8) + PoigneeDepot.hauteur
+        // Une zone dépliée (la grille) est plus large et plus haute que les autres.
+        let deplie = store.depotDeplie.flatMap { i in store.etageres.indices.contains(i) && !store.etageres[i].items.isEmpty ? i : nil }
+        // Empilées, les zones ne dépassent jamais la hauteur du Finder de Side : elles rapetissent ensemble s'il le faut.
+        let n = CGFloat(store.etageres.count)
+        let place = cadreSeule.height > 100 ? cadreSeule.height : n * (Reglages.hauteurDepot + 8)
+        let e = min(1, max(0.5, (place - 8 * (n - 1)) / (n * Reglages.hauteurDepot)))
+        if abs(store.echelleDepot - e) > 0.001 { store.echelleDepot = e }
+        let largeur = deplie != nil ? DepotFlottant.depliee.width : (Reglages.carreDepot * e).rounded(.up)
+        let hauteur = (n * Reglages.hauteurDepot * e + 8 * (n - 1)).rounded(.up)
+            + (deplie != nil ? DepotFlottant.depliee.height - Reglages.hauteurDepot * e : 0)
         // À l'endroit où tu l'as posée, sinon à côté de la carte ; toujours dans l'écran.
         var coin = ancrePerso ?? ancreDepot
         if let ecran = NSScreen.screens.first(where: { $0.frame.insetBy(dx: -1, dy: -1).contains(coin) }) ?? NSScreen.main {
-            coin.x = min(max(coin.x, ecran.frame.minX + 4), ecran.frame.maxX - Reglages.carreDepot - 4)
+            let unique = min(hauteur, ecran.frame.height - 8)
+            coin.x = min(max(coin.x, ecran.frame.minX + 4), ecran.frame.maxX - largeur - 4)
             coin.y = zonesVersHaut
-                ? min(max(coin.y, ecran.frame.minY + 4), ecran.frame.maxY - Reglages.carreDepot - 4)
-                : min(max(coin.y, ecran.frame.minY + Reglages.carreDepot + 4), ecran.frame.maxY - 4)
+                ? min(max(coin.y, ecran.frame.minY + 4), ecran.frame.maxY - unique - 4)
+                : min(max(coin.y, ecran.frame.minY + unique + 4), ecran.frame.maxY - 4)
         }
-        let cadre = NSRect(x: coin.x, y: zonesVersHaut ? coin.y : coin.y - hauteur, width: Reglages.carreDepot, height: hauteur)
+        let cadre = NSRect(x: coin.x, y: zonesVersHaut ? coin.y : coin.y - hauteur, width: largeur, height: hauteur)
         if depotPanel.frame != cadre {
             placementAuto = true
             depotPanel.setFrame(cadre, display: true)
@@ -7130,6 +7222,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         }
     }
 
+    func noter(_ texte: String) { journal(texte) }
     private func journal(_ texte: String) {
         guard CommandLine.arguments.contains("--journal") else { return }
         fputs(String(format: "%.1f ", ProcessInfo.processInfo.systemUptime - lancement) + texte + "\n", stderr)
@@ -7296,11 +7389,23 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
             let compte = NSPasteboard(name: .drag).changeCount
             if compte != dernierGlisser {
                 dernierGlisser = compte; glisserActif = true
+                // Des zones vides restées d'avant (vidées entre-temps) : on les retire, une seule zone vide apparaît.
+                // Les autres naîtront de la secousse.
+                store.nettoyerZones()
+                // Pendant un glisser, macOS ne nous transmet pas toujours les mouvements de la souris (selon l'application
+                // d'où part le fichier, ou si c'est un dossier) : la secousse se lisait une fois sur deux. On suit donc
+                // le pointeur nous-mêmes, soixante fois par seconde, tant que le glisser dure.
+                if suiviSecousse == nil {
+                    let t = Timer(timeInterval: 1.0 / 60, repeats: true) { [weak self] _ in self?.secousse() }
+                    RunLoop.main.add(t, forMode: .common)
+                    suiviSecousse = t
+                }
                 journal("glisser détecté | visible=\(visible) appGlissee=\(appGlissee != nil) types=\(NSPasteboard(name: .drag).types?.map(\.rawValue).prefix(4) ?? [])")
             }
         } else if glisserActif {
             glisserActif = false
             zoneSecouee = false
+            suiviSecousse?.invalidate(); suiviSecousse = nil
             // Une icône du mini-Dock lâchée pendant que la croix est affichée : on la retire, comme dans le Dock.
             // Lâchée ailleurs (ou ramenée dans le mini-Dock) : elle reprend sa place.
             // Une app venue d'ailleurs, lâchée : on laisse au mini-Dock un instant pour la recevoir.
@@ -7343,11 +7448,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         let zoneSeule = !visible && depotPanel?.isVisible == true && glisserActif && glisseContientFichier()
         let montrer = (glisserActif && visible && appGlissee == nil) || zoneSeule || (zoneSecouee && glisserActif) || forcerGlisse || (visible && store.accueil == 3)
             || ProcessInfo.processInfo.systemUptime - depotEnCours < 1.5
-        // Un glisser commence alors que toutes les zones sont déjà remplies : une zone vide apparaît en dessous,
-        // pour pouvoir poser ailleurs. Elle disparaîtra d'elle-même si on ne s'en sert pas.
-        if montrer, !store.glisse, glisserActif, !store.etageres.contains(where: { $0.items.isEmpty }) {
-            store.ajouterZone()
-        }
+        // (Une nouvelle zone vide n'apparaît plus toute seule au début d'un glisser : seulement en secouant ce qu'on tient.
+        // Sans secousse, on peut toujours poser dans une zone déjà là.)
         if montrer != store.glisse {
             journal("zones : \(montrer ? "montrer" : "cacher") | glisser=\(glisserActif) visible=\(visible) appGlissee=\(appGlissee != nil) zones=\(store.etageres.count) panneau=\(depotPanel?.frame ?? .zero)")
             store.glisse = montrer

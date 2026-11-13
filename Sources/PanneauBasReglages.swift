@@ -413,7 +413,7 @@ struct SectionsTiroir: View {
                         tuiles = PanneauBas.commun.tuiles
                     }
                 }
-            } footer: { note(String(localized: "Square n'agrandit jamais ces applications.")) }
+            } footer: { note(String(localized: "Ces applications restent à leur taille : elles ne remplissent jamais l'écran toutes seules.")) }
         }
     }
 }
@@ -499,15 +499,14 @@ final class BienvenueTiroirBas: NSView {
 
 // MARK: - Les applications compagnes (Réglages > Général)
 
-/// Side, Square et Mulot sont faits pour aller ensemble : chacun signale les deux autres, avec l'adresse où les installer.
+/// Side et Mulot sont faits pour aller ensemble : Side signale Mulot, avec l'adresse où l'installer.
+/// (Square, l'ancienne app du plein écran, fait partie de Side depuis le 13/11/2026.)
 struct SectionCompagnes: View {
     private struct Compagne: Identifiable {
         let id: String, nom: String, role: String, adresse: String
         var installee: Bool { NSWorkspace.shared.urlForApplication(withBundleIdentifier: id) != nil }
     }
     private let compagnes = [
-        Compagne(id: "com.gauthieraube.square", nom: "Square", role: String(localized: "Tes applications en plein écran, en grille, et un Dock."),
-                 adresse: ""),      // pas encore publié : mettre ici https://github.com/GauthierAube/Square le jour venu
         Compagne(id: "app.mulot", nom: "Mulot", role: String(localized: "Les boutons et les gestes de la souris MX Master, sans le logiciel de Logitech."),
                  adresse: "https://github.com/GauthierAube/Mulot"),
     ]
@@ -523,15 +522,13 @@ struct SectionCompagnes: View {
                     Spacer()
                     if c.installee {
                         Text("Installée").foregroundStyle(.secondary)
-                    } else if c.adresse.isEmpty {
-                        Text("Bientôt sur GitHub").foregroundStyle(.secondary)
                     } else if let u = URL(string: c.adresse) {
                         Link("Installer depuis GitHub", destination: u)
                     }
                 }
             }
-        } header: { Text("Applications compagnes") } footer: {
-            Text("Side, Square et Mulot sont trois petites applications gratuites, faites pour aller ensemble.").font(.caption).foregroundStyle(.secondary)
+        } header: { Text("Application compagne") } footer: {
+            Text("Side et Mulot sont deux petites applications gratuites, faites pour aller ensemble.").font(.caption).foregroundStyle(.secondary)
         }
     }
 }

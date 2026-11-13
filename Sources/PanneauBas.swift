@@ -206,7 +206,10 @@ final class IcôneBarreBas: NSImageView {
     private var départ: NSPoint?
     private var glisse = false
     override func acceptsFirstMouse(for event: NSEvent?) -> Bool { true }
-    override func mouseDown(with event: NSEvent) { départ = event.locationInWindow; glisse = false }
+    override func mouseDown(with event: NSEvent) {
+        if event.modifierFlags.contains(.control) { départ = nil; auMenu?(event); return }    // ⌃-clic : comme un clic droit
+        départ = event.locationInWindow; glisse = false
+    }
     override func mouseDragged(with event: NSEvent) {
         guard let d = départ else { return }
         let dy = event.locationInWindow.y - d.y
@@ -230,8 +233,12 @@ final class ActionMenuBas: NSObject {
 /// Photo d'une tuile. Un clic dessus la fait venir en entier dans le panneau.
 final class ImageTuileBas: NSImageView {
     var auClic: (() -> Void)?
+    var auMenu: ((NSEvent) -> Void)?
     override func acceptsFirstMouse(for event: NSEvent?) -> Bool { true }
-    override func mouseDown(with event: NSEvent) { auClic?() }
+    override func mouseDown(with event: NSEvent) {
+        if event.modifierFlags.contains(.control) { auMenu?(event) } else { auClic?() }
+    }
+    override func rightMouseDown(with event: NSEvent) { auMenu?(event) }
 }
 
 /// Le bord haut du panneau : on le tire pour changer la hauteur du panneau, comme le bord de la carte de Side.
@@ -505,7 +512,8 @@ final class PanneauBas: NSObject {
 
     private var emprunts: [EmpruntBas] = {
         if let d = UserDefaults.standard.array(forKey: "panneauBasTuiles") as? [[String: String]] {
-            return d.compactMap { EmpruntBas($0) }
+            // Un Finder ajouté avant qu'il soit refusé : il quitte le tiroir.
+            return d.compactMap { EmpruntBas($0) }.filter { !PanneauBas.refusées.contains($0.bundle) }
         }
         // Au départ : Notes et Réglages Système, deux petites applications qu'on consulte d'un coup d'œil. Chacun ajuste
         // ensuite la liste avec la case « + ». Elle est enregistrée tout de suite (Square la lit pour ne pas agrandir ces fenêtres).
@@ -648,6 +656,7 @@ final class PanneauBas: NSObject {
     private var serie = 0                       // pour abandonner les attentes d'une ouverture précédente
 
     func brancher() {
+        UserDefaults.standard.set(emprunts.map { $0.enTexte }, forKey: "panneauBasTuiles")   // la liste nettoyée (sans Finder)
         brancherChangerDAvis()
         // Pendant qu'un menu de Side est affiché, le tiroir n'active aucune application (le menu se refermerait).
         NotificationCenter.default.addObserver(forName: NSMenu.didBeginTrackingNotification, object: nil, queue: .main) { _ in PanneauBas.menuOuvert = true }
@@ -677,8 +686,11 @@ final class PanneauBas: NSObject {
     var estOuvert: Bool { ouvert }
     func basculer() { ouvert ? fermer(rendreLaMain: true) : ouvrir() }
 
+    /// Le mot d'accueil du tiroir : seulement à la fin de l'ancienne visite dans la carte (essais).
+    static var motDAccueil = false
     /// Suite de la visite guidée : le tiroir s'ouvre avec son mot d'accueil (même s'il a déjà été vu).
     func présenter() {
+        PanneauBas.motDAccueil = true
         UserDefaults.standard.set(false, forKey: "tiroirBienvenueVue")
         if ouvert { if let p = panneau { disposerLeFond(p.frame) }; return }
         // Un instant, le temps que le Finder finisse de se refermer.
@@ -1166,6 +1178,7 @@ final class PanneauBas: NSObject {
             v.layer?.cornerCurve = .continuous
             v.layer?.masksToBounds = true
             v.auClic = { [weak self] in self?.montrerTuile(i) }
+            v.auMenu = { [weak self, weak v] ev in if let v { self?.menuIcône(i, ev, v) } }   // le même menu que l'icône de la barre
             bandeVue.addSubview(v)
             images[e.nom] = v
         }
@@ -1349,6 +1362,7 @@ final class PanneauBas: NSObject {
     private func menuIcône(_ i: Int, _ ev: NSEvent, _ vue: NSView) {
         guard emprunts.indices.contains(i) else { return }
         let e = emprunts[i]
+        journalBas("clic droit sur l'icône de %@", e.nom)
         let m = NSMenu()
         var actions: [ActionMenuBas] = []
         func ajouter(_ titre: String, _ symbole: String, _ f: @escaping () -> Void) {
@@ -1397,7 +1411,8 @@ final class PanneauBas: NSObject {
         GestePanneauBas.enHaut = enHaut
         banniere.frame = NSRect(x: (fin.width - 640) / 2, y: marge + 14, width: 640, height: 46)
         // Première ouverture : un mot d'accueil, au milieu du tiroir, jusqu'à ce qu'on clique « Compris ».
-        if bienvenue == nil, !UserDefaults.standard.bool(forKey: "tiroirBienvenueVue"), let fond {
+        // (Le mot d'accueil du tiroir n'apparaît plus de lui-même : la présentation de Side montre le tiroir, depuis le 13/11/2026.)
+        if bienvenue == nil, !UserDefaults.standard.bool(forKey: "tiroirBienvenueVue"), PanneauBas.motDAccueil, let fond {
             let b = BienvenueTiroirBas()
             b.auCompris = { [weak self] in
                 UserDefaults.standard.set(true, forKey: "tiroirBienvenueVue")
@@ -1903,6 +1918,9 @@ final class PanneauBas: NSObject {
                 return Unmanaged.passUnretained(ev)
             }
             guard PanneauBas.estOuvertBrut, PanneauBas.cadreBrut.contains(ev.location) else { return Unmanaged.passUnretained(ev) }
+            // Une app à la fois : plus de bande à faire défiler de côté. Le glissement horizontal à deux doigts revient
+            // à l'application (balayer un message dans Messages ou Mail, revenir en arrière dans Safari…).
+            guard !ConfigTiroir.commun.uneApp else { return Unmanaged.passUnretained(ev) }
             let dx = ev.getDoubleValueField(.scrollWheelEventPointDeltaAxis2)
             let dy = ev.getDoubleValueField(.scrollWheelEventPointDeltaAxis1)
             guard dx != 0, abs(dx) > abs(dy) * 1.2 else { return Unmanaged.passUnretained(ev) }
@@ -2268,6 +2286,7 @@ final class PanneauBas: NSObject {
         let moi = Bundle.main.bundleIdentifier
         let ouvertes = NSWorkspace.shared.runningApplications.filter { a in
             a.activationPolicy == .regular && a.bundleIdentifier != moi && a.bundleURL != nil && !estEmpruntée(a)
+                && !PanneauBas.refusées.contains(a.bundleIdentifier ?? "")
         }.sorted { ($0.localizedName ?? "").localizedCaseInsensitiveCompare($1.localizedName ?? "") == .orderedAscending }
         let aAjouter = ouvertes.map { a in
             SelecteurTuilesBas.Ligne(icone: icone(a.bundleURL!.path), nom: a.localizedName ?? "?", signe: "plus.circle.fill", couleur: .systemGreen) { [weak self] in
@@ -2303,8 +2322,13 @@ final class PanneauBas: NSObject {
         p.urls.forEach { ajouter($0) }
     }
 
+    /// Applications qui ne peuvent pas aller dans le tiroir : le Finder (ses fenêtres appartiennent au bureau, il n'en a
+    /// souvent aucune à prêter ; Side a son propre Finder pour ça).
+    static let refusées: Set<String> = ["com.apple.finder"]
+
     func ajouter(_ url: URL) {
         guard let bundle = Bundle(url: url)?.bundleIdentifier, bundle != Bundle.main.bundleIdentifier,
+              !PanneauBas.refusées.contains(bundle),
               !emprunts.contains(where: { $0.bundle == bundle && $0.note == nil }) else {
             journalBas("ajout refusé pour %@ (déjà dans le panneau, ou application illisible)", url.lastPathComponent)
             return
@@ -2321,7 +2345,7 @@ final class PanneauBas: NSObject {
     /// L'application (de la grille, ou celle de devant) rejoint le tiroir, qui s'ouvre sur elle.
     func envoyerAuTiroir(pid: pid_t) {
         guard let a = NSRunningApplication(processIdentifier: pid), let url = a.bundleURL, let bundle = a.bundleIdentifier,
-              bundle != Bundle.main.bundleIdentifier else { NSSound.beep(); return }
+              bundle != Bundle.main.bundleIdentifier, !PanneauBas.refusées.contains(bundle) else { NSSound.beep(); return }
         if !emprunts.contains(where: { $0.bundle == bundle && $0.note == nil }) { ajouter(url) }
         journalBas("%@ envoyée au tiroir", a.localizedName ?? bundle)
         guard let i = emprunts.firstIndex(where: { $0.bundle == bundle && $0.note == nil }) else { return }

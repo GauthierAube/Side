@@ -74,6 +74,7 @@ enum VoletReglages: String, CaseIterable, Identifiable {
 struct ContenuPleinEcran: View {
     let volet: VoletReglages
     @ObservedObject var m = ReglagesModele.commun
+    @AppStorage("carrouselStyle") private var styleCarrousel = "bande"
 
     var body: some View {
         contenu
@@ -97,6 +98,7 @@ struct ContenuPleinEcran: View {
     @ViewBuilder private var contenu: some View {
         switch volet {
         case .grille:
+            MesAppsSection()
             Section {
                 LabeledContent("Raccourci") {
                     HStack {
@@ -111,7 +113,7 @@ struct ContenuPleinEcran: View {
                     Text("Désactivé").tag("aucun")
                 }
             } header: { Text("Clavier") } footer: {
-                note("La touche choisie avec un chiffre de 1 à 9 mène droit à la fenêtre de ce numéro, dans l'ordre des cases de la grille (le numéro s'affiche au survol d'une case). Attention : ces raccourcis sont alors pris à toutes les applications. ⌘ + chiffre sert par exemple à changer d'onglet dans Safari ou de présentation dans le Finder ; ⌃ + chiffre n'est presque jamais utilisé.")
+                note("La touche choisie avec un chiffre de 1 à 9 mène droit à l'application de ce numéro dans « Mes applications », puis aux autres fenêtres dans l'ordre des cases de la grille. Attention : ces raccourcis sont alors pris à toutes les applications. ⌘ + chiffre sert par exemple à changer d'onglet dans Safari ou de présentation dans le Finder ; ⌃ + chiffre n'est presque jamais utilisé.")
             }
             Section {
                 LabeledContent("Coin actif") {
@@ -171,13 +173,19 @@ struct ContenuPleinEcran: View {
                 note("Un effleurement rapide change d'application sans rien afficher. Un geste posé fait apparaître le carrousel, et l'application du centre passe devant quand les doigts se lèvent. Le geste ne s'active que s'il n'y a qu'un seul bureau ; sinon macOS glisse d'un bureau à l'autre.")
             }
             Section {
+                Picker("Forme", selection: $styleCarrousel) {
+                    Text("Bande").tag("bande")
+                    Text("Roue sans fin").tag("roue")
+                }
+                .pickerStyle(.segmented)
+                .onChange(of: styleCarrousel) { _, _ in Programme.appli.apercuDuCarrousel(true) }
                 curseur("Taille des cartes", $m.tailleCartes,
                         Double(Carrousel.tailles.lowerBound)...Double(Carrousel.tailles.upperBound),
                         "\(Int(m.tailleCartes.rounded())) pt") { enCours in Programme.appli.apercuDuCarrousel(enCours) }
                     .onChange(of: m.tailleCartes) { _, _ in Programme.appli.apercuDuCarrousel(true) }
                 curseur("Apparition après un geste vif", $m.delai, 0.04...0.35, String(format: "%.2f s", m.delai))
             } header: { Text("Carrousel") } footer: {
-                note("Pendant que tu règles la taille, le vrai carrousel s'affiche au milieu de l'écran. Apparition : plus court, le carrousel vient plus tôt mais un simple effleurement risque de l'afficher ; plus long, c'est l'inverse.")
+                note("Roue sans fin : les cartes tournent comme dans le tiroir, et après la dernière application revient la première. Bande : les cartes en ligne, qui s'arrêtent aux deux bouts. Pendant que tu règles la taille, le vrai carrousel s'affiche au milieu de l'écran. Apparition : plus court, le carrousel vient plus tôt mais un simple effleurement risque de l'afficher ; plus long, c'est l'inverse.")
             }
             .disabled(!m.glisse)
         case .fenetres:
@@ -187,11 +195,11 @@ struct ContenuPleinEcran: View {
                 note("Chaque nouvelle fenêtre de travail remplit l'écran toute seule, sans passer en plein écran d'Apple.")
             }
             Section {
-                LabeledContent("Applications du tiroir de Side") {
+                LabeledContent("Applications du tiroir") {
                     Text(AgrandirAuto.tuilesDeSide.isEmpty ? String(localized: "Aucune") : "\(AgrandirAuto.tuilesDeSide.count)").foregroundStyle(.secondary)
                 }
             } header: { Text("Jamais agrandies") } footer: {
-                note("Les applications rangées dans le tiroir du bas de Side gardent leur place dans le tiroir : Square ne les agrandit pas. Leur liste se règle dans Side (Réglages > Tiroir du bas).")
+                note("Les applications du tiroir y gardent leur place : elles ne sont jamais agrandies. Leur liste se règle dans Réglages > Tiroir > Applications.")
             }
             Section {
                 Toggle("Le bouton vert remplit l'écran", isOn: $m.boutonVert)

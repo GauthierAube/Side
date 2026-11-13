@@ -3,6 +3,12 @@
 // les doigts, grandit jusqu'à la place de sa fenêtre, qui passe devant. On va ainsi de la quatrième à la première d'un seul geste.
 import AppKit
 
+private extension NSFont {
+    func withDesign(_ d: NSFontDescriptor.SystemDesign) -> NSFont? {
+        fontDescriptor.withDesign(d).flatMap { NSFont(descriptor: $0, size: pointSize) }
+    }
+}
+
 final class Carrousel {
     static let commun = Carrousel()
     private var panneau: NSPanel?
@@ -17,6 +23,8 @@ final class Carrousel {
         set { UserDefaults.standard.set(Double(newValue), forKey: "carrouselTaille") }
     }
     static let tailles: ClosedRange<CGFloat> = 200...620
+    /// Deux carrousels au choix (réglages) : « roue » (sans fin, comme le mini carrousel du tiroir) ou « bande » (l'ancien, en ligne).
+    static var roue: Bool { (UserDefaults.standard.string(forKey: "carrouselStyle") ?? "bande") == "roue" }
     private var largeur: CGFloat = 330, hauteur: CGFloat = 206     // la carte du centre
     private let petit: CGFloat = 0.52                              // taille des autres, par rapport à celle du centre
     private var position: CGFloat = 0
@@ -78,6 +86,30 @@ final class Carrousel {
             icone.shadowOpacity = 0.4
             icone.shadowRadius = 6
             icone.shadowOffset = CGSize(width: 0, height: -3)
+            // Le numéro de sa case (son « espace »), en petite pastille ronde posée sur le coin haut-droit de l'icône,
+            // comme une pastille du Dock mais discrète : on sait où l'on est, et où l'on va.
+            let r = (cote * 0.42).rounded()
+            let pastille = CALayer()
+            pastille.frame = CGRect(x: cote - r * 0.72, y: cote - r * 0.78, width: r, height: r)
+            pastille.cornerRadius = r / 2
+            pastille.backgroundColor = NSColor(white: 1, alpha: 0.96).cgColor
+            pastille.borderColor = NSColor(white: 0, alpha: 0.10).cgColor
+            pastille.borderWidth = 0.5
+            pastille.shadowColor = NSColor.black.cgColor
+            pastille.shadowOpacity = 0.30
+            pastille.shadowRadius = 3
+            pastille.shadowOffset = CGSize(width: 0, height: -1)
+            let chiffre = CATextLayer()
+            let taillePolice = (r * 0.62).rounded()
+            chiffre.string = NSAttributedString(string: "\(t.place + 1)", attributes: [
+                .font: NSFont.systemFont(ofSize: taillePolice, weight: .bold).withDesign(.rounded) ?? NSFont.boldSystemFont(ofSize: taillePolice),
+                .foregroundColor: NSColor(white: 0.18, alpha: 1),
+            ])
+            chiffre.alignmentMode = .center
+            chiffre.contentsScale = NSScreen.main?.backingScaleFactor ?? 2
+            chiffre.frame = CGRect(x: 0, y: (r - taillePolice * 1.22) / 2, width: r, height: taillePolice * 1.22)
+            pastille.addSublayer(chiffre)
+            icone.addSublayer(pastille)
             carte.addSublayer(icone)
             groupe.addSublayer(carte)
             return (carte, image)
@@ -108,10 +140,45 @@ final class Carrousel {
         for (c, t) in zip(cartes, tuiles) { if let img = Images.commun.image(pour: t, espaces: espaces) { c.image.contents = img } }
     }
 
-    /// Amène la position p (en nombre de fenêtres, éventuellement entre deux) au centre. La carte du centre est grande ;
-    /// en s'en éloignant, une carte rétrécit et s'efface un peu.
+    /// Amène la position p (en nombre de fenêtres, éventuellement entre deux) au centre. Comme le mini carrousel du tiroir,
+    /// mais couché : les cartes sont posées sur une roue. En tournant, elles rapetissent et s'effacent vers l'arrière, puis
+    /// reviennent de l'autre côté en grossissant. Rien ne saute : le carrousel tourne sans fin.
     func placer(_ p: CGFloat, anime: Bool) {
+        guard Carrousel.roue else { placerEnBande(p, anime: anime); return }
         position = p
+        let centre = CGPoint(x: groupe.bounds.midX, y: groupe.bounds.midY)
+        let n = CGFloat(max(cartes.count, 1))
+        // Une roue resserrée : des cartes plus petites que dans la bande, serrées les unes contre les autres.
+        let reduite: CGFloat = 0.88
+        let pas = (largeur * (1 + petit) / 2) * reduite * 0.95
+        let angleParCarte = 2 * CGFloat.pi / max(n, 3)
+        let rayon = pas / max(sin(angleParCarte), 0.5)
+        CATransaction.begin()
+        if anime {
+            CATransaction.setAnimationDuration(0.16)
+            CATransaction.setAnimationTimingFunction(CAMediaTimingFunction(name: .easeOut))
+        } else { CATransaction.setDisableActions(true) }
+        for (i, c) in cartes.enumerated() {
+            var d = CGFloat(i) - p
+            d -= n * (d / n).rounded()                         // l'écart le plus court en faisant le tour
+            let angle = d * angleParCarte
+            let profondeur = (cos(angle) + 1) / 2                // 1 devant, 0 tout au fond de la roue
+            let proche = 1 - min(abs(d), 1)
+            let taille = (petit + (1 - petit) * proche) * (0.45 + 0.55 * profondeur) * reduite
+            c.carte.position = CGPoint(x: centre.x + rayon * sin(angle), y: centre.y)
+            c.carte.transform = CATransform3DMakeScale(taille, taille, 1)
+            c.carte.opacity = Float(min(1, max(0, (profondeur - 0.08) * 1.7)))
+            c.carte.zPosition = profondeur * 10
+            c.image.borderWidth = proche > 0.5 ? 4 : 0
+        }
+        CATransaction.commit()
+    }
+
+    /// L'ancien carrousel : les cartes en ligne, la plus proche du centre grandit ; il s'arrête aux deux bouts.
+    private func placerEnBande(_ p: CGFloat, anime: Bool) {
+        let n = CGFloat(max(cartes.count, 1))
+        let q = min(max(p, 0), n - 1)
+        position = q
         let centre = CGPoint(x: groupe.bounds.midX, y: groupe.bounds.midY)
         let pas = largeur * petit + 34, pousse = largeur * (1 - petit) / 2
         CATransaction.begin()
@@ -120,11 +187,11 @@ final class Carrousel {
             CATransaction.setAnimationTimingFunction(CAMediaTimingFunction(name: .easeOut))
         } else { CATransaction.setDisableActions(true) }
         for (i, c) in cartes.enumerated() {
-            let d = CGFloat(i) - p, proche = 1 - min(abs(d), 1)
+            let d = CGFloat(i) - q, proche = 1 - min(abs(d), 1)
             let taille = petit + (1 - petit) * proche
             c.carte.position = CGPoint(x: centre.x + d * pas + (d > 0 ? 1 : (d < 0 ? -1 : 0)) * min(abs(d), 1) * pousse, y: centre.y)
             c.carte.transform = CATransform3DMakeScale(taille, taille, 1)
-            c.carte.opacity = 1          // toutes les cartes pleinement opaques (plus d'effet de transparence sur les voisines)
+            c.carte.opacity = 1
             c.carte.zPosition = 10 - abs(d)
             c.image.borderWidth = proche > 0.5 ? 4 : 0
         }

@@ -893,8 +893,8 @@ struct VoletPresseVue: View {
             VisualEffect()
             Color(nsColor: .windowBackgroundColor).opacity(config.opacite)
         })
-        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).strokeBorder(Color.primary.opacity(0.14), lineWidth: 1))
+        .clipShape(RoundedRectangle(cornerRadius: Reglages.rayonCarte, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: Reglages.rayonCarte, style: .continuous).strokeBorder(Color.primary.opacity(0.14), lineWidth: 1))
         // « Garder dans les liens… » depuis une carte : le formulaire est dans l'onglet « Enregistrés ».
         .onChange(of: liens.brouillon) { _, b in if b != nil { onglet = 1 } }
     }

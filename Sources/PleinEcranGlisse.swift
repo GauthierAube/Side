@@ -25,6 +25,7 @@ enum Glisse {
         set { UserDefaults.standard.set(newValue, forKey: "glisseInverse") }
     }
     private static var demarre = false
+    private static var trackpads: [AnyObject] = []            // gardés, pour les relancer au réveil du Mac
     private static var depart: [Int32: (Float, Float)] = [:]   // où chaque doigt s'est posé
 
     private typealias Liste = @convention(c) () -> Unmanaged<CFArray>?
@@ -40,6 +41,23 @@ enum Glisse {
         let liste = unsafeBitCast(fListe, to: Liste.self), inscrire = unsafeBitCast(fInscrire, to: Inscrire.self)
         let lancer = unsafeBitCast(fLancer, to: Lancer.self)
         guard let appareils = liste()?.takeRetainedValue() as? [AnyObject] else { return }
+        trackpads = appareils
+        // Au réveil du Mac, le trackpad peut avoir cessé d'envoyer ses touches : on le relance.
+        if let fEnMarche = dlsym(module, "MTDeviceIsRunning") {
+            typealias EnMarche = @convention(c) (UnsafeMutableRawPointer?) -> Bool
+            let enMarche = unsafeBitCast(fEnMarche, to: EnMarche.self)
+            NSWorkspace.shared.notificationCenter.addObserver(forName: NSWorkspace.didWakeNotification, object: nil, queue: .main) { _ in
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                    var relances = 0
+                    for a in trackpads {
+                        let p = Unmanaged.passUnretained(a).toOpaque()
+                        if !enMarche(p) { lancer(p, 0); relances += 1 }
+                    }
+                    depart = [:]; phase = 0; dernier = 0; montre = false
+                    journal("Square: réveil du Mac, %d trackpad(s) relancé(s)", relances)
+                }
+            }
+        }
         for a in appareils {
             let p = Unmanaged.passUnretained(a).toOpaque()
             inscrire(p, { _, touches, nombre, _, _ in
@@ -57,7 +75,7 @@ enum Glisse {
     private static var debutGeste: TimeInterval = 0
     /// Un geste parti vite mais qui dure plus que cela affiche quand même le carrousel. Réglable (« Taille du carrousel… »).
     static var attente: TimeInterval {
-        get { UserDefaults.standard.object(forKey: "glisseAttente") as? Double ?? 0.19 }
+        get { UserDefaults.standard.object(forKey: "glisseAttente") as? Double ?? 0.12 }
         set { UserDefaults.standard.set(newValue, forKey: "glisseAttente") }
     }
     private static let vif: Float = 0.42              // au-delà de cette vitesse (largeurs de trackpad par seconde), c'est un effleurement
