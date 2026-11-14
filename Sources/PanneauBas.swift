@@ -475,7 +475,11 @@ final class PanneauBas: NSObject {
         let infos = (CGWindowListCopyWindowInfo([.optionOnScreenOnly, .excludeDesktopElements], kCGNullWindowID) as? [[String: Any]]) ?? []
         for w in infos {
             let couche = (w[kCGWindowLayer as String] as? Int) ?? 0
-            guard couche < 24, ((w[kCGWindowAlpha as String] as? Double) ?? 1) > 0.05,     // ni barre des menus, ni pointeur, ni fenêtre invisible
+            // Seules les fenêtres d'applications ordinaires peuvent couvrir le tiroir. Depuis macOS 27.2, le Centre de
+            // notifications garde une fenêtre transparente sur tout l'écran (couche 23) : elle ne compte pas.
+            guard couche < 20, ((w[kCGWindowAlpha as String] as? Double) ?? 1) > 0.05,     // ni barre des menus, ni pointeur, ni fenêtre invisible
+                  (w[kCGWindowOwnerName as String] as? String) != "Centre de notifications",
+                  (w[kCGWindowOwnerName as String] as? String) != "Notification Center",
                   let d = w[kCGWindowBounds as String] as? NSDictionary, let r = CGRect(dictionaryRepresentation: d), r.contains(p),
                   let n = w[kCGWindowNumber as String] as? Int else { continue }
             return numerosDuTiroir.contains(n)
@@ -722,6 +726,20 @@ final class PanneauBas: NSObject {
         // Pour les essais : joue le geste du mini carrousel (« mini:debut », « mini:0.5 » pour un trajet, « mini:fin »).
         case "tuile:0", "tuile:1", "tuile:2", "tuile:3":       // pour les essais : afficher l'application de ce rang
             if let i = Int(commande.suffix(1)), emprunts.indices.contains(i) { montrerTuile(i) }
+        case _ where commande.hasPrefix("barre:"):           // pour les essais : « barre:demande|fichier1|fichier2… »
+            let m = commande.dropFirst(6).split(separator: "|").map(String.init)
+            if let demande = m.first { BarreCommande.commun.essai(demande, m.dropFirst().map { URL(fileURLWithPath: $0) }) }
+        case _ where commande.hasPrefix("bord:"):           // pour les essais : « bord:x:y » (coordonnées globales, en haut à gauche)
+            let v = commande.split(separator: ":").dropFirst().compactMap { Double($0) }
+            if v.count == 2 {
+                let p = CGPoint(x: v[0], y: v[1])
+                journalBas("bord %.0f,%.0f : surLeBord=%d côté=%d tiroirSous=%d cadre=%@ numéros=%@ relayable=%@", p.x, p.y,
+                           PanneauBas.surLeBord(p) ? 1 : 0, PanneauBas.surUnCôté(p), PanneauBas.tiroirSous(p) ? 1 : 0,
+                           NSStringFromRect(PanneauBas.cadreBrut), "\(PanneauBas.numerosDuTiroir.sorted())",
+                           PanneauBas.fenêtreRelayable.map { NSStringFromRect($0) } ?? "aucune")
+            }
+        case _ where commande.hasPrefix("pilule:"):          // pour les essais : afficher une pastille
+            Pilule.montrer(String(commande.dropFirst(7)), symbole: "arrow.up.and.down")
         case "mini:debut": commencerNavigation()
         case "mini:fin": lacherDoigts(ouvrir: true, elan: 0)
         case "video":                                     // la vidéo YouTube du tiroir : en plein écran, ou de retour
@@ -1821,7 +1839,9 @@ final class PanneauBas: NSObject {
 
     // MARK: Relais : l'application se redimensionne elle-même, le tiroir la suit
 
+    private var piluleDuGeste = false
     fileprivate func commencerRelais() {
+        piluleDuGeste = false
         selecteur.fermer()
         rangDirect = rangCourant
         enDirect = true                 // la veille ne touche à rien pendant le geste
@@ -1832,6 +1852,26 @@ final class PanneauBas: NSObject {
     fileprivate func suivreRelais() {
         guard enDirect, let p = panneau, let e = entières(p.frame).first?.0 ?? emprunts.indices.contains(rangDirect).then({ emprunts[rangDirect] }),
               let f = fenetre(e), let c = AXBas.cadre(f), let ecran = p.screen ?? NSScreen.main else { return }
+        // L'application se laisse rendre plus petite que la taille minimum retenue pour elle (retenue un jour où elle
+        // n'avait pas encore suivi) : on corrige, sinon le tiroir regrandissait une seconde après qu'on l'a lâché.
+        if let m = hauteursMini[e.bundle], c.height < m - 2 { var t = hauteursMini; t[e.bundle] = c.height.rounded(.up); hauteursMini = t }
+        if let m = largeursMini[e.bundle], c.width < m - 2 { var t = largeursMini; t[e.bundle] = c.width.rounded(.up); largeursMini = t }
+        // La souris va plus loin que le bord de la fenêtre : l'application refuse d'être plus petite. On dit pourquoi.
+        if !piluleDuGeste, let d = PanneauBas.relais {
+            let haut = NSScreen.screens.first?.frame.height ?? 0
+            let m = NSEvent.mouseLocation
+            let cible = CGPoint(x: m.x + d.x, y: haut - m.y + d.y)
+            let bloque: Bool
+            switch PanneauBas.relaisCôté {
+            case 0: bloque = enHaut ? cible.y < c.maxY - 30 : cible.y > c.minY + 30
+            case 1: bloque = cible.x < c.maxX - 30
+            default: bloque = cible.x > c.minX + 30
+            }
+            if bloque {
+                piluleDuGeste = true
+                direLimite(app: e.nom, hauteur: PanneauBas.relaisCôté == 0, points: PanneauBas.relaisCôté == 0 ? c.height : c.width)
+            }
+        }
         let haut = NSScreen.screens.first?.frame.height ?? 0
         let z = ecran.visibleFrame
         var g = panneauGlobal(p.frame)
@@ -1860,6 +1900,24 @@ final class PanneauBas: NSObject {
         else { largeurChoisie = min(1, max(0.3, p.frame.width / z.width)) }
         let fin = cadre(ecran)
         if PanneauBas.relaisCôté == 0 { hauteurChoisie = fin.height }
+        // L'application affichée se laissait rendre plus petite, mais une autre application du tiroir ne le permet pas :
+        // le tiroir revient à la taille qu'elle impose. On dit laquelle (sinon on ne comprend pas pourquoi il regrandit).
+        // Ce message passe avant celui du geste : c'est lui qui explique la taille finale.
+        do {
+            if PanneauBas.relaisCôté == 0, fin.height > p.frame.height + 10 {
+                piluleDuGeste = true
+                let laPlusHaute = emprunts.max { (hauteursMini[$0.bundle] ?? 0) < (hauteursMini[$1.bundle] ?? 0) }
+                let parElle = laPlusHaute.flatMap { hauteursMini[$0.bundle] }.map { $0 + 2 * marge >= fin.height - 1 } ?? false
+                direLimite(app: parElle ? laPlusHaute?.nom : nil, hauteur: true,
+                           points: parElle ? (laPlusHaute.flatMap { hauteursMini[$0.bundle] } ?? fin.height) : fin.height)
+            } else if PanneauBas.relaisCôté != 0, fin.width > p.frame.width + 10 {
+                piluleDuGeste = true
+                let laPlusLarge = emprunts.max { (largeursMini[$0.bundle] ?? 0) < (largeursMini[$1.bundle] ?? 0) }
+                let parElle = laPlusLarge.flatMap { largeursMini[$0.bundle] } != nil
+                direLimite(app: parElle ? laPlusLarge?.nom : nil, hauteur: false,
+                           points: parElle ? (laPlusLarge.flatMap { largeursMini[$0.bundle] } ?? fin.width) : fin.width)
+            }
+        }
         let terminer = { [weak self] in
             guard let self else { return }
             self.disposerLeFond(fin)
@@ -1874,7 +1932,22 @@ final class PanneauBas: NSObject {
         } else { terminer() }
     }
 
+    /// La pastille qui explique pourquoi le tiroir ne va pas plus loin.
+    private func direLimite(app: String?, hauteur: Bool, points: CGFloat) {
+        let n = Int(points.rounded())
+        let texte: String
+        if let app {
+            texte = hauteur ? String(localized: "« \(app) » ne peut pas être moins haute : le tiroir s'arrête à \(n) points")
+                            : String(localized: "« \(app) » ne peut pas être moins large : le tiroir s'arrête à \(n) points")
+        } else {
+            texte = hauteur ? String(localized: "Le tiroir ne descend pas sous \(n) points de haut")
+                            : String(localized: "Le tiroir ne se réduit pas sous \(n) points de large")
+        }
+        Pilule.montrer(texte, symbole: hauteur ? "arrow.up.and.down" : "arrow.left.and.right")
+    }
+
     fileprivate func commencerHauteur() {
+        piluleDuGeste = false
         if commencerEnDirect() { hauteurAuDepart = panneau?.frame.height ?? 0; return }
         guard let p = panneau, commencerDéfilement() else { return }     // les tuiles deviennent des photos le temps du geste
         finDéfilement?.cancel()
@@ -1884,8 +1957,16 @@ final class PanneauBas: NSObject {
     fileprivate func tirerHauteur(_ montée: CGFloat) {
         guard ouvert, défile || enDirect, let p = panneau, let ecran = p.screen ?? NSScreen.main else { return }
         hauteurChoisie = hauteurAuDepart + (enHaut ? -montée : montée)          // bornée par cadre() : un minimum, et presque tout l'écran au plus
+        let voulue = hauteurChoisie
         let fin = cadre(ecran)
         hauteurChoisie = fin.height
+        // On voudrait plus bas que le tiroir ne peut aller : on dit qui l'en empêche.
+        if !piluleDuGeste, voulue < fin.height - 20, fin.height < (ecran.visibleFrame.height * 0.9) {
+            piluleDuGeste = true
+            let laPlusHaute = emprunts.max { (hauteursMini[$0.bundle] ?? 0) < (hauteursMini[$1.bundle] ?? 0) }
+            let parElle = laPlusHaute.flatMap { hauteursMini[$0.bundle] }.map { $0 + 2 * marge >= fin.height - 1 } ?? false
+            direLimite(app: parElle ? laPlusHaute?.nom : nil, hauteur: true, points: parElle ? (hauteursMini[laPlusHaute!.bundle] ?? fin.height) : fin.height)
+        }
         p.setFrame(fin, display: true)
         disposerLeFond(fin)
         if enDirect { suivreEnDirect(fin); return }
@@ -1927,6 +2008,7 @@ final class PanneauBas: NSObject {
     }
 
     fileprivate func commencerLargeur() {
+        piluleDuGeste = false
         if commencerEnDirect() { largeurAuDépart = panneau?.frame.width ?? 0; return }
         guard let p = panneau, commencerDéfilement() else { return }
         finDéfilement?.cancel()
@@ -1937,10 +2019,16 @@ final class PanneauBas: NSObject {
     fileprivate func tirerLargeur(_ écart: CGFloat) {
         guard ouvert, défile || enDirect, let p = panneau, let ecran = p.screen ?? NSScreen.main else { return }
         let z = ecran.visibleFrame
-        largeurChoisie = min(1, max(0.3, (largeurAuDépart - 2 * écart) / z.width))     // les deux côtés bougent ensemble
+        let voulue = largeurAuDépart - 2 * écart
+        largeurChoisie = min(1, max(0.3, voulue / z.width))     // les deux côtés bougent ensemble
         let fin = cadre(ecran)
         p.setFrame(fin, display: true)
         disposerLeFond(fin)
+        if !piluleDuGeste, voulue < fin.width - 20 {
+            piluleDuGeste = true
+            let laPlusLarge = emprunts.max { (largeursMini[$0.bundle] ?? 0) < (largeursMini[$1.bundle] ?? 0) }
+            direLimite(app: laPlusLarge.flatMap { largeursMini[$0.bundle] } != nil ? laPlusLarge?.nom : nil, hauteur: false, points: fin.width)
+        }
         if enDirect { suivreEnDirect(fin); return }
         poser(1)
         déplacerImages(animé: false)
@@ -2713,8 +2801,15 @@ final class PanneauBas: NSObject {
         AXUIElementCopyAttributeValue(el, kAXWindowsAttribute as CFString, &v)
         let toutes = (v as? [AXUIElement]) ?? []
         guard let note = e.note else {
-            if let f = toutes.first { noterNuméro(e, f) }
-            return toutes.first
+            // La fenêtre de l'application dans le tiroir garde sa place, même quand l'application en ouvre une autre
+            // devant (ses réglages, une boîte de dialogue) : on la reconnaît à son numéro. Les fenêtres secondaires
+            // s'ouvrent normalement, par-dessus, sans être rangées dans le tiroir.
+            if let n = numéros[e.nom], let f = toutes.first(where: { w in var id: CGWindowID = 0; return _AXUIElementGetWindow(w, &id) == .success && id == n }) {
+                return f
+            }
+            let f = toutes.first(where: { estFenêtrePrincipale($0) }) ?? toutes.first
+            if let f { noterNuméro(e, f) }
+            return f
         }
         // Une note déjà trouvée est reconnue à son numéro de fenêtre : son titre (sa première ligne) change dès qu'on l'écrit,
         // et la chercher par son titre la faisait passer pour fermée (elle quittait le tiroir et restait sur le bureau).
@@ -2725,6 +2820,20 @@ final class PanneauBas: NSObject {
         let f = toutes.first { titre($0) == actuel } ?? toutes.first { titre($0) == note }
         if let f { noterNuméro(e, f) }
         return f
+    }
+
+    /// Une vraie fenêtre de travail de l'application (pas ses réglages, ni une boîte de dialogue, ni une palette) :
+    /// une fenêtre ordinaire qu'on peut agrandir.
+    private func estFenêtrePrincipale(_ f: AXUIElement) -> Bool {
+        var v: CFTypeRef?
+        AXUIElementCopyAttributeValue(f, kAXSubroleAttribute as CFString, &v)
+        guard (v as? String) == (kAXStandardWindowSubrole as String) else { return false }
+        var b: CFTypeRef?
+        AXUIElementCopyAttributeValue(f, kAXFullScreenButtonAttribute as CFString, &b)
+        guard let b, CFGetTypeID(b) == AXUIElementGetTypeID() else { return false }
+        var actif: CFTypeRef?
+        AXUIElementCopyAttributeValue(b as! AXUIElement, kAXEnabledAttribute as CFString, &actif)
+        return (actif as? Bool) ?? true
     }
 
     private func noterNuméro(_ e: EmpruntBas, _ f: AXUIElement) {
@@ -3004,6 +3113,34 @@ final class PanneauBas: NSObject {
 
     }
 
+    private var enVérification: Set<String> = []
+    /// Redemande à l'application sa place, puis regarde 0,7 s plus tard : si elle dépasse toujours, c'est qu'elle refuse
+    /// d'être plus petite. Alors seulement, sa taille minimum est retenue et le tiroir grandit pour elle.
+    private func verifierMinimum(_ e: EmpruntBas, _ f: AXUIElement, _ zone: CGRect) {
+        guard !enVérification.contains(e.nom) else { return }
+        enVérification.insert(e.nom)
+        AXBas.placer(f, zone)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) { [weak self] in
+            guard let self else { return }
+            self.enVérification.remove(e.nom)
+            guard self.ouvert, !self.enDirect, let p = self.panneau,
+                  let maintenant = self.entières(p.frame).first(where: { $0.0.nom == e.nom })?.1, maintenant == zone,
+                  let c = AXBas.cadre(f) else { return }
+            var change = false
+            if c.height > zone.height + 3, (self.hauteursMini[e.bundle] ?? 0) < c.height {
+                var m = self.hauteursMini; m[e.bundle] = c.height.rounded(.up); self.hauteursMini = m
+                journalBas("%@ : hauteur minimum %.0f (vérifiée), le tiroir grandit", e.nom, c.height)
+                change = true
+            }
+            if self.uneApp, c.width > zone.width + 3, (self.largeursMini[e.bundle] ?? 0) < c.width {
+                var m = self.largeursMini; m[e.bundle] = c.width.rounded(.up); self.largeursMini = m
+                journalBas("%@ : largeur minimum %.0f (vérifiée), le tiroir s'élargit", e.nom, c.width)
+                change = true
+            }
+            if change { self.respecterLesLargeursMini() }
+        }
+    }
+
     private func placer(_ e: EmpruntBas, _ f: AXUIElement, _ zone: CGRect) {
         vivantes.insert(e.nom)
         guard !posées.contains(e.nom), let avant = AXBas.cadre(f) else { return }
@@ -3042,23 +3179,12 @@ final class PanneauBas: NSObject {
                 }
             }
             if !aSaTaille, abs(avant.height - zone.height) > 3 { refusHauteur.insert(e.nom) }
-            // Plus haute que le tiroir : une application ne doit jamais dépasser. Le tiroir retient sa hauteur minimum et grandit.
-            if avant.height > zone.height + 3, (hauteursMini[e.bundle] ?? 0) < avant.height {
-                var m = hauteursMini
-                m[e.bundle] = avant.height.rounded(.up)
-                hauteursMini = m
-                journalBas("%@ : hauteur minimum %.0f, le tiroir grandit", e.nom, avant.height)
-                DispatchQueue.main.async { [weak self] in self?.respecterLesLargeursMini() }
-            }
-            // L'application refuse d'être aussi étroite (Réglages Système…) : on retient sa largeur minimum, et le tiroir
-            // ne pourra plus être réduit en dessous. S'il l'est déjà, il s'élargit tout de suite.
-            if uneApp, avant.width > zone.width + 3, (largeursMini[e.bundle] ?? 0) < avant.width {
-                var m = largeursMini
-                m[e.bundle] = avant.width.rounded(.up)
-                largeursMini = m
-                journalBas("%@ : largeur minimum %.0f, le tiroir s'élargit", e.nom, avant.width)
-                DispatchQueue.main.async { [weak self] in self?.respecterLesLargeursMini() }
-            }
+            // Plus haute (ou plus large) que le tiroir : l'application refuse peut-être d'être plus petite. On ne le croit
+            // qu'après l'avoir vérifié : redemandée à sa place, elle a encore dépassé une demi-seconde plus tard. (Retenir
+            // la taille d'une application qui n'avait simplement pas encore suivi empêchait ensuite de réduire le tiroir.)
+            let tropHaute = avant.height > zone.height + 3 && (hauteursMini[e.bundle] ?? 0) < avant.height
+            let tropLarge = uneApp && avant.width > zone.width + 3 && (largeursMini[e.bundle] ?? 0) < avant.width
+            if tropHaute || tropLarge { verifierMinimum(e, f, zone) }
             stables[e.nom, default: 0] += 1
             if stables[e.nom, default: 0] >= 6 { posées.insert(e.nom) }
             return

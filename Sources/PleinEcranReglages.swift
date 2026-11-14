@@ -169,7 +169,17 @@ struct ContenuPleinEcran: View {
                 }
                 .pickerStyle(.segmented)
                 .disabled(!m.glisse)
+                if !Glisse.systemeLibre {
+                    LabeledContent("Plein écran d'Apple (vidéo de Safari…)") {
+                        Button("Réglages du trackpad…") {
+                            if let u = URL(string: "x-apple.systempreferences:com.apple.Trackpad-Settings.extension") { NSWorkspace.shared.open(u) }
+                        }
+                    }
+                }
             } header: { Text("Quatre doigts vers la gauche ou la droite") } footer: {
+                if !Glisse.systemeLibre {
+                    note("Quand une fenêtre passe dans un plein écran d'Apple (une vidéo de Safari, par exemple), macOS reprend le geste à quatre doigts et le carrousel de Side s'efface. Pour garder toujours le carrousel : Réglages du trackpad > Plus de gestes > « Balayer entre les apps en plein écran » sur trois doigts ou désactivé. Side le voit et prend alors le geste partout ; le plein écran d'Apple devient une carte du carrousel.")
+                }
                 note("Un effleurement rapide change d'application sans rien afficher. Un geste posé fait apparaître le carrousel, et l'application du centre passe devant quand les doigts se lèvent. Le geste ne s'active que s'il n'y a qu'un seul bureau ; sinon macOS glisse d'un bureau à l'autre.")
             }
             Section {

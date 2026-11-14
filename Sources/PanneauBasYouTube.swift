@@ -281,7 +281,10 @@ final class LecteurYouTubeBas: NSView, WKNavigationDelegate, WKUIDelegate, WKScr
       window.__sideSortir = function(){ if (!enPlein && !racine().classList.contains('side-plein')) return; enPlein = null; racine().classList.remove('side-plein'); annoncer(); dire(false); };
       window.__sideBasculer = function(){ if (racine().classList.contains('side-plein')) window.__sideSortir(); else entrerDans(null); return true; };
       var entrer = function(){ entrerDans(this instanceof Element ? this : null); return Promise.resolve(); };
-      var sortir = function(){ window.__sideSortir(); return Promise.resolve(); };
+      // YouTube appelle de lui-même la sortie du plein écran dès que la page n'est plus visible (elle change de fenêtre,
+      // une autre application passe devant, le carrousel s'affiche). On l'ignore : seuls le bouton du lecteur, la touche f,
+      // le double-clic, Échap et le changement de page ramènent la vidéo dans le tiroir.
+      var sortir = function(){ return Promise.resolve(); };
       try {
         ['requestFullscreen','webkitRequestFullscreen','webkitRequestFullScreen'].forEach(function(n){ Element.prototype[n] = entrer; });
         ['webkitEnterFullscreen','webkitEnterFullScreen'].forEach(function(n){ HTMLVideoElement.prototype[n] = entrer; });
@@ -651,7 +654,19 @@ final class LecteurYouTubeBas: NSView, WKNavigationDelegate, WKUIDelegate, WKScr
         let schema = url.scheme?.lowercased() ?? ""
         // « Ouvrir dans l'application » et autres liens qui ne sont pas des pages : ignorés.
         guard ["http", "https", "about", "blob", "data"].contains(schema) else { decisionHandler(.cancel); return }
-        if action.navigationType == .linkActivated, action.targetFrame?.isMainFrame != false, !resteIci(url) {
+        let pagePrincipale = action.targetFrame?.isMainFrame != false
+        // Les liens d'une description YouTube passent par « youtube.com/redirect?q=… » avant d'aller ailleurs : la vraie
+        // adresse est dans « q ». Elle s'ouvre dans le navigateur, pas dans la tuile.
+        if estYouTube, pagePrincipale, url.path == "/redirect", resteIci(url),
+           let q = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems?.first(where: { $0.name == "q" })?.value,
+           let cible = URL(string: q), ["http", "https"].contains(cible.scheme?.lowercased() ?? "") {
+            NSWorkspace.shared.open(cible)
+            decisionHandler(.cancel)
+            return
+        }
+        // Tout ce qui mènerait la tuile YouTube hors de YouTube (lien cliqué, ou redirection) part dans le navigateur.
+        if pagePrincipale, ["http", "https"].contains(schema), !resteIci(url),
+           action.navigationType == .linkActivated || estYouTube {
             NSWorkspace.shared.open(url)
             decisionHandler(.cancel)
             return

@@ -51,12 +51,42 @@
         }
       }
     },
+    "%lld PDF": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld PDFs"
+          }
+        }
+      }
+    },
+    "%lld autres fichiers": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld other files"
+          }
+        }
+      }
+    },
     "%lld colonnes": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "%lld columns"
+          }
+        }
+      }
+    },
+    "%lld fichiers": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld files"
           }
         }
       }
@@ -77,6 +107,72 @@
         }
       }
     },
+    "%lld fichiers créés": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld files created"
+          }
+        }
+      }
+    },
+    "%lld fichiers — par exemple : %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld files — for example: %2$@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "new",
+            "value": "%1$lld fichiers — par exemple : %2$@"
+          }
+        }
+      }
+    },
+    "%lld images": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld images"
+          }
+        }
+      }
+    },
+    "%lld px au plus grand côté": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld px on the longest side"
+          }
+        }
+      }
+    },
+    "%lld px de haut": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld px tall"
+          }
+        }
+      }
+    },
+    "%lld px de large": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld px wide"
+          }
+        }
+      }
+    },
     "%lld sur %lld": {
       "localizations": {
         "en": {
@@ -89,6 +185,16 @@
           "stringUnit": {
             "state": "new",
             "value": "%1$lld sur %2$lld"
+          }
+        }
+      }
+    },
+    "%lld vidéos": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld videos"
           }
         }
       }
@@ -123,12 +229,62 @@
         }
       }
     },
+    "1 PDF": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 PDF"
+          }
+        }
+      }
+    },
+    "1 autre fichier": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 other file"
+          }
+        }
+      }
+    },
     "1 colonne": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "1 column"
+          }
+        }
+      }
+    },
+    "1 fichier — par exemple : %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 file — for example: %@"
+          }
+        }
+      }
+    },
+    "1 image": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 image"
+          }
+        }
+      }
+    },
+    "1 vidéo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 video"
           }
         }
       }
@@ -149,6 +305,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "1. Open the Spotify developer site and log in.\n2. “Create app”: any name, and under “Redirect URIs”: %@. Check “Web API”.\n3. Copy this app’s “Client ID” and paste it below.\n4. Click “Connect”, then “Agree” on the Spotify page that opens."
+          }
+        }
+      }
+    },
+    "1080 px": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1080 px"
           }
         }
       }
@@ -665,6 +831,16 @@
         }
       }
     },
+    "Apple Intelligence cherche ce que tu veux faire…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apple Intelligence is working out what you want…"
+          }
+        }
+      }
+    },
     "Application compagne": {
       "localizations": {
         "en": {
@@ -721,6 +897,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "After a quick swipe, the carousel appears…"
+          }
+        }
+      }
+    },
+    "Archive": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Archive"
           }
         }
       }
@@ -795,6 +981,16 @@
         }
       }
     },
+    "Aucun fichier sélectionné : sélectionne des fichiers dans le Finder": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No file selected: select files in the Finder"
+          }
+        }
+      }
+    },
     "Aucun lecteur : cette partie n'apparaît pas dans le tiroir.": {
       "localizations": {
         "en": {
@@ -841,6 +1037,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "No results for “%@”."
+          }
+        }
+      }
+    },
+    "Aucun sujet trouvé dans %@.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No subject found in %@."
           }
         }
       }
@@ -973,6 +1179,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Strip"
+          }
+        }
+      }
+    },
+    "Barre de commande": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Command bar"
+          }
+        }
+      }
+    },
+    "Barre de commande sous le Finder": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Command bar under the Finder"
           }
         }
       }
@@ -1145,6 +1371,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "These apps keep their size: they never fill the screen on their own."
+          }
+        }
+      }
+    },
+    "Cette action ne s'applique pas aux fichiers sélectionnés.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This action doesn't apply to the selected files."
           }
         }
       }
@@ -1452,6 +1688,16 @@
         }
       }
     },
+    "Compresser en une archive ZIP": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compress into a ZIP archive"
+          }
+        }
+      }
+    },
     "Compresser « %@ »": {
       "localizations": {
         "en": {
@@ -1508,6 +1754,58 @@
           "stringUnit": {
             "state": "translated",
             "value": "Connected. You can close this page and go back to the drawer."
+          }
+        }
+      }
+    },
+    "Conversion impossible : %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't convert %@"
+          }
+        }
+      }
+    },
+    "Convertir %@ en %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Convert %1$@ to %2$@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Convertir %1$@ en %2$@"
+          }
+        }
+      }
+    },
+    "Convertir %@ en MP4": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Convert %@ to MP4"
+          }
+        }
+      }
+    },
+    "Convertir %@ en MP4 %lldp": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Convert %1$@ to MP4 %2$lldp"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Convertir %1$@ en MP4 %2$lldp"
           }
         }
       }
@@ -2162,6 +2460,26 @@
         }
       }
     },
+    "Extraire le son (%@) en M4A": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Extract the audio (%@) as M4A"
+          }
+        }
+      }
+    },
+    "Extraire le texte (%@) dans un fichier texte": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Extract the text (%@) into a text file"
+          }
+        }
+      }
+    },
     "Faible": {
       "localizations": {
         "en": {
@@ -2303,6 +2621,16 @@
         }
       }
     },
+    "Fichier créé : %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "File created: %@"
+          }
+        }
+      }
+    },
     "Fichiers récents": {
       "localizations": {
         "en": {
@@ -2359,6 +2687,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Shape"
+          }
+        }
+      }
+    },
+    "Fusionner": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Merge"
+          }
+        }
+      }
+    },
+    "Fusionner les PDF en un seul": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Merge the PDFs into one"
           }
         }
       }
@@ -2733,6 +3081,26 @@
         }
       }
     },
+    "Image illisible : %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unreadable image: %@"
+          }
+        }
+      }
+    },
+    "Images réunies": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Combined images"
+          }
+        }
+      }
+    },
     "Impossible d'afficher les informations": {
       "localizations": {
         "en": {
@@ -2773,6 +3141,16 @@
         }
       }
     },
+    "Impossible de créer le PDF.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't create the PDF."
+          }
+        }
+      }
+    },
     "Impossible de créer le dossier": {
       "localizations": {
         "en": {
@@ -2799,6 +3177,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Couldn't Duplicate “%@”"
+          }
+        }
+      }
+    },
+    "Impossible de fusionner ces PDF.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't merge these PDFs."
           }
         }
       }
@@ -2973,6 +3361,26 @@
         }
       }
     },
+    "Je n'ai pas compris. Essaie avec un mot simple : jpg, png, zip, mp4, pdf, texte, fond…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I didn't understand. Try a simple word: jpg, png, zip, mp4, pdf, text, background…"
+          }
+        }
+      }
+    },
+    "Je ne sais pas encore faire ça. Essaie : convertir, réduire, pivoter, retirer le fond, fusionner, extraire le texte, zipper, MP4, son.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I can't do that yet. Try: convert, shrink, rotate, remove the background, merge, extract the text, zip, MP4, audio."
+          }
+        }
+      }
+    },
     "L'aperçu montre l'image et le titre du site : pour cela, Side contacte le site du lien, seulement quand le volet l'affiche. La présentation vaut pour le presse-papiers comme pour l'onglet « Enregistrés ». Les liens enregistrés restent sur ce Mac.": {
       "localizations": {
         "en": {
@@ -2989,6 +3397,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Clipboard history is turned off in Side's settings."
+          }
+        }
+      }
+    },
+    "L'opération a échoué.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The operation failed."
           }
         }
       }
@@ -3182,6 +3600,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Keep folders on top when sorting by name"
+          }
+        }
+      }
+    },
+    "Lancer": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Run"
           }
         }
       }
@@ -3570,6 +3998,26 @@
         }
       }
     },
+    "Le tiroir ne descend pas sous %lld points de haut": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The drawer doesn't go below %lld points tall"
+          }
+        }
+      }
+    },
+    "Le tiroir ne se réduit pas sous %lld points de large": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The drawer doesn't get narrower than %lld points"
+          }
+        }
+      }
+    },
     "Le tiroir prend toujours le bord opposé au Finder : du haut quand le Finder vient du bas, du bas dans tous les autres cas. Le geste à quatre doigts s'inverse avec lui.": {
       "localizations": {
         "en": {
@@ -3726,6 +4174,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Take Them Out"
+          }
+        }
+      }
+    },
+    "Les originaux ne sont pas touchés : le résultat est un nouveau fichier, à côté.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The originals aren't touched: the result is a new file, next to them."
           }
         }
       }
@@ -4093,6 +4551,16 @@
         }
       }
     },
+    "OK": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OK"
+          }
+        }
+      }
+    },
     "Onglet": {
       "localizations": {
         "en": {
@@ -4343,6 +4811,16 @@
         }
       }
     },
+    "PDF fusionnés": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Merged PDFs"
+          }
+        }
+      }
+    },
     "Page précédente": {
       "localizations": {
         "en": {
@@ -4483,6 +4961,22 @@
         }
       }
     },
+    "Pivoter %@ de %lld°": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rotate %1$@ by %2$lld°"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Pivoter %1$@ de %2$lld°"
+          }
+        }
+      }
+    },
     "Placer dans la corbeille": {
       "localizations": {
         "en": {
@@ -4529,6 +5023,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Full Screen"
+          }
+        }
+      }
+    },
+    "Plein écran d'Apple (vidéo de Safari…)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apple full screen (Safari video…)"
           }
         }
       }
@@ -4753,6 +5257,16 @@
         }
       }
     },
+    "Quand une fenêtre passe dans un plein écran d'Apple (une vidéo de Safari, par exemple), macOS reprend le geste à quatre doigts et le carrousel de Side s'efface. Pour garder toujours le carrousel : Réglages du trackpad > Plus de gestes > « Balayer entre les apps en plein écran » sur trois doigts ou désactivé. Side le voit et prend alors le geste partout ; le plein écran d'Apple devient une carte du carrousel.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "When a window goes into an Apple full screen (a Safari video, for example), macOS takes back the four-finger gesture and Side's carousel steps aside. To always keep the carousel: Trackpad Settings > More Gestures > “Swipe between full-screen apps” on three fingers or off. Side notices and then takes the gesture everywhere; the Apple full screen becomes a card in the carousel."
+          }
+        }
+      }
+    },
     "Quatre doigts": {
       "extractionState": "stale",
       "localizations": {
@@ -4800,6 +5314,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Four fingers left or right to move from one work app to another."
+          }
+        }
+      }
+    },
+    "Que faire de ces fichiers ? (ex. : convertis en JPG)": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What should I do with these files? (e.g. convert to JPG)"
           }
         }
       }
@@ -5196,6 +5721,16 @@
         }
       }
     },
+    "Retirer le fond (%@, en PNG transparent)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove the background (%@, as transparent PNG)"
+          }
+        }
+      }
+    },
     "Revenir au dossier précédent": {
       "localizations": {
         "en": {
@@ -5276,6 +5811,22 @@
         }
       }
     },
+    "Réduire %@ à %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shrink %1$@ to %2$@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Réduire %1$@ à %2$@"
+          }
+        }
+      }
+    },
     "Réglages": {
       "localizations": {
         "en": {
@@ -5312,6 +5863,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Drawer Settings…"
+          }
+        }
+      }
+    },
+    "Réglages du trackpad…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trackpad Settings…"
           }
         }
       }
@@ -5372,6 +5933,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Shrink to show everything"
+          }
+        }
+      }
+    },
+    "Réunir les images en un seul PDF": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Combine the images into one PDF"
+          }
+        }
+      }
+    },
+    "Sans fond": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No background"
           }
         }
       }
@@ -5502,6 +6083,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Side restarts to change the language."
+          }
+        }
+      }
+    },
+    "Son": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Audio"
           }
         }
       }
@@ -5642,6 +6233,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Remove Download"
+          }
+        }
+      }
+    },
+    "Sélectionne des fichiers dans le Finder": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Select files in the Finder"
           }
         }
       }
@@ -6456,6 +7057,26 @@
         }
       }
     },
+    "convertis en JPG, réduis à 1080 px, enlève le fond…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "convert to JPG, shrink to 1080 px, remove the background…"
+          }
+        }
+      }
+    },
+    "convertis en MP4 720p, extrais le son…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "convert to MP4 720p, extract the audio…"
+          }
+        }
+      }
+    },
     "copie": {
       "localizations": {
         "en": {
@@ -6496,6 +7117,16 @@
         }
       }
     },
+    "fusionne, extrais le texte…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "merge, extract the text…"
+          }
+        }
+      }
+    },
     "https://…": {
       "localizations": {
         "en": {
@@ -6532,6 +7163,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "the %@ corner"
+          }
+        }
+      }
+    },
+    "le fichier": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "the file"
           }
         }
       }
@@ -6582,6 +7223,48 @@
           "stringUnit": {
             "state": "translated",
             "value": "up"
+          }
+        }
+      }
+    },
+    "zippe tout…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "zip everything…"
+          }
+        }
+      }
+    },
+    "« %@ » ne peut pas être moins haute : le tiroir s'arrête à %lld points": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“%1$@” can't be any shorter: the drawer stops at %2$lld points"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "new",
+            "value": "« %1$@ » ne peut pas être moins haute : le tiroir s'arrête à %2$lld points"
+          }
+        }
+      }
+    },
+    "« %@ » ne peut pas être moins large : le tiroir s'arrête à %lld points": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“%1$@” can't be any narrower: the drawer stops at %2$lld points"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "new",
+            "value": "« %1$@ » ne peut pas être moins large : le tiroir s'arrête à %2$lld points"
           }
         }
       }
@@ -6642,6 +7325,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Recently Played"
+          }
+        }
+      }
+    },
+    "Écris ce que tu veux faire des fichiers sélectionnés : « convertis en JPG », « réduis à 1080 px de haut », « zippe tout », « fusionne ces PDF », « enlève le fond »… Apple Intelligence comprend la demande, sur ton Mac, sans Internet. Les originaux ne sont jamais modifiés : le résultat est un nouveau fichier, à côté.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Type what you want to do with the selected files: “convert to JPG”, “shrink to 1080 px tall”, “zip everything”, “merge these PDFs”, “remove the background”… Apple Intelligence understands the request, on your Mac, without the Internet. The originals are never changed: the result is a new file, next to them."
           }
         }
       }

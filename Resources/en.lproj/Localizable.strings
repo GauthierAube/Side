@@ -12,20 +12,50 @@
 	<string>%lld</string>
 	<key>%lld %%</key>
 	<string>%lld%%</string>
+	<key>%lld PDF</key>
+	<string>%lld PDFs</string>
+	<key>%lld autres fichiers</key>
+	<string>%lld other files</string>
 	<key>%lld colonnes</key>
 	<string>%lld columns</string>
+	<key>%lld fichiers</key>
+	<string>%lld files</string>
 	<key>%lld fichiers : %@</key>
 	<string>%lld files: %@</string>
+	<key>%lld fichiers créés</key>
+	<string>%lld files created</string>
+	<key>%lld fichiers — par exemple : %@</key>
+	<string>%1$lld files — for example: %2$@</string>
+	<key>%lld images</key>
+	<string>%lld images</string>
+	<key>%lld px au plus grand côté</key>
+	<string>%lld px on the longest side</string>
+	<key>%lld px de haut</key>
+	<string>%lld px tall</string>
+	<key>%lld px de large</key>
+	<string>%lld px wide</string>
 	<key>%lld sur %lld</key>
 	<string>%lld of %lld</string>
+	<key>%lld vidéos</key>
+	<string>%lld videos</string>
 	<key>%lld éléments</key>
 	<string>%lld items</string>
 	<key>+ %lld %%</key>
 	<string>+%lld%%</string>
 	<key>, ou </key>
 	<string>, or </string>
+	<key>1 PDF</key>
+	<string>1 PDF</string>
+	<key>1 autre fichier</key>
+	<string>1 other file</string>
 	<key>1 colonne</key>
 	<string>1 column</string>
+	<key>1 fichier — par exemple : %@</key>
+	<string>1 file — for example: %@</string>
+	<key>1 image</key>
+	<string>1 image</string>
+	<key>1 vidéo</key>
+	<string>1 video</string>
 	<key>1 élément</key>
 	<string>1 item</string>
 	<key>1. Ouvrez le site développeur de Spotify et connectez-vous.
@@ -36,6 +66,8 @@
 2. “Create app”: any name, and under “Redirect URIs”: %@. Check “Web API”.
 3. Copy this app’s “Client ID” and paste it below.
 4. Click “Connect”, then “Agree” on the Spotify page that opens.</string>
+	<key>1080 px</key>
+	<string>1080 px</string>
 	<key>Accueil</key>
 	<string>Home</string>
 	<key>Accueil de YouTube</key>
@@ -138,6 +170,8 @@
 	<string>Appearance</string>
 	<key>Apparition après un geste vif</key>
 	<string>Delay after a quick swipe</string>
+	<key>Apple Intelligence cherche ce que tu veux faire…</key>
+	<string>Apple Intelligence is working out what you want…</string>
 	<key>Application compagne</key>
 	<string>Companion app</string>
 	<key>Applications</key>
@@ -154,6 +188,8 @@ It needs at least one of ⌃ ⌥ ⇧ or ⌘ (or a key from F1 to F20).
 Press Esc to cancel.</string>
 	<key>Après un geste vif, le carrousel apparaît…</key>
 	<string>After a quick swipe, the carousel appears…</string>
+	<key>Archive</key>
+	<string>Archive</string>
 	<key>Arrière-plan</key>
 	<string>Background</string>
 	<key>Artiste</key>
@@ -168,6 +204,8 @@ Press Esc to cancel.</string>
 	<string>When Side starts, show</string>
 	<key>Aucun</key>
 	<string>None</string>
+	<key>Aucun fichier sélectionné : sélectionne des fichiers dans le Finder</key>
+	<string>No file selected: select files in the Finder</string>
 	<key>Aucun lecteur : cette partie n'apparaît pas dans le tiroir.</key>
 	<string>No players: this part doesn’t appear in the drawer.</string>
 	<key>Aucun lien enregistré</key>
@@ -178,6 +216,8 @@ Press Esc to cancel.</string>
 	<string>No results</string>
 	<key>Aucun résultat pour « %@ ».</key>
 	<string>No results for “%@”.</string>
+	<key>Aucun sujet trouvé dans %@.</key>
+	<string>No subject found in %@.</string>
 	<key>Aucun élément</key>
 	<string>No items</string>
 	<key>Aucune</key>
@@ -204,6 +244,10 @@ Press Esc to cancel.</string>
 	<string>Skip forward 10 seconds</string>
 	<key>Bande</key>
 	<string>Strip</string>
+	<key>Barre de commande</key>
+	<string>Command bar</string>
+	<key>Barre de commande sous le Finder</key>
+	<string>Command bar under the Finder</string>
 	<key>Barre latérale et fichiers</key>
 	<string>Sidebar and Files</string>
 	<key>Bibliothèque</key>
@@ -238,6 +282,8 @@ Press Esc to cancel.</string>
 	<string>Circle</string>
 	<key>Ces applications restent à leur taille : elles ne remplissent jamais l'écran toutes seules.</key>
 	<string>These apps keep their size: they never fill the screen on their own.</string>
+	<key>Cette action ne s'applique pas aux fichiers sélectionnés.</key>
+	<string>This action doesn't apply to the selected files.</string>
 	<key>Changer d'avis</key>
 	<string>Change your mind</string>
 	<key>Changer de place</key>
@@ -298,6 +344,8 @@ Press Esc to cancel.</string>
 	<string>Grid Columns</string>
 	<key>Colonnes épinglées</key>
 	<string>Pinned columns</string>
+	<key>Compresser en une archive ZIP</key>
+	<string>Compress into a ZIP archive</string>
 	<key>Compresser « %@ »</key>
 	<string>Compress “%@”</string>
 	<key>Compris</key>
@@ -310,6 +358,14 @@ Press Esc to cancel.</string>
 	<string>Connected</string>
 	<key>Connexion réussie. Vous pouvez fermer cette page et revenir au panneau.</key>
 	<string>Connected. You can close this page and go back to the drawer.</string>
+	<key>Conversion impossible : %@</key>
+	<string>Couldn't convert %@</string>
+	<key>Convertir %@ en %@</key>
+	<string>Convert %1$@ to %2$@</string>
+	<key>Convertir %@ en MP4</key>
+	<string>Convert %@ to MP4</string>
+	<key>Convertir %@ en MP4 %lldp</key>
+	<string>Convert %1$@ to MP4 %2$lldp</string>
 	<key>Copier</key>
 	<string>Copy</string>
 	<key>Copier l'adresse de redirection</key>
@@ -440,6 +496,10 @@ Press Esc to cancel.</string>
 	<string>Space: Quick Look</string>
 	<key>Espacement de la grille</key>
 	<string>Grid spacing</string>
+	<key>Extraire le son (%@) en M4A</key>
+	<string>Extract the audio (%@) as M4A</string>
+	<key>Extraire le texte (%@) dans un fichier texte</key>
+	<string>Extract the text (%@) into a text file</string>
 	<key>Faible</key>
 	<string>Low</string>
 	<key>Faire un cercle</key>
@@ -468,6 +528,8 @@ Press Esc to cancel.</string>
 	<string>Closing</string>
 	<key>Fichier</key>
 	<string>File</string>
+	<key>Fichier créé : %@</key>
+	<string>File created: %@</string>
 	<key>Fichiers récents</key>
 	<string>Recent Files</string>
 	<key>Finder</key>
@@ -480,6 +542,10 @@ Press Esc to cancel.</string>
 	<string>Background Behind Tiles</string>
 	<key>Forme</key>
 	<string>Shape</string>
+	<key>Fusionner</key>
+	<string>Merge</string>
+	<key>Fusionner les PDF en un seul</key>
+	<string>Merge the PDFs into one</string>
 	<key>Garder dans le mini-Dock</key>
 	<string>Keep in Mini Dock</string>
 	<key>Garder dans les liens…</key>
@@ -554,6 +620,10 @@ Press Esc to cancel.</string>
 	<string>It opens from a hot corner (bottom right by default) or with its keyboard shortcut: see Hot Corners and Keyboard Shortcuts.</string>
 	<key>Image</key>
 	<string>Image</string>
+	<key>Image illisible : %@</key>
+	<string>Unreadable image: %@</string>
+	<key>Images réunies</key>
+	<string>Combined images</string>
 	<key>Impossible d'afficher les informations</key>
 	<string>Couldn't Show Info</string>
 	<key>Impossible d'écrire dans iCloud Drive.</key>
@@ -562,12 +632,16 @@ Press Esc to cancel.</string>
 	<string>Some items couldn't be pasted</string>
 	<key>Impossible de compresser « %@ »</key>
 	<string>Couldn't Compress “%@”</string>
+	<key>Impossible de créer le PDF.</key>
+	<string>Couldn't create the PDF.</string>
 	<key>Impossible de créer le dossier</key>
 	<string>The folder couldn't be created</string>
 	<key>Impossible de créer un alias de « %@ »</key>
 	<string>Couldn't Make an Alias of “%@”</string>
 	<key>Impossible de dupliquer « %@ »</key>
 	<string>Couldn't Duplicate “%@”</string>
+	<key>Impossible de fusionner ces PDF.</key>
+	<string>Couldn't merge these PDFs.</string>
 	<key>Impossible de libérer « %@ »</key>
 	<string>Couldn't Remove the Download of “%@”</string>
 	<key>Impossible de modifier l'ouverture automatique</key>
@@ -602,10 +676,16 @@ Press Esc to cancel.</string>
 	<string>Never fill the screen</string>
 	<key>Jaune : au tiroir</key>
 	<string>Yellow: to the drawer</string>
+	<key>Je n'ai pas compris. Essaie avec un mot simple : jpg, png, zip, mp4, pdf, texte, fond…</key>
+	<string>I didn't understand. Try a simple word: jpg, png, zip, mp4, pdf, text, background…</string>
+	<key>Je ne sais pas encore faire ça. Essaie : convertir, réduire, pivoter, retirer le fond, fusionner, extraire le texte, zipper, MP4, son.</key>
+	<string>I can't do that yet. Try: convert, shrink, rotate, remove the background, merge, extract the text, zip, MP4, audio.</string>
 	<key>L'aperçu montre l'image et le titre du site : pour cela, Side contacte le site du lien, seulement quand le volet l'affiche. La présentation vaut pour le presse-papiers comme pour l'onglet « Enregistrés ». Les liens enregistrés restent sur ce Mac.</key>
 	<string>The preview shows the site's image and title: to do this, Side contacts the link's website, only when the panel shows it. The appearance applies to both the clipboard and the Saved tab. Saved links stay on this Mac.</string>
 	<key>L'historique du copier-coller est désactivé dans les réglages de Side.</key>
 	<string>Clipboard history is turned off in Side's settings.</string>
+	<key>L'opération a échoué.</key>
+	<string>The operation failed.</string>
 	<key>L'écran derrière la carte s'estompe en fondu. On peut toujours cliquer et glisser des fichiers au travers.</key>
 	<string>The screen behind the card fades out. You can still click and drag files through it.</string>
 	<key>L'élément qu'elle contient sera supprimé définitivement. Cette action est irréversible.</key>
@@ -644,6 +724,8 @@ Press Esc to cancel.</string>
 	<string>The Drop Zone</string>
 	<key>Laisser les dossiers en haut lors du tri par nom</key>
 	<string>Keep folders on top when sorting by name</string>
+	<key>Lancer</key>
+	<string>Run</string>
 	<key>Lancer « %@ ». Dépose un fichier pour le lui passer.</key>
 	<string>Run “%@”. Drop a file to pass it along.</string>
 	<key>Langue</key>
@@ -720,6 +802,10 @@ Press Esc to cancel.</string>
 	<string>The drawer comes in from the top of the screen, opposite the Finder: four fingers %@ open it, the other way closes it. It follows your fingers.</string>
 	<key>Le tiroir montre une seule application ; prolonge le geste à quatre doigts pour passer aux autres.</key>
 	<string>The drawer shows a single app; keep the four-finger swipe going to move to the others.</string>
+	<key>Le tiroir ne descend pas sous %lld points de haut</key>
+	<string>The drawer doesn't go below %lld points tall</string>
+	<key>Le tiroir ne se réduit pas sous %lld points de large</key>
+	<string>The drawer doesn't get narrower than %lld points</string>
 	<key>Le tiroir prend toujours le bord opposé au Finder : du haut quand le Finder vient du bas, du bas dans tous les autres cas. Le geste à quatre doigts s'inverse avec lui.</key>
 	<string>The drawer always takes the edge opposite the Finder: from the top when the Finder comes from the bottom, from the bottom in all other cases. The four-finger gesture flips with it.</string>
 	<key>Le tiroir, second panneau de Side.</key>
@@ -752,6 +838,8 @@ Press Esc to cancel.</string>
 	<string>Both</string>
 	<key>Les en sortir</key>
 	<string>Take Them Out</string>
+	<key>Les originaux ne sont pas touchés : le résultat est un nouveau fichier, à côté.</key>
+	<string>The originals aren't touched: the result is a new file, next to them.</string>
 	<key>Les parties de Side</key>
 	<string>The parts of Side</string>
 	<key>Les petites applications et la musique, une à la fois.</key>
@@ -824,6 +912,8 @@ Press Esc to cancel.</string>
 	<string>New Tab (⌘T)</string>
 	<key>Nouvelles fenêtres</key>
 	<string>New Windows</string>
+	<key>OK</key>
+	<string>OK</string>
 	<key>Onglet</key>
 	<string>Tab</string>
 	<key>Opacité</key>
@@ -874,6 +964,8 @@ Press Esc to cancel.</string>
 	<string>Open Trackpad Settings</string>
 	<key>Ouvrir à l'ouverture de session</key>
 	<string>Open at Login</string>
+	<key>PDF fusionnés</key>
+	<string>Merged PDFs</string>
 	<key>Page précédente</key>
 	<string>Previous page</string>
 	<key>Pages</key>
@@ -902,6 +994,8 @@ Press Esc to cancel.</string>
 	<string>Small</string>
 	<key>Petite image</key>
 	<string>Small Image</string>
+	<key>Pivoter %@ de %lld°</key>
+	<string>Rotate %1$@ by %2$lld°</string>
 	<key>Placer dans la corbeille</key>
 	<string>Move to Trash</string>
 	<key>Placer les %lld éléments dans la corbeille</key>
@@ -912,6 +1006,8 @@ Press Esc to cancel.</string>
 	<string>Playlists</string>
 	<key>Plein écran</key>
 	<string>Full Screen</string>
+	<key>Plein écran d'Apple (vidéo de Safari…)</key>
+	<string>Apple full screen (Safari video…)</string>
 	<key>Plein écran d'Apple : macOS empêche d'y afficher les tuiles.</key>
 	<string>macOS full screen: macOS doesn’t allow the tiles to show here.</string>
 	<key>Plus tard</key>
@@ -956,6 +1052,8 @@ Press Esc to cancel.</string>
 	<string>When space runs out</string>
 	<key>Quand le Finder de Side se referme.</key>
 	<string>When Side's Finder closes.</string>
+	<key>Quand une fenêtre passe dans un plein écran d'Apple (une vidéo de Safari, par exemple), macOS reprend le geste à quatre doigts et le carrousel de Side s'efface. Pour garder toujours le carrousel : Réglages du trackpad &gt; Plus de gestes &gt; « Balayer entre les apps en plein écran » sur trois doigts ou désactivé. Side le voit et prend alors le geste partout ; le plein écran d'Apple devient une carte du carrousel.</key>
+	<string>When a window goes into an Apple full screen (a Safari video, for example), macOS takes back the four-finger gesture and Side's carousel steps aside. To always keep the carousel: Trackpad Settings &gt; More Gestures &gt; “Swipe between full-screen apps” on three fingers or off. Side notices and then takes the gesture everywhere; the Apple full screen becomes a card in the carousel.</string>
 	<key>Quatre doigts</key>
 	<string>Four Fingers</string>
 	<key>Quatre doigts %@</key>
@@ -966,6 +1064,8 @@ Press Esc to cancel.</string>
 	<string>Four fingers left or right</string>
 	<key>Quatre doigts vers la gauche ou la droite, pour passer d'une application de travail à l'autre.</key>
 	<string>Four fingers left or right to move from one work app to another.</string>
+	<key>Que faire de ces fichiers ? (ex. : convertis en JPG)</key>
+	<string>What should I do with these files? (e.g. convert to JPG)</string>
 	<key>Quitter %@</key>
 	<string>Quit %@</string>
 	<key>Quitter Side</key>
@@ -1044,6 +1144,8 @@ Press Esc to cancel.</string>
 	<string>Remove from Mini Dock</string>
 	<key>Retirer du tiroir</key>
 	<string>Remove from Drawer</string>
+	<key>Retirer le fond (%@, en PNG transparent)</key>
+	<string>Remove the background (%@, as transparent PNG)</string>
 	<key>Revenir au dossier précédent</key>
 	<string>Go back to the previous folder</string>
 	<key>Revoir la présentation</key>
@@ -1060,6 +1162,8 @@ Press Esc to cancel.</string>
 	<string>Endless wheel: the cards turn as in the drawer, and after the last app comes the first again. Strip: the cards in a row, which stop at both ends. While you adjust the size, the real carousel appears in the middle of the screen. Appearance: shorter, the carousel comes sooner but a mere flick may show it; longer, the opposite.</string>
 	<key>Récents</key>
 	<string>Recents</string>
+	<key>Réduire %@ à %@</key>
+	<string>Shrink %1$@ to %2$@</string>
 	<key>Réglages</key>
 	<string>Settings</string>
 	<key>Réglages : icône Side, barre des menus</key>
@@ -1068,6 +1172,8 @@ Press Esc to cancel.</string>
 	<string>Side Settings</string>
 	<key>Réglages du tiroir…</key>
 	<string>Drawer Settings…</string>
+	<key>Réglages du trackpad…</key>
+	<string>Trackpad Settings…</string>
 	<key>Réglages…</key>
 	<string>Settings…</string>
 	<key>Régler les coins actifs…</key>
@@ -1080,6 +1186,10 @@ Press Esc to cancel.</string>
 	<string>Redo</string>
 	<key>Rétrécir pour tout afficher</key>
 	<string>Shrink to show everything</string>
+	<key>Réunir les images en un seul PDF</key>
+	<string>Combine the images into one PDF</string>
+	<key>Sans fond</key>
+	<string>No background</string>
 	<key>Sans image</key>
 	<string>No Image</string>
 	<key>Se connecter</key>
@@ -1106,6 +1216,8 @@ Press Esc to cancel.</string>
 	<string>Side Isn't Allowed to Read the Trash</string>
 	<key>Side redémarre pour changer de langue.</key>
 	<string>Side restarts to change the language.</string>
+	<key>Son</key>
+	<string>Audio</string>
 	<key>Sortir du tiroir</key>
 	<string>Take out of the drawer</string>
 	<key>Souris : ouvrir le Finder</key>
@@ -1134,6 +1246,8 @@ Press Esc to cancel.</string>
 	<string>Remove from History</string>
 	<key>Supprimer le téléchargement</key>
 	<string>Remove Download</string>
+	<key>Sélectionne des fichiers dans le Finder</key>
+	<string>Select files in the Finder</string>
 	<key>Tags</key>
 	<string>Tags</string>
 	<key>Taille</key>
@@ -1296,6 +1410,10 @@ Press Esc to cancel.</string>
 	<string>Zones shown</string>
 	<key>Zones de dépôt</key>
 	<string>Drop Zones</string>
+	<key>convertis en JPG, réduis à 1080 px, enlève le fond…</key>
+	<string>convert to JPG, shrink to 1080 px, remove the background…</string>
+	<key>convertis en MP4 720p, extrais le son…</key>
+	<string>convert to MP4 720p, extract the audio…</string>
 	<key>copie</key>
 	<string>copy</string>
 	<key>dossier sans titre</key>
@@ -1304,6 +1422,8 @@ Press Esc to cancel.</string>
 	<string>off</string>
 	<key>et %lld de plus</key>
 	<string>and %lld more</string>
+	<key>fusionne, extrais le texte…</key>
+	<string>merge, extract the text…</string>
 	<key>https://…</key>
 	<string>https://…</string>
 	<key>iCloud Drive n'est pas activé sur ce Mac.</key>
@@ -1312,6 +1432,8 @@ Press Esc to cancel.</string>
 	<string>the app</string>
 	<key>le coin %@</key>
 	<string>the %@ corner</string>
+	<key>le fichier</key>
+	<string>the file</string>
 	<key>macOS réserve le contenu de la corbeille aux applications qui ont l'« Accès complet au disque ». Ouvre le réglage, active Side dans la liste, puis relance Side : la corbeille s'affichera dans la carte.</key>
 	<string>macOS only lets apps with Full Disk Access see what's in the Trash. Open the setting, turn on Side in the list, then reopen Side: the Trash will show in the card.</string>
 	<key>pas de réponse</key>
@@ -1322,6 +1444,12 @@ Press Esc to cancel.</string>
 	<string>down</string>
 	<key>vers le haut</key>
 	<string>up</string>
+	<key>zippe tout…</key>
+	<string>zip everything…</string>
+	<key>« %@ » ne peut pas être moins haute : le tiroir s'arrête à %lld points</key>
+	<string>“%1$@” can't be any shorter: the drawer stops at %2$lld points</string>
+	<key>« %@ » ne peut pas être moins large : le tiroir s'arrête à %lld points</key>
+	<string>“%1$@” can't be any narrower: the drawer stops at %2$lld points</string>
 	<key>À droite</key>
 	<string>Right</string>
 	<key>À gauche</key>
@@ -1334,6 +1462,8 @@ Press Esc to cancel.</string>
 	<string>Use only if some windows are still in macOS full screen: they leave it and fill the screen instead.</string>
 	<key>Écoutés récemment</key>
 	<string>Recently Played</string>
+	<key>Écris ce que tu veux faire des fichiers sélectionnés : « convertis en JPG », « réduis à 1080 px de haut », « zippe tout », « fusionne ces PDF », « enlève le fond »… Apple Intelligence comprend la demande, sur ton Mac, sans Internet. Les originaux ne sont jamais modifiés : le résultat est un nouveau fichier, à côté.</key>
+	<string>Type what you want to do with the selected files: “convert to JPG”, “shrink to 1080 px tall”, “zip everything”, “merge these PDFs”, “remove the background”… Apple Intelligence understands the request, on your Mac, without the Internet. The originals are never changed: the result is a new file, next to them.</string>
 	<key>Édition</key>
 	<string>Edit</string>
 	<key>Élargir ou rétrécir le lecteur</key>

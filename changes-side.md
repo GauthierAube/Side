@@ -6,7 +6,32 @@ Il est mis à jour à chaque modification, en même temps que le code.
 ---
 
 
+## 14/11/2026
+
+### Tiroir : tailles minimum fiables, pastille d'explication, réglages des applications
+- La pastille nomme aussi l'application qui impose sa taille quand ce n'est pas celle qu'on regarde (DeepL, par exemple, quand on réduit le tiroir avec Réglages Système affiché) : le tiroir revient à sa taille, et on sait pourquoi.
+- Une taille minimum n'est plus retenue pour une application qu'après vérification : redemandée à sa place, elle dépasse encore une demi-seconde plus tard. (Une application qui n'avait simplement pas encore suivi faisait retenir une taille trop grande, et le tiroir regrandissait ensuite tout seul.)
+- Quand on essaie de réduire le tiroir plus que ce qu'une application accepte, une pastille monte du bas de l'écran, comme dans Horizon : « « Notes » ne peut pas être moins haute : le tiroir s'arrête à 680 points ». Elle explique aussi la limite propre au tiroir.
+- Les réglages d'une application du tiroir (et ses autres fenêtres secondaires) s'ouvrent par-dessus, normalement : ils ne prennent plus la place de sa fenêtre dans le tiroir.
+
 ## 13/11/2026
+
+### Vidéo et plein écran
+- Carrousel vers ou depuis un plein écran d'Apple (vidéo de Safari) : la carte ne grandit plus jusqu'à sa place pendant que macOS fait glisser l'écran d'un espace à l'autre (deux mouvements à la fois, ça sautait) ; le carrousel s'efface simplement et laisse macOS faire sa transition.
+- La vidéo du tiroir en plein écran ne revient plus d'elle-même dans le tiroir quand on passe à une autre application (YouTube quittait son plein écran dès que la page n'était plus visible). Seuls le bouton du lecteur, la touche f, le double-clic, Échap ou un changement de page la ramènent.
+- Aller à la vidéo par le carrousel ou la grille : Side passe devant par ses propres moyens (l'application d'avant revenait devant au bout d'une seconde).
+- Quatre doigts : si le balayage de macOS entre les plein écran d'Apple est coupé (Réglages du trackpad), Side prend toujours le geste, même quand une vidéo de Safari est dans un plein écran d'Apple ; il devient une carte du carrousel. Les réglages du carrousel l'expliquent, avec un bouton vers les réglages du trackpad.
+
+### Finder : la barre de commande (comme Substage)
+- Une pilule d'une seule ligne (38 points de haut). Sans sélection, elle dit « Aucun fichier sélectionné : sélectionne des fichiers dans le Finder » ; avec une sélection, elle donne le nombre de fichiers et un exemple qui leur va, et propose ses actions rapides sur la même ligne. Elle ne s'agrandit que pour une proposition, un résultat ou une erreur. En français et en anglais.
+- La barre descend et remonte avec le Finder, dans la même animation que lui, exactement comme la zone de dépôt. Ouvert ou fermé aux quatre doigts, elle suit les doigts avec lui (elle apparaissait seule, au milieu de l'écran, pendant que le Finder suivait encore les doigts).
+- Sous le Finder de Side, une barre où l'on écrit ce qu'on veut faire des fichiers sélectionnés : « convertis en JPG », « réduis à 1080 px de haut », « tourne vers la gauche », « enlève le fond », « fais-en un PDF », « fusionne ces PDF », « extrais le texte », « zippe tout », « convertis en MP4 720p », « extrais le son ».
+- Les mots simples (jpg, zip, mp4…) sont compris tout de suite ; le reste par Apple Intelligence, sur le Mac, sans Internet ni compte. Des boutons rapides proposent les actions qui vont avec la sélection.
+- Sécurité : la barre choisit une action dans une liste connue (jamais une commande inventée), montre ce qu'elle va faire et attend Entrée. Les originaux ne sont jamais modifiés : le résultat est un nouveau fichier, à côté.
+- Réglages > Finder > Barre latérale et fichiers : la barre peut être masquée.
+
+### Tiroir : les liens extérieurs de YouTube s'ouvrent dans le navigateur
+- Un lien dans la description d'une vidéo YouTube (qui passe par « youtube.com/redirect ») s'ouvrait dans la tuile multimédia. Il s'ouvre maintenant dans le navigateur par défaut, comme tout lien qui mènerait la tuile hors de YouTube.
 
 ### Finder : Imprimer
 - Clic droit sur un fichier : « Imprimer » le confie à son application pour l'imprimer, comme Fichier > Imprimer dans le Finder. Avec plusieurs fichiers sélectionnés, ils sont tous imprimés.
@@ -19,6 +44,8 @@ Il est mis à jour à chaque modification, en même temps que le code.
 - Chaque partie a sa couleur et son symbole : Finder en bleu, plein écran en orange, tiroir en rose, presse-papiers en jaune. La barre latérale des réglages en reprend la couleur pour tous ses volets, et chaque volet affiche en tête la partie où l'on est (avec « désactivé » et un bouton « Activer » si elle est coupée).
 
 ### Tiroir : redimensionnement en direct
+- Le tiroir ne regrandit plus une seconde après qu'on l'a réduit : une hauteur minimum retenue trop grande pour une application (Notes, 680 points) l'en empêchait. Quand l'application se laisse rendre plus petite, la taille retenue est corrigée ; les anciennes tailles retenues ont été effacées.
+- **macOS 27.2** : le Centre de notifications garde désormais une fenêtre transparente sur tout l'écran. Side la prenait pour une fenêtre posée sur le tiroir, et ses bords ne se laissaient plus attraper. Elle est ignorée : on peut de nouveau changer la hauteur et la largeur du tiroir.
 - Une application à largeur fixe mais à hauteur libre (Réglages Système) prend maintenant toute la hauteur du tiroir, et se redimensionne en hauteur avec lui : la taille fixe est retenue dimension par dimension.
 - **Le relais** : attraper un bord du tiroir (haut, gauche, droite) revient à attraper le bord de la fenêtre de l'application affichée. C'est l'application qui se redimensionne elle-même, comme partout sur le Mac, et le tiroir (coin multimédia, barre d'icônes) ne fait que la suivre ; au lâcher, il se recentre. Les applications à taille fixe gardent l'ancien redimensionnement.
 - Après un redimensionnement rapide, une application occupée pouvait ignorer sa nouvelle taille (seul le coin multimédia suivait) : sa place est revérifiée juste après, et corrigée.

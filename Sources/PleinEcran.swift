@@ -366,6 +366,17 @@ enum Bascule {
         let el = AX.fenetre(pid: f.pid, wid: f.wid)
         journal("Square: vers %@ (fenêtre %d), accessibilité=%d, trouvée=%d", f.app, Int(f.wid), AXIsProcessTrusted() ? 1 : 0, el != nil ? 1 : 0)
         if app.isHidden { app.unhide() }
+        // Une fenêtre de Side elle-même (la vidéo du tiroir en plein écran) : Side passe devant par ses propres moyens.
+        // (Demander à macOS d'« activer » Side comme une autre application ne marche pas toujours : on voyait la vidéo
+        // une seconde, puis l'application d'avant revenait devant.)
+        if f.pid == ProcessInfo.processInfo.processIdentifier {
+            NSApp.activate(ignoringOtherApps: true)
+            if let w = NSApp.window(withWindowNumber: Int(f.wid)) {
+                w.makeKeyAndOrderFront(nil)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) { if !w.isKeyWindow { NSApp.activate(ignoringOtherApps: true); w.makeKeyAndOrderFront(nil) } }
+            }
+            return
+        }
         // Une fenêtre qui partage l'écran avec d'autres les amène devant avec elle.
         Groupes.monterLeGroupe(de: f) {
             if let el { AX.lever(el) }
@@ -1685,6 +1696,10 @@ final class Appli: NSObject, NSApplicationDelegate, NSMenuDelegate {
         case "suivante": voisine(1)
         case "precedente": voisine(-1)
         case "agrandir": Agrandir.fenetreActive()
+        case "aller-side":                                // pour les essais : aller à la fenêtre de Side (la vidéo), comme le carrousel
+            let (tous, _) = Relevé.tout()
+            if let t = construire(tous).first(where: { $0.pid == ProcessInfo.processInfo.processIdentifier }) { Bascule.aller(t, espaces: tous) }
+            else { journal("Square: aller-side — pas de fenêtre de Side dans les cases") }
         default:
             // Le carrousel mené de l'extérieur (bouton de pouce de la souris tenu pendant qu'on la déplace, ou molette du pouce) :
             // « carrousel:debut », « carrousel:suivre:<position> », « carrousel:fin:<position> », « carrousel:cran:<±1> ».
@@ -1846,7 +1861,7 @@ final class Appli: NSObject, NSApplicationDelegate, NSMenuDelegate {
         let (tous, courants) = Relevé.tout()
         let id = Ecrans.identifiant(ecran)
         // Avec plusieurs bureaux sur l'écran, c'est macOS qui glisse d'un bureau à l'autre : on ne s'en mêle pas.
-        guard tous.filter({ $0.ecran == id }).count == 1 || UserDefaults.standard.bool(forKey: "glisseToujours") else { return }
+        guard tous.filter({ $0.ecran == id }).count == 1 || UserDefaults.standard.bool(forKey: "glisseToujours") || Glisse.systemeLibre else { return }
         let apps = construire(tous).filter { if case .espace(let e) = $0.cible { return e.pleinEcran }; return true }
         guard apps.count > 1 else { return }
         espaces = tous
@@ -1879,7 +1894,14 @@ final class Appli: NSObject, NSApplicationDelegate, NSMenuDelegate {
         guard !carrouselApps.isEmpty else { return }
         var cible = carrouselRang(carrouselPosition(q))
         if cible == carrouselDepart, abs(q) > 0.22, abs(q) < 0.5 { cible = carrouselRang(CGFloat(carrouselDepart + (q > 0 ? 1 : -1))) }
-        Carrousel.commun.fermer(sur: cible)
+        // La case choisie est dans un autre espace que l'écran actuel (une vidéo de Safari dans un plein écran d'Apple, ou
+        // l'inverse) : macOS va faire glisser tout l'écran d'un espace à l'autre. La carte ne grandit pas en plus jusqu'à
+        // une place qui va de toute façon partir de côté (deux mouvements à la fois, ça saute) : le carrousel s'efface seul.
+        let autreEspace: Bool = {
+            guard carrouselApps.indices.contains(cible), let e = Bascule.espaceVise(carrouselApps[cible], espaces: espaces) else { return false }
+            return Relevé.espaceCourant(ecran: e.ecran) != e.id
+        }()
+        if autreEspace, cible != carrouselDepart { Carrousel.commun.masquer() } else { Carrousel.commun.fermer(sur: cible) }
         let apps = carrouselApps
         carrouselApps = []
         guard cible != carrouselDepart else { return }
@@ -1893,7 +1915,7 @@ final class Appli: NSObject, NSApplicationDelegate, NSMenuDelegate {
         guard panneau?.isVisible != true, !CaptureEcran.enCours else { return }
         let (espaces, courants) = Relevé.tout()
         let ecran = Ecrans.identifiant(ecranSousLaSouris())
-        guard espaces.filter({ $0.ecran == ecran }).count == 1 || UserDefaults.standard.bool(forKey: "glisseToujours") else { return }
+        guard espaces.filter({ $0.ecran == ecran }).count == 1 || UserDefaults.standard.bool(forKey: "glisseToujours") || Glisse.systemeLibre else { return }
         let apps = construire(espaces).filter { if case .espace(let e) = $0.cible { return e.pleinEcran }; return true }
         guard apps.count > 1 else { return }
         let ici = cléCourante(espaces, courants, ecran: ecran)

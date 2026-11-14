@@ -4718,6 +4718,11 @@ struct ReglagesView: View {
             }
         case .fichiers:
             Section {
+                Toggle("Barre de commande sous le Finder", isOn: Binding(get: { BarreCommande.active }, set: { BarreCommande.active = $0 }))
+            } header: { Text("Barre de commande") } footer: {
+                note("Écris ce que tu veux faire des fichiers sélectionnés : « convertis en JPG », « réduis à 1080 px de haut », « zippe tout », « fusionne ces PDF », « enlève le fond »… Apple Intelligence comprend la demande, sur ton Mac, sans Internet. Les originaux ne sont jamais modifiés : le résultat est un nouveau fichier, à côté.")
+            }
+            Section {
                 entree(String(localized: "Fichiers récents"), "clock", "recents")
                 entree(String(localized: "Dossiers récents"), "clock.arrow.circlepath", "dossiers")
                 entree("iCloud Drive", "icloud", "icloud")
@@ -4947,6 +4952,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
     private func surSide(_ p: NSPoint) -> Bool {
         if cadreSeule.contains(p) { return true }
         if let zone = cadreDepot, zone.contains(p) { return true }     // la zone de dépôt fait partie de Side
+        if let barre = BarreCommande.commun.cadre, barre.insetBy(dx: -6, dy: -6).contains(p) { return true }   // la barre de commande aussi
         for v in reperes.allObjects {
             guard let w = v.window, w.isVisible, !v.isHiddenOrHasHiddenAncestor else { continue }
             if w.convertToScreen(v.convert(v.bounds, to: nil)).insetBy(dx: -6, dy: -6).contains(p) { return true }
@@ -4973,7 +4979,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
     private var apercus: [URL] = []                   // les fichiers proposés dans l'aperçu
     private var apercuOuvert = false
     private var appAvantApercu: NSRunningApplication?   // l'app qui avait la main avant l'aperçu
-    private var visible = false
+    private var visible = false {
+        didSet {
+            guard visible != oldValue else { return }
+            // La barre de commande arrive et repart avec le Finder, dans le même mouvement (voir show et hide).
+            // Fermeture immédiate (sans animation) : elle disparaît tout de suite.
+            if !visible { DispatchQueue.main.async { [weak self] in if self?.visible == false { BarreCommande.commun.cacherSiImmobile() } } }
+        }
+    }
+    /// Le cadre du Finder de Side à l'écran (pour la barre de commande).
+    var cadreFinder: NSRect { cadreSeule }
+    /// Où en est la carte de son glissement, à l'instant même (ce qu'on voit à l'écran) : son écart à sa place, et
+    /// l'écart total du trajet. La barre de commande s'y cale image par image, pour arriver et repartir collée à elle.
     private var epingle = false            // reste ouvert (test ou clic dans la barre des menus)
     /// Mode test (argument --show) : garde la carte ouverte pour une capture d'écran.
     /// Il ne dure que 8 secondes, pour ne jamais bloquer les fermetures pendant qu'on utilise l'app.
@@ -6995,6 +7012,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
     private var captureJusqua: TimeInterval = 0
     private var captureVisible: Bool { ProcessInfo.processInfo.systemUptime < captureJusqua }
     private var zoneSuivie: NSRect?   // place finale de la zone de dépôt quand elle suit les doigts avec la carte
+    private var barreSuivie: (panneau: NSPanel, arrivee: NSRect)?   // la barre de commande, qui suit les doigts de la même façon
 
     /// Durée et courbe pour finir un trajet en partant à la vitesse donnée (fraction du trajet par seconde),
     /// puis en ralentissant jusqu'à l'arrêt. La pente de départ de la courbe = la vitesse des doigts.
@@ -7021,6 +7039,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
                 zoneSuivie = zone.frame
                 animationDepot = true
             }
+            if let b = BarreCommande.commun.preparerDepart() { barreSuivie = (b, b.frame) }
             return
         }
         guard !visible, let e = ecranSous(NSEvent.mouseLocation) else { return }
@@ -7047,6 +7066,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
             zone.setFrameOrigin(NSPoint(x: r.minX + (a.x - b.x) * (1 - q), y: r.minY + (a.y - b.y) * (1 - q)))
             zone.alphaValue = panel.alphaValue
         }
+        // La barre de commande, pareil : décalée exactement comme la carte, avec la même transparence.
+        if let barre = barreSuivie {
+            let r = barre.arrivee
+            barre.panneau.setFrameOrigin(NSPoint(x: r.minX + (a.x - b.x) * (1 - q), y: r.minY + (a.y - b.y) * (1 - q)))
+            barre.panneau.alphaValue = panel.alphaValue
+        }
         let maintenant = ProcessInfo.processInfo.systemUptime
         if maintenant - ombreSuivi > 0.05 { ombreSuivi = maintenant; panel.invalidateShadow() }
     }
@@ -7063,12 +7088,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         let suite = AppDelegate.elan(reste: reste, vitesse: vers)
         let zoneArrivee = zoneSuivie
         zoneSuivie = nil
+        let barre = barreSuivie
+        barreSuivie = nil
         guard ouvrir else { hide(suite: suite); return }
         NSAnimationContext.runAnimationGroup({ ctx in
             ctx.duration = suite.duree
             ctx.timingFunction = suite.courbe
             host.animator().setFrameOrigin(repos)
             panel.animator().alphaValue = 1
+            if let barre {
+                barre.panneau.animator().setFrame(barre.arrivee, display: true)
+                barre.panneau.animator().alphaValue = 1
+            }
             if let r = zoneArrivee, let zone = depotPanel {
                 zone.animator().setFrame(r, display: true)
                 zone.animator().alphaValue = 1
@@ -7076,6 +7107,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         }, completionHandler: { [weak self] in
             guard let self else { return }
             self.panel.invalidateShadow()
+            if barre != nil { BarreCommande.commun.arrivee() }
             if zoneArrivee != nil {
                 self.animationDepot = false
                 self.depotPanel?.invalidateShadow()
@@ -7331,19 +7363,29 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         Doigts.carteOuverte = true
         if suivi {   // ce sont les doigts qui font avancer la carte, et la zone de dépôt avec elle
             zoneSuivie = arrivee
+            // La barre de commande suit les doigts avec la carte, comme la zone de dépôt.
+            barreSuivie = BarreCommande.commun.preparerArrivee(decalage: NSPoint(x: host.frame.origin.x - repos.x, y: host.frame.origin.y - repos.y))
             return
         }
-        NSAnimationContext.runAnimationGroup { ctx in
+        // La barre de commande fait le même trajet que la carte : elle descend (ou monte) avec elle.
+        // La barre de commande, comme la zone de dépôt : elle part du même endroit que la carte, décalée d'autant,
+        // et fait le même trajet dans la même animation.
+        let barre = BarreCommande.commun.preparerArrivee(decalage: NSPoint(x: host.frame.origin.x - repos.x, y: host.frame.origin.y - repos.y))
+        NSAnimationContext.runAnimationGroup({ ctx in
             // Un vrai glissement depuis le bord : part avec élan, puis ralentit longuement pour se poser en douceur.
             ctx.duration = reduit ? 0.15 : 0.45
             ctx.timingFunction = CAMediaTimingFunction(controlPoints: 0.16, 1, 0.3, 1)
+            if let barre {
+                barre.panneau.animator().setFrame(barre.arrivee, display: true)
+                barre.panneau.animator().alphaValue = 1
+            }
             if let arrivee, let zone = depotPanel {
                 zone.animator().setFrame(arrivee, display: true)
                 zone.animator().alphaValue = 1
             }
             host.animator().setFrameOrigin(repos)
             panel.animator().alphaValue = 1
-        }
+        }, completionHandler: { if barre != nil { BarreCommande.commun.arrivee() } })
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in self?.panel.invalidateShadow() }
     }
 
@@ -7371,6 +7413,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         zoneSuivie = nil
         // La zone fait le même trajet que la carte, jusque derrière le bord : elles partent ensemble.
         let trajet = NSPoint(x: loin.x - host.frame.origin.x, y: loin.y - host.frame.origin.y)
+        // La barre de commande repart avec la carte, par le même chemin.
+        let barre = BarreCommande.commun.preparerDepart()
         NSAnimationContext.runAnimationGroup({ ctx in
             ctx.duration = reduit ? 0.12 : 0.26   // la fermeture est plus brève que l'ouverture
             ctx.timingFunction = CAMediaTimingFunction(controlPoints: 0.5, 0, 0.75, 0.4)
@@ -7378,6 +7422,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
             if let suite, glisse { ctx.duration = suite.duree; ctx.timingFunction = suite.courbe }
             if glisse { host.animator().setFrameOrigin(loin) }
             panel.animator().alphaValue = 0
+            // La barre de commande part avec la carte, par le même chemin, comme la zone de dépôt.
+            if let barre {
+                if glisse { barre.animator().setFrame(barre.frame.offsetBy(dx: trajet.x, dy: trajet.y), display: true) }
+                barre.animator().alphaValue = 0
+            }
             if ensemble, let zone {
                 if glisse {
                     zone.animator().setFrame(zone.frame.offsetBy(dx: trajet.x, dy: trajet.y), display: true)
@@ -7385,6 +7434,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
                 zone.animator().alphaValue = 0
             }
         }, completionHandler: { [weak self] in
+            if let barre, self?.visible != true { barre.orderOut(nil); barre.alphaValue = 1 }
+            BarreCommande.commun.departFini()
             guard let self else { return }
             if ensemble, let zone {
                 if !self.visible { zone.orderOut(nil) }
@@ -7569,7 +7620,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         // il se referme une fois que la souris y est entrée puis ressortie.
         guard config.fermerEnSortant else { debutDehors = nil; return }
         // La zone de dépôt, à côté du Finder, en fait partie : y aller ne compte pas comme une sortie.
-        let surLaZone = cadreDepot?.insetBy(dx: -24, dy: -24).contains(p) ?? false
+        let surLaZone = (cadreDepot?.insetBy(dx: -24, dy: -24).contains(p) ?? false)
+            || (BarreCommande.commun.cadre?.insetBy(dx: -24, dy: -24).contains(p) ?? false)
         if cadreCarte.insetBy(dx: -24, dy: -24).contains(p) || surLaZone || (config.presseDehors > 0 && surSide(p)) {
             debutDehors = nil
             if epingle && !modeTest { epingle = false }

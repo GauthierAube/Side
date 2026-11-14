@@ -25,6 +25,14 @@ enum Glisse {
         set { UserDefaults.standard.set(newValue, forKey: "glisseInverse") }
     }
     private static var demarre = false
+    /// Le balayage à quatre doigts de macOS entre les plein écran d'Apple est-il coupé (Réglages Système > Trackpad > Plus de
+    /// gestes) ? Alors Side prend toujours le geste, même quand une vidéo ou une app est dans un plein écran d'Apple :
+    /// elle apparaît comme une carte du carrousel, et le geste ne change plus de mode selon les fenêtres ouvertes.
+    static var systemeLibre: Bool {
+        func valeur(_ domaine: String) -> Int? { UserDefaults(suiteName: domaine)?.object(forKey: "TrackpadFourFingerHorizSwipeGesture") as? Int }
+        let v = [valeur("com.apple.AppleMultitouchTrackpad"), valeur("com.apple.driver.AppleBluetoothMultitouch.trackpad")].compactMap { $0 }
+        return !v.isEmpty && v.allSatisfy { $0 == 0 }
+    }
     private static var trackpads: [AnyObject] = []            // gardés, pour les relancer au réveil du Mac
     private static var depart: [Int32: (Float, Float)] = [:]   // où chaque doigt s'est posé
 

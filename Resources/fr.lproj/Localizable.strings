@@ -12,20 +12,50 @@
 	<string>%lld</string>
 	<key>%lld %%</key>
 	<string>%lld %%</string>
+	<key>%lld PDF</key>
+	<string>%lld PDF</string>
+	<key>%lld autres fichiers</key>
+	<string>%lld autres fichiers</string>
 	<key>%lld colonnes</key>
 	<string>%lld colonnes</string>
+	<key>%lld fichiers</key>
+	<string>%lld fichiers</string>
 	<key>%lld fichiers : %@</key>
 	<string>%lld fichiers : %@</string>
+	<key>%lld fichiers créés</key>
+	<string>%lld fichiers créés</string>
+	<key>%lld fichiers — par exemple : %@</key>
+	<string>%lld fichiers — par exemple : %@</string>
+	<key>%lld images</key>
+	<string>%lld images</string>
+	<key>%lld px au plus grand côté</key>
+	<string>%lld px au plus grand côté</string>
+	<key>%lld px de haut</key>
+	<string>%lld px de haut</string>
+	<key>%lld px de large</key>
+	<string>%lld px de large</string>
 	<key>%lld sur %lld</key>
 	<string>%lld sur %lld</string>
+	<key>%lld vidéos</key>
+	<string>%lld vidéos</string>
 	<key>%lld éléments</key>
 	<string>%lld éléments</string>
 	<key>+ %lld %%</key>
 	<string>+ %lld %%</string>
 	<key>, ou </key>
 	<string>, ou </string>
+	<key>1 PDF</key>
+	<string>1 PDF</string>
+	<key>1 autre fichier</key>
+	<string>1 autre fichier</string>
 	<key>1 colonne</key>
 	<string>1 colonne</string>
+	<key>1 fichier — par exemple : %@</key>
+	<string>1 fichier — par exemple : %@</string>
+	<key>1 image</key>
+	<string>1 image</string>
+	<key>1 vidéo</key>
+	<string>1 vidéo</string>
 	<key>1 élément</key>
 	<string>1 élément</string>
 	<key>1. Ouvrez le site développeur de Spotify et connectez-vous.
@@ -36,6 +66,8 @@
 2. « Create app » : un nom au choix, et dans « Redirect URIs » : %@. Cochez « Web API ».
 3. Copiez le « Client ID » de cette app et collez-le ci-dessous.
 4. « Se connecter », puis « Accepter » dans la page Spotify qui s'ouvre.</string>
+	<key>1080 px</key>
+	<string>1080 px</string>
 	<key>Accueil</key>
 	<string>Accueil</string>
 	<key>Accueil de YouTube</key>
@@ -138,6 +170,8 @@
 	<string>Apparence</string>
 	<key>Apparition après un geste vif</key>
 	<string>Apparition après un geste vif</string>
+	<key>Apple Intelligence cherche ce que tu veux faire…</key>
+	<string>Apple Intelligence cherche ce que tu veux faire…</string>
 	<key>Application compagne</key>
 	<string>Application compagne</string>
 	<key>Applications</key>
@@ -154,6 +188,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 Échap pour annuler.</string>
 	<key>Après un geste vif, le carrousel apparaît…</key>
 	<string>Après un geste vif, le carrousel apparaît…</string>
+	<key>Archive</key>
+	<string>Archive</string>
 	<key>Arrière-plan</key>
 	<string>Arrière-plan</string>
 	<key>Artiste</key>
@@ -168,6 +204,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Au lancement de Side, afficher</string>
 	<key>Aucun</key>
 	<string>Aucun</string>
+	<key>Aucun fichier sélectionné : sélectionne des fichiers dans le Finder</key>
+	<string>Aucun fichier sélectionné : sélectionne des fichiers dans le Finder</string>
 	<key>Aucun lecteur : cette partie n'apparaît pas dans le tiroir.</key>
 	<string>Aucun lecteur : cette partie n'apparaît pas dans le tiroir.</string>
 	<key>Aucun lien enregistré</key>
@@ -178,6 +216,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Aucun résultat</string>
 	<key>Aucun résultat pour « %@ ».</key>
 	<string>Aucun résultat pour « %@ ».</string>
+	<key>Aucun sujet trouvé dans %@.</key>
+	<string>Aucun sujet trouvé dans %@.</string>
 	<key>Aucun élément</key>
 	<string>Aucun élément</string>
 	<key>Aucune</key>
@@ -204,6 +244,10 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Avancer de 10 secondes</string>
 	<key>Bande</key>
 	<string>Bande</string>
+	<key>Barre de commande</key>
+	<string>Barre de commande</string>
+	<key>Barre de commande sous le Finder</key>
+	<string>Barre de commande sous le Finder</string>
 	<key>Barre latérale et fichiers</key>
 	<string>Barre latérale et fichiers</string>
 	<key>Bibliothèque</key>
@@ -238,6 +282,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Cercle</string>
 	<key>Ces applications restent à leur taille : elles ne remplissent jamais l'écran toutes seules.</key>
 	<string>Ces applications restent à leur taille : elles ne remplissent jamais l'écran toutes seules.</string>
+	<key>Cette action ne s'applique pas aux fichiers sélectionnés.</key>
+	<string>Cette action ne s'applique pas aux fichiers sélectionnés.</string>
 	<key>Changer d'avis</key>
 	<string>Changer d'avis</string>
 	<key>Changer de place</key>
@@ -298,6 +344,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Colonnes de la grille</string>
 	<key>Colonnes épinglées</key>
 	<string>Colonnes épinglées</string>
+	<key>Compresser en une archive ZIP</key>
+	<string>Compresser en une archive ZIP</string>
 	<key>Compresser « %@ »</key>
 	<string>Compresser « %@ »</string>
 	<key>Compris</key>
@@ -310,6 +358,14 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Connecté</string>
 	<key>Connexion réussie. Vous pouvez fermer cette page et revenir au panneau.</key>
 	<string>Connexion réussie. Vous pouvez fermer cette page et revenir au panneau.</string>
+	<key>Conversion impossible : %@</key>
+	<string>Conversion impossible : %@</string>
+	<key>Convertir %@ en %@</key>
+	<string>Convertir %@ en %@</string>
+	<key>Convertir %@ en MP4</key>
+	<string>Convertir %@ en MP4</string>
+	<key>Convertir %@ en MP4 %lldp</key>
+	<string>Convertir %@ en MP4 %lldp</string>
 	<key>Copier</key>
 	<string>Copier</string>
 	<key>Copier l'adresse de redirection</key>
@@ -440,6 +496,10 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Espace : aperçu</string>
 	<key>Espacement de la grille</key>
 	<string>Espacement de la grille</string>
+	<key>Extraire le son (%@) en M4A</key>
+	<string>Extraire le son (%@) en M4A</string>
+	<key>Extraire le texte (%@) dans un fichier texte</key>
+	<string>Extraire le texte (%@) dans un fichier texte</string>
 	<key>Faible</key>
 	<string>Faible</string>
 	<key>Faire un cercle</key>
@@ -468,6 +528,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Fermeture</string>
 	<key>Fichier</key>
 	<string>Fichier</string>
+	<key>Fichier créé : %@</key>
+	<string>Fichier créé : %@</string>
 	<key>Fichiers récents</key>
 	<string>Fichiers récents</string>
 	<key>Finder</key>
@@ -480,6 +542,10 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Fond derrière les tuiles</string>
 	<key>Forme</key>
 	<string>Forme</string>
+	<key>Fusionner</key>
+	<string>Fusionner</string>
+	<key>Fusionner les PDF en un seul</key>
+	<string>Fusionner les PDF en un seul</string>
 	<key>Garder dans le mini-Dock</key>
 	<string>Garder dans le mini-Dock</string>
 	<key>Garder dans les liens…</key>
@@ -554,6 +620,10 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Il s'ouvre par un coin actif (en bas à droite au départ) ou par son raccourci clavier : voir les volets Coins actifs et Raccourcis clavier.</string>
 	<key>Image</key>
 	<string>Image</string>
+	<key>Image illisible : %@</key>
+	<string>Image illisible : %@</string>
+	<key>Images réunies</key>
+	<string>Images réunies</string>
 	<key>Impossible d'afficher les informations</key>
 	<string>Impossible d'afficher les informations</string>
 	<key>Impossible d'écrire dans iCloud Drive.</key>
@@ -562,12 +632,16 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Impossible de coller certains éléments</string>
 	<key>Impossible de compresser « %@ »</key>
 	<string>Impossible de compresser « %@ »</string>
+	<key>Impossible de créer le PDF.</key>
+	<string>Impossible de créer le PDF.</string>
 	<key>Impossible de créer le dossier</key>
 	<string>Impossible de créer le dossier</string>
 	<key>Impossible de créer un alias de « %@ »</key>
 	<string>Impossible de créer un alias de « %@ »</string>
 	<key>Impossible de dupliquer « %@ »</key>
 	<string>Impossible de dupliquer « %@ »</string>
+	<key>Impossible de fusionner ces PDF.</key>
+	<string>Impossible de fusionner ces PDF.</string>
 	<key>Impossible de libérer « %@ »</key>
 	<string>Impossible de libérer « %@ »</string>
 	<key>Impossible de modifier l'ouverture automatique</key>
@@ -602,10 +676,16 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Jamais agrandies</string>
 	<key>Jaune : au tiroir</key>
 	<string>Jaune : au tiroir</string>
+	<key>Je n'ai pas compris. Essaie avec un mot simple : jpg, png, zip, mp4, pdf, texte, fond…</key>
+	<string>Je n'ai pas compris. Essaie avec un mot simple : jpg, png, zip, mp4, pdf, texte, fond…</string>
+	<key>Je ne sais pas encore faire ça. Essaie : convertir, réduire, pivoter, retirer le fond, fusionner, extraire le texte, zipper, MP4, son.</key>
+	<string>Je ne sais pas encore faire ça. Essaie : convertir, réduire, pivoter, retirer le fond, fusionner, extraire le texte, zipper, MP4, son.</string>
 	<key>L'aperçu montre l'image et le titre du site : pour cela, Side contacte le site du lien, seulement quand le volet l'affiche. La présentation vaut pour le presse-papiers comme pour l'onglet « Enregistrés ». Les liens enregistrés restent sur ce Mac.</key>
 	<string>L'aperçu montre l'image et le titre du site : pour cela, Side contacte le site du lien, seulement quand le volet l'affiche. La présentation vaut pour le presse-papiers comme pour l'onglet « Enregistrés ». Les liens enregistrés restent sur ce Mac.</string>
 	<key>L'historique du copier-coller est désactivé dans les réglages de Side.</key>
 	<string>L'historique du copier-coller est désactivé dans les réglages de Side.</string>
+	<key>L'opération a échoué.</key>
+	<string>L'opération a échoué.</string>
 	<key>L'écran derrière la carte s'estompe en fondu. On peut toujours cliquer et glisser des fichiers au travers.</key>
 	<string>L'écran derrière la carte s'estompe en fondu. On peut toujours cliquer et glisser des fichiers au travers.</string>
 	<key>L'élément qu'elle contient sera supprimé définitivement. Cette action est irréversible.</key>
@@ -644,6 +724,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>La zone de dépôt</string>
 	<key>Laisser les dossiers en haut lors du tri par nom</key>
 	<string>Laisser les dossiers en haut lors du tri par nom</string>
+	<key>Lancer</key>
+	<string>Lancer</string>
 	<key>Lancer « %@ ». Dépose un fichier pour le lui passer.</key>
 	<string>Lancer « %@ ». Dépose un fichier pour le lui passer.</string>
 	<key>Langue</key>
@@ -720,6 +802,10 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Le tiroir arrive du haut de l'écran, à l'opposé du Finder : quatre doigts %@ l'ouvrent, dans l'autre sens le referment. Il suit les doigts.</string>
 	<key>Le tiroir montre une seule application ; prolonge le geste à quatre doigts pour passer aux autres.</key>
 	<string>Le tiroir montre une seule application ; prolonge le geste à quatre doigts pour passer aux autres.</string>
+	<key>Le tiroir ne descend pas sous %lld points de haut</key>
+	<string>Le tiroir ne descend pas sous %lld points de haut</string>
+	<key>Le tiroir ne se réduit pas sous %lld points de large</key>
+	<string>Le tiroir ne se réduit pas sous %lld points de large</string>
 	<key>Le tiroir prend toujours le bord opposé au Finder : du haut quand le Finder vient du bas, du bas dans tous les autres cas. Le geste à quatre doigts s'inverse avec lui.</key>
 	<string>Le tiroir prend toujours le bord opposé au Finder : du haut quand le Finder vient du bas, du bas dans tous les autres cas. Le geste à quatre doigts s'inverse avec lui.</string>
 	<key>Le tiroir, second panneau de Side.</key>
@@ -752,6 +838,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Les deux</string>
 	<key>Les en sortir</key>
 	<string>Les en sortir</string>
+	<key>Les originaux ne sont pas touchés : le résultat est un nouveau fichier, à côté.</key>
+	<string>Les originaux ne sont pas touchés : le résultat est un nouveau fichier, à côté.</string>
 	<key>Les parties de Side</key>
 	<string>Les parties de Side</string>
 	<key>Les petites applications et la musique, une à la fois.</key>
@@ -824,6 +912,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Nouvel onglet (⌘T)</string>
 	<key>Nouvelles fenêtres</key>
 	<string>Nouvelles fenêtres</string>
+	<key>OK</key>
+	<string>OK</string>
 	<key>Onglet</key>
 	<string>Onglet</string>
 	<key>Opacité</key>
@@ -874,6 +964,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Ouvrir les réglages du trackpad</string>
 	<key>Ouvrir à l'ouverture de session</key>
 	<string>Ouvrir à l'ouverture de session</string>
+	<key>PDF fusionnés</key>
+	<string>PDF fusionnés</string>
 	<key>Page précédente</key>
 	<string>Page précédente</string>
 	<key>Pages</key>
@@ -902,6 +994,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Petit</string>
 	<key>Petite image</key>
 	<string>Petite image</string>
+	<key>Pivoter %@ de %lld°</key>
+	<string>Pivoter %@ de %lld°</string>
 	<key>Placer dans la corbeille</key>
 	<string>Placer dans la corbeille</string>
 	<key>Placer les %lld éléments dans la corbeille</key>
@@ -912,6 +1006,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Playlists</string>
 	<key>Plein écran</key>
 	<string>Plein écran</string>
+	<key>Plein écran d'Apple (vidéo de Safari…)</key>
+	<string>Plein écran d'Apple (vidéo de Safari…)</string>
 	<key>Plein écran d'Apple : macOS empêche d'y afficher les tuiles.</key>
 	<string>Plein écran d'Apple : macOS empêche d'y afficher les tuiles.</string>
 	<key>Plus tard</key>
@@ -956,6 +1052,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Quand la place manque</string>
 	<key>Quand le Finder de Side se referme.</key>
 	<string>Quand le Finder de Side se referme.</string>
+	<key>Quand une fenêtre passe dans un plein écran d'Apple (une vidéo de Safari, par exemple), macOS reprend le geste à quatre doigts et le carrousel de Side s'efface. Pour garder toujours le carrousel : Réglages du trackpad &gt; Plus de gestes &gt; « Balayer entre les apps en plein écran » sur trois doigts ou désactivé. Side le voit et prend alors le geste partout ; le plein écran d'Apple devient une carte du carrousel.</key>
+	<string>Quand une fenêtre passe dans un plein écran d'Apple (une vidéo de Safari, par exemple), macOS reprend le geste à quatre doigts et le carrousel de Side s'efface. Pour garder toujours le carrousel : Réglages du trackpad &gt; Plus de gestes &gt; « Balayer entre les apps en plein écran » sur trois doigts ou désactivé. Side le voit et prend alors le geste partout ; le plein écran d'Apple devient une carte du carrousel.</string>
 	<key>Quatre doigts</key>
 	<string>Quatre doigts</string>
 	<key>Quatre doigts %@</key>
@@ -966,6 +1064,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Quatre doigts vers la gauche ou la droite</string>
 	<key>Quatre doigts vers la gauche ou la droite, pour passer d'une application de travail à l'autre.</key>
 	<string>Quatre doigts vers la gauche ou la droite, pour passer d'une application de travail à l'autre.</string>
+	<key>Que faire de ces fichiers ? (ex. : convertis en JPG)</key>
+	<string>Que faire de ces fichiers ? (ex. : convertis en JPG)</string>
 	<key>Quitter %@</key>
 	<string>Quitter %@</string>
 	<key>Quitter Side</key>
@@ -1044,6 +1144,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Retirer du mini-Dock</string>
 	<key>Retirer du tiroir</key>
 	<string>Retirer du tiroir</string>
+	<key>Retirer le fond (%@, en PNG transparent)</key>
+	<string>Retirer le fond (%@, en PNG transparent)</string>
 	<key>Revenir au dossier précédent</key>
 	<string>Revenir au dossier précédent</string>
 	<key>Revoir la présentation</key>
@@ -1060,6 +1162,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Roue sans fin : les cartes tournent comme dans le tiroir, et après la dernière application revient la première. Bande : les cartes en ligne, qui s'arrêtent aux deux bouts. Pendant que tu règles la taille, le vrai carrousel s'affiche au milieu de l'écran. Apparition : plus court, le carrousel vient plus tôt mais un simple effleurement risque de l'afficher ; plus long, c'est l'inverse.</string>
 	<key>Récents</key>
 	<string>Récents</string>
+	<key>Réduire %@ à %@</key>
+	<string>Réduire %@ à %@</string>
 	<key>Réglages</key>
 	<string>Réglages</string>
 	<key>Réglages : icône Side, barre des menus</key>
@@ -1068,6 +1172,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Réglages de Side</string>
 	<key>Réglages du tiroir…</key>
 	<string>Réglages du tiroir…</string>
+	<key>Réglages du trackpad…</key>
+	<string>Réglages du trackpad…</string>
 	<key>Réglages…</key>
 	<string>Réglages…</string>
 	<key>Régler les coins actifs…</key>
@@ -1080,6 +1186,10 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Rétablir</string>
 	<key>Rétrécir pour tout afficher</key>
 	<string>Rétrécir pour tout afficher</string>
+	<key>Réunir les images en un seul PDF</key>
+	<string>Réunir les images en un seul PDF</string>
+	<key>Sans fond</key>
+	<string>Sans fond</string>
 	<key>Sans image</key>
 	<string>Sans image</string>
 	<key>Se connecter</key>
@@ -1106,6 +1216,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Side n'a pas le droit de lire la corbeille</string>
 	<key>Side redémarre pour changer de langue.</key>
 	<string>Side redémarre pour changer de langue.</string>
+	<key>Son</key>
+	<string>Son</string>
 	<key>Sortir du tiroir</key>
 	<string>Sortir du tiroir</string>
 	<key>Souris : ouvrir le Finder</key>
@@ -1134,6 +1246,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Supprimer de l'historique</string>
 	<key>Supprimer le téléchargement</key>
 	<string>Supprimer le téléchargement</string>
+	<key>Sélectionne des fichiers dans le Finder</key>
+	<string>Sélectionne des fichiers dans le Finder</string>
 	<key>Tags</key>
 	<string>Tags</string>
 	<key>Taille</key>
@@ -1296,6 +1410,10 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Zones affichées</string>
 	<key>Zones de dépôt</key>
 	<string>Zones de dépôt</string>
+	<key>convertis en JPG, réduis à 1080 px, enlève le fond…</key>
+	<string>convertis en JPG, réduis à 1080 px, enlève le fond…</string>
+	<key>convertis en MP4 720p, extrais le son…</key>
+	<string>convertis en MP4 720p, extrais le son…</string>
 	<key>copie</key>
 	<string>copie</string>
 	<key>dossier sans titre</key>
@@ -1304,6 +1422,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>désactivé</string>
 	<key>et %lld de plus</key>
 	<string>et %lld de plus</string>
+	<key>fusionne, extrais le texte…</key>
+	<string>fusionne, extrais le texte…</string>
 	<key>https://…</key>
 	<string>https://…</string>
 	<key>iCloud Drive n'est pas activé sur ce Mac.</key>
@@ -1312,6 +1432,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>l'application</string>
 	<key>le coin %@</key>
 	<string>le coin %@</string>
+	<key>le fichier</key>
+	<string>le fichier</string>
 	<key>macOS réserve le contenu de la corbeille aux applications qui ont l'« Accès complet au disque ». Ouvre le réglage, active Side dans la liste, puis relance Side : la corbeille s'affichera dans la carte.</key>
 	<string>macOS réserve le contenu de la corbeille aux applications qui ont l'« Accès complet au disque ». Ouvre le réglage, active Side dans la liste, puis relance Side : la corbeille s'affichera dans la carte.</string>
 	<key>pas de réponse</key>
@@ -1322,6 +1444,12 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>vers le bas</string>
 	<key>vers le haut</key>
 	<string>vers le haut</string>
+	<key>zippe tout…</key>
+	<string>zippe tout…</string>
+	<key>« %@ » ne peut pas être moins haute : le tiroir s'arrête à %lld points</key>
+	<string>« %@ » ne peut pas être moins haute : le tiroir s'arrête à %lld points</string>
+	<key>« %@ » ne peut pas être moins large : le tiroir s'arrête à %lld points</key>
+	<string>« %@ » ne peut pas être moins large : le tiroir s'arrête à %lld points</string>
 	<key>À droite</key>
 	<string>À droite</string>
 	<key>À gauche</key>
@@ -1334,6 +1462,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>À utiliser seulement s'il reste des fenêtres dans un plein écran d'Apple : elles en sortent et remplissent l'écran à la place.</string>
 	<key>Écoutés récemment</key>
 	<string>Écoutés récemment</string>
+	<key>Écris ce que tu veux faire des fichiers sélectionnés : « convertis en JPG », « réduis à 1080 px de haut », « zippe tout », « fusionne ces PDF », « enlève le fond »… Apple Intelligence comprend la demande, sur ton Mac, sans Internet. Les originaux ne sont jamais modifiés : le résultat est un nouveau fichier, à côté.</key>
+	<string>Écris ce que tu veux faire des fichiers sélectionnés : « convertis en JPG », « réduis à 1080 px de haut », « zippe tout », « fusionne ces PDF », « enlève le fond »… Apple Intelligence comprend la demande, sur ton Mac, sans Internet. Les originaux ne sont jamais modifiés : le résultat est un nouveau fichier, à côté.</string>
 	<key>Édition</key>
 	<string>Édition</string>
 	<key>Élargir ou rétrécir le lecteur</key>

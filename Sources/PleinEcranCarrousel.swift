@@ -202,7 +202,7 @@ final class Carrousel {
     func masquer() {
         guard visible, let p = panneau else { return }
         visible = false
-        NSAnimationContext.runAnimationGroup({ $0.duration = 0.15; p.animator().alphaValue = 0 }) {
+        NSAnimationContext.runAnimationGroup({ $0.duration = 0.1; p.animator().alphaValue = 0 }) {
             if !self.visible { p.orderOut(nil) }
         }
     }
