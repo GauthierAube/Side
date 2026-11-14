@@ -1868,6 +1868,7 @@ final class Appli: NSObject, NSApplicationDelegate, NSMenuDelegate {
         carrouselApps = apps
         let ici = cléCourante(tous, courants, ecran: id)
         carrouselDepart = apps.firstIndex { $0.cle == ici } ?? 0
+        Glisse.bornes = Carrousel.roue ? nil : Float(-carrouselDepart)...Float(apps.count - 1 - carrouselDepart)
         Carrousel.commun.ouvrir(apps, depart: carrouselDepart, espaces: tous, ecran: ecran)
         Images.commun.capturer(tous) { [weak self] in if let self { Carrousel.commun.rafraichir(espaces: self.espaces) } }
     }

@@ -29,6 +29,7 @@ final class ReglagesModele: ObservableObject {
     @Published var inverse = Glisse.inverse { didSet { Glisse.inverse = inverse } }
     @Published var tailleCartes = Double(Carrousel.taille) { didSet { Carrousel.taille = CGFloat(tailleCartes.rounded()) } }
     @Published var delai = Glisse.attente { didSet { Glisse.attente = (delai * 100).rounded() / 100 } }
+    @Published var sensibilite = Glisse.sensibilite { didSet { Glisse.sensibilite = (sensibilite * 20).rounded() / 20 } }
 
     /// Relit ce qui a pu changer ailleurs (le raccourci, modifié dans sa propre petite fenêtre).
     func relire() {
@@ -193,9 +194,10 @@ struct ContenuPleinEcran: View {
                         Double(Carrousel.tailles.lowerBound)...Double(Carrousel.tailles.upperBound),
                         "\(Int(m.tailleCartes.rounded())) pt") { enCours in Programme.appli.apercuDuCarrousel(enCours) }
                     .onChange(of: m.tailleCartes) { _, _ in Programme.appli.apercuDuCarrousel(true) }
+                curseur("Sensibilité", $m.sensibilite, 0.5...2.5, String(localized: "\(Int((m.sensibilite * 100).rounded())) %"))
                 curseur("Apparition après un geste vif", $m.delai, 0.04...0.35, String(format: "%.2f s", m.delai))
             } header: { Text("Carrousel") } footer: {
-                note("Roue sans fin : les cartes tournent comme dans le tiroir, et après la dernière application revient la première. Bande : les cartes en ligne, qui s'arrêtent aux deux bouts. Pendant que tu règles la taille, le vrai carrousel s'affiche au milieu de l'écran. Apparition : plus court, le carrousel vient plus tôt mais un simple effleurement risque de l'afficher ; plus long, c'est l'inverse.")
+                note("Sensibilité : plus elle est haute, moins tes doigts ont à glisser pour passer d'une application à la suivante (100 % : réglage d'origine). Le geste accélère aussi : lent, il avance d'une application à la fois ; rapide, il en saute plusieurs, pour atteindre vite celle du bout. Roue sans fin : les cartes tournent comme dans le tiroir, et après la dernière application revient la première. Bande : les cartes en ligne, qui s'arrêtent aux deux bouts. Pendant que tu règles la taille, le vrai carrousel s'affiche au milieu de l'écran. Apparition : plus court, le carrousel vient plus tôt mais un simple effleurement risque de l'afficher ; plus long, c'est l'inverse.")
             }
             .disabled(!m.glisse)
         case .fenetres:

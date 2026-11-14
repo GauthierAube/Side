@@ -722,6 +722,8 @@ final class PanneauBas: NSObject {
             AppDelegate.shared.fermerReglages()
             Volet.demande = .coins
             AppDelegate.shared.ouvrirReglages()
+        case _ where commande.hasPrefix("volet:"):           // pour les essais : ouvrir les réglages sur ce volet
+            if let v = Volet(rawValue: String(commande.dropFirst(6))) { Volet.demandeDirecte(v) }
         case "video-etat": pagesWeb.values.first(where: { $0.estUnYouTube })?.noterEtat()
         // Pour les essais : joue le geste du mini carrousel (« mini:debut », « mini:0.5 » pour un trajet, « mini:fin »).
         case "tuile:0", "tuile:1", "tuile:2", "tuile:3":       // pour les essais : afficher l'application de ce rang

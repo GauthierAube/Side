@@ -1208,6 +1208,8 @@ Press Esc to cancel.</string>
 	<string>Direction</string>
 	<key>Sensibilité</key>
 	<string>Sensitivity</string>
+	<key>Sensibilité : plus elle est haute, moins tes doigts ont à glisser pour passer d'une application à la suivante (100 % : réglage d'origine). Le geste accélère aussi : lent, il avance d'une application à la fois ; rapide, il en saute plusieurs, pour atteindre vite celle du bout. Roue sans fin : les cartes tournent comme dans le tiroir, et après la dernière application revient la première. Bande : les cartes en ligne, qui s'arrêtent aux deux bouts. Pendant que tu règles la taille, le vrai carrousel s'affiche au milieu de l'écran. Apparition : plus court, le carrousel vient plus tôt mais un simple effleurement risque de l'afficher ; plus long, c'est l'inverse.</key>
+	<string>Sensitivity: the higher it is, the less your fingers have to slide to go from one app to the next (100%: original setting). The gesture also accelerates: slow, it moves one app at a time; fast, it skips several, to quickly reach the one at the end. Endless wheel: the cards turn as in the drawer, and after the last app comes the first again. Strip: the cards in a row, which stop at both ends. While you adjust the size, the real carousel appears in the middle of the screen. Appearance: shorter, the carousel comes sooner but a mere flick may show it; longer, the opposite.</string>
 	<key>Side a aussi un tiroir, pour tes applications à usage rapide. Il va s'ouvrir pour se présenter.</key>
 	<string>Side also has a drawer, for the apps you use for quick tasks. It will open now to introduce itself.</string>
 	<key>Side et Mulot sont deux petites applications gratuites, faites pour aller ensemble.</key>

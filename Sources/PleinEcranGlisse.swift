@@ -61,7 +61,7 @@ enum Glisse {
                         let p = Unmanaged.passUnretained(a).toOpaque()
                         if !enMarche(p) { lancer(p, 0); relances += 1 }
                     }
-                    depart = [:]; phase = 0; dernier = 0; montre = false
+                    depart = [:]; phase = 0; dernier = 0; dxSuivi = 0; montre = false; bornes = nil
                     journal("Square: réveil du Mac, %d trackpad(s) relancé(s)", relances)
                 }
             }
@@ -97,8 +97,22 @@ enum Glisse {
     private static var instantPrec: TimeInterval = 0
     private static var instantPose: TimeInterval = 0
     private static var dernier: Float = 0     // dernier trajet envoyé, en nombre de fenêtres
+    private static var dxSuivi: Float = 0     // position des doigts au dernier pas compté
+    /// Jusqu'où la bande peut aller, en fenêtres, depuis celle de départ (nil : roue sans fin). Posé par le carrousel.
+    static var bornes: ClosedRange<Float>?
+    /// L'accélération, comme celle du pointeur : lents, les doigts avancent d'une fenêtre à la fois, avec précision ;
+    /// rapides, chaque centimètre compte jusqu'à quatre fois plus, pour atteindre d'un geste une application tout au bout.
+    private static func gain(_ vitesse: Float) -> Float {
+        1 + 3 * min(max((vitesse - 0.2) / 0.8, 0), 1)
+    }
     private static let debut: Float = 0.014    // trajet avant de trancher entre horizontal (nous) et vertical (Side)
-    private static let parFenetre: Float = 0.11   // trajet des doigts, en largeur de trackpad, pour avancer d'une fenêtre
+    /// Sensibilité du geste (1 = normale) : plus elle est haute, moins les doigts ont à glisser pour passer d'une application
+    /// à la suivante. Réglable dans Réglages > Plein écran > Carrousel.
+    static var sensibilite: Double = UserDefaults.standard.object(forKey: "glisseSensibilite") as? Double ?? 1 {
+        didSet { UserDefaults.standard.set(sensibilite, forKey: "glisseSensibilite") }
+    }
+    // Trajet des doigts, en largeur de trackpad, pour avancer d'une fenêtre (0,11 à la sensibilité normale).
+    private static var parFenetre: Float { 0.11 / Float(max(sensibilite, 0.3)) }
 
     /// Appelé par macOS à chaque instant où des doigts touchent le trackpad (hors du fil principal).
     private static func recevoir(_ touches: UnsafeMutableRawPointer?, _ nombre: Int) {
@@ -120,7 +134,7 @@ enum Glisse {
                         DispatchQueue.main.async { Programme.appli.voisine(q > 0 ? 1 : -1) }
                     }
                 }
-                depart = [:]; phase = 0; dernier = 0; montre = false
+                depart = [:]; phase = 0; dernier = 0; dxSuivi = 0; montre = false; bornes = nil
             }
             return
         }
@@ -148,13 +162,18 @@ enum Glisse {
             rapidite = abs(dx) / Float(max(maintenant - instantPose, 0.008))
             dxPrec = dx; instantPrec = maintenant
             dxDepart = dx
+            dernier = (inverse ? dx : -dx) / parFenetre; dxSuivi = dx
             juge = false; departVif = false; vitesseDepart = 0
         }
         // Comme entre les bureaux : la bande suit les doigts. Doigts vers la gauche, on avance vers les fenêtres de droite.
         // Vitesse des doigts, en largeurs de trackpad par seconde (lissée).
         let dt = Float(maintenant - instantPrec)
         if dt > 0.003 { rapidite = rapidite * 0.5 + abs(dx - dxPrec) / dt * 0.5; dxPrec = dx; instantPrec = maintenant }
-        dernier = (inverse ? dx : -dx) / parFenetre
+        // Chaque pas des doigts compte d'autant plus qu'ils vont vite.
+        let pas = dx - dxSuivi
+        dxSuivi = dx
+        dernier += (inverse ? pas : -pas) / parFenetre * gain(rapidite)
+        if let b = bornes { dernier = min(max(dernier, b.lowerBound - 0.3), b.upperBound + 0.3) }   // la bande ne file pas au-delà de ses bouts
         let q = dernier
         if !montre {
             // Un geste posé affiche le carrousel tout de suite. Seul un effleurement rapide le retient : si les doigts se
