@@ -67,7 +67,7 @@ enum TransitionFenetre {
         DispatchQueue.main.asyncAfter(deadline: .now() + délai) {
             guard let p = panneau else { return }
             CATransaction.begin()
-            CATransaction.setAnimationDuration(0.12)
+            CATransaction.setAnimationDuration(Mouvement.duree(0.12))
             CATransaction.setCompletionBlock { p.orderOut(nil) }
             calque.opacity = 0
             CATransaction.commit()

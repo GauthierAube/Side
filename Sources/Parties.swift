@@ -82,7 +82,7 @@ struct SectionParties: View {
                         Image(systemName: p.symbole)
                             .font(.system(size: 13, weight: .bold)).foregroundStyle(.white)
                             .frame(width: 28, height: 28)
-                            .background(RoundedRectangle(cornerRadius: 7, style: .continuous).fill(p.couleur.gradient))
+                            .background(RoundedRectangle(cornerRadius: Rayon.ligne, style: .continuous).fill(p.couleur.gradient))
                         VStack(alignment: .leading, spacing: 1) {
                             Text(p.nom)
                             Text(p.description).font(.caption).foregroundStyle(.secondary)

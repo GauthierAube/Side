@@ -4,6 +4,7 @@
 import AppKit
 import WebKit
 import Combine
+import CryptoKit
 
 /// Transforme n'importe quel lien YouTube (youtube.com, youtu.be, lien intégré) en lien pour le site téléphone. Sinon : rien.
 func lienYouTubeBas(_ url: URL) -> URL? {
@@ -128,7 +129,7 @@ final class LecteurYouTubeBas: NSView, WKNavigationDelegate, WKUIDelegate, WKScr
         super.init(frame: .zero)
         wantsLayer = true
         // L'arrondi des fenêtres de macOS : grand, et « continu » (la courbe s'adoucit, comme sur l'iPhone).
-        layer?.cornerRadius = 20
+        layer?.cornerRadius = Rayon.tuile
         layer?.cornerCurve = .continuous
         layer?.masksToBounds = true
         layer?.borderWidth = 1
@@ -139,7 +140,7 @@ final class LecteurYouTubeBas: NSView, WKNavigationDelegate, WKUIDelegate, WKScr
         let config = WKWebViewConfiguration()
         config.mediaTypesRequiringUserActionForPlayback = []      // une vidéo déposée démarre toute seule
         config.allowsAirPlayForMediaPlayback = true
-        let reglage = "window.__sideCouperPubs = \(ConfigTiroir.commun.couperPubs ? "true" : "false"); window.__sideSansShorts = \(ConfigTiroir.commun.masquerShorts ? "true" : "false");"
+        let reglage = "window.__sideCouperPubs = \(ConfigTiroir.commun.couperPubs ? "true" : "false"); window.__sideSansShorts = \(ConfigTiroir.commun.masquerShorts ? "true" : "false"); window.__sideSansPosts = \(ConfigTiroir.commun.masquerPosts ? "true" : "false"); window.__sidePastilles = \(ConfigTiroir.commun.pastillesInterets ? "true" : "false");"
         let scripts = youtube ? [reglage, LecteurYouTubeBas.scriptSansPub, LecteurYouTubeBas.scriptPleinCadre] : [LecteurYouTubeBas.scriptToujoursAffiche]
         for s in scripts {
             config.userContentController.addUserScript(WKUserScript(source: s, injectionTime: .atDocumentStart, forMainFrameOnly: true))
@@ -150,6 +151,14 @@ final class LecteurYouTubeBas: NSView, WKNavigationDelegate, WKUIDelegate, WKScr
         page.customUserAgent = large ? safariMac : safariIPhone
         page.navigationDelegate = self
         page.uiDelegate = self
+        if youtube {
+            // Pas de fond blanc pendant le chargement : la tuile garde son fond sombre jusqu'à ce que YouTube s'affiche.
+            page.setValue(false, forKey: "drawsBackground")
+            page.underPageBackgroundColor = NSColor(white: 0.06, alpha: 1)
+            suiviAdresse = page.observe(\.url, options: [.new]) { [weak self] _, _ in
+                DispatchQueue.main.async { self?.suivreSponsors() }
+            }
+        }
         page.allowsBackForwardNavigationGestures = false          // le glissement horizontal sert à faire défiler la bande
         if youtube { page.auLien = { [weak self] l in self?.ouvrir(l) } }      // un lien YouTube déposé ne s'ouvre que dans YouTube
         addSubview(page)
@@ -386,9 +395,31 @@ final class LecteurYouTubeBas: NSView, WKNavigationDelegate, WKUIDelegate, WKScr
           get: function(){ return reponse; }, set: function(v){ reponse = nettoyer(v); } });
       } catch (e) {}
       setInterval(function(){
+        var lecteur = document.getElementById('movie_player');
         // YouTube réécrit parfois les classes de la page : celle qui masque les Shorts est remise si besoin.
         if (window.__sideSansShorts === true && document.documentElement && !document.documentElement.classList.contains('side-sans-shorts')) document.documentElement.classList.add('side-sans-shorts');
-        var lecteur = document.getElementById('movie_player');
+        var racine = document.documentElement;
+        if (racine) {
+          racine.classList.toggle('side-sans-posts', window.__sideSansPosts === true);
+          racine.classList.toggle('side-pastilles', window.__sidePastilles === true);
+        }
+        // Passages sponsorisés (fournis par Side pour la vidéo en cours) : on saute à leur fin.
+        var sp = window.__sideSponsors, vid = document.querySelector('video.html5-main-video');
+        if (sp && vid && location.href.indexOf(sp.video) >= 0 && !(lecteur && lecteur.classList.contains('ad-showing'))) {
+          for (var i = 0; i < sp.passages.length; i++) {
+            var p = sp.passages[i];
+            if (vid.currentTime >= p[0] && vid.currentTime < p[1] - 0.5) { vid.currentTime = p[1]; break; }
+          }
+        }
+        // Pastilles de l'accueil : « Tous » et les centres d'intérêt restent, les rubriques générales s'en vont.
+        if (window.__sidePastilles === true) {
+          var generales = ['actualités','actualites','podcasts','musique','jeux vidéo','jeux video','mix','mixes','en direct',
+            'posts','regardées','vidéos regardées','news','music','gaming','live','watched','récemment mises en ligne'];
+          document.querySelectorAll('yt-chip-cloud-chip-renderer, ytm-chip-cloud-chip-renderer, chip-view-model, .ytChipBarViewModelChipWrapper').forEach(function(c){
+            var nom = (c.textContent || '').replace(/\\s+/g, ' ').trim().toLowerCase();
+            if (nom) c.style.display = generales.indexOf(nom) >= 0 ? 'none' : '';
+          });
+        }
         if (couper && lecteur && lecteur.classList.contains('ad-showing')) {
           var v = lecteur.querySelector('video');
           if (v && isFinite(v.duration) && v.duration > 0 && v.currentTime < v.duration - 0.2) { v.muted = true; v.currentTime = v.duration; }
@@ -402,11 +433,16 @@ final class LecteurYouTubeBas: NSView, WKNavigationDelegate, WKUIDelegate, WKScr
           // Sur le site pour téléphone, YouTube épingle la vidéo en haut : ici, elle défile avec la page.
           + '#player-container-id.sticky-player{position:absolute!important}'
           // La rangée de petits onglets (Tous, Actualités, Podcasts…) est masquée, à l'accueil comme sous une vidéo.
-          + 'ytm-feed-filter-chip-bar-renderer,ytm-related-chip-cloud-renderer,ytd-feed-filter-chip-bar-renderer,yt-related-chip-cloud-renderer,#header.ytd-rich-grid-renderer{display:none!important}'
+          // Avec le réglage « centres d'intérêt », la rangée reste et seules les rubriques générales en sont retirées (voir plus haut).
+          + 'html:not(.side-pastilles) :is(ytm-feed-filter-chip-bar-renderer,ytm-related-chip-cloud-renderer,ytd-feed-filter-chip-bar-renderer,yt-related-chip-cloud-renderer,#header.ytd-rich-grid-renderer){display:none!important}'
           // … et la place qui leur était réservée au-dessus des vidéos est reprise.
-          + '.rich-grid-renderer-contents.rich-grid-top-margin{margin-top:0!important}.rich-grid-renderer-header{display:none!important}'
+          + 'html:not(.side-pastilles) .rich-grid-renderer-contents.rich-grid-top-margin{margin-top:0!important}html:not(.side-pastilles) .rich-grid-renderer-header{display:none!important}'
           // Sur le site d'ordinateur, le voile sombre sous l'en-tête garde la hauteur de ces onglets : il reprend celle de l'en-tête seul.
-          + '#frosted-glass.with-chipbar{height:56px!important}'
+          + 'html:not(.side-pastilles) #frosted-glass.with-chipbar{height:56px!important}'
+          // Les posts des chaînes (messages, images, sondages), masqués quand le réglage le demande.
+          + 'html.side-sans-posts :is(ytd-post-renderer,ytd-backstage-post-thread-renderer,ytd-backstage-post-renderer,ytd-rich-item-renderer:has(ytd-post-renderer),'
+          + 'ytd-rich-section-renderer:has(ytd-post-renderer),ytd-rich-section-renderer:has(ytd-rich-shelf-renderer[is-post]),ytd-rich-shelf-renderer[is-post],'
+          + 'ytm-backstage-post-thread-renderer,ytm-backstage-post-renderer,ytm-post-renderer,ytm-rich-section-renderer:has(ytm-backstage-post-thread-renderer)){display:none!important}'
           // La vidéo a des coins arrondis, comme sur le site de YouTube (sauf en plein écran).
           // (Une découpe, et non un « overflow » : la vidéo est dessinée à part par le Mac, et l'overflow la faisait disparaître.)
           // L'image de la vidéo est dessinée à part par le Mac : elle ignore tout arrondi (découpe, coins). On pose donc par-dessus
@@ -436,10 +472,68 @@ final class LecteurYouTubeBas: NSView, WKNavigationDelegate, WKUIDelegate, WKScr
 
     @objc private func pleinCadre() { js("window.__sideBasculer && window.__sideBasculer()") }
 
-    /// Le réglage « Masquer les Shorts » change : la page suit tout de suite.
-    func appliquerShorts(_ masquer: Bool) {
+    /// Un réglage de la page YouTube change (Shorts, posts, pastilles, sponsors) : la page suit tout de suite.
+    func appliquerReglages() {
         guard estYouTube else { return }
-        js("document.documentElement.classList.toggle('side-sans-shorts', \(masquer ? "true" : "false")); window.__sideSansShorts = \(masquer ? "true" : "false");")
+        let c = ConfigTiroir.commun
+        let oui = { (b: Bool) in b ? "true" : "false" }
+        js("document.documentElement.classList.toggle('side-sans-shorts', \(oui(c.masquerShorts))); window.__sideSansShorts = \(oui(c.masquerShorts));"
+           + "window.__sideSansPosts = \(oui(c.masquerPosts)); window.__sidePastilles = \(oui(c.pastillesInterets));"
+           + "if (!\(oui(c.pastillesInterets))) document.querySelectorAll('yt-chip-cloud-chip-renderer, ytm-chip-cloud-chip-renderer, chip-view-model, .ytChipBarViewModelChipWrapper').forEach(function(e){ e.style.display = ''; });"
+           + (c.passerSponsors ? "" : "window.__sideSponsors = null;"))
+        if c.passerSponsors { vidéoSuivie = nil; suivreSponsors() }
+    }
+
+    /// Minuteur de sommeil : la vidéo s'arrête.
+    /// La page est retirée du tiroir : elle se tait et libère sa mémoire. (Le contrôleur de scripts retient cette vue :
+    /// tant qu'il n'est pas détaché, la page continue de vivre et de jouer.)
+    func fermer() {
+        rentrerDansLeTiroir()
+        suiviAdresse = nil
+        page.configuration.userContentController.removeAllScriptMessageHandlers()
+        page.stopLoading()
+        page.loadHTMLString("", baseURL: nil)
+    }
+
+    /// macOS a arrêté le moteur de la page (mémoire) : on la recharge, au lieu de laisser une tuile blanche.
+    func webViewWebContentProcessDidTerminate(_ webView: WKWebView) { webView.reload() }
+
+    func mettreEnPause() {
+        guard estYouTube else { return }
+        js("document.querySelectorAll('video').forEach(function(v){ v.pause(); })")
+    }
+
+    // MARK: Passages sponsorisés (service communautaire SponsorBlock)
+
+    private var vidéoSuivie: String?
+    private var suiviAdresse: NSKeyValueObservation?
+
+    /// À chaque nouvelle vidéo, on demande ses passages sponsorisés et on les confie à la page, qui les saute.
+    /// Par discrétion, on n'envoie pas l'identifiant de la vidéo : seulement le début de son empreinte.
+    private func suivreSponsors() {
+        guard estYouTube, ConfigTiroir.commun.passerSponsors, let url = page.url, url.path == "/watch",
+              let identifiant = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems?.first(where: { $0.name == "v" })?.value,
+              identifiant != vidéoSuivie, identifiant.range(of: "^[A-Za-z0-9_-]{6,20}$", options: .regularExpression) != nil else { return }
+        vidéoSuivie = identifiant
+        let empreinte = SHA256.hash(data: Data(identifiant.utf8)).map { String(format: "%02x", $0) }.joined().prefix(4)
+        var adresse = URLComponents(string: "https://sponsor.ajay.app/api/skipSegments/\(empreinte)")!
+        adresse.queryItems = [URLQueryItem(name: "categories", value: "[\"sponsor\"]")]
+        guard let demande = adresse.url else { return }
+        URLSession.shared.dataTask(with: demande) { [weak self] données, réponse, _ in
+            guard let données, (réponse as? HTTPURLResponse)?.statusCode == 200,
+                  let vidéos = try? JSONSerialization.jsonObject(with: données) as? [[String: Any]],
+                  let vidéo = vidéos.first(where: { $0["videoID"] as? String == identifiant }),
+                  let fiches = vidéo["segments"] as? [[String: Any]] else { return }
+            let passages = fiches.filter { $0["actionType"] as? String == "skip" }
+                .compactMap { ($0["segment"] as? [NSNumber])?.map(\.doubleValue) }.filter { $0.count == 2 }
+            guard !passages.isEmpty, let json = try? JSONSerialization.data(withJSONObject: passages),
+                  let texte = String(data: json, encoding: .utf8) else { return }
+            DispatchQueue.main.async {
+                guard let self, self.vidéoSuivie == identifiant else { return }
+                self.js("window.__sideSponsors = { video: '\(identifiant)', passages: \(texte) };")
+                journalBas("YouTube : %d passage(s) sponsorisé(s) à sauter", passages.count)
+            }
+        }.resume()
     }
     var estUnYouTube: Bool { estYouTube }
     /// La vidéo en cours passe en plein écran, ou revient dans le tiroir (raccourci, commande d'une autre app).

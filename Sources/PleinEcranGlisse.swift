@@ -33,49 +33,21 @@ enum Glisse {
         let v = [valeur("com.apple.AppleMultitouchTrackpad"), valeur("com.apple.driver.AppleBluetoothMultitouch.trackpad")].compactMap { $0 }
         return !v.isEmpty && v.allSatisfy { $0 == 0 }
     }
-    private static var trackpads: [AnyObject] = []            // gardés, pour les relancer au réveil du Mac
     private static var depart: [Int32: (Float, Float)] = [:]   // où chaque doigt s'est posé
 
-    private typealias Liste = @convention(c) () -> Unmanaged<CFArray>?
-    private typealias Rappel = @convention(c) (UnsafeMutableRawPointer?, UnsafeMutableRawPointer?, Int32, Double, Int32) -> Int32
-    private typealias Inscrire = @convention(c) (UnsafeMutableRawPointer?, Rappel) -> Void
-    private typealias Lancer = @convention(c) (UnsafeMutableRawPointer?, Int32) -> Void
 
     static func demarrer() {
         guard !demarre else { return }
-        guard let module = dlopen("/System/Library/PrivateFrameworks/MultitouchSupport.framework/MultitouchSupport", RTLD_NOW),
-              let fListe = dlsym(module, "MTDeviceCreateList"), let fInscrire = dlsym(module, "MTRegisterContactFrameCallback"),
-              let fLancer = dlsym(module, "MTDeviceStart") else { journal("Square: trackpad illisible, pas de glissement"); return }
-        let liste = unsafeBitCast(fListe, to: Liste.self), inscrire = unsafeBitCast(fInscrire, to: Inscrire.self)
-        let lancer = unsafeBitCast(fLancer, to: Lancer.self)
-        guard let appareils = liste()?.takeRetainedValue() as? [AnyObject] else { return }
-        trackpads = appareils
-        // Au réveil du Mac, le trackpad peut avoir cessé d'envoyer ses touches : on le relance.
-        if let fEnMarche = dlsym(module, "MTDeviceIsRunning") {
-            typealias EnMarche = @convention(c) (UnsafeMutableRawPointer?) -> Bool
-            let enMarche = unsafeBitCast(fEnMarche, to: EnMarche.self)
-            NSWorkspace.shared.notificationCenter.addObserver(forName: NSWorkspace.didWakeNotification, object: nil, queue: .main) { _ in
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                    var relances = 0
-                    for a in trackpads {
-                        let p = Unmanaged.passUnretained(a).toOpaque()
-                        if !enMarche(p) { lancer(p, 0); relances += 1 }
-                    }
-                    depart = [:]; phase = 0; dernier = 0; dxSuivi = 0; montre = false; bornes = nil
-                    journal("Square: réveil du Mac, %d trackpad(s) relancé(s)", relances)
-                }
-            }
-        }
-        for a in appareils {
-            let p = Unmanaged.passUnretained(a).toOpaque()
-            inscrire(p, { _, touches, nombre, _, _ in
-                Glisse.recevoir(touches, Int(nombre))
-                return 0
-            })
-            lancer(p, 0)
-        }
         demarre = true
-        journal("Square: glissement à quatre doigts surveillé sur %d trackpad(s)", appareils.count)
+        let n = Trackpads.ecouter({ _, touches, nombre, _, _ in
+            Glisse.recevoir(touches, Int(nombre))
+            return 0
+        })
+        if n < 0 { journal("Square: trackpad illisible, pas de glissement") }
+        // Au réveil du Mac, l'état du geste en cours est remis à zéro (les trackpads, eux, sont relancés par Trackpads).
+        NSWorkspace.shared.notificationCenter.addObserver(forName: NSWorkspace.didWakeNotification, object: nil, queue: .main) { _ in
+            depart = [:]; phase = 0; dernier = 0; dxSuivi = 0; montre = false; bornes = nil
+        }
     }
 
     private static var phase = 0             // 0 : pas encore décidé, 1 : le carrousel suit les doigts, -1 : ce geste n'est pas pour nous

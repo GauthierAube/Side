@@ -14,8 +14,12 @@ if xcrun --find xcstringstool >/dev/null 2>&1; then
   EXTRAIRE=(-emit-localized-strings -emit-localized-strings-path build/textes)
   [ -f Localizable.xcstrings ] || echo '{"sourceLanguage":"fr","strings":{},"version":"1.0"}' > Localizable.xcstrings
 fi
-swiftc -O -swift-version 5 -parse-as-library -target arm64-apple-macos14.0 \
-  Sources/*.swift -o "$APP/Contents/MacOS/Side" "${EXTRAIRE[@]}"
+# Le lecteur YouTube du tiroir est Peinard (~/Github/sans-pub) quand il est sur ce Mac : il demande macOS 26.
+PEINARD_OPTS=$(tools/peinard.sh build/peinard "$APP/Contents/Resources")
+CIBLE=arm64-apple-macos14.0
+if [ -n "$PEINARD_OPTS" ]; then CIBLE=arm64-apple-macos26.0; echo "Avec Peinard comme lecteur YouTube."; fi
+swiftc -O -swift-version 5 -parse-as-library -target $CIBLE \
+  Sources/*.swift -o "$APP/Contents/MacOS/Side" "${EXTRAIRE[@]}" $PEINARD_OPTS
 if [ ${#EXTRAIRE[@]} -gt 0 ]; then
   xcrun xcstringstool sync Localizable.xcstrings --stringsdata build/textes/*.stringsdata
   xcrun xcstringstool compile Localizable.xcstrings -o Resources

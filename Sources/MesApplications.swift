@@ -27,7 +27,9 @@ final class MesApps: ObservableObject {
             guard partage != oldValue else { return }
             UserDefaults.standard.set(partage, forKey: "mesAppsPartage")
             // Partage activé : si un autre Mac a déjà déposé sa liste, on la reprend ; sinon on dépose la nôtre.
-            if partage { if !lireICloud() { ecrireICloud() } }
+            // Sauf si le fichier existe dans iCloud mais n'est pas encore descendu sur ce Mac (on l'attend), et jamais une
+            // liste vide (elle effacerait celle d'un autre Mac).
+            if partage, !lireICloud(), !Self.enAttenteICloud, !liste.isEmpty { ecrireICloud() }
         }
     }
     @Published private(set) var etatPartage = ""
@@ -63,6 +65,11 @@ final class MesApps: ObservableObject {
         return racine.appendingPathComponent("Side", isDirectory: true)
     }
     static var fichierICloud: URL? { dossierICloud?.appendingPathComponent("Mes applications.json") }
+    /// Le fichier existe dans iCloud mais n'est pas encore sur ce Mac (macOS laisse alors un « .Mes applications.json.icloud »).
+    static var enAttenteICloud: Bool {
+        guard let d = dossierICloud else { return false }
+        return FileManager.default.fileExists(atPath: d.appendingPathComponent(".Mes applications.json.icloud").path)
+    }
 
     private struct Partage: Codable { var applications: [MonApp]; var ouvrirAuLancement: Bool }
 
@@ -165,7 +172,7 @@ struct MesAppsSection: View {
                 HStack(spacing: 10) {
                     Text("\(i + 1)").font(.system(size: 13, weight: .semibold, design: .rounded)).monospacedDigit()
                         .frame(width: 22, height: 22)
-                        .background(RoundedRectangle(cornerRadius: 6, style: .continuous).fill(Color.accentColor.opacity(0.15)))
+                        .background(RoundedRectangle(cornerRadius: Rayon.ligne, style: .continuous).fill(Color.accentColor.opacity(0.15)))
                         .foregroundStyle(Color.accentColor)
                     Image(nsImage: icone(a)).resizable().frame(width: 22, height: 22)
                     Text(a.nom)
@@ -187,7 +194,7 @@ struct MesAppsSection: View {
                     .onEnded { v in
                         let sauts = Int((v.translation.height / hauteurLigne).rounded())
                         let vers = min(max(i + sauts, 0), m.liste.count - 1)
-                        withAnimation(.spring(response: 0.25, dampingFraction: 0.85)) {
+                        withAnimation(Mouvement.ressort) {
                             if vers != i { m.liste.move(fromOffsets: IndexSet(integer: i), toOffset: vers > i ? vers + 1 : vers) }
                             tenue = nil; decalage = 0
                         }

@@ -62,7 +62,7 @@ final class CarrouselTiroir {
             carte.shadowPath = CGPath(roundedRect: carte.bounds, cornerWidth: 14, cornerHeight: 14, transform: nil)
             let image = CALayer()
             image.frame = carte.bounds
-            image.cornerRadius = 14
+            image.cornerRadius = Rayon.interieur
             image.cornerCurve = .continuous
             image.masksToBounds = true
             image.backgroundColor = NSColor(white: 0.2, alpha: 1).cgColor
@@ -92,7 +92,7 @@ final class CarrouselTiroir {
         // Apparition : comme le carrousel du plein écran, un fondu bref en grossissant un peu.
         CATransaction.flush()
         CATransaction.begin()
-        CATransaction.setAnimationDuration(0.13)
+        CATransaction.setAnimationDuration(Mouvement.duree(0.13))
         CATransaction.setAnimationTimingFunction(CAMediaTimingFunction(controlPoints: 0.2, 0.9, 0.3, 1))
         groupe.opacity = 1
         groupe.transform = CATransform3DIdentity
@@ -111,7 +111,7 @@ final class CarrouselTiroir {
         let rayon = pas / max(sin(angleParCarte), 0.5)
         CATransaction.begin()
         if anime {
-            CATransaction.setAnimationDuration(0.16)
+            CATransaction.setAnimationDuration(Mouvement.duree(0.16))
             CATransaction.setAnimationTimingFunction(CAMediaTimingFunction(name: .easeOut))
         } else { CATransaction.setDisableActions(true) }
         for (i, c) in cartes.enumerated() {
@@ -146,7 +146,7 @@ final class CarrouselTiroir {
         let f = p.frame
         let arrivee = CGRect(x: zone.minX - f.minX, y: zone.minY - f.minY, width: zone.width, height: zone.height)
         CATransaction.begin()
-        CATransaction.setAnimationDuration(0.2)
+        CATransaction.setAnimationDuration(Mouvement.duree(0.2))
         CATransaction.setAnimationTimingFunction(CAMediaTimingFunction(controlPoints: 0.3, 0.8, 0.3, 1))
         CATransaction.setCompletionBlock { [weak self] in
             guard let self, !self.visible else { return }

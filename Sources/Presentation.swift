@@ -90,7 +90,7 @@ private struct FichierP: View {
     var opacite: Double = 1
     var body: some View {
         ZStack {
-            if choisi { RoundedRectangle(cornerRadius: 5).fill(Color.accentColor.opacity(0.28)).padding(-4) }
+            if choisi { RoundedRectangle(cornerRadius: Rayon.dessin(5)).fill(Color.accentColor.opacity(0.28)).padding(-4) }
             Image(systemName: dossier ? "folder.fill" : "doc.fill")
                 .resizable().scaledToFit()
                 .foregroundStyle(dossier ? AnyShapeStyle(EcranP.bleu.gradient) : AnyShapeStyle(Color(white: 0.62)))
@@ -112,7 +112,7 @@ private struct CarteP: View {
     var body: some View {
         ZStack {
             ZStack(alignment: .leading) {
-                RoundedRectangle(cornerRadius: 11, style: .continuous).fill(Color(white: 0.97))
+                RoundedRectangle(cornerRadius: Rayon.dessin(11), style: .continuous).fill(Color(white: 0.97))
                 UnevenRoundedRectangle(topLeadingRadius: 11, bottomLeadingRadius: 11, style: .continuous)
                     .fill(Color(white: 0.89)).frame(width: cadre.width * 0.30)
             }
@@ -159,9 +159,9 @@ private struct FondP: View {
             LinearGradient(colors: [Color(red: 0.55, green: 0.36, blue: 0.62), Color(red: 0.20, green: 0.28, blue: 0.56),
                                     Color(red: 0.10, green: 0.13, blue: 0.30)], startPoint: .topLeading, endPoint: .bottomTrailing)
             // Une application en plein écran, derrière : Side passe par-dessus.
-            RoundedRectangle(cornerRadius: 0).fill(Color(red: 0.95, green: 0.55, blue: 0.33).opacity(0.55))
+            RoundedRectangle(cornerRadius: Rayon.dessin(0)).fill(Color(red: 0.95, green: 0.55, blue: 0.33).opacity(0.55))
                 .padding(.top, EcranP.barre)
-            RoundedRectangle(cornerRadius: 0).fill(Color.white.opacity(0.80)).padding(.top, EcranP.barre + 26)
+            RoundedRectangle(cornerRadius: Rayon.dessin(0)).fill(Color.white.opacity(0.80)).padding(.top, EcranP.barre + 26)
             Rectangle().fill(Color.white.opacity(0.22)).frame(height: EcranP.barre)
         }
     }
@@ -196,8 +196,8 @@ struct ScenePresentation: View {
         VStack(spacing: 12) {
             ZStack { ecran }
             .frame(width: EcranP.taille.width, height: EcranP.taille.height)
-            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-            .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).strokeBorder(Color.primary.opacity(0.25), lineWidth: 1.5))
+            .clipShape(RoundedRectangle(cornerRadius: Rayon.dessin(14), style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: Rayon.dessin(14), style: .continuous).strokeBorder(Gris.bord, lineWidth: 1.5))
             // Sous l'écran : le trackpad et ses quatre doigts, pour ouvrir le Finder et le tiroir (une place vide ailleurs).
             trackpad.frame(height: 62)
         }
@@ -216,8 +216,8 @@ struct ScenePresentation: View {
                                          : ConfigTiroir.enHaut
             let glisse = tranche(t, 0.14, 0.42), poses = tranche(t, 0.06, 0.12) - tranche(t, 0.46, 0.54)
             ZStack {
-                RoundedRectangle(cornerRadius: 10, style: .continuous).fill(Color.primary.opacity(0.10))
-                RoundedRectangle(cornerRadius: 10, style: .continuous).strokeBorder(Color.primary.opacity(0.22), lineWidth: 1)
+                RoundedRectangle(cornerRadius: Rayon.encadre, style: .continuous).fill(Gris.moyen)
+                RoundedRectangle(cornerRadius: Rayon.encadre, style: .continuous).strokeBorder(Gris.bord, lineWidth: 1)
                 HStack(spacing: 7) {
                     ForEach(0..<4, id: \.self) { i in
                         Circle().fill(Color.accentColor).frame(width: 13, height: 13).offset(y: [3, -3, -4, 2][i])
@@ -281,7 +281,7 @@ struct ScenePresentation: View {
             CarteP(cadre: c, choisi: t > 0.28 ? 4 : nil)
             // L'aperçu : il grandit depuis le fichier.
             ZStack {
-                RoundedRectangle(cornerRadius: 9, style: .continuous).fill(Color.white)
+                RoundedRectangle(cornerRadius: Rayon.dessin(9), style: .continuous).fill(Color.white)
                 Image(systemName: "photo").resizable().scaledToFit().foregroundStyle(Color(white: 0.70)).padding(18)
             }
             .frame(width: melange(cible, grand, apercu).width, height: melange(cible, grand, apercu).height)
@@ -289,8 +289,8 @@ struct ScenePresentation: View {
             .position(centre(melange(cible, grand, apercu)))
             .opacity(Double(min(1, apercu * 4)))
             // La barre d'espace, qu'on enfonce.
-            RoundedRectangle(cornerRadius: 5).fill(Color.white).frame(width: 92, height: 16)
-                .overlay(RoundedRectangle(cornerRadius: 5).strokeBorder(Color.black.opacity(0.25), lineWidth: 1))
+            RoundedRectangle(cornerRadius: Rayon.dessin(5)).fill(Color.white).frame(width: 92, height: 16)
+                .overlay(RoundedRectangle(cornerRadius: Rayon.dessin(5)).strokeBorder(Color.black.opacity(0.25), lineWidth: 1))
                 .scaleEffect(1 - 0.08 * touche)
                 .position(x: 210, y: 244)
                 .opacity(Double(tranche(t, 0.30, 0.36) - tranche(t, 0.60, 0.68)))
@@ -312,8 +312,8 @@ struct ScenePresentation: View {
         return ZStack {
             FondP()
             CarteP(cadre: cMobile, opacite: EcranP.opaciteCarte(k), masques: prise > 0.5 || pose > 0.5 ? [5] : [])
-            RoundedRectangle(cornerRadius: 10, style: .continuous).fill(Color(white: 0.97))
-                .overlay(RoundedRectangle(cornerRadius: 10, style: .continuous)
+            RoundedRectangle(cornerRadius: Rayon.encadre, style: .continuous).fill(Color(white: 0.97))
+                .overlay(RoundedRectangle(cornerRadius: Rayon.encadre, style: .continuous)
                     .strokeBorder(Color.accentColor, style: StrokeStyle(lineWidth: 2, dash: pose > 0.5 ? [] : [4, 3])))
                 .frame(width: zone.width, height: zone.height)
                 .shadow(color: .black.opacity(0.3), radius: 6, y: 3)
@@ -337,11 +337,11 @@ struct ScenePresentation: View {
         return ZStack {
             FondP()
             ZStack {
-                RoundedRectangle(cornerRadius: 13, style: .continuous).fill(Color(white: 0.93))
+                RoundedRectangle(cornerRadius: Rayon.dessin(13), style: .continuous).fill(Color(white: 0.93))
                 HStack(spacing: 7) {
                     // La musique.
                     ZStack {
-                        RoundedRectangle(cornerRadius: 8, style: .continuous).fill(Color(white: 0.12))
+                        RoundedRectangle(cornerRadius: Rayon.vignette, style: .continuous).fill(Color(white: 0.12))
                         VStack(spacing: 7) {
                             Image(systemName: "music.note").font(.system(size: 20, weight: .semibold))
                                 .foregroundStyle(Color(red: 0.12, green: 0.84, blue: 0.38))
@@ -351,7 +351,7 @@ struct ScenePresentation: View {
                     .frame(width: 84)
                     // Les notes : on y jette un œil.
                     ZStack {
-                        RoundedRectangle(cornerRadius: 8, style: .continuous).fill(Color.white)
+                        RoundedRectangle(cornerRadius: Rayon.vignette, style: .continuous).fill(Color.white)
                         VStack(alignment: .leading, spacing: 5) {
                             Image(systemName: "note.text").font(.system(size: 17, weight: .semibold))
                                 .foregroundStyle(Color(red: 0.98, green: 0.75, blue: 0.15))
@@ -359,13 +359,13 @@ struct ScenePresentation: View {
                                 Capsule().fill(Color(white: 0.78)).frame(width: [92, 70, 82][i], height: 4)
                             }
                         }
-                        RoundedRectangle(cornerRadius: 8, style: .continuous)
+                        RoundedRectangle(cornerRadius: Rayon.vignette, style: .continuous)
                             .strokeBorder(Color.accentColor, lineWidth: 3).opacity(Double(regard))
                     }
                     .scaleEffect(1 + 0.04 * regard)
                     // Les réglages.
                     ZStack {
-                        RoundedRectangle(cornerRadius: 8, style: .continuous).fill(Color.white)
+                        RoundedRectangle(cornerRadius: Rayon.vignette, style: .continuous).fill(Color.white)
                         VStack(spacing: 6) {
                             Image(systemName: "gearshape.fill").font(.system(size: 20)).foregroundStyle(Color(white: 0.50))
                             HStack(spacing: 5) {
@@ -408,7 +408,7 @@ struct ScenePresentation: View {
         return ZStack {
             FondP()
             ZStack(alignment: .top) {
-                RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color(white: 0.95))
+                RoundedRectangle(cornerRadius: Rayon.carte, style: .continuous).fill(Color(white: 0.95))
                 VStack(spacing: 6) {
                     HStack(spacing: 5) {
                         Image(systemName: "doc.on.clipboard.fill").font(.system(size: 10)).foregroundStyle(Color.accentColor)
@@ -419,22 +419,22 @@ struct ScenePresentation: View {
                     ForEach(0..<4, id: \.self) { i in
                         let choisie = i == 1 ? copie : 0
                         ZStack(alignment: .topLeading) {
-                            RoundedRectangle(cornerRadius: 7, style: .continuous).fill(Color.white)
-                            RoundedRectangle(cornerRadius: 7, style: .continuous).fill(Color.accentColor.opacity(0.22 * Double(choisie)))
-                            RoundedRectangle(cornerRadius: 7, style: .continuous)
+                            RoundedRectangle(cornerRadius: Rayon.dessin(7), style: .continuous).fill(Color.white)
+                            RoundedRectangle(cornerRadius: Rayon.dessin(7), style: .continuous).fill(Color.accentColor.opacity(0.22 * Double(choisie)))
+                            RoundedRectangle(cornerRadius: Rayon.dessin(7), style: .continuous)
                                 .strokeBorder(Color.accentColor, lineWidth: 2).opacity(Double(choisie))
                             VStack(alignment: .leading, spacing: 4) {
                                 HStack(spacing: 4) {
                                     Image(systemName: symboles[i]).font(.system(size: 6, weight: .bold)).foregroundStyle(.white)
                                         .frame(width: 12, height: 12)
-                                        .background(RoundedRectangle(cornerRadius: 4, style: .continuous).fill(teintes[i].gradient))
+                                        .background(RoundedRectangle(cornerRadius: Rayon.puce, style: .continuous).fill(teintes[i].gradient))
                                     Capsule().fill(teintes[i].opacity(0.55)).frame(width: 26, height: 4)
                                 }
                                 if i == 0 {
-                                    RoundedRectangle(cornerRadius: 4, style: .continuous)
+                                    RoundedRectangle(cornerRadius: Rayon.puce, style: .continuous)
                                         .fill(LinearGradient(colors: [.orange, .purple], startPoint: .topLeading, endPoint: .bottomTrailing))
                                 } else if i == 2 {
-                                    RoundedRectangle(cornerRadius: 4, style: .continuous).fill(Color(red: 0.85, green: 0.44, blue: 0.29))
+                                    RoundedRectangle(cornerRadius: Rayon.puce, style: .continuous).fill(Color(red: 0.85, green: 0.44, blue: 0.29))
                                 } else {
                                     Capsule().fill(Color(white: 0.78)).frame(width: 78, height: 4)
                                     Capsule().fill(Color(white: 0.84)).frame(width: 54, height: 4)
@@ -470,7 +470,7 @@ private struct PastilleP: View {
             if let texte { Text(texte).font(.system(size: 13, weight: .medium)) }
         }
         .padding(.horizontal, 11).padding(.vertical, 6)
-        .background(Capsule().fill(Color.primary.opacity(0.09)))
+        .background(Capsule().fill(Gris.moyen))
     }
 }
 
@@ -502,8 +502,8 @@ private struct TrackpadP: View {
             return poses
         }()
         return ZStack {
-            RoundedRectangle(cornerRadius: 10, style: .continuous).fill(Color.primary.opacity(0.10))
-            RoundedRectangle(cornerRadius: 10, style: .continuous).strokeBorder(Color.primary.opacity(0.22), lineWidth: 1)
+            RoundedRectangle(cornerRadius: Rayon.encadre, style: .continuous).fill(Gris.moyen)
+            RoundedRectangle(cornerRadius: Rayon.encadre, style: .continuous).strokeBorder(Gris.bord, lineWidth: 1)
             HStack(spacing: 7) {
                 ForEach(0..<4, id: \.self) { i in
                     Circle().fill(Color.accentColor).frame(width: 13, height: 13).offset(y: [3, -3, -4, 2][i])
@@ -546,7 +546,7 @@ struct PresentationVue: View {
         VStack(spacing: 14) {
             HStack(spacing: 5) {
                 ForEach(0..<Self.nombre, id: \.self) { i in
-                    Capsule().fill(i == etape ? Color.accentColor : Color.primary.opacity(0.18))
+                    Capsule().fill(i == etape ? Color.accentColor : Gris.fort)
                         .frame(width: i == etape ? 18 : 6, height: 6)
                 }
             }
@@ -562,8 +562,8 @@ struct PresentationVue: View {
                 VStack(spacing: 12) {
                     Self.ecran(etape, t)
                         .frame(width: EcranP.taille.width, height: EcranP.taille.height)
-                        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-                        .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).strokeBorder(Color.primary.opacity(0.25), lineWidth: 1.5))
+                        .clipShape(RoundedRectangle(cornerRadius: Rayon.dessin(14), style: .continuous))
+                        .overlay(RoundedRectangle(cornerRadius: Rayon.dessin(14), style: .continuous).strokeBorder(Gris.bord, lineWidth: 1.5))
                     Self.trackpad(etape, t).frame(height: 62)
                 }
             }
@@ -678,6 +678,11 @@ enum PresentationSide {
             w.titleVisibility = .hidden
             w.isReleasedWhenClosed = false
             w.level = .floating
+            // Fermée par sa croix rouge, la présentation est vue aussi : sinon elle revenait à chaque lancement.
+            NotificationCenter.default.addObserver(forName: NSWindow.willCloseNotification, object: w, queue: .main) { _ in
+                UserDefaults.standard.set(true, forKey: "accueilVu")
+                fenetre = nil
+            }
             fenetre = w
         }
         fenetre?.center()

@@ -34,6 +34,20 @@ enum Groupes {
                                   forKey: "groupesPids")
     }
 
+    /// Retire des groupes les fenêtres fermées, et celles dont le numéro sert maintenant à une autre application
+    /// (après un redémarrage du Mac, les numéros repartent de zéro : deux fenêtres sans rapport se retrouvaient groupées).
+    static func nettoyer() {
+        var morts: [CGWindowID] = []
+        for w in Set(groupes.flatMap { $0 }) {
+            let info = (CGWindowListCopyWindowInfo([.optionIncludingWindow], w) as? [[String: Any]])?.first
+            let pid = info?[kCGWindowOwnerPID as String] as? Int
+            if pid == nil || pids[w].map({ Int($0) != pid }) ?? true { morts.append(w) }
+        }
+        guard !morts.isEmpty else { return }
+        morts.forEach(retirer)
+        journal("Square: %d fenêtre(s) retirée(s) des groupes (fermées)", morts.count)
+    }
+
     static func lier(_ a: Fenetre, _ b: Fenetre) {
         pids[a.wid] = a.pid; pids[b.wid] = b.pid
         retirer(a.wid)                                  // la fenêtre déplacée quitte son ancien groupe

@@ -24,6 +24,7 @@ enum Pilule {
                         .frame(width: 20, height: 20).background(Circle().fill(Color.white.opacity(0.15)))
                 }
                 .buttonStyle(.plain)
+                .help("Fermer")
             }
             .padding(.leading, 16).padding(.trailing, 8).padding(.vertical, 9)
             .background(Capsule().fill(Pilule.encre))

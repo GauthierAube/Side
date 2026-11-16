@@ -133,8 +133,8 @@ struct SceneAccueil: View {
         VStack(spacing: 12) {
             ZStack { ecran }
             .frame(width: Ecran.taille.width, height: Ecran.taille.height)
-            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-            .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).strokeBorder(Color.primary.opacity(0.25), lineWidth: 1.5))
+            .clipShape(RoundedRectangle(cornerRadius: Rayon.dessin(14), style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: Rayon.dessin(14), style: .continuous).strokeBorder(Gris.bord, lineWidth: 1.5))
             // Sous l'écran : le trackpad, pour l'étape des quatre doigts (une place vide ailleurs, pour que rien ne bouge).
             trackpad.frame(height: 62).opacity(etape == 2 ? 1 : 0)
         }
@@ -202,8 +202,8 @@ struct SceneAccueil: View {
     private var trackpad: some View {
         let glisse = tranche(t, 0.12, 0.50), poses = tranche(t, 0.04, 0.10) - tranche(t, 0.52, 0.58)
         return ZStack {
-            RoundedRectangle(cornerRadius: 10, style: .continuous).fill(Color.primary.opacity(0.10))
-            RoundedRectangle(cornerRadius: 10, style: .continuous).strokeBorder(Color.primary.opacity(0.22), lineWidth: 1)
+            RoundedRectangle(cornerRadius: Rayon.encadre, style: .continuous).fill(Gris.moyen)
+            RoundedRectangle(cornerRadius: Rayon.encadre, style: .continuous).strokeBorder(Gris.bord, lineWidth: 1)
             HStack(spacing: 7) {
                 ForEach(0..<4, id: \.self) { i in
                     Circle().fill(Color(nsColor: orange)).frame(width: 13, height: 13).offset(y: [3, -3, -4, 2][i])
@@ -247,7 +247,7 @@ struct SceneAccueil: View {
                 // La fenêtre 3 : emportée vers la première case, puis resserrée dans sa moitié gauche.
                 Fenetrette(cadre: melange(place(3), moitieG, partage), couleur: Ecran.couleurs[3], opacite: tenue1 > 0.5 ? 0.3 : 1)
                 // Le repère orange : la moitié où la fenêtre va se poser.
-                RoundedRectangle(cornerRadius: 6).fill(Color(nsColor: orange).opacity(0.45))
+                RoundedRectangle(cornerRadius: Rayon.ligne).fill(Color(nsColor: orange).opacity(0.45))
                     .frame(width: moitieD.width, height: moitieD.height).position(x: moitieD.midX, y: moitieD.midY)
                     .opacity(Double(tranche(t, 0.70, 0.76) - tranche(t, 0.80, 0.84)))
                 // Les vignettes transportées, sous le pointeur.
@@ -286,7 +286,7 @@ struct SceneAccueil: View {
         return ZStack {
             FondEcran(sombre: 1)
             ForEach(0..<4, id: \.self) { i in Fenetrette(cadre: c[i], couleur: Ecran.couleurs[i], opacite: Double(1 - zoom)) }
-            RoundedRectangle(cornerRadius: 11, style: .continuous).fill(Color.white.opacity(0.2))
+            RoundedRectangle(cornerRadius: Rayon.dessin(11), style: .continuous).fill(Color.white.opacity(0.2))
                 .frame(width: repos + enPlus, height: 32).position(x: 210, y: 234)
             ForEach(0..<n, id: \.self) { i in
                 RoundedRectangle(cornerRadius: cadres[i].width * 0.24, style: .continuous)
@@ -329,7 +329,7 @@ private struct TiroirDessin: View {
             // La musique.
             let m = CGRect(x: cadre.minX, y: cadre.minY, width: 82, height: cadre.height)
             ZStack {
-                RoundedRectangle(cornerRadius: 9, style: .continuous).fill(Color(white: 0.12))
+                RoundedRectangle(cornerRadius: Rayon.dessin(9), style: .continuous).fill(Color(white: 0.12))
                 VStack(spacing: 7) {
                     Image(systemName: "music.note").font(.system(size: 18, weight: .semibold))
                         .foregroundStyle(Color(red: 0.12, green: 0.84, blue: 0.38))
@@ -346,9 +346,9 @@ private struct TiroirDessin: View {
                 Capsule().fill(Color.white.opacity(0.85))
                 VStack(spacing: 5) {
                     ForEach(0..<4, id: \.self) { i in
-                        RoundedRectangle(cornerRadius: 3.5, style: .continuous).fill(Ecran.couleurs[(i + 1) % 6].gradient)
+                        RoundedRectangle(cornerRadius: Rayon.dessin(3.5), style: .continuous).fill(Ecran.couleurs[(i + 1) % 6].gradient)
                             .frame(width: 12, height: 12)
-                            .overlay(RoundedRectangle(cornerRadius: 4.5, style: .continuous)
+                            .overlay(RoundedRectangle(cornerRadius: Rayon.dessin(4.5), style: .continuous)
                                 .strokeBorder(Color(nsColor: orange), lineWidth: 1.5).padding(-2).opacity(i == choisie ? 1 : 0))
                     }
                 }
@@ -365,7 +365,7 @@ private struct FinderDessin: View {
     let cadre: CGRect
     var body: some View {
         ZStack(alignment: .topLeading) {
-            RoundedRectangle(cornerRadius: 10, style: .continuous).fill(Color(white: 0.97))
+            RoundedRectangle(cornerRadius: Rayon.encadre, style: .continuous).fill(Color(white: 0.97))
             UnevenRoundedRectangle(topLeadingRadius: 10, bottomLeadingRadius: 10, style: .continuous)
                 .fill(Color(white: 0.88)).frame(width: cadre.width * 0.32)
             VStack(alignment: .leading, spacing: 6) {
@@ -392,7 +392,7 @@ private struct ToucheDessin: View {
     var body: some View {
         Text(texte).font(.system(size: 15, weight: .semibold, design: .rounded)).foregroundStyle(Color(white: 0.2))
             .padding(.horizontal, 10).padding(.vertical, 5)
-            .background(RoundedRectangle(cornerRadius: 7, style: .continuous).fill(Color.white))
+            .background(RoundedRectangle(cornerRadius: Rayon.dessin(7), style: .continuous).fill(Color.white))
             .shadow(color: .black.opacity(0.35), radius: 4, y: 2)
     }
 }

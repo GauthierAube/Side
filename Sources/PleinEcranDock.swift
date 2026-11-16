@@ -183,7 +183,7 @@ final class DockGrille: NSView {
                 if i > 0, i != rangCorbeille, ouvertes.contains(chemin) {
                     let p = CALayer()
                     p.backgroundColor = NSColor(white: 1, alpha: 0.85).cgColor
-                    p.cornerRadius = 2
+                    p.cornerRadius = Rayon.dessin(2)
                     layer?.addSublayer(p)
                     points[i] = p
                 }
@@ -277,6 +277,13 @@ final class DockGrille: NSView {
         let r = cadre((axe - repos) / 2 + Self.marge + t / 2, 0, bord + epaisseur, 0)
         let p = NSPoint(x: r.midX, y: r.midY)
         return (window?.convertPoint(toScreen: convert(p, to: nil)) ?? p, cote)
+    }
+
+    /// La place (dans ce Dock) et l'image de l'icône de cette application, pour la faire grandir quand on la lance.
+    func icone(de chemin: String) -> (cadre: CGRect, image: CGImage?)? {
+        guard let k = chemins.firstIndex(of: chemin), k + 2 < calques.count, k + 2 < cadres.count else { return nil }
+        let c = calques[k + 2].contents
+        return (cadres[k + 2], c.map { $0 as! CGImage })
     }
 
     /// La case sous ce point, d'après la place réelle des icônes (grossies ou non).
@@ -445,7 +452,7 @@ private final class LigneAppli: NSView {
         self.chemin = chemin
         super.init(frame: NSRect(x: 0, y: 0, width: 340, height: 38))
         wantsLayer = true
-        layer?.cornerRadius = 8
+        layer?.cornerRadius = Rayon.vignette
         let icone = NSImageView(frame: NSRect(x: 8, y: 4, width: 30, height: 30))
         icone.image = NSWorkspace.shared.icon(forFile: chemin)
         addSubview(icone)

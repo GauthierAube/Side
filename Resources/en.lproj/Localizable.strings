@@ -230,6 +230,8 @@ Press Esc to cancel.</string>
 	<string>No apps.</string>
 	<key>Aucune note trouvée dans Notes</key>
 	<string>No notes found in Notes</string>
+	<key>Aussi pour les liens simplement copiés</key>
+	<string>Also for links that were only copied</string>
 	<key>Automatique</key>
 	<string>Automatic</string>
 	<key>Automatique (langue du Mac)</key>
@@ -390,6 +392,12 @@ Press Esc to cancel.</string>
 	<string>Make Alias</string>
 	<key>Créé le</key>
 	<string>Created</string>
+	<key>Dans 15 minutes</key>
+	<string>In 15 minutes</string>
+	<key>Dans 30 minutes</key>
+	<string>In 30 minutes</string>
+	<key>Dans 60 minutes</key>
+	<string>In 60 minutes</string>
 	<key>Dans iCloud, pas encore sur ce Mac. Clique pour le télécharger.</key>
 	<string>In iCloud, not yet on this Mac. Click to download it.</string>
 	<key>Dans la grille : glisser une case sur le milieu d'une autre change l'ordre ; la glisser sur un bord partage l'écran entre les deux fenêtres ; deux doigts vers le haut sur une case ferment l'application.</key>
@@ -552,6 +560,8 @@ Press Esc to cancel.</string>
 	<string>Keep in Links…</string>
 	<key>Garder les zones remplies à l'écran quand Side est fermé</key>
 	<string>Keep filled zones on screen when Side is closed</string>
+	<key>Garder mes centres d'intérêt dans les pastilles</key>
+	<string>Keep my interests in the chips</string>
 	<key>Garder un historique du copier-coller (7 jours)</key>
 	<string>Keep a copy-and-paste history (7 days)</string>
 	<key>Garder à l'écran quand Side est fermé</key>
@@ -672,6 +682,8 @@ Press Esc to cancel.</string>
 	<string>Intensity</string>
 	<key>Inversé</key>
 	<string>Reversed</string>
+	<key>Jamais</key>
+	<string>Never</string>
 	<key>Jamais agrandies</key>
 	<string>Never fill the screen</string>
 	<key>Jaune : au tiroir</key>
@@ -680,6 +692,8 @@ Press Esc to cancel.</string>
 	<string>I didn't understand. Try a simple word: jpg, png, zip, mp4, pdf, text, background…</string>
 	<key>Je ne sais pas encore faire ça. Essaie : convertir, réduire, pivoter, retirer le fond, fusionner, extraire le texte, zipper, MP4, son.</key>
 	<string>I can't do that yet. Try: convert, shrink, rotate, remove the background, merge, extract the text, zip, MP4, audio.</string>
+	<key>L'aperçu montre l'image et le titre du site : pour cela, Side contacte le site du lien, seulement quand le volet l'affiche. Au départ, seulement pour les liens enregistrés : visiter un lien simplement copié peut consommer un lien à usage unique (connexion, confirmation). La présentation vaut pour le presse-papiers comme pour l'onglet « Enregistrés ». Les liens enregistrés restent sur ce Mac.</key>
+	<string>The preview shows the site's image and title: to get them, Side contacts the link's site, only when the panel shows it. By default, only for saved links: visiting a link that was only copied can use up a one-time link (sign-in, confirmation). The layout applies to the clipboard and to the “Saved” tab. Saved links stay on this Mac.</string>
 	<key>L'aperçu montre l'image et le titre du site : pour cela, Side contacte le site du lien, seulement quand le volet l'affiche. La présentation vaut pour le presse-papiers comme pour l'onglet « Enregistrés ». Les liens enregistrés restent sur ce Mac.</key>
 	<string>The preview shows the site's image and title: to do this, Side contacts the link's website, only when the panel shows it. The appearance applies to both the clipboard and the Saved tab. Saved links stay on this Mac.</string>
 	<key>L'historique du copier-coller est désactivé dans les réglages de Side.</key>
@@ -726,6 +740,8 @@ Press Esc to cancel.</string>
 	<string>Keep folders on top when sorting by name</string>
 	<key>Lancer</key>
 	<string>Run</string>
+	<key>Lancer l'action (Entrée)</key>
+	<string>Run the action (Return)</string>
 	<key>Lancer « %@ ». Dépose un fichier pour le lui passer.</key>
 	<string>Run “%@”. Drop a file to pass it along.</string>
 	<key>Langue</key>
@@ -778,6 +794,8 @@ Press Esc to cancel.</string>
 	<string>The starting folder and the pinned columns of Side's Finder.</string>
 	<key>Le geste dans l'autre sens referme le Finder. Attention : macOS utilise déjà ces gestes, vers le haut pour Mission Control et vers le bas pour « Exposé des apps ». Pour que les deux ne se déclenchent pas ensemble, mets-les sur « Désactivé » dans Réglages Système &gt; Trackpad &gt; Autres gestes. Side ne change pas ces réglages lui-même.</key>
 	<string>Swiping the other way closes the Finder. Note: macOS already uses these gestures, up for Mission Control and down for App Exposé. So that both don't trigger together, set them to “Off” in System Settings &gt; Trackpad &gt; More Gestures. Side doesn't change these settings itself.</string>
+	<key>Le lecteur YouTube du tiroir est Peinard. Ses réglages s'ouvrent depuis le rond de profil, en haut à droite de la tuile.</key>
+	<string>The drawer's YouTube player is Peinard. Its settings open from the profile circle, at the top right of the tile.</string>
 	<key>Le même fond flou sert au Finder de Side, au volet du presse-papiers et aux onglets du coin multimédia du tiroir : cette opacité vaut pour tous.</key>
 	<string>The same blurred background is used by Side's Finder, the clipboard panel and the media tabs in the drawer: this opacity applies to all of them.</string>
 	<key>Le plein écran</key>
@@ -822,6 +840,10 @@ Press Esc to cancel.</string>
 	<string>Now Playing</string>
 	<key>Lecture / pause</key>
 	<string>Play / Pause</string>
+	<key>Lecture aléatoire</key>
+	<string>Shuffle</string>
+	<key>Lecture ou pause</key>
+	<string>Play or pause</string>
 	<key>Les %lld éléments qu'elle contient seront supprimés définitivement. Cette action est irréversible.</key>
 	<string>The %lld items it contains will be deleted permanently. You can't undo this action.</string>
 	<key>Les applications de travail remplissent l'écran, sans le plein écran d'Apple.</key>
@@ -846,6 +868,8 @@ Press Esc to cancel.</string>
 	<string>Small apps and music, one at a time.</string>
 	<key>Les textes, les fichiers et les 40 dernières images copiés sont gardés 7 jours sur ce Mac ; ce que tu épingles (clic droit) est gardé sans limite. Les mots de passe ne sont jamais écrits sur le disque. Décocher l'historique efface tout.</key>
 	<string>Copied text, files and the last 40 images are kept for 7 days on this Mac; what you pin (right-click) is kept with no limit. Passwords are never written to disk. Turning off history erases everything.</string>
+	<key>Les vidéos du tiroir se mettront en pause à %@.</key>
+	<string>Videos in the drawer will pause at %@.</string>
 	<key>Les zones où poser des fichiers en attente, à côté du Finder de Side.</key>
 	<string>The zones where you can leave files waiting, next to Side's Finder.</string>
 	<key>Lien</key>
@@ -868,14 +892,22 @@ Press Esc to cancel.</string>
 	<string>Hide the Mini Dock</string>
 	<key>Masquer les Shorts</key>
 	<string>Hide Shorts</string>
+	<key>Masquer les Shorts retire leurs rangées, leur onglet et les vidéos courtes, tout de suite ; masquer les posts retire les messages des chaînes. Les pastilles gardent « Tous » et tes centres d'intérêt, sans les rubriques générales (Actualités, Musique…) ; décoché, toute la rangée est masquée. Les passages sponsorisés sont signalés par la communauté SponsorBlock. Couper les publicités est contraire aux conditions d'utilisation de YouTube : à activer en connaissance de cause, pris en compte au prochain lancement de Side.</key>
+	<string>Hide Shorts removes their rows, their tab and short videos, right away; hide posts removes channel posts. The chips keep “All” and your interests, without the general topics (News, Music…); unchecked, the whole row is hidden. Sponsored segments are reported by the SponsorBlock community. Blocking ads goes against YouTube's terms of service: turn it on knowingly; it takes effect the next time Side starts.</string>
 	<key>Masquer les Shorts retire leurs rangées, leur onglet et les vidéos courtes, tout de suite. Couper les publicités est contraire aux conditions d'utilisation de YouTube : à activer en connaissance de cause, pris en compte au prochain lancement de Side.</key>
 	<string>Hide Shorts removes their rows, their tab and short videos, right away. Blocking ads goes against YouTube's terms of service: turn it on knowingly; it takes effect the next time Side launches.</string>
+	<key>Masquer les posts</key>
+	<string>Hide posts</string>
 	<key>Mes applications</key>
 	<string>My apps</string>
+	<key>Mettre en pause</key>
+	<string>Pause</string>
 	<key>Milieu</key>
 	<string>Middle</string>
 	<key>Mini-Dock</key>
 	<string>Mini Dock</string>
+	<key>Minuteur de sommeil</key>
+	<string>Sleep timer</string>
 	<key>Modifier le lien</key>
 	<string>Edit Link</string>
 	<key>Modifier…</key>
@@ -990,6 +1022,8 @@ Press Esc to cancel.</string>
 	<string>Make the drawer app full screen</string>
 	<key>Passer la publicité (quand YouTube le propose)</key>
 	<string>Skip the ad (when YouTube allows it)</string>
+	<key>Passer les passages sponsorisés</key>
+	<string>Skip sponsored segments</string>
 	<key>Petit</key>
 	<string>Small</string>
 	<key>Petite image</key>
@@ -1178,6 +1212,8 @@ Press Esc to cancel.</string>
 	<string>Settings…</string>
 	<key>Régler les coins actifs…</key>
 	<string>Set Hot Corners…</string>
+	<key>Répéter</key>
+	<string>Repeat</string>
 	<key>Réseau</key>
 	<string>Network</string>
 	<key>Réseau (ordinateurs qui partagent des fichiers)</key>
@@ -1292,6 +1328,10 @@ Press Esc to cancel.</string>
 	<string>Drawer</string>
 	<key>Titre (facultatif)</key>
 	<string>Title (optional)</string>
+	<key>Titre précédent</key>
+	<string>Previous track</string>
+	<key>Titre suivant</key>
+	<string>Next track</string>
 	<key>Titres</key>
 	<string>Songs</string>
 	<key>Titres, artistes, albums, playlists</key>

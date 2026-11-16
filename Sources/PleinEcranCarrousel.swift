@@ -71,7 +71,7 @@ final class Carrousel {
             carte.shadowPath = CGPath(roundedRect: carte.bounds, cornerWidth: 14, cornerHeight: 14, transform: nil)
             let image = CALayer()
             image.frame = carte.bounds
-            image.cornerRadius = 14
+            image.cornerRadius = Rayon.interieur
             image.masksToBounds = true
             image.backgroundColor = NSColor(white: 0.2, alpha: 1).cgColor
             image.contentsGravity = .resizeAspectFill
@@ -126,7 +126,7 @@ final class Carrousel {
         // Apparition : les cartes arrivent en fondu en grossissant un peu, l'écran s'assombrit à peine.
         CATransaction.flush()
         CATransaction.begin()
-        CATransaction.setAnimationDuration(0.13)
+        CATransaction.setAnimationDuration(Mouvement.duree(0.13))
         CATransaction.setAnimationTimingFunction(CAMediaTimingFunction(controlPoints: 0.2, 0.9, 0.3, 1))
         groupe.opacity = 1
         groupe.transform = CATransform3DIdentity
@@ -155,7 +155,7 @@ final class Carrousel {
         let rayon = pas / max(sin(angleParCarte), 0.5)
         CATransaction.begin()
         if anime {
-            CATransaction.setAnimationDuration(0.16)
+            CATransaction.setAnimationDuration(Mouvement.duree(0.16))
             CATransaction.setAnimationTimingFunction(CAMediaTimingFunction(name: .easeOut))
         } else { CATransaction.setDisableActions(true) }
         for (i, c) in cartes.enumerated() {
@@ -183,7 +183,7 @@ final class Carrousel {
         let pas = largeur * petit + 34, pousse = largeur * (1 - petit) / 2
         CATransaction.begin()
         if anime {
-            CATransaction.setAnimationDuration(0.16)
+            CATransaction.setAnimationDuration(Mouvement.duree(0.16))
             CATransaction.setAnimationTimingFunction(CAMediaTimingFunction(name: .easeOut))
         } else { CATransaction.setDisableActions(true) }
         for (i, c) in cartes.enumerated() {
@@ -217,7 +217,7 @@ final class Carrousel {
             arrivee = CGRect(x: r.minX - ecran.minX, y: groupe.bounds.height - (r.minY - ecran.minY) - r.height, width: r.width, height: r.height)
         }
         CATransaction.begin()
-        CATransaction.setAnimationDuration(0.22)
+        CATransaction.setAnimationDuration(Mouvement.duree(0.22))
         CATransaction.setAnimationTimingFunction(CAMediaTimingFunction(controlPoints: 0.3, 0.8, 0.3, 1))
         CATransaction.setCompletionBlock { [weak self] in
             guard let self, !self.visible else { return }

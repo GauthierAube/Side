@@ -230,6 +230,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Aucune application.</string>
 	<key>Aucune note trouvée dans Notes</key>
 	<string>Aucune note trouvée dans Notes</string>
+	<key>Aussi pour les liens simplement copiés</key>
+	<string>Aussi pour les liens simplement copiés</string>
 	<key>Automatique</key>
 	<string>Automatique</string>
 	<key>Automatique (langue du Mac)</key>
@@ -390,6 +392,12 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Créer un alias</string>
 	<key>Créé le</key>
 	<string>Créé le</string>
+	<key>Dans 15 minutes</key>
+	<string>Dans 15 minutes</string>
+	<key>Dans 30 minutes</key>
+	<string>Dans 30 minutes</string>
+	<key>Dans 60 minutes</key>
+	<string>Dans 60 minutes</string>
 	<key>Dans iCloud, pas encore sur ce Mac. Clique pour le télécharger.</key>
 	<string>Dans iCloud, pas encore sur ce Mac. Clique pour le télécharger.</string>
 	<key>Dans la grille : glisser une case sur le milieu d'une autre change l'ordre ; la glisser sur un bord partage l'écran entre les deux fenêtres ; deux doigts vers le haut sur une case ferment l'application.</key>
@@ -552,6 +560,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Garder dans les liens…</string>
 	<key>Garder les zones remplies à l'écran quand Side est fermé</key>
 	<string>Garder les zones remplies à l'écran quand Side est fermé</string>
+	<key>Garder mes centres d'intérêt dans les pastilles</key>
+	<string>Garder mes centres d'intérêt dans les pastilles</string>
 	<key>Garder un historique du copier-coller (7 jours)</key>
 	<string>Garder un historique du copier-coller (7 jours)</string>
 	<key>Garder à l'écran quand Side est fermé</key>
@@ -672,6 +682,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Intensité</string>
 	<key>Inversé</key>
 	<string>Inversé</string>
+	<key>Jamais</key>
+	<string>Jamais</string>
 	<key>Jamais agrandies</key>
 	<string>Jamais agrandies</string>
 	<key>Jaune : au tiroir</key>
@@ -680,6 +692,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Je n'ai pas compris. Essaie avec un mot simple : jpg, png, zip, mp4, pdf, texte, fond…</string>
 	<key>Je ne sais pas encore faire ça. Essaie : convertir, réduire, pivoter, retirer le fond, fusionner, extraire le texte, zipper, MP4, son.</key>
 	<string>Je ne sais pas encore faire ça. Essaie : convertir, réduire, pivoter, retirer le fond, fusionner, extraire le texte, zipper, MP4, son.</string>
+	<key>L'aperçu montre l'image et le titre du site : pour cela, Side contacte le site du lien, seulement quand le volet l'affiche. Au départ, seulement pour les liens enregistrés : visiter un lien simplement copié peut consommer un lien à usage unique (connexion, confirmation). La présentation vaut pour le presse-papiers comme pour l'onglet « Enregistrés ». Les liens enregistrés restent sur ce Mac.</key>
+	<string>L'aperçu montre l'image et le titre du site : pour cela, Side contacte le site du lien, seulement quand le volet l'affiche. Au départ, seulement pour les liens enregistrés : visiter un lien simplement copié peut consommer un lien à usage unique (connexion, confirmation). La présentation vaut pour le presse-papiers comme pour l'onglet « Enregistrés ». Les liens enregistrés restent sur ce Mac.</string>
 	<key>L'aperçu montre l'image et le titre du site : pour cela, Side contacte le site du lien, seulement quand le volet l'affiche. La présentation vaut pour le presse-papiers comme pour l'onglet « Enregistrés ». Les liens enregistrés restent sur ce Mac.</key>
 	<string>L'aperçu montre l'image et le titre du site : pour cela, Side contacte le site du lien, seulement quand le volet l'affiche. La présentation vaut pour le presse-papiers comme pour l'onglet « Enregistrés ». Les liens enregistrés restent sur ce Mac.</string>
 	<key>L'historique du copier-coller est désactivé dans les réglages de Side.</key>
@@ -726,6 +740,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Laisser les dossiers en haut lors du tri par nom</string>
 	<key>Lancer</key>
 	<string>Lancer</string>
+	<key>Lancer l'action (Entrée)</key>
+	<string>Lancer l'action (Entrée)</string>
 	<key>Lancer « %@ ». Dépose un fichier pour le lui passer.</key>
 	<string>Lancer « %@ ». Dépose un fichier pour le lui passer.</string>
 	<key>Langue</key>
@@ -778,6 +794,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Le dossier de départ et les colonnes épinglées du Finder de Side.</string>
 	<key>Le geste dans l'autre sens referme le Finder. Attention : macOS utilise déjà ces gestes, vers le haut pour Mission Control et vers le bas pour « Exposé des apps ». Pour que les deux ne se déclenchent pas ensemble, mets-les sur « Désactivé » dans Réglages Système &gt; Trackpad &gt; Autres gestes. Side ne change pas ces réglages lui-même.</key>
 	<string>Le geste dans l'autre sens referme le Finder. Attention : macOS utilise déjà ces gestes, vers le haut pour Mission Control et vers le bas pour « Exposé des apps ». Pour que les deux ne se déclenchent pas ensemble, mets-les sur « Désactivé » dans Réglages Système &gt; Trackpad &gt; Autres gestes. Side ne change pas ces réglages lui-même.</string>
+	<key>Le lecteur YouTube du tiroir est Peinard. Ses réglages s'ouvrent depuis le rond de profil, en haut à droite de la tuile.</key>
+	<string>Le lecteur YouTube du tiroir est Peinard. Ses réglages s'ouvrent depuis le rond de profil, en haut à droite de la tuile.</string>
 	<key>Le même fond flou sert au Finder de Side, au volet du presse-papiers et aux onglets du coin multimédia du tiroir : cette opacité vaut pour tous.</key>
 	<string>Le même fond flou sert au Finder de Side, au volet du presse-papiers et aux onglets du coin multimédia du tiroir : cette opacité vaut pour tous.</string>
 	<key>Le plein écran</key>
@@ -822,6 +840,10 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Lecture</string>
 	<key>Lecture / pause</key>
 	<string>Lecture / pause</string>
+	<key>Lecture aléatoire</key>
+	<string>Lecture aléatoire</string>
+	<key>Lecture ou pause</key>
+	<string>Lecture ou pause</string>
 	<key>Les %lld éléments qu'elle contient seront supprimés définitivement. Cette action est irréversible.</key>
 	<string>Les %lld éléments qu'elle contient seront supprimés définitivement. Cette action est irréversible.</string>
 	<key>Les applications de travail remplissent l'écran, sans le plein écran d'Apple.</key>
@@ -846,6 +868,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Les petites applications et la musique, une à la fois.</string>
 	<key>Les textes, les fichiers et les 40 dernières images copiés sont gardés 7 jours sur ce Mac ; ce que tu épingles (clic droit) est gardé sans limite. Les mots de passe ne sont jamais écrits sur le disque. Décocher l'historique efface tout.</key>
 	<string>Les textes, les fichiers et les 40 dernières images copiés sont gardés 7 jours sur ce Mac ; ce que tu épingles (clic droit) est gardé sans limite. Les mots de passe ne sont jamais écrits sur le disque. Décocher l'historique efface tout.</string>
+	<key>Les vidéos du tiroir se mettront en pause à %@.</key>
+	<string>Les vidéos du tiroir se mettront en pause à %@.</string>
 	<key>Les zones où poser des fichiers en attente, à côté du Finder de Side.</key>
 	<string>Les zones où poser des fichiers en attente, à côté du Finder de Side.</string>
 	<key>Lien</key>
@@ -868,14 +892,22 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Masquer le mini-Dock</string>
 	<key>Masquer les Shorts</key>
 	<string>Masquer les Shorts</string>
+	<key>Masquer les Shorts retire leurs rangées, leur onglet et les vidéos courtes, tout de suite ; masquer les posts retire les messages des chaînes. Les pastilles gardent « Tous » et tes centres d'intérêt, sans les rubriques générales (Actualités, Musique…) ; décoché, toute la rangée est masquée. Les passages sponsorisés sont signalés par la communauté SponsorBlock. Couper les publicités est contraire aux conditions d'utilisation de YouTube : à activer en connaissance de cause, pris en compte au prochain lancement de Side.</key>
+	<string>Masquer les Shorts retire leurs rangées, leur onglet et les vidéos courtes, tout de suite ; masquer les posts retire les messages des chaînes. Les pastilles gardent « Tous » et tes centres d'intérêt, sans les rubriques générales (Actualités, Musique…) ; décoché, toute la rangée est masquée. Les passages sponsorisés sont signalés par la communauté SponsorBlock. Couper les publicités est contraire aux conditions d'utilisation de YouTube : à activer en connaissance de cause, pris en compte au prochain lancement de Side.</string>
 	<key>Masquer les Shorts retire leurs rangées, leur onglet et les vidéos courtes, tout de suite. Couper les publicités est contraire aux conditions d'utilisation de YouTube : à activer en connaissance de cause, pris en compte au prochain lancement de Side.</key>
 	<string>Masquer les Shorts retire leurs rangées, leur onglet et les vidéos courtes, tout de suite. Couper les publicités est contraire aux conditions d'utilisation de YouTube : à activer en connaissance de cause, pris en compte au prochain lancement de Side.</string>
+	<key>Masquer les posts</key>
+	<string>Masquer les posts</string>
 	<key>Mes applications</key>
 	<string>Mes applications</string>
+	<key>Mettre en pause</key>
+	<string>Mettre en pause</string>
 	<key>Milieu</key>
 	<string>Milieu</string>
 	<key>Mini-Dock</key>
 	<string>Mini-Dock</string>
+	<key>Minuteur de sommeil</key>
+	<string>Minuteur de sommeil</string>
 	<key>Modifier le lien</key>
 	<string>Modifier le lien</string>
 	<key>Modifier…</key>
@@ -990,6 +1022,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Passer l'application du tiroir en plein écran</string>
 	<key>Passer la publicité (quand YouTube le propose)</key>
 	<string>Passer la publicité (quand YouTube le propose)</string>
+	<key>Passer les passages sponsorisés</key>
+	<string>Passer les passages sponsorisés</string>
 	<key>Petit</key>
 	<string>Petit</string>
 	<key>Petite image</key>
@@ -1178,6 +1212,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Réglages…</string>
 	<key>Régler les coins actifs…</key>
 	<string>Régler les coins actifs…</string>
+	<key>Répéter</key>
+	<string>Répéter</string>
 	<key>Réseau</key>
 	<string>Réseau</string>
 	<key>Réseau (ordinateurs qui partagent des fichiers)</key>
@@ -1292,6 +1328,10 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Tiroir</string>
 	<key>Titre (facultatif)</key>
 	<string>Titre (facultatif)</string>
+	<key>Titre précédent</key>
+	<string>Titre précédent</string>
+	<key>Titre suivant</key>
+	<string>Titre suivant</string>
 	<key>Titres</key>
 	<string>Titres</string>
 	<key>Titres, artistes, albums, playlists</key>

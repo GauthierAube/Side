@@ -43,9 +43,13 @@ enum FondNoir {
         maj()
     }
 
+    private static var observe = false
+
     private static func demarrer() {
         guard minuteur == nil else { return }
         minuteur = Timer.scheduledTimer(withTimeInterval: 0.25, repeats: true) { _ in maj() }
+        guard !observe else { return }      // l'observateur ne s'installe qu'une fois, pas à chaque redémarrage du minuteur
+        observe = true
         NSWorkspace.shared.notificationCenter.addObserver(forName: NSWorkspace.didActivateApplicationNotification, object: nil, queue: .main) { _ in
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { maj() }
         }
@@ -57,7 +61,11 @@ enum FondNoir {
         let infos = (CGWindowListCopyWindowInfo([.optionOnScreenOnly, .excludeDesktopElements], kCGNullWindowID) as? [[String: Any]]) ?? []
         let visibles = Set(infos.compactMap { $0[kCGWindowNumber as String] as? CGWindowID })
         // Les fenêtres fermées sont oubliées (une fenêtre seulement cachée, application masquée, est gardée).
-        for (w, pid) in suivies where !visibles.contains(w) && NSRunningApplication(processIdentifier: pid) == nil { suivies[w] = nil }
+        // Fermée = macOS ne connaît plus ce numéro de fenêtre (même si l'application, elle, tourne encore).
+        for (w, pid) in suivies where !visibles.contains(w) {
+            let existe = !((CGWindowListCopyWindowInfo([.optionIncludingWindow], w) as? [[String: Any]]) ?? []).isEmpty
+            if !existe || NSRunningApplication(processIdentifier: pid) == nil { suivies[w] = nil }
+        }
         // Les fenêtres passées dans le tiroir sont oubliées : le fond noir ne doit jamais recouvrir le tiroir.
         let tiroir = Relevé.fenetresDuTiroir()
         for w in suivies.keys where tiroir.contains(w) { suivies[w] = nil }

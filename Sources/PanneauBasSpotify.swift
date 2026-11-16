@@ -41,6 +41,9 @@ final class SpotifyCompte {
 
     // Le jeton de renouvellement est rangé dans le trousseau du Mac, pas dans un fichier.
     private func lireTrousseau() -> String? {
+        // Photos d'écran de test (--image) : le trousseau n'est pas lu. Une copie de test, signée autrement,
+        // ferait apparaître la demande de mot de passe du trousseau à l'écran et resterait bloquée dessus.
+        if CommandLine.arguments.contains("--image") { return nil }
         let q: [String: Any] = [kSecClass as String: kSecClassGenericPassword, kSecAttrService as String: service,
                                 kSecAttrAccount as String: "renouvellement", kSecReturnData as String: true]
         var r: CFTypeRef?
@@ -122,6 +125,12 @@ final class SpotifyCompte {
                 else { self?.terminer(refus == "access_denied" ? String(localized: "Vous avez refusé l'autorisation dans Spotify.") : String(localized: "Spotify n'a pas renvoyé d'autorisation.")) }
             }
         }
+        // Port déjà pris : l'échec n'arrive qu'ici, après coup. On le dit, au lieu d'attendre le navigateur sans fin.
+        e.stateUpdateHandler = { [weak self] etat in
+            guard case .failed = etat, let self, self.ecoute === e else { return }
+            self.ecoute = nil
+            self.terminer(String(localized: "Le port 8765 du Mac est déjà pris. Fermez l'application qui l'utilise et réessayez."))
+        }
         e.start(queue: .main)
         ecoute = e
         return true
@@ -142,6 +151,7 @@ final class SpotifyCompte {
             let json = d.flatMap { try? JSONSerialization.jsonObject(with: $0) } as? [String: Any]
             DispatchQueue.main.async {
                 guard let self, let acces = json?["access_token"] as? String else {
+                    self?.refusDefinitif = (json?["error"] as? String) == "invalid_grant"
                     fin((json?["error_description"] as? String) ?? String(localized: "Spotify n'a pas répondu."))
                     return
                 }
@@ -158,12 +168,23 @@ final class SpotifyCompte {
                 "client_id": identifiant, "code_verifier": verificateur]) { [weak self] erreur in self?.terminer(erreur) }
     }
 
+    /// Spotify a refusé le jeton pour de bon (autorisation retirée), par opposition à une simple panne de réseau.
+    private var refusDefinitif = false
+    /// Les demandes qui attendent le renouvellement en cours : un seul part à la fois.
+    private var enAttente: [(String?) -> Void] = []
+
     private func renouveler(_ fin: @escaping (String?) -> Void) {
         guard let suite = lireTrousseau() else { fin(String(localized: "Le compte Spotify n'est pas connecté.")); return }
+        enAttente.append(fin)
+        guard enAttente.count == 1 else { return }       // un renouvellement est déjà parti : on attend sa réponse
+        refusDefinitif = false
         jetons(["grant_type": "refresh_token", "refresh_token": suite, "client_id": identifiant]) { [weak self] erreur in
-            // Autorisation retirée ou expirée : il faudra se reconnecter.
-            if erreur != nil { self?.ecrireTrousseau(nil) }
-            fin(erreur)
+            guard let self else { return }
+            // Autorisation retirée ou expirée : il faudra se reconnecter. Une panne de réseau, elle, ne déconnecte pas.
+            if erreur != nil, self.refusDefinitif { self.ecrireTrousseau(nil) }
+            let suites = self.enAttente
+            self.enAttente = []
+            suites.forEach { $0(erreur) }
         }
     }
 
@@ -238,7 +259,7 @@ final class LigneSpotifyBas: NSView {
     init(_ e: ElementSpotify) {
         super.init(frame: .zero)
         wantsLayer = true
-        layer?.cornerRadius = 8
+        layer?.cornerRadius = Rayon.vignette
         image.wantsLayer = true
         image.layer?.cornerRadius = e.rond ? 24 : 4
         image.layer?.masksToBounds = true
@@ -379,7 +400,7 @@ final class PastillesBas: NSView {
             b.isBordered = false
             b.tag = i
             b.wantsLayer = true
-            b.layer?.cornerRadius = 14
+            b.layer?.cornerRadius = Rayon.interieur
             b.translatesAutoresizingMaskIntoConstraints = false
             b.heightAnchor.constraint(equalToConstant: 28).isActive = true
             b.widthAnchor.constraint(equalToConstant: nom.size(withAttributes: [.font: NSFont.systemFont(ofSize: 12, weight: .medium)]).width + 17).isActive = true
@@ -455,7 +476,7 @@ final class LecteurSpotifyBas: NSView, NSSearchFieldDelegate {
         super.init(frame: frame)
         appearance = NSAppearance(named: .darkAqua)
         wantsLayer = true
-        layer?.cornerRadius = 20
+        layer?.cornerRadius = Rayon.tuile
         layer?.cornerCurve = .continuous
         layer?.cornerCurve = .continuous
         layer?.borderWidth = 0.5
@@ -543,8 +564,12 @@ final class LecteurSpotifyBas: NSView, NSSearchFieldDelegate {
         NSImage(systemSymbolName: nom, accessibilityDescription: nil)?.withSymbolConfiguration(.init(pointSize: taille, weight: .semibold))
     }
 
-    private func bouton(_ nom: String, _ taille: CGFloat, _ action: Selector) -> BoutonBas {
+    private func bouton(_ nom: String, _ taille: CGFloat, _ action: Selector, aide: String? = nil) -> BoutonBas {
         let b = BoutonBas(frame: .zero)
+        if let aide {                         // une icône seule : sa bulle dit ce qu'elle fait
+            b.toolTip = aide
+            b.setAccessibilityLabel(aide)
+        }
         b.isBordered = false
         b.image = symbole(nom, taille)
         b.contentTintColor = .labelColor
@@ -590,7 +615,7 @@ final class LecteurSpotifyBas: NSView, NSSearchFieldDelegate {
 
     private func construireLecture() {
         pochette.wantsLayer = true
-        pochette.layer?.cornerRadius = 8
+        pochette.layer?.cornerRadius = Rayon.vignette
         pochette.layer?.masksToBounds = true
         pochette.layer?.backgroundColor = NSColor(white: 1, alpha: 0.08).cgColor
         pochette.imageScaling = .scaleProportionallyUpOrDown
@@ -603,19 +628,19 @@ final class LecteurSpotifyBas: NSView, NSSearchFieldDelegate {
 
         let progression = NSStackView(views: [ecoule, avance, total])
         progression.spacing = 6
-        aleatoire = bouton("shuffle", 14, #selector(basculerAleatoire))
-        let avant = bouton("backward.end.fill", 20, #selector(precedent))
-        lecture = bouton("play.circle.fill", 50, #selector(basculer))
+        aleatoire = bouton("shuffle", 14, #selector(basculerAleatoire), aide: String(localized: "Lecture aléatoire"))
+        let avant = bouton("backward.end.fill", 20, #selector(precedent), aide: String(localized: "Titre précédent"))
+        lecture = bouton("play.circle.fill", 50, #selector(basculer), aide: String(localized: "Lecture ou pause"))
         lecture.contentTintColor = .white
-        let apres = bouton("forward.end.fill", 20, #selector(suivant))
-        repete = bouton("repeat", 14, #selector(basculerRepete))
+        let apres = bouton("forward.end.fill", 20, #selector(suivant), aide: String(localized: "Titre suivant"))
+        repete = bouton("repeat", 14, #selector(basculerRepete), aide: String(localized: "Répéter"))
         let commandes = NSStackView(views: [aleatoire, avant, lecture, apres, repete])
         commandes.distribution = .equalSpacing
         // La vidéo d'un podcast ne peut pas s'afficher ici : ce bouton ouvre la fenêtre de Spotify en grand, où elle se regarde.
         let video = BoutonBas(title: "", target: self, action: #selector(voirVideo))
         video.isBordered = false
         video.wantsLayer = true
-        video.layer?.cornerRadius = 14
+        video.layer?.cornerRadius = Rayon.interieur
         video.layer?.backgroundColor = NSColor(white: 1, alpha: 0.10).cgColor
         video.image = symbole("play.rectangle.fill", 12)
         video.imagePosition = .imageLeading

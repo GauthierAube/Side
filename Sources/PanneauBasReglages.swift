@@ -55,6 +55,31 @@ final class ConfigTiroir: ObservableObject {
     @Published var couperPubs: Bool { didSet { d.set(couperPubs, forKey: "tiroirCouperPubs") } }
     /// Masquer les Shorts de YouTube (rangées de Shorts, onglet, vidéos courtes). Appliqué tout de suite, sans recharger.
     @Published var masquerShorts: Bool { didSet { d.set(masquerShorts, forKey: "tiroirMasquerShorts"); PanneauBas.commun.appliquerShorts() } }
+    /// Masquer les posts des chaînes (messages, images, sondages) dans les listes. Appliqué tout de suite.
+    @Published var masquerPosts: Bool { didSet { d.set(masquerPosts, forKey: "tiroirMasquerPosts"); PanneauBas.commun.appliquerShorts() } }
+    /// Passer automatiquement les passages sponsorisés des vidéos (repérés par la communauté SponsorBlock).
+    @Published var passerSponsors: Bool { didSet { d.set(passerSponsors, forKey: "tiroirPasserSponsors"); PanneauBas.commun.appliquerShorts() } }
+    /// Pastilles en haut de l'accueil (Tous, Musique, Actualités…) : vrai = on garde « Tous » et tes centres d'intérêt,
+    /// on retire les rubriques générales ; faux = toute la rangée est masquée (comme avant le 14/11/2026).
+    @Published var pastillesInterets: Bool { didSet { d.set(pastillesInterets, forKey: "tiroirPastillesInterets"); PanneauBas.commun.appliquerShorts() } }
+    /// Minuteur de sommeil : heure à laquelle les vidéos du tiroir se mettent en pause (rien = minuteur arrêté).
+    @Published private(set) var finMinuteur: Date?
+    /// La durée choisie (0 = jamais) : gardée ici et pas dans la vue, pour que le menu la retrouve en rouvrant les réglages.
+    @Published private(set) var minutesMinuteur = 0
+    private var minuteur: Timer?
+    func reglerMinuteur(minutes: Int) {
+        minuteur?.invalidate(); minuteur = nil; finMinuteur = nil; minutesMinuteur = 0
+        guard minutes > 0 else { return }
+        minutesMinuteur = minutes
+        finMinuteur = Date().addingTimeInterval(TimeInterval(minutes * 60))
+        minuteur = Timer.scheduledTimer(withTimeInterval: TimeInterval(minutes * 60), repeats: false) { [weak self] _ in
+            DispatchQueue.main.async {
+                self?.finMinuteur = nil
+                self?.minutesMinuteur = 0
+                PanneauBas.commun.mettreEnPause()
+            }
+        }
+    }
     /// Les éléments du coin multimédia, dans l'ordre. Au départ : Spotify et YouTube. La liste peut être vide.
     @Published var medias: [MediaBas] {
         didSet { d.set(medias.map { $0.enTexte }, forKey: "tiroirMedias"); PanneauBas.commun.médiasChangés() }
@@ -73,6 +98,9 @@ final class ConfigTiroir: ObservableObject {
         fond = d.object(forKey: "tiroirFond") as? Bool ?? false
         couperPubs = d.bool(forKey: "tiroirCouperPubs")
         masquerShorts = d.bool(forKey: "tiroirMasquerShorts")
+        masquerPosts = d.bool(forKey: "tiroirMasquerPosts")
+        passerSponsors = d.object(forKey: "tiroirPasserSponsors") as? Bool ?? true
+        pastillesInterets = d.object(forKey: "tiroirPastillesInterets") as? Bool ?? true
         // Au départ : YouTube, qui marche sans rien installer, et Spotify seulement si l'application est sur ce Mac.
         let spotifyInstalle = FileManager.default.fileExists(atPath: "/Applications/Spotify.app")
         medias = (d.array(forKey: "tiroirMedias") as? [[String: String]])?.compactMap { MediaBas($0) }
@@ -80,7 +108,6 @@ final class ConfigTiroir: ObservableObject {
         GestePanneauBas.actif = quatreDoigts
     }
 
-    private var ecouteur: Any?
 
     // Le tiroir se règle sur le Finder de Side : il arrive du bord opposé, et son geste à quatre doigts va dans l'autre sens.
     /// Vrai : le tiroir descend du haut de l'écran (le Finder vient du bas). Faux : il monte du bas.
@@ -107,25 +134,10 @@ final class ConfigTiroir: ObservableObject {
 
     /// Attend la prochaine combinaison de touches tapée dans la fenêtre Réglages (Échap annule).
     func ecouterRaccourci(fin: @escaping () -> Void) {
-        PanneauBas.commun.suspendreRaccourci()
-        if let e = ecouteur { NSEvent.removeMonitor(e) }
-        ecouteur = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] ev in
-            guard let self else { return ev }
-            let f = ev.modifierFlags
-            let annule = ev.keyCode == 53
-            guard annule || !f.intersection([.command, .control, .option]).isEmpty else { NSSound.beep(); return nil }
-            if let e = self.ecouteur { NSEvent.removeMonitor(e); self.ecouteur = nil }
-            if annule { PanneauBas.commun.installerRaccourci(); fin(); return nil }
-            var mods = 0, texte = ""
-            if f.contains(.control) { mods |= controlKey; texte += "⌃" }
-            if f.contains(.option) { mods |= optionKey; texte += "⌥" }
-            if f.contains(.shift) { mods |= shiftKey; texte += "⇧" }
-            if f.contains(.command) { mods |= cmdKey; texte += "⌘" }
-            texte += ev.keyCode == UInt16(kVK_Space) ? String(localized: "Espace") : (ev.charactersIgnoringModifiers ?? "?").uppercased()
-            self.definirRaccourci(touche: Int(ev.keyCode), mods: mods, libelle: texte)
-            fin()
-            return nil
-        }
+        SaisieRaccourci.attendre(suspendre: { PanneauBas.commun.suspendreRaccourci() },
+                                 reprendre: { PanneauBas.commun.installerRaccourci() },
+                                 choisi: { [weak self] in self?.definirRaccourci(touche: $0, mods: $1, libelle: $2) },
+                                 fin: fin)
     }
 }
 
@@ -234,10 +246,10 @@ struct CoinsActifsView: View {
 
     private var ecran: some View {
         ZStack {
-            RoundedRectangle(cornerRadius: 9, style: .continuous)
+            RoundedRectangle(cornerRadius: Rayon.vignette, style: .continuous)
                 .fill(LinearGradient(colors: [Color.accentColor.opacity(0.55), Color.purple.opacity(0.45)],
                                      startPoint: .topLeading, endPoint: .bottomTrailing))
-            RoundedRectangle(cornerRadius: 9, style: .continuous).strokeBorder(Color.primary.opacity(0.25), lineWidth: 1)
+            RoundedRectangle(cornerRadius: Rayon.vignette, style: .continuous).strokeBorder(Gris.bord, lineWidth: 1)
             VStack {
                 HStack { Circle().fill(couleur(.hautGauche)).frame(width: 12, height: 12); Spacer()
                          Circle().fill(couleur(.hautDroite)).frame(width: 12, height: 12) }
@@ -371,12 +383,38 @@ struct SectionsTiroir: View {
             } header: { Text("Un autre site web") } footer: {
                 note(String(localized: "Une application du Mac se range plutôt dans « Applications »."))
             }
-            if tiroir.medias.contains(where: { $0.genre == "youtube" }) {
+            if tiroir.medias.contains(where: { $0.genre == "youtube" }), TuilePeinard.disponible {
+                // YouTube est Peinard : ses réglages (Shorts, posts, sponsors, pastilles…) sont dans Peinard lui-même.
+                Section {
+                    Text("Le lecteur YouTube du tiroir est Peinard. Ses réglages s'ouvrent depuis le rond de profil, en haut à droite de la tuile.")
+                        .foregroundStyle(.secondary)
+                } header: { Text("YouTube") }
+            }
+            if tiroir.medias.contains(where: { $0.genre == "youtube" }), !TuilePeinard.disponible {
                 Section {
                     Toggle("Masquer les Shorts", isOn: $tiroir.masquerShorts)
+                    Toggle("Masquer les posts", isOn: $tiroir.masquerPosts)
+                    Toggle("Garder mes centres d'intérêt dans les pastilles", isOn: $tiroir.pastillesInterets)
+                    Toggle("Passer les passages sponsorisés", isOn: $tiroir.passerSponsors)
                     Toggle("Couper les publicités", isOn: $tiroir.couperPubs)
                 } header: { Text("YouTube") } footer: {
-                    note(String(localized: "Masquer les Shorts retire leurs rangées, leur onglet et les vidéos courtes, tout de suite. Couper les publicités est contraire aux conditions d'utilisation de YouTube : à activer en connaissance de cause, pris en compte au prochain lancement de Side."))
+                    note(String(localized: "Masquer les Shorts retire leurs rangées, leur onglet et les vidéos courtes, tout de suite ; masquer les posts retire les messages des chaînes. Les pastilles gardent « Tous » et tes centres d'intérêt, sans les rubriques générales (Actualités, Musique…) ; décoché, toute la rangée est masquée. Les passages sponsorisés sont signalés par la communauté SponsorBlock. Couper les publicités est contraire aux conditions d'utilisation de YouTube : à activer en connaissance de cause, pris en compte au prochain lancement de Side."))
+                }
+            }
+            if tiroir.medias.contains(where: { $0.genre == "youtube" }) {
+                Section {
+                    Picker("Mettre en pause", selection: Binding(
+                        get: { tiroir.minutesMinuteur },
+                        set: { tiroir.reglerMinuteur(minutes: $0) })) {
+                        Text("Jamais").tag(0)
+                        Text("Dans 15 minutes").tag(15)
+                        Text("Dans 30 minutes").tag(30)
+                        Text("Dans 60 minutes").tag(60)
+                    }
+                } header: { Text("Minuteur de sommeil") } footer: {
+                    if let fin = tiroir.finMinuteur {
+                        note(String(localized: "Les vidéos du tiroir se mettront en pause à \(fin.formatted(date: .omitted, time: .shortened))."))
+                    }
                 }
             }
             if tiroir.medias.contains(where: { $0.genre == "spotify" }) {
@@ -426,7 +464,7 @@ final class BienvenueTiroirBas: NSView {
     override init(frame: NSRect) {
         super.init(frame: frame)
         wantsLayer = true
-        layer?.cornerRadius = 16
+        layer?.cornerRadius = Rayon.panneau
         layer?.cornerCurve = .continuous
         layer?.backgroundColor = NSColor.windowBackgroundColor.cgColor
         layer?.borderWidth = 1

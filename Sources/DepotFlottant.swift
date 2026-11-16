@@ -51,7 +51,7 @@ private struct RondDepot: View {
             .font(.system(size: 13, weight: .semibold))
             .foregroundStyle(.primary.opacity(0.8))
             .frame(width: 34, height: 34)
-            .background(Circle().fill(Color.primary.opacity(0.10)))
+            .background(Circle().fill(Gris.moyen))
             .contentShape(Circle())
     }
 }
@@ -79,7 +79,7 @@ struct EtagereFlottante: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(forme.fill(depot ? Color.accentColor.opacity(0.28) : Color.clear))
-        .overlay(forme.strokeBorder(depot ? Color.accentColor : Color.primary.opacity(0.12), lineWidth: depot ? 2 : 1))
+        .overlay(forme.strokeBorder(depot ? Color.accentColor : Gris.filet, lineWidth: depot ? 2 : 1))
         .contentShape(forme)
         .modifier(Depot(action: { AppDelegate.shared.poser($0, column.indexEtagere) }, cible: $depot, deplace: false))
         .onChange(of: column.items.isEmpty) { _, vide in
@@ -123,10 +123,10 @@ struct EtagereFlottante: View {
                 }
                 .frame(width: 104, height: 104)
                 .scaleEffect(survolPile ? 1.04 : 1)
-                .animation(.easeOut(duration: 0.15), value: survolPile)
+                .animation(Mouvement.survol, value: survolPile)
                 .contentShape(Rectangle())
                 .onHover { survolPile = $0; AppDelegate.shared.survolerPile(column, $0) }
-                .onTapGesture(count: 2) { withAnimation(.spring(response: 0.3, dampingFraction: 0.85)) { store.depotDeplie = column.indexEtagere } }
+                .onTapGesture(count: 2) { withAnimation(Mouvement.ressort) { store.depotDeplie = column.indexEtagere } }
                 .help("Glisse la pile pour emmener tous les fichiers")
             }
         }
@@ -139,14 +139,14 @@ struct EtagereFlottante: View {
         .overlay(alignment: .topTrailing) { menu.padding(9) }
         .overlay(alignment: .bottom) {
             Button {
-                withAnimation(.spring(response: 0.3, dampingFraction: 0.85)) { store.depotDeplie = column.indexEtagere }
+                withAnimation(Mouvement.ressort) { store.depotDeplie = column.indexEtagere }
             } label: {
                 HStack(spacing: 5) {
                     Text(titre).font(.system(size: 12, weight: .medium)).lineLimit(1).truncationMode(.middle)
                     Image(systemName: "chevron.right").font(.system(size: 9, weight: .bold)).foregroundStyle(.secondary)
                 }
                 .padding(.horizontal, 12).padding(.vertical, 6)
-                .background(Capsule().fill(Color.primary.opacity(0.10)))
+                .background(Capsule().fill(Gris.moyen))
                 .contentShape(Capsule())
             }
             .buttonStyle(.plain)
@@ -165,7 +165,7 @@ struct EtagereFlottante: View {
         VStack(spacing: 0) {
             HStack(spacing: 10) {
                 Button {
-                    withAnimation(.spring(response: 0.3, dampingFraction: 0.85)) { store.depotDeplie = nil }
+                    withAnimation(Mouvement.ressort) { store.depotDeplie = nil }
                 } label: { RondDepot(symbole: "chevron.left") }
                     .buttonStyle(.plain).help("Replier").accessibilityLabel("Replier la zone")
                 VStack(alignment: .leading, spacing: 0) {
@@ -228,7 +228,7 @@ private struct CaseDepot: View {
         }
         .padding(.vertical, 6).padding(.horizontal, 4)
         .frame(width: 118)
-        .overlay(RoundedRectangle(cornerRadius: 8, style: .continuous).strokeBorder(Selection.bleu, lineWidth: choisi ? 2 : 0))
+        .overlay(RoundedRectangle(cornerRadius: Rayon.vignette, style: .continuous).strokeBorder(Selection.bleu, lineWidth: choisi ? 2 : 0))
         .modifier(Interactions(item: item, column: column, survol: $survol, fond: false))
     }
 }

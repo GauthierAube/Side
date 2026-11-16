@@ -42,13 +42,15 @@ final class ConfigPresse: ObservableObject {
     @Published var fermerApresCopie: Bool { didSet { d.set(fermerApresCopie, forKey: "presseFermer") } }
     /// Montrer l'aperçu officiel des liens (image et titre du site). Il faut pour cela contacter le site.
     @Published var apercuLiens: Bool { didSet { d.set(apercuLiens, forKey: "presseApercuLiens") } }
+    /// L'aperçu aussi pour les liens simplement copiés (pas seulement les enregistrés). Coupé au départ : visiter un lien
+    /// copié peut consommer un lien à usage unique (connexion, confirmation, désinscription). Depuis le 15/11/2026.
+    @Published var apercuCopies: Bool { didSet { d.set(apercuCopies, forKey: "presseApercuCopies") } }
     /// La présentation des cartes de liens : grande image, petite image à gauche, ou sans image.
     @Published var presentation: PresentationLien { didSet { d.set(presentation.rawValue, forKey: "pressePresentation") } }
     /// Raccourci clavier : -1 = aucun, sinon le code de la touche. Au départ : Contrôle + Option + V.
     @Published var touche: Int { didSet { d.set(touche, forKey: "presseTouche") } }
     @Published var mods: Int { didSet { d.set(mods, forKey: "presseMods") } }
     @Published var libelle: String { didSet { d.set(libelle, forKey: "presseLibelle") } }
-    private var ecouteur: Any?
 
     func definirRaccourci(touche: Int, mods: Int, libelle: String) {
         self.touche = touche
@@ -59,29 +61,15 @@ final class ConfigPresse: ObservableObject {
 
     /// Attend la prochaine combinaison de touches tapée dans la fenêtre Réglages (Échap annule).
     func ecouterRaccourci(fin: @escaping () -> Void) {
-        VoletPresse.commun.suspendreRaccourci()
-        if let e = ecouteur { NSEvent.removeMonitor(e) }
-        ecouteur = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] ev in
-            guard let self else { return ev }
-            let f = ev.modifierFlags
-            let annule = ev.keyCode == 53
-            guard annule || !f.intersection([.command, .control, .option]).isEmpty else { NSSound.beep(); return nil }
-            if let e = self.ecouteur { NSEvent.removeMonitor(e); self.ecouteur = nil }
-            if annule { VoletPresse.commun.installerRaccourci(); fin(); return nil }
-            var mods = 0, texte = ""
-            if f.contains(.control) { mods |= controlKey; texte += "⌃" }
-            if f.contains(.option) { mods |= optionKey; texte += "⌥" }
-            if f.contains(.shift) { mods |= shiftKey; texte += "⇧" }
-            if f.contains(.command) { mods |= cmdKey; texte += "⌘" }
-            texte += ev.keyCode == UInt16(kVK_Space) ? String(localized: "Espace") : (ev.charactersIgnoringModifiers ?? "?").uppercased()
-            self.definirRaccourci(touche: Int(ev.keyCode), mods: mods, libelle: texte)
-            fin()
-            return nil
-        }
+        SaisieRaccourci.attendre(suspendre: { VoletPresse.commun.suspendreRaccourci() },
+                                 reprendre: { VoletPresse.commun.installerRaccourci() },
+                                 choisi: { [weak self] in self?.definirRaccourci(touche: $0, mods: $1, libelle: $2) },
+                                 fin: fin)
     }
 
     private init() {
         apercuLiens = d.object(forKey: "presseApercuLiens") as? Bool ?? true
+        apercuCopies = d.bool(forKey: "presseApercuCopies")
         presentation = d.string(forKey: "pressePresentation").flatMap(PresentationLien.init) ?? .grande
         touche = d.object(forKey: "presseTouche") as? Int ?? kVK_ANSI_V
         mods = d.object(forKey: "presseMods") as? Int ?? (controlKey | optionKey)
@@ -143,6 +131,8 @@ struct ReglagesVoletPresse: View {
         }
         Section {
             Toggle("Aperçu des liens (l'image et le titre du site)", isOn: $presse.apercuLiens)
+            Toggle("Aussi pour les liens simplement copiés", isOn: $presse.apercuCopies)
+                .disabled(!presse.apercuLiens)
             Picker("Présentation des liens", selection: $presse.presentation) {
                 ForEach(PresentationLien.allCases, id: \.self) { Label($0.titre, systemImage: $0.symbole).tag($0) }
             }
@@ -151,7 +141,7 @@ struct ReglagesVoletPresse: View {
                 Text(verbatim: "\(liens.liens.count)").monospacedDigit().foregroundStyle(.secondary)
             }
         } header: { Text("Liens") } footer: {
-            Text("L'aperçu montre l'image et le titre du site : pour cela, Side contacte le site du lien, seulement quand le volet l'affiche. La présentation vaut pour le presse-papiers comme pour l'onglet « Enregistrés ». Les liens enregistrés restent sur ce Mac.")
+            Text("L'aperçu montre l'image et le titre du site : pour cela, Side contacte le site du lien, seulement quand le volet l'affiche. Au départ, seulement pour les liens enregistrés : visiter un lien simplement copié peut consommer un lien à usage unique (connexion, confirmation). La présentation vaut pour le presse-papiers comme pour l'onglet « Enregistrés ». Les liens enregistrés restent sur ce Mac.")
                 .font(.caption).foregroundStyle(.secondary)
         }
     }
@@ -230,6 +220,7 @@ final class ApercuLien: ObservableObject {
     private static var connus: [String: ApercuLien] = [:]
     static func pour(_ adresse: String) -> ApercuLien {
         if let a = connus[adresse] { return a }
+        if connus.count > 300 { connus.removeAll() }     // les images d'aperçu ne s'accumulent pas sans fin en mémoire
         let a = ApercuLien(adresse)
         connus[adresse] = a
         return a
@@ -276,7 +267,7 @@ private struct VignetteLien: View {
     var body: some View {
         Color.clear.frame(width: 64, height: 64)
             .overlay(Image(nsImage: image).resizable().scaledToFill())
-            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+            .clipShape(RoundedRectangle(cornerRadius: Rayon.encadre, style: .continuous))
             .overlay(alignment: .bottomTrailing) {
                 if let icone {
                     Image(nsImage: icone).resizable().scaledToFill().frame(width: 22, height: 22)
@@ -294,12 +285,19 @@ private struct VignetteLien: View {
 private struct ApercuLienVue: View {
     let texte: String
     @ObservedObject private var apercu: ApercuLien
-    @ObservedObject private var presse = ConfigPresse.commun
+    @ObservedObject private var config = ConfigPresse.commun
+    @ObservedObject private var liens = LiensGardes.commun
 
     init(texte: String) {
         self.texte = texte
         apercu = ApercuLien.pour(texte)
     }
+
+    /// L'aperçu, seulement pour un lien enregistré (ou pour tous, si on l'a demandé dans les réglages).
+    private var aperçuPermis: Bool {
+        config.apercuLiens && (config.apercuCopies || liens.liens.contains { $0.url?.absoluteString == texte })
+    }
+    private var presse: (apercuLiens: Bool, presentation: PresentationLien) { (aperçuPermis, config.presentation) }
 
     private var site: String { (URL(string: texte)?.host ?? texte).replacingOccurrences(of: "www.", with: "") }
 
@@ -309,14 +307,14 @@ private struct ApercuLienVue: View {
                 // L'image de partage du site, comme dans Messages.
                 Color.clear.frame(height: 130)
                     .overlay(Image(nsImage: image).resizable().scaledToFill())
-                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                    .clipShape(RoundedRectangle(cornerRadius: Rayon.vignette, style: .continuous))
             }
             HStack(alignment: .top, spacing: 8) {
                 if presse.apercuLiens, presse.presentation == .petite, let image = apercu.image {
                     VignetteLien(image: image, icone: apercu.icone)
                 } else if presse.apercuLiens, let icone = apercu.icone {
                     Image(nsImage: icone).resizable().scaledToFit().frame(width: 18, height: 18)
-                        .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
+                        .clipShape(RoundedRectangle(cornerRadius: Rayon.puce, style: .continuous))
                 }
                 VStack(alignment: .leading, spacing: 2) {
                     if presse.apercuLiens, let titre = apercu.titre, !titre.isEmpty {
@@ -332,8 +330,8 @@ private struct ApercuLienVue: View {
                 }
             }
         }
-        .onAppear { if presse.apercuLiens { apercu.charger() } }
-        .onChange(of: presse.apercuLiens) { _, oui in if oui { apercu.charger() } }
+        .onAppear { if aperçuPermis { apercu.charger() } }
+        .onChange(of: aperçuPermis) { _, oui in if oui { apercu.charger() } }
     }
 }
 
@@ -463,7 +461,7 @@ private struct LigneLien: View {
             if lien.url != nil, presse.apercuLiens, presse.presentation == .grande, let image = apercu.image {
                 Color.clear.frame(height: 120)
                     .overlay(Image(nsImage: image).resizable().scaledToFill())
-                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                    .clipShape(RoundedRectangle(cornerRadius: Rayon.vignette, style: .continuous))
             }
             HStack(alignment: .top, spacing: 10) {
                 if lien.url != nil, presse.apercuLiens, presse.presentation == .petite, let image = apercu.image {
@@ -482,9 +480,9 @@ private struct LigneLien: View {
         }
         .padding(10)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(RoundedRectangle(cornerRadius: 12, style: .continuous)
+        .background(RoundedRectangle(cornerRadius: Rayon.carte, style: .continuous)
             .fill(copie ? Color.accentColor.opacity(0.20) : Color.primary.opacity(survol ? 0.10 : 0.055)))
-        .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous)
+        .overlay(RoundedRectangle(cornerRadius: Rayon.carte, style: .continuous)
             .strokeBorder(copie ? Color.accentColor : Color.accentColor.opacity(survol ? 0.55 : 0), lineWidth: 1.5))
         .contentShape(Rectangle())
         .onHover { survol = $0 }
@@ -500,7 +498,7 @@ private struct LigneLien: View {
             Button("Supprimer") { liens.supprimer(lien) }
         }
         .help(lien.texte)
-        .animation(.easeOut(duration: 0.12), value: survol)
+        .animation(Mouvement.survol, value: survol)
         .onAppear { if lien.url != nil, presse.apercuLiens { apercu.charger() } }
     }
 }
@@ -519,12 +517,12 @@ private struct IconeLien: View {
     var body: some View {
         Group {
             if lien.url != nil, presse.apercuLiens, let i = apercu.icone {
-                Image(nsImage: i).resizable().scaledToFit().clipShape(RoundedRectangle(cornerRadius: 5, style: .continuous))
+                Image(nsImage: i).resizable().scaledToFit().clipShape(RoundedRectangle(cornerRadius: Rayon.ligne, style: .continuous))
             } else {
                 Image(systemName: lien.url != nil ? "link" : "text.alignleft")
                     .font(.system(size: 13, weight: .bold)).foregroundStyle(.white)
                     .frame(width: 30, height: 30)
-                    .background(RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    .background(RoundedRectangle(cornerRadius: Rayon.vignette, style: .continuous)
                         .fill((lien.url != nil ? Color.blue : Color.gray).gradient))
             }
         }
@@ -568,14 +566,14 @@ private struct FormulaireLien: View {
             .controlSize(.small)
         }
         .padding(10)
-        .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color.primary.opacity(0.06)))
-        .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(Color.accentColor.opacity(0.6), lineWidth: 1))
+        .background(RoundedRectangle(cornerRadius: Rayon.carte, style: .continuous).fill(Gris.leger))
+        .overlay(RoundedRectangle(cornerRadius: Rayon.carte, style: .continuous).strokeBorder(Color.accentColor.opacity(0.6), lineWidth: 1))
     }
 
     private func champ(_ invite: LocalizedStringKey, _ valeur: Binding<String>) -> some View {
         TextField(invite, text: valeur).textFieldStyle(.plain)
             .padding(.horizontal, 8).frame(height: 24)
-            .background(RoundedRectangle(cornerRadius: 6, style: .continuous).fill(Color.primary.opacity(0.07)))
+            .background(RoundedRectangle(cornerRadius: Rayon.ligne, style: .continuous).fill(Gris.leger))
     }
 }
 
@@ -649,15 +647,15 @@ private struct OngletLiens: View {
                         Spacer()
                         Text(verbatim: "\(lignes.count)").font(.caption.weight(.semibold)).monospacedDigit()
                             .padding(.horizontal, 7).padding(.vertical, 2)
-                            .background(Capsule().fill(Color.primary.opacity(0.09)))
+                            .background(Capsule().fill(Gris.moyen))
                     }
                     .padding(.horizontal, 10).padding(.vertical, 9)
-                    .background(RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .background(RoundedRectangle(cornerRadius: Rayon.carte, style: .continuous)
                         .fill(groupeVise == g ? Color.accentColor.opacity(0.22) : Color.primary.opacity(ferme ? 0.055 : 0)))
-                    .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .overlay(RoundedRectangle(cornerRadius: Rayon.carte, style: .continuous)
                         .strokeBorder(Color.accentColor.opacity(groupeVise == g ? 0.9 : 0), lineWidth: 1.5))
                     .contentShape(Rectangle())
-                    .onTapGesture { withAnimation(.easeOut(duration: 0.18)) { liens.basculerGroupe(g) } }
+                    .onTapGesture { withAnimation(Mouvement.bascule) { liens.basculerGroupe(g) } }
                     .onDrop(of: typesDepot, isTargeted: vise(g)) { f in lireDepot(f) { liens.deposer($0, groupe: g) } }
                 }
                 if !ferme {
@@ -695,7 +693,7 @@ private struct CartePresse: View {
                 Image(systemName: nature.symbole)
                     .font(.system(size: 10, weight: .bold)).foregroundStyle(.white)
                     .frame(width: 20, height: 20)
-                    .background(RoundedRectangle(cornerRadius: 6, style: .continuous).fill(nature.couleur.gradient))
+                    .background(RoundedRectangle(cornerRadius: Rayon.ligne, style: .continuous).fill(nature.couleur.gradient))
                 Text(nature.titre).font(.caption.weight(.semibold)).foregroundStyle(nature.couleur)
                 Spacer(minLength: 0)
                 if c.epingle { Image(systemName: "pin.fill").font(.caption2).foregroundStyle(Color.accentColor) }
@@ -706,9 +704,9 @@ private struct CartePresse: View {
         }
         .padding(10)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(RoundedRectangle(cornerRadius: 12, style: .continuous)
+        .background(RoundedRectangle(cornerRadius: Rayon.carte, style: .continuous)
             .fill(copiee ? Color.accentColor.opacity(0.20) : Color.primary.opacity(survol ? 0.10 : 0.055)))
-        .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous)
+        .overlay(RoundedRectangle(cornerRadius: Rayon.carte, style: .continuous)
             .strokeBorder(copiee ? Color.accentColor : nature.couleur.opacity(survol ? 0.55 : 0), lineWidth: 1.5))
         .contentShape(Rectangle())
         .onHover { survol = $0 }
@@ -732,7 +730,7 @@ private struct CartePresse: View {
             Button("Effacer l'historique (sauf les épinglés)") { presse.vider() }
         }
         .help("Clic : recopier. Clic droit : épingler. On peut aussi le glisser ailleurs.")
-        .animation(.easeOut(duration: 0.12), value: survol)
+        .animation(Mouvement.survol, value: survol)
     }
 
     @ViewBuilder private func contenu(_ nature: NaturePresse) -> some View {
@@ -742,15 +740,15 @@ private struct CartePresse: View {
             if let image = c.image {
                 Image(nsImage: image).resizable().aspectRatio(contentMode: .fit)
                     .frame(maxWidth: .infinity, maxHeight: 150)
-                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                    .clipShape(RoundedRectangle(cornerRadius: Rayon.vignette, style: .continuous))
                 Text(verbatim: "\(Int(image.size.width)) × \(Int(image.size.height))").font(.caption2).foregroundStyle(.secondary)
             }
         case .lien:
             ApercuLienVue(texte: texte)
         case .couleur:
-            RoundedRectangle(cornerRadius: 8, style: .continuous).fill(NaturePresse.teinte(texte) ?? .clear)
+            RoundedRectangle(cornerRadius: Rayon.vignette, style: .continuous).fill(NaturePresse.teinte(texte) ?? .clear)
                 .frame(height: 44)
-                .overlay(RoundedRectangle(cornerRadius: 8, style: .continuous).strokeBorder(Color.primary.opacity(0.15), lineWidth: 1))
+                .overlay(RoundedRectangle(cornerRadius: Rayon.vignette, style: .continuous).strokeBorder(Gris.filet, lineWidth: 1))
             Text(verbatim: texte.uppercased()).font(.system(.callout, design: .monospaced))
         case .mail:
             Text(verbatim: texte).font(.callout).lineLimit(1).truncationMode(.middle)
@@ -815,7 +813,7 @@ struct VoletPresseVue: View {
                     Text("Enregistrés").tag(1)
                 }
                 .pickerStyle(.segmented).labelsHidden()
-                .overlay(RoundedRectangle(cornerRadius: 7, style: .continuous).strokeBorder(Color.accentColor, lineWidth: 2).opacity(ongletsVises ? 1 : 0))
+                .overlay(RoundedRectangle(cornerRadius: Rayon.ligne, style: .continuous).strokeBorder(Color.accentColor, lineWidth: 2).opacity(ongletsVises ? 1 : 0))
                 .onDrop(of: typesDepot, isTargeted: $ongletsVises) { f in
                     lireDepot(f) { liens.deposer($0, groupe: nil); onglet = 1 }
                 }
@@ -848,7 +846,7 @@ struct VoletPresseVue: View {
                 }
             }
             .padding(.horizontal, 10).frame(height: 28)
-            .background(Capsule().fill(Color.primary.opacity(0.08)))
+            .background(Capsule().fill(Gris.moyen))
             if onglet == 0 {
                 // Les filtres par nature : une pastille par sorte d'élément présent.
                 if natures.count > 1 {
@@ -894,7 +892,7 @@ struct VoletPresseVue: View {
             Color(nsColor: .windowBackgroundColor).opacity(config.opacite)
         })
         .clipShape(RoundedRectangle(cornerRadius: Reglages.rayonCarte, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: Reglages.rayonCarte, style: .continuous).strokeBorder(Color.primary.opacity(0.14), lineWidth: 1))
+        .overlay(RoundedRectangle(cornerRadius: Reglages.rayonCarte, style: .continuous).strokeBorder(Gris.filet, lineWidth: 1))
         // « Garder dans les liens… » depuis une carte : le formulaire est dans l'onglet « Enregistrés ».
         .onChange(of: liens.brouillon) { _, b in if b != nil { onglet = 1 } }
     }
@@ -910,8 +908,8 @@ struct VoletPresseVue: View {
             .font(.system(size: 11, weight: .semibold))
             .foregroundStyle(choisie ? .white : (n?.couleur ?? Color.primary))
             .frame(width: 30, height: 24)
-            .background(RoundedRectangle(cornerRadius: 7, style: .continuous)
-                .fill(choisie ? AnyShapeStyle((n?.couleur ?? Color.accentColor).gradient) : AnyShapeStyle(Color.primary.opacity(0.08))))
+            .background(RoundedRectangle(cornerRadius: Rayon.ligne, style: .continuous)
+                .fill(choisie ? AnyShapeStyle((n?.couleur ?? Color.accentColor).gradient) : AnyShapeStyle(Gris.moyen)))
             .contentShape(Rectangle())
             .onTapGesture { nature = n }
             .help(n?.titre ?? String(localized: "Tout"))

@@ -6,6 +6,127 @@ Il est mis à jour à chaque modification, en même temps que le code.
 ---
 
 
+## 15/11/2026
+
+### Tiroir : taille fixe avec Peinard, et la bande des suggestions
+- Avec Peinard comme lecteur YouTube, le tiroir ne se redimensionne plus (demande de Gauthier : trop pénible, et source de bugs). Il garde la taille qu'il avait ; plus de bord du haut ni de côtés à tirer, plus de relais avec la fenêtre de l'application.
+- Peinard suit les règles d'Apple pour une app iPhone portée sur Mac : page affichée à 77 % (elle était trop grosse), loupe de recherche dans l'en-tête au lieu du bouton rond en bas, boutons d'en-tête à la taille du pointeur avec bulles d'aide, raccourcis ⌘F (recherche), ⌘[ (retour), ⌘Y (historique), ⌘, (profil).
+- Le coin multimédia fait 740 points au départ : à 77 %, YouTube y dispose de 960 points et met de lui-même la vidéo à gauche et les vidéos suivantes à droite. La séparation entre le coin multimédia et les applications se tire toujours (poignée) : seule la taille du tiroir est fixe.
+- (Deux essais du même jour abandonnés : une bande de suggestions ajoutée à la main, qui cassait l'accueil avec un bloc noir, et un tiroir sur toute la largeur.)
+- Sans Peinard (version publique de Side), rien ne change : le tiroir reste réglable.
+
+### Plein écran : le Dock de la grille ouvre en grand, et la grille ne garde plus de trous
+- Clic sur une application dans le Dock de la grille : son icône grandit jusqu'à couvrir l'écran (le même mouvement qu'une carte choisie), l'application s'ouvre, passe devant, et sa fenêtre est agrandie. Avant, la grille se fermait et l'application s'ouvrait derrière, à sa taille : on croyait qu'il ne se passait rien.
+- Une application déjà ouverte choisie depuis le Dock garde le zoom de sa carte, et sa fenêtre est agrandie en plus.
+- Si l'application remet d'elle-même sa taille d'avant juste après son lancement, Side la réagrandit (trois secondes au plus).
+- « Mes applications » : seules celles qui sont ouvertes prennent les premières cases, dans l'ordre de leurs numéros. Une application de la liste qui est fermée ne laisse plus de case vide : la grille se resserre. ⌘1 à ⌘9 suivent toujours les numéros (et ouvrent l'application si elle est fermée).
+- Plus de trou dans la grille en général : une fenêtre fermée libère sa case, et les suivantes se resserrent dans le même ordre.
+
+### Tiroir : le lecteur YouTube est maintenant Peinard
+- La tuile YouTube du tiroir est Peinard, l'app iPhone de Gauthier, dans sa version Mac : logo, historique, profil, bouton loupe de recherche, résumés par Apple Intelligence, « En bref », envoi dans Horizon. Un seul code pour l'iPhone et le Mac : une correction dans Peinard profite aux deux.
+- Le code de Peinard reste dans son dossier (~/Github/sans-pub) ; `build.sh` le compile quand il est présent (`tools/peinard.sh`). Sans lui, ou s'il ne compile pas pour Mac, Side garde son ancien lecteur YouTube.
+- Avec Peinard, Side demande macOS 26 ou plus récent (Apple Intelligence). Sans Peinard, toujours macOS 14.
+- Historique, Profil, Résumé et Connexion de Peinard s'ouvrent exactement sur la tuile, à sa taille (ils apparaissaient au milieu du tiroir, à droite, écrasés).
+- Plein écran d'une vidéo de Peinard (bouton du lecteur) : la vidéo sort du tiroir dans une grande fenêtre Mac ordinaire (titre de la vidéo, boutons habituels, redimensionnable) qui remplit l'écran, avec la mise en page large de YouTube : la vidéo à gauche, les vidéos suivantes à droite. La tuile, élargie au-delà d'environ 900 points, passe aussi en deux colonnes, et le tiroir se referme, comme avec l'ancien lecteur ; Échap, le bouton du lecteur ou la croix de la fenêtre la ramènent. (Dans les premières heures de Peinard dans le tiroir, ce bouton ne faisait rien.)
+- Réglages > Multimédia : les anciens réglages YouTube (Shorts, posts, sponsors…) laissent la place à un renvoi vers les réglages de Peinard ; le minuteur de sommeil reste et met aussi Peinard en pause.
+
+### Tiroir : plus de tuile blanche au chargement de YouTube
+- Pendant les premières secondes, la tuile YouTube était blanc vif au milieu du tiroir sombre. Elle reste sombre jusqu'à ce que la page s'affiche.
+
+### Finder : la barre de commande est retirée
+- La barre sous le Finder (« Aucun fichier sélectionné… », actions sur les fichiers par Apple Intelligence) est supprimée, à la demande de Gauthier, avec son réglage. La carte du Finder s'ouvre et se ferme seule, comme avant le 13/11/2026.
+
+### Design : animations et arrondis harmonisés
+- Toutes les animations de Side passent par quatre mouvements nommés (survol, bascule, glissement, ressort) au lieu d'une quinzaine de réglages voisins. Elles s'arrêtent toutes quand « Réduire les animations » est activé dans les réglages d'accessibilité du Mac (seules 4 le faisaient).
+- Les gris (fonds de pastilles, survol, sélection, contours) passent par cinq valeurs nommées au lieu de seize : le survol et la sélection ont maintenant la même force partout (barre latérale, colonnes, Dock).
+- Bulles d'aide (et noms lus par VoiceOver) sur les boutons-icônes qui n'en avaient pas : les cinq boutons du lecteur Spotify, le bouton d'envoi de la barre de commande, la croix de la pastille d'information.
+- Tous les arrondis passent par une échelle de neuf valeurs. Les écarts corrigés sont de 1 à 2 points : rien de visible à l'œil nu (vérifié sur les photos).
+
+### Tiroir, plein écran, presse-papiers : les bugs restants de la relecture
+- Tiroir : avec un second écran à droite, les fenêtres rangées par le tiroir ne s'affichent plus sur cet écran : elles sont garées après le bord droit de tous les écrans.
+- Tiroir : un clic à l'emplacement des boutons vert ou jaune d'une tuile n'est plus pris par le tiroir quand une boîte de dialogue de l'application est par-dessus.
+- « Mes applications » partagées par iCloud : une liste pas encore descendue sur ce Mac n'est plus écrasée, et une liste vide n'est jamais déposée.
+- Les journaux de diagnostic (`~/Library/Logs`) sont ramenés à un demi-mégaoctet au lancement quand ils dépassent 2 Mo.
+- Presse-papiers : l'aperçu des liens (image et titre du site) ne se charge plus tout seul pour un lien simplement copié, seulement pour les liens enregistrés. Visiter un lien copié pouvait consommer un lien à usage unique (connexion, confirmation, désinscription). Réglages > Historique et liens > « Aussi pour les liens simplement copiés » rétablit l'ancien comportement.
+- Presse-papiers : les images d'aperçu gardées en mémoire ne s'accumulent plus sans fin.
+- Grille : une capture ne reste plus collée sur la grille quand on enchaîne deux choix ; Échap pendant qu'on tire une case ne laisse plus de vignette fantôme.
+- Écran partagé : les fenêtres fermées sont retirées des groupes (après un redémarrage du Mac, deux fenêtres sans rapport pouvaient se retrouver groupées).
+- Finder : brancher ou débrancher un écran, ou changer de résolution, referme la carte ouverte (elle gardait l'ancienne place).
+- Les textes ajoutés ces derniers jours (minuteur de sommeil, réglages YouTube, aperçu des liens) ont leur version anglaise.
+
+### Finder : quatre bugs de plus
+- Zones de dépôt : un fichier rangé sur un disque externe ou un serveur n'est plus oublié quand on débranche le disque. Il réapparaît au rebranchement.
+- Zones de dépôt : deux fichiers différents mais identiques (une copie volontaire) restent tous les deux. Seules les images que Side a lui-même créées sont encore fusionnées.
+- Geste à quatre doigts : un trackpad allumé après Side, ou reconnecté après une veille, est maintenant écouté (Side refait la liste toutes les 20 secondes et au réveil). Vaut pour le Finder et pour le plein écran.
+- Après être entré dans un dossier, un clic droit, un glisser ou Espace dans le vide ne visent plus l'ancien élément qui était sous la souris.
+- Dupliquer (⌘D) se fait en arrière-plan : un gros dossier ne fige plus Side.
+- Outil de photos : les copies de test ont maintenant leurs propres réglages (une copie figée des tiens) ; `tools/snap.sh dossier --rafraichir` reprend tes réglages du moment.
+
+### Raccourcis clavier : un seul aiguillage pour toute l'application
+- Avant, le Finder, le plein écran et le tiroir avaient chacun leur propre façon d'enregistrer un raccourci, et chacun sa façon d'en saisir un nouveau dans les réglages : trois copies, d'où les bugs corrigés plus bas. Tout passe maintenant par un seul endroit (`Raccourcis.swift`).
+- Un raccourci refusé par macOS (déjà pris) est noté dans le journal avec le nom de la partie de Side qui l'occupe déjà.
+- Commencer à saisir un raccourci abandonne une saisie restée en cours ailleurs.
+
+### Photos d'écran de test : plus aucun effet sur le vrai Side
+- Les copies de Side lancées par `tools/snap.sh` partagent les réglages du vrai Side. Elles démarraient pourtant tout : surveillance du trackpad, raccourcis, tiroir, presse-papiers (qui pouvait réécrire l'historique). Elles ne font plus que dessiner leur image et quitter.
+
+### Code rangé : Side.swift découpé en vingt-deux fichiers
+- Rien ne change dans l'application : le code a été déplacé tel quel, sans une ligne modifiée (vérifié ligne par ligne, et les 38 photos d'écran sont identiques).
+- `Side.swift` passe de 7 764 à 2 946 lignes. Le reste est rangé par thème (réglages, fichiers, carte, barre latérale, colonnes, Dock, zones de dépôt, gestes, réglages…).
+- Le cœur de l'application (`AppDelegate`, 2 840 lignes) est à son tour réparti en huit fichiers `Carte+…` (affichage, souris, clavier, clic droit, dépôt, menus…). `Side.swift` ne garde que ses variables et le lancement : 714 lignes.
+- Même chose pour le tiroir : `PanneauBas.swift` passe de 3 440 à 840 lignes, le reste en dix fichiers `Tiroir+…`.
+- Et pour le plein écran : `PleinEcran.swift` est réparti en six fichiers par thème (modèle, fenêtres, images, raccourcis, grille, pilotage).
+- Plus aucun fichier ne dépasse 1 100 lignes (le plus gros en faisait 7 764).
+- `ARCHITECTURE.md` dit où se trouve quoi.
+
+### Grande relecture du code : une trentaine de bugs corrigés
+Side a été relu en entier avec la méthode BAMA (branche `refonte-bama`). Rien ne change à l'écran : les 38 photos d'écran de contrôle sont identiques avant et après.
+
+Raccourcis clavier
+- Le raccourci du Finder et celui de la grille écrivaient le même réglage : effacer l'un pouvait empêcher Side de démarrer, changer l'autre pouvait faire capturer une lettre seule dans tout le Mac. Chacun a maintenant son réglage.
+- Chaque raccourci n'est plus traité que par sa partie (le raccourci du Finder pouvait ouvrir la grille à sa place).
+- Un raccourci déjà pris par une autre partie de Side est refusé avec un bip, au lieu d'être affiché comme actif.
+- Fermer les réglages pendant le choix d'un raccourci (Finder, tiroir, presse-papiers) annule ce choix : le raccourci ne reste plus coupé, et la combinaison suivante tapée dans Side n'est plus prise pour un raccourci.
+- Une touche seule, sans Commande, Contrôle ni Option, ne peut plus devenir un raccourci global.
+
+Finder
+- Le geste à quatre doigts marche dès la première installation (il fallait décocher puis recocher le réglage).
+- Coller, déposer dans un dossier et vider la corbeille se font en arrière-plan : une grosse copie ne fige plus Side ni les clics du reste du Mac.
+- Un dossier ne peut plus être collé dans lui-même.
+- La recherche ne reste plus coincée sur d'anciens résultats quand on tape vite.
+- Après la fermeture de la carte, Espace ou le clic droit ne visent plus l'élément qui était sous la souris la fois d'avant.
+- « Dernier dossier consulté » : le dossier retrouvé au lancement est le bon, même si Side a été quitté carte ouverte.
+- Une colonne épinglée ne change plus de place toute seule après un glisser abandonné.
+- Avec « Fermer quand la souris en sort », la carte reste ouverte pendant un aperçu (Espace) ou pendant qu'on renomme.
+- Un texte copié de plus d'un million de caractères n'entre plus dans l'historique du presse-papiers (il ralentissait tout pendant sept jours).
+
+Tiroir
+- Quitter Side, ou couper le tiroir dans les réglages, rend à l'écran les fenêtres que le tiroir gardait hors de l'écran (elles restaient invisibles jusqu'au prochain lancement).
+- La grande fenêtre de Notes revient quand on retire la dernière note du tiroir.
+- Une application figée ne fige plus Side, et sa tuile n'est plus retirée du tiroir par erreur.
+- Retirer YouTube (ou un site) du tiroir l'arrête vraiment : le son ne continue plus, sans moyen de l'arrêter.
+- Une page du tiroir que macOS a arrêtée faute de mémoire se recharge, au lieu de rester blanche.
+- Spotify : une panne de réseau ne déconnecte plus le compte ; un seul renouvellement de connexion part à la fois ; si le port 8765 est pris, Side le dit au lieu d'attendre sans fin ; un titre choisi quand Spotify est fermé se lance une fois Spotify ouvert.
+- Minuteur de sommeil : le menu garde la durée choisie quand on rouvre les réglages, et « Jamais » l'annule vraiment.
+- Le signe moins de la liste « + » retire toujours la bonne tuile, même si la liste a changé entre-temps ; plus de plantage possible si une application du tiroir quitte pendant le geste à quatre doigts.
+- Les commandes d'essai qui agissent sur des fichiers ou sur la page YouTube ne sont plus écoutées par défaut (`defaults write com.gauthieraube.side essais -bool true` pour les rallumer).
+
+Plein écran
+- Le bouton vert marche encore sur une fenêtre déjà agrandie dont Side ne connaît pas l'ancienne taille (après un redémarrage de Side) : elle reprend une taille réduite, centrée.
+- Partie « Plein écran » coupée : ⌘1 à ⌘9, ⌥ Tab, le coin de la grille et ⌃⌥Entrée sont vraiment coupés (⌘1 à ⌘9 restaient pris dans toutes les applications).
+- Plus de plantage de la grille avec une fenêtre réglée sur « tous les bureaux ».
+- Une application figée bloque la grille beaucoup moins longtemps.
+- Le fond noir des vidéos cesse de surveiller l'écran quatre fois par seconde une fois la vidéo fermée.
+- La mémoire prise par les fonds d'écran de la grille ne grossit plus sans fin.
+- La présentation fermée par sa croix rouge ne revient plus à chaque lancement.
+
+Design
+- Début du système de design : `Sources/Design.swift` nomme les sept arrondis de Side (de 4 à 22) et trois vitesses d'animation ; 82 arrondis du code y sont rattachés, sans changement à l'écran. Le mode d'emploi et la liste de ce qui reste à aligner sont dans `design/DESIGN-SYSTEM.md`.
+- Ce qui reste à faire (bugs à essayer à l'écran, découpage du code) est noté dans `docs/relecture-2026-11-15.md`.
+
+Outil
+- `tools/snap.sh` photographie les 19 écrans vérifiables hors écran (la carte et les 17 volets de réglages), en clair et en sombre, sans rien installer ni afficher.
+
 ## 14/11/2026
 
 ### Tiroir : tailles minimum fiables, pastille d'explication, réglages des applications
