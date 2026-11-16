@@ -7,6 +7,10 @@ Il est mis à jour à chaque modification, en même temps que le code.
 
 ## 16/11/2026
 
+### Finder : éjecter les disques
+- Les disques externes (DD, SSD, clés, cartes mémoire), les images disque et les serveurs connectés ont un bouton ⏏ à droite de leur nom dans la barre latérale, et « Éjecter » au clic droit, comme dans le Finder.
+- Si la carte affichait ce disque, elle passe au dossier personnel avant l'éjection (et une colonne épinglée sur ce disque est retirée), pour que Side ne le garde pas occupé. Un disque encore utilisé par une application le dit dans une fenêtre.
+
 ### Finder : présentation « Arborescence », comme l'Explorateur de Windows
 - Quatrième présentation de la grande zone, à côté des icônes, de la liste et des colonnes (quatrième bouton, ou ⌘4) : à gauche, l'arbre des dossiers ; à droite, le contenu du dossier choisi, en liste (avec la date et la taille quand la place le permet).
 - Un clic sur un dossier de l'arbre l'affiche à droite ; son chevron (ou un double-clic) le déplie ou le replie sans changer de dossier. Entrer dans un dossier à droite déplie l'arbre jusqu'à lui.

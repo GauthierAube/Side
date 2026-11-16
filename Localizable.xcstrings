@@ -3268,6 +3268,9 @@
         }
       }
     },
+    "Impossible d'éjecter « %@ »" : {
+
+    },
     "Impossible de coller certains éléments" : {
       "localizations" : {
         "en" : {
@@ -4156,16 +4159,16 @@
     },
     "Le serveur répond (%@), mais le modèle « %@ » n'y est pas installé" : {
       "localizations" : {
-        "fr" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Le serveur répond (%1$@), mais le modèle « %2$@ » n'y est pas installé"
-          }
-        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "The server answers (%1$@), but the model “%2$@” is not installed there"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Le serveur répond (%1$@), mais le modèle « %2$@ » n'y est pas installé"
           }
         }
       }
@@ -7210,6 +7213,9 @@
         }
       }
     },
+    "Une application utilise peut-être encore un fichier de ce disque. Ferme-la, puis réessaie." : {
+
+    },
     "Une application à la fois" : {
       "localizations" : {
         "en" : {
@@ -7843,6 +7849,9 @@
           }
         }
       }
+    },
+    "Éjecter « %@ »" : {
+
     },
     "Élargir ou rétrécir le lecteur" : {
       "localizations" : {

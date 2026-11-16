@@ -79,6 +79,40 @@ enum Fichiers {
         (FileManager.default.mountedVolumeURLs(includingResourceValuesForKeys: nil, options: [.skipHiddenVolumes]) ?? [])
             .filter { $0.path != "/" }
     }
+    /// Peut-on éjecter ce disque ? Disques externes (DD, SSD, clés), images disque, cartes mémoire et serveurs connectés.
+    static func ejectable(_ url: URL) -> Bool {
+        guard url.path != "/", let v = try? url.resourceValues(forKeys: [.volumeIsEjectableKey, .volumeIsRemovableKey,
+                                                                        .volumeIsInternalKey, .volumeIsLocalKey]) else { return false }
+        return v.volumeIsEjectable == true || v.volumeIsRemovable == true || v.volumeIsInternal == false || v.volumeIsLocal == false
+    }
+
+    /// Éjecte le disque, comme le bouton ⏏ du Finder. L'éjection peut prendre quelques secondes (le disque finit d'écrire) :
+    /// elle se fait à part, et un disque encore utilisé par une application le dit dans une fenêtre.
+    static func ejecter(_ url: URL) {
+        let store = AppDelegate.shared.store
+        // La carte qui affiche ce disque passe au dossier personnel : Side ne doit pas le garder occupé.
+        if let c = store.navigateur.courant, c.path == url.path || c.path.hasPrefix(url.path + "/") { store.naviguer(.folder(home)) }
+        store.columns.filter { $0.racine.map { $0.path == url.path || $0.path.hasPrefix(url.path + "/") } ?? false }
+            .forEach { store.retirer($0) }
+        let nom = Fichiers.nom(url)
+        DispatchQueue.global(qos: .userInitiated).async {
+            do {
+                try NSWorkspace.shared.unmountAndEjectDevice(at: url)
+                DispatchQueue.main.async { store.objectWillChange.send() }
+            } catch {
+                DispatchQueue.main.async {
+                    let a = NSAlert()
+                    a.alertStyle = .warning
+                    a.messageText = String(localized: "Impossible d'éjecter « \(nom) »")
+                    a.informativeText = String(localized: "Une application utilise peut-être encore un fichier de ce disque. Ferme-la, puis réessaie.")
+                        + "\n\n" + error.localizedDescription
+                    AppDelegate.shared.epingle = true
+                    Devant.alerte(a)
+                }
+            }
+        }
+    }
+
     static let documents = home.appendingPathComponent("Documents")
     /// Le dossier Téléchargements : celui d'iCloud Drive s'il existe, sinon celui du Mac.
     static let downloads: URL = {

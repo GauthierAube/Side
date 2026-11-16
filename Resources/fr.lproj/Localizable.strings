@@ -652,6 +652,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Impossible d'afficher les informations</string>
 	<key>Impossible d'écrire dans iCloud Drive.</key>
 	<string>Impossible d'écrire dans iCloud Drive.</string>
+	<key>Impossible d'éjecter « %@ »</key>
+	<string>Impossible d'éjecter « %@ »</string>
 	<key>Impossible de coller certains éléments</key>
 	<string>Impossible de coller certains éléments</string>
 	<key>Impossible de compresser « %@ »</key>
@@ -1432,6 +1434,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Un raccourci pour le Finder, le tiroir et le presse-papiers.</string>
 	<key>Une application du Mac se range plutôt dans « Applications ».</key>
 	<string>Une application du Mac se range plutôt dans « Applications ».</string>
+	<key>Une application utilise peut-être encore un fichier de ce disque. Ferme-la, puis réessaie.</key>
+	<string>Une application utilise peut-être encore un fichier de ce disque. Ferme-la, puis réessaie.</string>
 	<key>Une application à la fois</key>
 	<string>Une application à la fois</string>
 	<key>Une partie coupée ne s'ouvre plus : ni par son coin, ni par son raccourci, ni par son geste. Ses réglages restent là pour le jour où tu la rallumes.</key>
@@ -1558,6 +1562,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Écris ce que tu veux faire des fichiers sélectionnés : « convertis en JPG », « réduis à 1080 px de haut », « zippe tout », « fusionne ces PDF », « enlève le fond »… Apple Intelligence comprend la demande, sur ton Mac, sans Internet. Les originaux ne sont jamais modifiés : le résultat est un nouveau fichier, à côté.</string>
 	<key>Édition</key>
 	<string>Édition</string>
+	<key>Éjecter « %@ »</key>
+	<string>Éjecter « %@ »</string>
 	<key>Élargir ou rétrécir le lecteur</key>
 	<string>Élargir ou rétrécir le lecteur</string>
 	<key>Élevée</key>

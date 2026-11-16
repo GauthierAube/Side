@@ -89,7 +89,8 @@ struct SidebarView: View {
                     if b.contains("disques") {
                         ForEach(Fichiers.disques(), id: \.self) { disque in
                             LigneBarre(store: store, kind: .folder(disque), nom: Fichiers.nom(disque),
-                                       symbole: Fichiers.estReseau(disque) ? "server.rack" : "externaldrive")
+                                       symbole: Fichiers.estReseau(disque) ? "server.rack" : "externaldrive",
+                                       ejectable: Fichiers.ejectable(disque))
                         }
                     }
                     if b.contains("corbeille") { LigneCorbeille(store: store) }
@@ -99,7 +100,8 @@ struct SidebarView: View {
                     if ouverte("Réseau") {
                         // D'abord les serveurs déjà connectés (on peut les parcourir), puis les ordinateurs repérés.
                         ForEach(Fichiers.disques().filter(Fichiers.estReseau), id: \.self) { serveur in
-                            LigneBarre(store: store, kind: .folder(serveur), nom: Fichiers.nom(serveur), symbole: "server.rack")
+                            LigneBarre(store: store, kind: .folder(serveur), nom: Fichiers.nom(serveur), symbole: "server.rack",
+                                       ejectable: true)
                         }
                         ForEach(reseau.ordinateurs, id: \.self) { nom in LigneReseau(nom: nom) }
                         if reseau.ordinateurs.isEmpty {
@@ -410,8 +412,11 @@ struct LigneBarre: View {
     let nom: String
     let symbole: String
     var couleur: Color?
+    /// Un disque externe ou un serveur : le bouton ⏏ à droite, et « Éjecter » au clic droit, comme dans le Finder.
+    var ejectable = false
     @State private var survol = false
     @State private var depot = false
+    @State private var survolEjecter = false
 
     private var dossier: URL? { if case .folder(let u) = kind { return u } else { return nil } }
 
@@ -422,6 +427,20 @@ struct LigneBarre: View {
                 .font(couleur == nil ? .body : .system(size: 11)).frame(width: 18)
             Text(nom).lineLimit(1).truncationMode(.middle)
             Spacer(minLength: 0)
+            if ejectable, let d = dossier {
+                Button { Fichiers.ejecter(d) } label: {
+                    Image(systemName: "eject.fill")
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundStyle(survolEjecter ? Color.primary : Color.secondary)
+                        .frame(width: 20, height: 18)
+                        .background(Circle().fill(survolEjecter ? Gris.fort : .clear))
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .onHover { survolEjecter = $0 }
+                .help(String(localized: "Éjecter « \(nom) »"))
+                .accessibilityLabel(String(localized: "Éjecter « \(nom) »"))
+            }
         }
         .padding(.horizontal, 6)
         .padding(.vertical, 6)
@@ -432,6 +451,7 @@ struct LigneBarre: View {
         .onHover { survol = $0 }
         .onTapGesture { store.naviguer(kind) }
         .modifier(Glissable(kind: kind))   // on peut emmener le dossier ailleurs (bouton +, autre app…)
+        .modifier(MenuEjecter(dossier: ejectable ? dossier : nil, nom: nom))
         // Déposer un fichier sur un dossier de la barre le range dedans, comme dans le Finder.
         .modifier(Depot(action: dossier.map { d in { AppDelegate.shared.deposer($0, dans: d) } }, cible: $depot))
         .help(nom)
@@ -480,6 +500,19 @@ struct Reorganisable: ViewModifier {
                 }
                 .onDrop(of: [UTType.utf8PlainText], delegate: DeplacementColonne(cible: column, store: store))
                 .help("Glisse le titre pour déplacer la colonne")
+        } else {
+            content
+        }
+    }
+}
+
+/// « Éjecter » au clic droit d'un disque de la barre latérale (rien pour les autres lignes, qui gardent leur propre menu).
+struct MenuEjecter: ViewModifier {
+    let dossier: URL?
+    let nom: String
+    func body(content: Content) -> some View {
+        if let d = dossier {
+            content.contextMenu { Button(String(localized: "Éjecter « \(nom) »")) { Fichiers.ejecter(d) } }
         } else {
             content
         }
