@@ -12,10 +12,8 @@ import Carbon.HIToolbox
 import UniformTypeIdentifiers
 
 @_silgen_name("_AXUIElementGetWindow") func _AXUIElementGetWindow(_ el: AXUIElement, _ wid: inout CGWindowID) -> AXError
-@_silgen_name("CGSMainConnectionID") func CGSMainConnectionIDBas() -> Int32
 @_silgen_name("CGSCopySpacesForWindows") func CGSCopySpacesForWindowsBas(_ cid: Int32, _ masque: Int32, _ fenetres: CFArray) -> CFArray?
 @_silgen_name("CGSSetConnectionProperty") func CGSSetConnectionPropertyBas(_ cid: Int32, _ cible: Int32, _ cle: CFString, _ valeur: CFTypeRef) -> Int32
-@_silgen_name("CGSCopyManagedDisplaySpaces") func CGSCopyManagedDisplaySpacesBas(_ cid: Int32) -> CFArray
 
 /// Petit journal dans ~/Library/Logs/Side-panneau.log, pour comprendre un souci après coup.
 func journalBas(_ format: String, _ args: CVarArg...) {

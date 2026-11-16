@@ -288,7 +288,7 @@ extension PanneauBas {
     // MARK: Plein écran d'Apple
     /// L'espace affiché est-il un plein écran d'Apple ? (Les fenêtres des autres applications ne peuvent pas y venir.)
     func dansUnPleinÉcranApple() -> Bool {
-        let ecrans = (CGSCopyManagedDisplaySpacesBas(CGSMainConnectionIDBas()) as? [[String: Any]]) ?? []
+        let ecrans = (CGSCopyManagedDisplaySpaces(CGSMainConnectionID()) as? [[String: Any]]) ?? []
         guard let e = ecrans.first, let courant = (e["Current Space"] as? [String: Any]) else { return false }
         return (courant["type"] as? Int) == 4
     }

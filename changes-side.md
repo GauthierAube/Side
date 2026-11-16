@@ -5,8 +5,11 @@ Il est mis à jour à chaque modification, en même temps que le code.
 
 ---
 
-
 ## 16/11/2026
+
+### Deux écrans (revue BAMA, `docs/architecture-review-2026-11-16.md`)
+- Nouveau module `Ecrans.swift` : le seul endroit qui choisit un écran, passe d'un repère à l'autre (AppKit, AX) et gare les fenêtres. Avant, Side faisait ce choix à 77 endroits avec quatre règles différentes : invisible avec un seul écran, faux avec deux.
+- Essai sans écran : `Side --test-ecrans` vérifie le tout sur trois dispositions (un écran ; Mac mini avec l'écran LG à gauche ; MacBook Air avec un écran à droite).
 
 ### Presse-papiers : l'historique et les liens enregistrés, partagés entre mes Mac
 - Ce que tu copies sur un Mac apparaît dans le presse-papiers de Side sur l'autre, en moins d'une minute (Side y jette un œil toutes les 20 secondes, et à chaque ouverture du volet).

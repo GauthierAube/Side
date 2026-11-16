@@ -15,7 +15,7 @@ extension PanneauBas {
             | CGEventMask(1 << CGEventType.mouseMoved.rawValue)
         // Side n'est pas l'application de devant quand le tiroir est ouvert : macOS ne le laisse changer le pointeur
         // (la double flèche, sur le bord du tiroir) que si on le demande expressément.
-        _ = CGSSetConnectionPropertyBas(CGSMainConnectionIDBas(), CGSMainConnectionIDBas(), "SetsCursorInBackground" as CFString, kCFBooleanTrue)
+        _ = CGSSetConnectionPropertyBas(CGSMainConnectionID(), CGSMainConnectionID(), "SetsCursorInBackground" as CFString, kCFBooleanTrue)
         PanneauBas.filtre = CGEvent.tapCreate(tap: .cgSessionEventTap, place: .headInsertEventTap, options: .defaultTap,
                                               eventsOfInterest: masque, callback: { _, type, ev, _ in
             if type == .tapDisabledByTimeout || type == .tapDisabledByUserInput {

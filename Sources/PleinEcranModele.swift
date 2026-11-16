@@ -49,33 +49,6 @@ struct Tuile {
     var place = 0              // case occupée dans la grille : elle ne change jamais tant que la fenêtre existe
 }
 
-enum Ecrans {
-    static func ecran(_ identifiant: String) -> NSScreen? {
-        for s in NSScreen.screens where self.identifiant(s) == identifiant { return s }
-        return NSScreen.main
-    }
-    static func identifiant(_ s: NSScreen?) -> String {
-        guard let n = s?.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? CGDirectDisplayID,
-              let u = CGDisplayCreateUUIDFromDisplayID(n)?.takeRetainedValue() else { return "Main" }
-        return CFUUIDCreateString(nil, u) as String
-    }
-    static func cadreGlobal(_ s: NSScreen?) -> CGRect {
-        guard let n = s?.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? CGDirectDisplayID else {
-            return CGDisplayBounds(CGMainDisplayID())
-        }
-        return CGDisplayBounds(n)
-    }
-    /// Zone utilisable (sans barre de menus ni Dock) de l'écran qui contient ce cadre, origine en haut à gauche.
-    static func zoneVisible(contenant r: CGRect) -> CGRect {
-        let centre = CGPoint(x: r.midX, y: r.midY)
-        let s = NSScreen.screens.first { cadreGlobal($0).contains(centre) } ?? NSScreen.main
-        guard let s else { return r }
-        let h = NSScreen.screens.first?.frame.height ?? s.frame.height
-        let v = s.visibleFrame
-        return CGRect(x: v.minX, y: h - v.maxY, width: v.width, height: v.height)
-    }
-}
-
 enum Relevé {
     /// Tous les espaces (plein écran d'Apple et bureaux) avec leurs fenêtres, et l'espace affiché sur chaque écran.
     static func tout() -> (espaces: [Espace], courants: [String: UInt64]) {

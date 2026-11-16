@@ -9,7 +9,6 @@ import UniformTypeIdentifiers
 // MARK: - Fonctions système non documentées (liste des espaces, photo et repérage des fenêtres)
 
 @_silgen_name("CGSMainConnectionID") func CGSMainConnectionID() -> Int32
-@_silgen_name("CGSCopyManagedDisplaySpaces") func CGSCopyManagedDisplaySpaces(_ cid: Int32) -> CFArray
 @_silgen_name("CGSCopyWindowsWithOptionsAndTags")
 func CGSCopyWindowsWithOptionsAndTags(_ cid: Int32, _ owner: Int32, _ spaces: CFArray, _ options: Int32,
                                       _ setTags: inout UInt64, _ clearTags: inout UInt64) -> CFArray

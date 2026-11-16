@@ -76,7 +76,7 @@ extension PanneauBas {
         if e.note != nil { return false }
         // Le bureau affiché, et celui de chaque fenêtre de l'application : elle est « ailleurs » si elle a une vraie fenêtre
         // et qu'aucune n'est sur le bureau affiché. (Une fenêtre simplement garée hors de l'écran est bien sur ce bureau.)
-        let ecrans = (CGSCopyManagedDisplaySpacesBas(CGSMainConnectionIDBas()) as? [[String: Any]]) ?? []
+        let ecrans = (CGSCopyManagedDisplaySpaces(CGSMainConnectionID()) as? [[String: Any]]) ?? []
         let courants = Set(ecrans.compactMap { (($0["Current Space"] as? [String: Any])?["id64"] as? NSNumber)?.intValue })
         guard !courants.isEmpty else { return false }
         let infos = (CGWindowListCopyWindowInfo([.optionAll], kCGNullWindowID) as? [[String: Any]]) ?? []
@@ -85,7 +85,7 @@ extension PanneauBas {
             guard (w[kCGWindowOwnerPID as String] as? Int32) == a.processIdentifier, (w[kCGWindowLayer as String] as? Int) == 0,
                   let b = w[kCGWindowBounds as String] as? [String: CGFloat], (b["Width"] ?? 0) > 200, (b["Height"] ?? 0) > 200,
                   let numero = w[kCGWindowNumber as String] as? Int else { continue }
-            let bureaux = (CGSCopySpacesForWindowsBas(CGSMainConnectionIDBas(), 7, [numero] as CFArray) as? [Int]) ?? []
+            let bureaux = (CGSCopySpacesForWindowsBas(CGSMainConnectionID(), 7, [numero] as CFArray) as? [Int]) ?? []
             if bureaux.isEmpty { continue }                              // fenêtre fantôme : ni ici ni ailleurs
             if !courants.isDisjoint(with: bureaux) { return false }      // elle en a une ici : on saura la trouver ou la rouvrir
             ailleurs = true

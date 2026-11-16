@@ -680,6 +680,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
 @main
 enum Main {
     static func main() {
+        if CommandLine.arguments.contains("--test-ecrans") { exit(Int32(Ecrans.essai())) }   // essai sans écran réel
         reprendreAnciensReglages()
         deplacerAncienDossier()
         reprendreReglagesDeSquare()
