@@ -488,6 +488,8 @@ Press Esc to cancel.</string>
 	<string>Save</string>
 	<key>Enregistrés</key>
 	<string>Saved</string>
+	<key>Entre mes Mac</key>
+	<string>Between my Macs</string>
 	<key>Entrée</key>
 	<string>Return</string>
 	<key>Envoi vers iCloud en cours</key>
@@ -692,6 +694,8 @@ Press Esc to cancel.</string>
 	<string>I didn't understand. Try a simple word: jpg, png, zip, mp4, pdf, text, background…</string>
 	<key>Je ne sais pas encore faire ça. Essaie : convertir, réduire, pivoter, retirer le fond, fusionner, extraire le texte, zipper, MP4, son.</key>
 	<string>I can't do that yet. Try: convert, shrink, rotate, remove the background, merge, extract the text, zip, MP4, audio.</string>
+	<key>L'aperçu montre l'image et le titre du site : pour cela, Side contacte le site du lien, seulement quand le volet l'affiche. Au départ, seulement pour les liens enregistrés : visiter un lien simplement copié peut consommer un lien à usage unique (connexion, confirmation). La présentation vaut pour le presse-papiers comme pour l'onglet « Enregistrés ».</key>
+	<string>The preview shows the site's image and title: to get them, Side contacts the link's site, only when the panel shows it. By default, only for saved links: visiting a link you merely copied can use up a one-time link (sign-in, confirmation). The layout applies to the clipboard as well as the Saved tab.</string>
 	<key>L'aperçu montre l'image et le titre du site : pour cela, Side contacte le site du lien, seulement quand le volet l'affiche. Au départ, seulement pour les liens enregistrés : visiter un lien simplement copié peut consommer un lien à usage unique (connexion, confirmation). La présentation vaut pour le presse-papiers comme pour l'onglet « Enregistrés ». Les liens enregistrés restent sur ce Mac.</key>
 	<string>The preview shows the site's image and title: to get them, Side contacts the link's site, only when the panel shows it. By default, only for saved links: visiting a link that was only copied can use up a one-time link (sign-in, confirmation). The layout applies to the clipboard and to the “Saved” tab. Saved links stay on this Mac.</string>
 	<key>L'aperçu montre l'image et le titre du site : pour cela, Side contacte le site du lien, seulement quand le volet l'affiche. La présentation vaut pour le presse-papiers comme pour l'onglet « Enregistrés ». Les liens enregistrés restent sur ce Mac.</key>
@@ -792,6 +796,8 @@ Press Esc to cancel.</string>
 	<string>The last folder viewed</string>
 	<key>Le dossier de départ et les colonnes épinglées du Finder de Side.</key>
 	<string>The starting folder and the pinned columns of Side's Finder.</string>
+	<key>Le fichier partagé est illisible pour l'instant.</key>
+	<string>The shared file can't be read right now.</string>
 	<key>Le geste dans l'autre sens referme le Finder. Attention : macOS utilise déjà ces gestes, vers le haut pour Mission Control et vers le bas pour « Exposé des apps ». Pour que les deux ne se déclenchent pas ensemble, mets-les sur « Désactivé » dans Réglages Système &gt; Trackpad &gt; Autres gestes. Side ne change pas ces réglages lui-même.</key>
 	<string>Swiping the other way closes the Finder. Note: macOS already uses these gestures, up for Mission Control and down for App Exposé. So that both don't trigger together, set them to “Off” in System Settings &gt; Trackpad &gt; More Gestures. Side doesn't change these settings itself.</string>
 	<key>Le lecteur YouTube du tiroir est Peinard. Ses réglages s'ouvrent depuis le rond de profil, en haut à droite de la tuile.</key>
@@ -866,6 +872,8 @@ Press Esc to cancel.</string>
 	<string>The parts of Side</string>
 	<key>Les petites applications et la musique, une à la fois.</key>
 	<string>Small apps and music, one at a time.</string>
+	<key>Les textes, les fichiers et les 40 dernières images copiés sont gardés 7 jours ; ce que tu épingles (clic droit) est gardé sans limite. Les mots de passe ne sont jamais écrits sur le disque. Décocher l'historique efface tout.</key>
+	<string>Copied text, files and the last 40 images are kept for 7 days; what you pin (right-click) is kept with no limit. Passwords are never written to disk. Turning the history off erases everything.</string>
 	<key>Les textes, les fichiers et les 40 dernières images copiés sont gardés 7 jours sur ce Mac ; ce que tu épingles (clic droit) est gardé sans limite. Les mots de passe ne sont jamais écrits sur le disque. Décocher l'historique efface tout.</key>
 	<string>Copied text, files and the last 40 images are kept for 7 days on this Mac; what you pin (right-click) is kept with no limit. Passwords are never written to disk. Turning off history erases everything.</string>
 	<key>Les vidéos du tiroir se mettront en pause à %@.</key>
@@ -1002,8 +1010,12 @@ Press Esc to cancel.</string>
 	<string>Previous page</string>
 	<key>Pages</key>
 	<string>Pages</string>
+	<key>Par iCloud Drive, dans le dossier Side : ce que tu copies sur un Mac apparaît sur l'autre en moins d'une minute, et un élément effacé ou épinglé l'est des deux côtés. Les mots de passe et les fichiers copiés restent sur le Mac où ils ont été copiés. Activé au départ sur chaque Mac où Side est à jour.</key>
+	<string>Through iCloud Drive, in the Side folder: what you copy on one Mac shows up on the other within a minute, and an item you delete or pin is deleted or pinned on both. Passwords and copied files stay on the Mac where they were copied. On by default on every Mac running the latest Side.</string>
 	<key>Partager entre mes Mac (iCloud Drive)</key>
 	<string>Share between my Macs (iCloud Drive)</string>
+	<key>Partager l'historique et les liens enregistrés avec mes autres Mac</key>
+	<string>Share the history and saved links with my other Macs</string>
 	<key>Partager…</key>
 	<string>Share…</string>
 	<key>Partagé dans iCloud Drive, dossier Side.</key>

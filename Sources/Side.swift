@@ -401,6 +401,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         // Surveille le presse-papiers deux fois par seconde pour tenir l'historique du copier-coller.
         let surveillance = Timer(timeInterval: 0.5, repeats: true) { _ in PressePapiers.shared.verifier() }
         RunLoop.main.add(surveillance, forMode: .common)
+        // L'historique et les liens enregistrés, partagés avec mes autres Mac par iCloud Drive.
+        if CommandLine.arguments.count == 1 { SynchroPresse.commun.demarrer() }
         // Réagir à la touche Commande dès qu'elle bouge, sans attendre la prochaine vérification.
         let surCommande: (NSEvent) -> Void = { [weak self] ev in
             guard let self, self.visible else { return }

@@ -488,6 +488,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Enregistrer</string>
 	<key>Enregistrés</key>
 	<string>Enregistrés</string>
+	<key>Entre mes Mac</key>
+	<string>Entre mes Mac</string>
 	<key>Entrée</key>
 	<string>Entrée</string>
 	<key>Envoi vers iCloud en cours</key>
@@ -692,6 +694,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Je n'ai pas compris. Essaie avec un mot simple : jpg, png, zip, mp4, pdf, texte, fond…</string>
 	<key>Je ne sais pas encore faire ça. Essaie : convertir, réduire, pivoter, retirer le fond, fusionner, extraire le texte, zipper, MP4, son.</key>
 	<string>Je ne sais pas encore faire ça. Essaie : convertir, réduire, pivoter, retirer le fond, fusionner, extraire le texte, zipper, MP4, son.</string>
+	<key>L'aperçu montre l'image et le titre du site : pour cela, Side contacte le site du lien, seulement quand le volet l'affiche. Au départ, seulement pour les liens enregistrés : visiter un lien simplement copié peut consommer un lien à usage unique (connexion, confirmation). La présentation vaut pour le presse-papiers comme pour l'onglet « Enregistrés ».</key>
+	<string>L'aperçu montre l'image et le titre du site : pour cela, Side contacte le site du lien, seulement quand le volet l'affiche. Au départ, seulement pour les liens enregistrés : visiter un lien simplement copié peut consommer un lien à usage unique (connexion, confirmation). La présentation vaut pour le presse-papiers comme pour l'onglet « Enregistrés ».</string>
 	<key>L'aperçu montre l'image et le titre du site : pour cela, Side contacte le site du lien, seulement quand le volet l'affiche. Au départ, seulement pour les liens enregistrés : visiter un lien simplement copié peut consommer un lien à usage unique (connexion, confirmation). La présentation vaut pour le presse-papiers comme pour l'onglet « Enregistrés ». Les liens enregistrés restent sur ce Mac.</key>
 	<string>L'aperçu montre l'image et le titre du site : pour cela, Side contacte le site du lien, seulement quand le volet l'affiche. Au départ, seulement pour les liens enregistrés : visiter un lien simplement copié peut consommer un lien à usage unique (connexion, confirmation). La présentation vaut pour le presse-papiers comme pour l'onglet « Enregistrés ». Les liens enregistrés restent sur ce Mac.</string>
 	<key>L'aperçu montre l'image et le titre du site : pour cela, Side contacte le site du lien, seulement quand le volet l'affiche. La présentation vaut pour le presse-papiers comme pour l'onglet « Enregistrés ». Les liens enregistrés restent sur ce Mac.</key>
@@ -792,6 +796,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Le dernier dossier consulté</string>
 	<key>Le dossier de départ et les colonnes épinglées du Finder de Side.</key>
 	<string>Le dossier de départ et les colonnes épinglées du Finder de Side.</string>
+	<key>Le fichier partagé est illisible pour l'instant.</key>
+	<string>Le fichier partagé est illisible pour l'instant.</string>
 	<key>Le geste dans l'autre sens referme le Finder. Attention : macOS utilise déjà ces gestes, vers le haut pour Mission Control et vers le bas pour « Exposé des apps ». Pour que les deux ne se déclenchent pas ensemble, mets-les sur « Désactivé » dans Réglages Système &gt; Trackpad &gt; Autres gestes. Side ne change pas ces réglages lui-même.</key>
 	<string>Le geste dans l'autre sens referme le Finder. Attention : macOS utilise déjà ces gestes, vers le haut pour Mission Control et vers le bas pour « Exposé des apps ». Pour que les deux ne se déclenchent pas ensemble, mets-les sur « Désactivé » dans Réglages Système &gt; Trackpad &gt; Autres gestes. Side ne change pas ces réglages lui-même.</string>
 	<key>Le lecteur YouTube du tiroir est Peinard. Ses réglages s'ouvrent depuis le rond de profil, en haut à droite de la tuile.</key>
@@ -866,6 +872,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Les parties de Side</string>
 	<key>Les petites applications et la musique, une à la fois.</key>
 	<string>Les petites applications et la musique, une à la fois.</string>
+	<key>Les textes, les fichiers et les 40 dernières images copiés sont gardés 7 jours ; ce que tu épingles (clic droit) est gardé sans limite. Les mots de passe ne sont jamais écrits sur le disque. Décocher l'historique efface tout.</key>
+	<string>Les textes, les fichiers et les 40 dernières images copiés sont gardés 7 jours ; ce que tu épingles (clic droit) est gardé sans limite. Les mots de passe ne sont jamais écrits sur le disque. Décocher l'historique efface tout.</string>
 	<key>Les textes, les fichiers et les 40 dernières images copiés sont gardés 7 jours sur ce Mac ; ce que tu épingles (clic droit) est gardé sans limite. Les mots de passe ne sont jamais écrits sur le disque. Décocher l'historique efface tout.</key>
 	<string>Les textes, les fichiers et les 40 dernières images copiés sont gardés 7 jours sur ce Mac ; ce que tu épingles (clic droit) est gardé sans limite. Les mots de passe ne sont jamais écrits sur le disque. Décocher l'historique efface tout.</string>
 	<key>Les vidéos du tiroir se mettront en pause à %@.</key>
@@ -1002,8 +1010,12 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Page précédente</string>
 	<key>Pages</key>
 	<string>Pages</string>
+	<key>Par iCloud Drive, dans le dossier Side : ce que tu copies sur un Mac apparaît sur l'autre en moins d'une minute, et un élément effacé ou épinglé l'est des deux côtés. Les mots de passe et les fichiers copiés restent sur le Mac où ils ont été copiés. Activé au départ sur chaque Mac où Side est à jour.</key>
+	<string>Par iCloud Drive, dans le dossier Side : ce que tu copies sur un Mac apparaît sur l'autre en moins d'une minute, et un élément effacé ou épinglé l'est des deux côtés. Les mots de passe et les fichiers copiés restent sur le Mac où ils ont été copiés. Activé au départ sur chaque Mac où Side est à jour.</string>
 	<key>Partager entre mes Mac (iCloud Drive)</key>
 	<string>Partager entre mes Mac (iCloud Drive)</string>
+	<key>Partager l'historique et les liens enregistrés avec mes autres Mac</key>
+	<string>Partager l'historique et les liens enregistrés avec mes autres Mac</string>
 	<key>Partager…</key>
 	<string>Partager…</string>
 	<key>Partagé dans iCloud Drive, dossier Side.</key>

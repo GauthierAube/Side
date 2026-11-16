@@ -2448,6 +2448,16 @@
         }
       }
     },
+    "Entre mes Mac" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Between my Macs"
+          }
+        }
+      }
+    },
     "Entrée" : {
       "localizations" : {
         "en" : {
@@ -3479,7 +3489,18 @@
         }
       }
     },
+    "L'aperçu montre l'image et le titre du site : pour cela, Side contacte le site du lien, seulement quand le volet l'affiche. Au départ, seulement pour les liens enregistrés : visiter un lien simplement copié peut consommer un lien à usage unique (connexion, confirmation). La présentation vaut pour le presse-papiers comme pour l'onglet « Enregistrés »." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The preview shows the site's image and title: to get them, Side contacts the link's site, only when the panel shows it. By default, only for saved links: visiting a link you merely copied can use up a one-time link (sign-in, confirmation). The layout applies to the clipboard as well as the Saved tab."
+          }
+        }
+      }
+    },
     "L'aperçu montre l'image et le titre du site : pour cela, Side contacte le site du lien, seulement quand le volet l'affiche. Au départ, seulement pour les liens enregistrés : visiter un lien simplement copié peut consommer un lien à usage unique (connexion, confirmation). La présentation vaut pour le presse-papiers comme pour l'onglet « Enregistrés ». Les liens enregistrés restent sur ce Mac." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3990,6 +4011,16 @@
         }
       }
     },
+    "Le fichier partagé est illisible pour l'instant." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The shared file can't be read right now."
+          }
+        }
+      }
+    },
     "Le geste dans l'autre sens referme le Finder. Attention : macOS utilise déjà ces gestes, vers le haut pour Mission Control et vers le bas pour « Exposé des apps ». Pour que les deux ne se déclenchent pas ensemble, mets-les sur « Désactivé » dans Réglages Système > Trackpad > Autres gestes. Side ne change pas ces réglages lui-même." : {
       "localizations" : {
         "en" : {
@@ -4361,7 +4392,18 @@
         }
       }
     },
+    "Les textes, les fichiers et les 40 dernières images copiés sont gardés 7 jours ; ce que tu épingles (clic droit) est gardé sans limite. Les mots de passe ne sont jamais écrits sur le disque. Décocher l'historique efface tout." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copied text, files and the last 40 images are kept for 7 days; what you pin (right-click) is kept with no limit. Passwords are never written to disk. Turning the history off erases everything."
+          }
+        }
+      }
+    },
     "Les textes, les fichiers et les 40 dernières images copiés sont gardés 7 jours sur ce Mac ; ce que tu épingles (clic droit) est gardé sans limite. Les mots de passe ne sont jamais écrits sur le disque. Décocher l'historique efface tout." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -5053,6 +5095,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Share between my Macs (iCloud Drive)"
+          }
+        }
+      }
+    },
+    "Partager l'historique et les liens enregistrés avec mes autres Mac" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Share the history and saved links with my other Macs"
           }
         }
       }
@@ -7805,6 +7857,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "⌥ + number"
+          }
+        }
+      }
+    },
+    "Par iCloud Drive, dans le dossier Side : ce que tu copies sur un Mac apparaît sur l'autre en moins d'une minute, et un élément effacé ou épinglé l'est des deux côtés. Les mots de passe et les fichiers copiés restent sur le Mac où ils ont été copiés. Activé au départ sur chaque Mac où Side est à jour." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Through iCloud Drive, in the Side folder: what you copy on one Mac shows up on the other within a minute, and an item you delete or pin is deleted or pinned on both. Passwords and copied files stay on the Mac where they were copied. On by default on every Mac running the latest Side."
           }
         }
       }

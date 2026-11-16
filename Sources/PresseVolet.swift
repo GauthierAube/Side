@@ -104,6 +104,7 @@ struct ReglagesVoletPresse: View {
     @ObservedObject private var presse = ConfigPresse.commun
     @ObservedObject private var config = Config.shared
     @ObservedObject private var liens = LiensGardes.commun
+    @ObservedObject private var synchro = SynchroPresse.commun
 
     var body: some View {
         Section {
@@ -111,7 +112,7 @@ struct ReglagesVoletPresse: View {
             Toggle("Y garder aussi les mots de passe (affichés masqués)", isOn: $config.historiqueSecrets)
                 .disabled(!config.historique)
         } header: { Text("Historique") } footer: {
-            Text("Les textes, les fichiers et les 40 dernières images copiés sont gardés 7 jours sur ce Mac ; ce que tu épingles (clic droit) est gardé sans limite. Les mots de passe ne sont jamais écrits sur le disque. Décocher l'historique efface tout.")
+            Text("Les textes, les fichiers et les 40 dernières images copiés sont gardés 7 jours ; ce que tu épingles (clic droit) est gardé sans limite. Les mots de passe ne sont jamais écrits sur le disque. Décocher l'historique efface tout.")
                 .font(.caption).foregroundStyle(.secondary)
         }
         Section {
@@ -141,7 +142,16 @@ struct ReglagesVoletPresse: View {
                 Text(verbatim: "\(liens.liens.count)").monospacedDigit().foregroundStyle(.secondary)
             }
         } header: { Text("Liens") } footer: {
-            Text("L'aperçu montre l'image et le titre du site : pour cela, Side contacte le site du lien, seulement quand le volet l'affiche. Au départ, seulement pour les liens enregistrés : visiter un lien simplement copié peut consommer un lien à usage unique (connexion, confirmation). La présentation vaut pour le presse-papiers comme pour l'onglet « Enregistrés ». Les liens enregistrés restent sur ce Mac.")
+            Text("L'aperçu montre l'image et le titre du site : pour cela, Side contacte le site du lien, seulement quand le volet l'affiche. Au départ, seulement pour les liens enregistrés : visiter un lien simplement copié peut consommer un lien à usage unique (connexion, confirmation). La présentation vaut pour le presse-papiers comme pour l'onglet « Enregistrés ».")
+                .font(.caption).foregroundStyle(.secondary)
+        }
+        Section {
+            Toggle("Partager l'historique et les liens enregistrés avec mes autres Mac", isOn: $synchro.actif)
+            if synchro.actif, !synchro.etat.isEmpty {
+                Text(verbatim: synchro.etat).font(.caption).foregroundStyle(.secondary)
+            }
+        } header: { Text("Entre mes Mac") } footer: {
+            Text("Par iCloud Drive, dans le dossier Side : ce que tu copies sur un Mac apparaît sur l'autre en moins d'une minute, et un élément effacé ou épinglé l'est des deux côtés. Les mots de passe et les fichiers copiés restent sur le Mac où ils ont été copiés. Activé au départ sur chaque Mac où Side est à jour.")
                 .font(.caption).foregroundStyle(.secondary)
         }
     }
@@ -363,7 +373,9 @@ final class LiensGardes: ObservableObject {
     static let commun = LiensGardes()
     private let d = UserDefaults.standard
 
-    @Published var liens: [LienGarde] { didSet { sauver() } }
+    @Published var liens: [LienGarde] { didSet { sauver(); if !enLecture { SynchroPresse.commun.liensModifies() } } }
+    /// Vrai pendant qu'on reprend la liste venue de l'autre Mac (ce n'est pas un changement fait ici).
+    var enLecture = false
     /// Les groupes repliés.
     @Published var groupesFermes: Set<String> { didSet { d.set(Array(groupesFermes), forKey: "presseGroupesFermes") } }
     /// Le lien en cours d'ajout ou de modification (le formulaire du volet s'affiche quand il y en a un).
@@ -988,6 +1000,7 @@ final class VoletPresse {
         panneau = p
         ouvert = true
         PressePapiers.shared.verifier()                      // ce qui vient d'être copié y est tout de suite
+        SynchroPresse.commun.synchroniser()                  // et ce qui a été copié sur l'autre Mac
         p.setFrame(cadre(e, sorti: false), display: true)
         p.alphaValue = 0
         p.orderFrontRegardless()

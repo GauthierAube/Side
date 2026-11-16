@@ -6,6 +6,17 @@ Il est mis à jour à chaque modification, en même temps que le code.
 ---
 
 
+## 16/11/2026
+
+### Presse-papiers : l'historique et les liens enregistrés, partagés entre mes Mac
+- Ce que tu copies sur un Mac apparaît dans le presse-papiers de Side sur l'autre, en moins d'une minute (Side y jette un œil toutes les 20 secondes, et à chaque ouverture du volet).
+- Un élément effacé ou épinglé sur un Mac l'est aussi sur l'autre. « Effacer » sur un Mac efface aussi l'autre (sauf les épinglés). Le même texte copié sur les deux Mac ne compte qu'une fois.
+- Les liens enregistrés suivent aussi : la liste modifiée le plus récemment (ajout, groupe, ordre, suppression) remplace l'autre. La toute première fois sur un Mac, les deux listes sont réunies, pour ne rien perdre.
+- Tout passe par iCloud Drive, dans le dossier Side (à côté de « Mes applications ») : « Presse-papiers.json », « Presse-papiers images » et « Liens enregistrés.json ».
+- Restent sur leur Mac : les mots de passe (jamais écrits sur le disque) et les fichiers copiés (leur emplacement ne vaut que sur ce Mac).
+- Réglage : Réglages > Presse-papiers > « Entre mes Mac ». Activé au départ, sur chaque Mac.
+
+
 ## 15/11/2026
 
 ### Tiroir : taille fixe avec Peinard, et la bande des suggestions

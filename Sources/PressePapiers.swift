@@ -12,7 +12,7 @@ import UniformTypeIdentifiers
 
 /// Un élément copié.
 struct Copie: Identifiable {
-    let id = UUID()
+    var id = UUID()   // gardé sur le disque : c'est lui qui relie un même élément sur tes deux Mac
     var date: Date
     var texte: String?
     var fichiers: [URL] = []
@@ -20,6 +20,7 @@ struct Copie: Identifiable {
     var fichierImage: String?   // nom du fichier PNG où l'image est gardée, pour la retrouver après un redémarrage
     var secret = false   // marqué « mot de passe » par l'app d'origine : affiché masqué
     var epingle = false  // épinglé : reste en haut de la liste, et survit à « Effacer »
+    var modifie = Date() // dernier changement (copié, recopié, épinglé) : le plus récent l'emporte entre deux Mac
 }
 
 final class PressePapiers: ObservableObject {
@@ -36,19 +37,19 @@ final class PressePapiers: ObservableObject {
     static let maximumImages = 40
 
     /// Ce qui est écrit sur le disque : les textes, les fichiers et les images copiés, jamais les mots de passe.
-    private struct Ligne: Codable { var date: Date; var texte: String?; var fichiers: [String]; var epingle: Bool; var image: String? }
+    private struct Ligne: Codable { var date: Date; var texte: String?; var fichiers: [String]; var epingle: Bool; var image: String?; var id: UUID?; var modifie: Date? }
     private static var fichier: URL {
         let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
         return base.appendingPathComponent("Side/presse-papiers.json")
     }
     /// Le dossier des images copiées, lisible par toi seul.
-    private static var dossierImages: URL { fichier.deletingLastPathComponent().appendingPathComponent("images", isDirectory: true) }
+    static var dossierImages: URL { fichier.deletingLastPathComponent().appendingPathComponent("images", isDirectory: true) }
     private static func charger() -> [Copie] {
         var copies: [Copie] = []
         if let data = try? Data(contentsOf: fichier), let lignes = try? JSONDecoder().decode([Ligne].self, from: data) {
             let limite = Date().addingTimeInterval(-duree)
             copies = lignes.filter { $0.epingle || $0.date > limite }.compactMap { l in
-                var c = Copie(date: l.date, texte: l.texte, fichiers: l.fichiers.map { URL(fileURLWithPath: $0) }, epingle: l.epingle)
+                var c = Copie(id: l.id ?? UUID(), date: l.date, texte: l.texte, fichiers: l.fichiers.map { URL(fileURLWithPath: $0) }, epingle: l.epingle, modifie: l.modifie ?? l.date)
                 if let nom = l.image {
                     guard let image = NSImage(contentsOf: dossierImages.appendingPathComponent(nom)) else { return nil }
                     c.image = image
@@ -62,7 +63,8 @@ final class PressePapiers: ObservableObject {
         }
         return copies
     }
-    private func sauver() {
+    /// `partager` : prévenir l'autre Mac (faux quand on écrit justement ce qui vient de lui).
+    func sauver(partager: Bool = true) {
         let fm = FileManager.default
         // Les images nouvelles : écrites en PNG, à côté, sans faire attendre l'interface.
         for i in elements.indices where elements[i].image != nil && elements[i].fichierImage == nil && !elements[i].secret {
@@ -85,7 +87,7 @@ final class PressePapiers: ObservableObject {
             try? fm.removeItem(at: Self.dossierImages.appendingPathComponent(f))
         }
         let lignes = elements.filter { !$0.secret && ($0.texte != nil || !$0.fichiers.isEmpty || $0.fichierImage != nil) }
-            .map { Ligne(date: $0.date, texte: $0.texte, fichiers: $0.fichiers.map(\.path), epingle: $0.epingle, image: $0.fichierImage) }
+            .map { Ligne(date: $0.date, texte: $0.texte, fichiers: $0.fichiers.map(\.path), epingle: $0.epingle, image: $0.fichierImage, id: $0.id, modifie: $0.modifie) }
         let url = Self.fichier
         try? fm.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
         guard let data = try? JSONEncoder().encode(lignes) else { return }
@@ -93,15 +95,17 @@ final class PressePapiers: ObservableObject {
         // Lisible par toi seul.
         try? FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: url.path)
         UserDefaults.standard.removeObject(forKey: "presseEpingles")
+        if partager { SynchroPresse.commun.plusTard() }
     }
     /// Oublie ce qui a plus de sept jours (sauf les épinglés).
-    private func purger() {
+    func purger() {
         let limite = Date().addingTimeInterval(-Self.duree)
         elements.removeAll { !$0.epingle && $0.date < limite }
     }
     func epingler(_ c: Copie) {
         guard let i = elements.firstIndex(where: { $0.id == c.id }) else { return }
         elements[i].epingle.toggle()
+        elements[i].modifie = Date()
         sauver()
     }
     /// Historique désactivé : tout est effacé, y compris sur le disque.
@@ -166,6 +170,7 @@ final class PressePapiers: ObservableObject {
         if let i = elements.firstIndex(where: { $0.id == c.id }) {
             var repris = elements.remove(at: i)
             repris.date = Date()   // réutilisé : il repart pour sept jours
+            repris.modifie = repris.date
             elements.insert(repris, at: 0)
             sauver()
         }
@@ -179,6 +184,12 @@ final class PressePapiers: ObservableObject {
         compte = pb.changeCount
     }
 
-    func supprimer(_ c: Copie) { elements.removeAll { $0.id == c.id }; sauver() }
-    func vider() { elements.removeAll { !$0.epingle }; sauver() }
+    func supprimer(_ c: Copie) {
+        SynchroPresse.commun.oublier([c.id])   // pour que l'autre Mac l'efface aussi
+        elements.removeAll { $0.id == c.id }; sauver()
+    }
+    func vider() {
+        SynchroPresse.commun.oublier(elements.filter { !$0.epingle }.map(\.id))
+        elements.removeAll { !$0.epingle }; sauver()
+    }
 }
