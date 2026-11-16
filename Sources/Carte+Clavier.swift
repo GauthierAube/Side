@@ -26,7 +26,7 @@ extension AppDelegate {
         // sur un clavier français, la touche A est là où un clavier américain a son Q.
         let lettre = (ev.charactersIgnoringModifiers ?? "").lowercased()
         // Les touches sans lettre, et les chiffres (rangée du haut, quel que soit le clavier), par leur emplacement.
-        let touche: String = [126: "haut", 125: "bas", 51: "suppr", 18: "1", 19: "2", 20: "3", 33: "[", 30: "]"][Int(ev.keyCode)] ?? lettre
+        let touche: String = [126: "haut", 125: "bas", 51: "suppr", 18: "1", 19: "2", 20: "3", 21: "4", 33: "[", 30: "]"][Int(ev.keyCode)] ?? lettre
         if cmd && maj {
             switch lettre {
             case "n": nouveauDossier(col)                                            // ⇧⌘N
@@ -77,6 +77,7 @@ extension AppDelegate {
             case "1": col.presentation = .icones                                     // ⌘1
             case "2": col.presentation = .liste                                      // ⌘2
             case "3": col.presentation = .colonnes                                   // ⌘3
+            case "4": col.presentation = .arbre                                      // ⌘4 : arborescence
             case "bas", "o":                                                           // ⌘↓, ⌘O : ouvrir
                 let l = selectionnes
                 guard let u = sel.url else { return false }

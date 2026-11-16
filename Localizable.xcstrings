@@ -486,6 +486,9 @@
         }
       }
     },
+    "Afficher en arborescence, comme l'Explorateur de Windows" : {
+
+    },
     "Afficher en colonnes" : {
       "localizations" : {
         "en" : {

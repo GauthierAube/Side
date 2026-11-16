@@ -90,6 +90,7 @@ struct ColumnView: View {
                         boutonVue(.icones, "square.grid.2x2", String(localized: "Afficher en icônes"))
                         boutonVue(.liste, "list.bullet", String(localized: "Afficher en liste"))
                         boutonVue(.colonnes, "rectangle.split.3x1", String(localized: "Afficher en colonnes"))
+                        boutonVue(.arbre, "list.bullet.indent", String(localized: "Afficher en arborescence, comme l'Explorateur de Windows"))
                     }
                     .padding(3)
                     .background(Capsule().fill(Gris.moyen))
@@ -210,6 +211,8 @@ struct ColumnView: View {
                 PressePapiersView()
             } else if fixe && column.presentation == .colonnes && column.resultats == nil && !column.rechercheEnCours {
                 MillerView(column: column)
+            } else if fixe && column.presentation == .arbre && column.racine != nil && column.resultats == nil && !column.rechercheEnCours {
+                ArbreView(column: column)
             } else if column.visibles.isEmpty {
                 Text(column.rechercheEnCours ? "Recherche…" : column.resultats != nil ? "Aucun résultat" : column.charge ? "Chargement…"
                      : (column.estEtagere ? "Dépose ici des fichiers pour les garder sous la main, puis glisse-les où tu veux." : "Aucun élément"))

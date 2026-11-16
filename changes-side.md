@@ -7,6 +7,11 @@ Il est mis à jour à chaque modification, en même temps que le code.
 
 ## 16/11/2026
 
+### Finder : présentation « Arborescence », comme l'Explorateur de Windows
+- Quatrième présentation de la grande zone, à côté des icônes, de la liste et des colonnes (quatrième bouton, ou ⌘4) : à gauche, l'arbre des dossiers ; à droite, le contenu du dossier choisi, en liste (avec la date et la taille quand la place le permet).
+- Un clic sur un dossier de l'arbre l'affiche à droite ; son chevron (ou un double-clic) le déplie ou le replie sans changer de dossier. Entrer dans un dossier à droite déplie l'arbre jusqu'à lui.
+- On peut déposer des fichiers sur un dossier de l'arbre. Le trait entre l'arbre et la liste se tire pour régler la largeur de l'arbre.
+
 ### Le Finder de Side s'ouvre sur ce qu'on vient d'enregistrer
 - La carte se rouvre toujours là où l'on était, sauf quand un fichier vient d'être enregistré (un export de Logic Pro, un téléchargement, moins de 10 minutes avant) : elle s'ouvre alors sur lui, le fichier choisi, avec toute son arborescence : les colonnes partent du favori qui le contient (sinon de Documents, d'iCloud Drive, du dossier personnel ou du disque) et descendent jusqu'à lui, comme dans le Finder. Side repère ces fichiers dans le dossier personnel, iCloud Drive et les disques branchés, sans compter les fichiers cachés ou temporaires, ceux de la Bibliothèque, ni ceux rangés à l'intérieur d'un projet (Logic, Photos…). Les disques de sauvegarde (Time Machine) ne sont pas surveillés.
 - Réglages > Barre latérale et fichiers > « Ouvrir les dossiers dans Side » : Side devient le visualiseur de fichiers du Mac. « Afficher dans le Finder » des autres applications, et l'ouverture d'un dossier, montrent la carte de Side. Décoché : le Finder de macOS, comme avant. « Afficher dans le Finder » de Side lui-même ouvre toujours le vrai Finder.

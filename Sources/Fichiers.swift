@@ -44,7 +44,7 @@ enum Tri: String, CaseIterable {
     }
 }
 
-enum Presentation: String { case liste, icones, colonnes }
+enum Presentation: String { case liste, icones, colonnes, arbre }
 
 /// Où en est un fichier d'iCloud Drive : sur le Mac, resté dans le nuage, en cours de téléchargement ou d'envoi.
 enum Nuage { case aucun, aTelecharger, telechargement, envoi }

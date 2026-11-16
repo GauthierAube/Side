@@ -19,6 +19,8 @@ Un fichier = un thème. Les quatre parties de Side (Finder, Plein écran, Tiroir
 | `Carte.swift` | vue principale (`DrawerView`), bienvenue, onglets |
 | `BarreLaterale.swift` | barre latérale, corbeille, modificateurs de glisser-déposer |
 | `Colonnes.swift` | listes, icônes, colonnes Miller, aperçu, sélection |
+| `Arborescence.swift` | la présentation « Arborescence » (arbre des dossiers à gauche, liste à droite), comme l'Explorateur de Windows |
+| `Renommage.swift`, `Enregistrements.swift` | renommer sur place ; fichiers enregistrés ailleurs (la carte s'ouvre sur eux) et Side comme visualiseur de fichiers |
 | `Zones.swift` | zones de dépôt et colonnes épinglées (affichage) |
 | `Dock.swift` | mini-Dock et lanceur d'applications |
 | `DepotFlottant.swift` | la zone de dépôt flottante |

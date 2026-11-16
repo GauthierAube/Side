@@ -98,6 +98,8 @@
 	<string>Afficher dans la barre latérale</string>
 	<key>Afficher dans le Finder</key>
 	<string>Afficher dans le Finder</string>
+	<key>Afficher en arborescence, comme l'Explorateur de Windows</key>
+	<string>Afficher en arborescence, comme l'Explorateur de Windows</string>
 	<key>Afficher en colonnes</key>
 	<string>Afficher en colonnes</string>
 	<key>Afficher en icônes</key>
