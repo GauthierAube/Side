@@ -52,6 +52,12 @@ pkill -x Nook || true
 pkill -x Tiroir || true
 sleep 0.5
 rm -rf ~/Applications/Side.app ~/Applications/Nook.app ~/Applications/Tiroir.app
+# Premier lancement sur un Mac : si Side n'a encore aucun réglage ici et qu'une sauvegarde existe dans iCloud Drive
+# (faite avec « defaults export com.gauthieraube.side <fichier> »), on la reprend. Ce fichier reste dans iCloud, jamais dans le dépôt.
+REGLAGES=~/Library/Mobile\ Documents/com~apple~CloudDocs/side-reglages.plist
+if ! defaults read com.gauthieraube.side >/dev/null 2>&1 && [ -f "$REGLAGES" ]; then
+  defaults import com.gauthieraube.side "$REGLAGES" && echo "Réglages repris depuis iCloud Drive."
+fi
 cp -R "$APP" ~/Applications/
 open -g ~/Applications/Side.app --args "$@"   # -g : sans prendre le clavier à l'app en cours
 echo "Side installé et lancé."
