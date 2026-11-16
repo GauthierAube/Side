@@ -321,6 +321,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
     func applicationDidFinishLaunching(_ note: Notification) {
         UserDefaults.standard.removeObject(forKey: LecteurYouTubeBas.cleFenetreVideo)   // plus de vidéo en plein écran d'une fois sur l'autre
         // Pour les essais : « --image-presentation dossier » dessine chaque étape de la présentation dans des images, puis quitte.
+        // Pour les essais : « --test-cascade » rejoue des suites de touches du collage en cascade ;
+        // « --image-cascade fichier.png [--sombre] » dessine sa fenêtre avec un historique d'exemple.
+        if CommandLine.arguments.contains("--test-cascade") { CollageCascade.essais() }
+        if let i = CommandLine.arguments.firstIndex(of: "--image-cascade"), i + 1 < CommandLine.arguments.count {
+            if CommandLine.arguments.contains("--sombre") { NSApp.appearance = NSAppearance(named: .darkAqua) }
+            if CommandLine.arguments.contains("--clair") { NSApp.appearance = NSAppearance(named: .aqua) }
+            CollageCascade.imageEssai(vers: URL(fileURLWithPath: CommandLine.arguments[i + 1]))
+            exit(0)
+        }
         if let i = CommandLine.arguments.firstIndex(of: "--image-presentation"), i + 1 < CommandLine.arguments.count {
             PresentationSide.images(vers: URL(fileURLWithPath: CommandLine.arguments[i + 1]))
             exit(0)
@@ -503,6 +512,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         if config.lanceur { Applis.shared.charger() }   // la liste des apps est prête avant le premier clic
         if config.quatreDoigts { Doigts.demarrer(); Doigts.bloquerDefilement() }
         Captures.shared.demarrer()
+        CollageCascade.demarrer()
         if CommandLine.arguments.contains("--test-doigts") {   // pour les tests : le module des gestes répond-il ?
             print("trackpads trouvés :", Doigts.demarrer())
             // Gestes fabriqués : (numéro du doigt, hauteur) image par image.

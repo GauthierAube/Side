@@ -350,6 +350,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Coin de l'écran</string>
 	<key>Coins actifs</key>
 	<string>Coins actifs</string>
+	<key>Collage en cascade : ⌘V V pour choisir parmi les 5 derniers copiés</key>
+	<string>Collage en cascade : ⌘V V pour choisir parmi les 5 derniers copiés</string>
 	<key>Coller</key>
 	<string>Coller</string>
 	<key>Collez d'abord l'identifiant (Client ID).</key>
@@ -574,6 +576,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Fusionner</string>
 	<key>Fusionner les PDF en un seul</key>
 	<string>Fusionner les PDF en un seul</string>
+	<key>Garde ⌘ enfoncé et tape V une deuxième fois : une petite fenêtre montre les 5 derniers copiés. Chaque V passe au suivant, lâcher ⌘ colle, Échap annule.</key>
+	<string>Garde ⌘ enfoncé et tape V une deuxième fois : une petite fenêtre montre les 5 derniers copiés. Chaque V passe au suivant, lâcher ⌘ colle, Échap annule.</string>
 	<key>Garder dans le mini-Dock</key>
 	<string>Garder dans le mini-Dock</string>
 	<key>Garder dans les liens…</key>
@@ -1460,6 +1464,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Une zone apparaît en haut à droite de la carte quand tu fais glisser un fichier. Tant qu'elle contient quelque chose, elle reste à l'écran même quand Side est fermé, pour que tu puisses glisser son contenu ailleurs. Side fermé, secoue le pointeur pendant que tu glisses un fichier : la zone apparaît seule, à côté de la souris. Secoue encore pour en ajouter une autre. Si la carte vient du haut, la zone se place en bas de la carte et les suivantes s'empilent au-dessus. Les zones vides disparaissent toutes seules.</string>
 	<key>Utiliser un aperçu comme icône</key>
 	<string>Utiliser un aperçu comme icône</string>
+	<key>V : suivant · lâcher ⌘ : coller · Échap : annuler</key>
+	<string>V : suivant · lâcher ⌘ : coller · Échap : annuler</string>
 	<key>Verrouillée : reste à l'écran quand Side se ferme. Clique pour qu'elle se cache avec Side.</key>
 	<string>Verrouillée : reste à l'écran quand Side se ferme. Clique pour qu'elle se cache avec Side.</string>
 	<key>Vers le bas</key>

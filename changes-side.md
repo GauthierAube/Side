@@ -5,6 +5,14 @@ Il est mis à jour à chaque modification, en même temps que le code.
 
 ---
 
+## 17/11/2026
+
+### Collage en cascade : ⌘V V V
+- ⌘V colle le dernier copié, comme toujours. Mais si l'on garde ⌘ enfoncé et qu'on tape V une deuxième fois, une petite fenêtre s'ouvre au centre de l'écran avec les 5 derniers copiés, sur l'avant-dernier. Chaque V de plus descend d'un cran (après le 5ᵉ, retour au 1ᵉʳ). Lâcher ⌘ colle l'élément choisi ; Échap referme sans rien coller.
+- Le premier ⌘V est retenu jusqu'au lâcher de ⌘ : rien n'est jamais collé deux fois. Seul ⌘V « nu » est concerné (⌘⇧V, ⌥⌘V… restent ceux de macOS). La fenêtre ne prend pas le clavier : on reste dans l'application où l'on écrit.
+- Réglage dans Presse-papiers > Historique : « Collage en cascade », coché au départ. Sans historique, ⌘V reste celui de macOS.
+- Essais sans clavier : `Side --test-cascade` ; image de la fenêtre : `Side --image-cascade fichier.png [--clair|--sombre]`.
+
 ## 16/11/2026
 
 ### Fil d'Ariane dans une pastille

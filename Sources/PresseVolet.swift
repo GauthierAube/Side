@@ -111,6 +111,9 @@ struct ReglagesVoletPresse: View {
             Toggle("Garder un historique du copier-coller (7 jours)", isOn: $config.historique)
             Toggle("Y garder aussi les mots de passe (affichés masqués)", isOn: $config.historiqueSecrets)
                 .disabled(!config.historique)
+            Toggle("Collage en cascade : ⌘V V pour choisir parmi les 5 derniers copiés", isOn: $config.collageCascade)
+                .disabled(!config.historique)
+                .help("Garde ⌘ enfoncé et tape V une deuxième fois : une petite fenêtre montre les 5 derniers copiés. Chaque V passe au suivant, lâcher ⌘ colle, Échap annule.")
         } header: { Text("Historique") } footer: {
             Text("Les textes, les fichiers et les 40 dernières images copiés sont gardés 7 jours ; ce que tu épingles (clic droit) est gardé sans limite. Les mots de passe ne sont jamais écrits sur le disque. Décocher l'historique efface tout.")
                 .font(.caption).foregroundStyle(.secondary)

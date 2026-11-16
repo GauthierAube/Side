@@ -116,6 +116,8 @@ final class Config: ObservableObject {
         didSet { d.set(historique, forKey: "historique"); if !historique { PressePapiers.shared.toutEffacer() } }
     }
     @Published var historiqueSecrets: Bool { didSet { d.set(historiqueSecrets, forKey: "historiqueSecrets") } }
+    /// Collage en cascade : ⌘ gardé enfoncé, V de nouveau pour choisir parmi les 5 derniers copiés (CollageCascade.swift).
+    @Published var collageCascade: Bool { didSet { d.set(collageCascade, forKey: "collageCascade") } }
     /// Flouter ce qui se trouve derrière la carte quand elle est ouverte, et avec quelle force.
     @Published var flou: Bool { didSet { d.set(flou, forKey: "flou") } }
     @Published var flouForce: Double { didSet { d.set(flouForce, forKey: "flouForce") } }
@@ -219,6 +221,7 @@ final class Config: ObservableObject {
         raccourcis = d.stringArray(forKey: "raccourcis") ?? []
         historique = d.object(forKey: "historique") as? Bool ?? true
         historiqueSecrets = d.object(forKey: "historiqueSecrets") as? Bool ?? true
+        collageCascade = d.object(forKey: "collageCascade") as? Bool ?? true
         flou = d.bool(forKey: "flou")
         flouForce = d.object(forKey: "flouForce") as? Double ?? 1
         fermerApresDepot = d.object(forKey: "fermerApresDepot") as? Bool ?? true

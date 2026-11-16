@@ -1732,6 +1732,16 @@
         }
       }
     },
+    "Collage en cascade : ⌘V V pour choisir parmi les 5 derniers copiés" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cascade paste: ⌘V V to pick from your last 5 copies"
+          }
+        }
+      }
+    },
     "Coller" : {
       "localizations" : {
         "en" : {
@@ -2870,6 +2880,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Merge the PDFs into one"
+          }
+        }
+      }
+    },
+    "Garde ⌘ enfoncé et tape V une deuxième fois : une petite fenêtre montre les 5 derniers copiés. Chaque V passe au suivant, lâcher ⌘ colle, Échap annule." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hold ⌘ and press V a second time: a small window shows your last 5 copies. Each V moves to the next one, releasing ⌘ pastes, Esc cancels."
           }
         }
       }
@@ -7322,6 +7342,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Show icon preview"
+          }
+        }
+      }
+    },
+    "V : suivant · lâcher ⌘ : coller · Échap : annuler" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "V: next · release ⌘: paste · Esc: cancel"
           }
         }
       }
