@@ -789,6 +789,16 @@
         }
       }
     },
+    "Aller à %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Go to %@"
+          }
+        }
+      }
+    },
     "Aller à la fenêtre 1, 2, 3…" : {
       "localizations" : {
         "en" : {

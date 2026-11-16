@@ -255,6 +255,11 @@ struct ColumnView: View {
                 }
                 }
             }
+
+            // Le fil d'Ariane, en bas de la grande zone (comme la barre du chemin du Finder).
+            if fixe && !(column.kind == .presse && column.pile.isEmpty) {
+                BarreChemin(column: column, store: store)
+            }
         }
     }
 
