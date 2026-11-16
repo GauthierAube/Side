@@ -12,7 +12,7 @@ struct BarreChemin: View {
     let store: Store
     @ObservedObject private var selection = Selection.shared
 
-    static let hauteur: CGFloat = 34
+    static let hauteur: CGFloat = 40
 
     /// Le chemin affiché, du plus haut au plus bas.
     private var chemin: [URL] {
@@ -36,9 +36,9 @@ struct BarreChemin: View {
     }
 
     private func barre(_ liste: [URL]) -> some View {
-        HStack(spacing: 2) {
+        // Tout le fil tient dans une pastille, posée en bas de la grande zone.
+        HStack(spacing: 1) {
             boutonParent
-            Divider().frame(height: 16).padding(.horizontal, 4)
             ForEach(Array(liste.enumerated()), id: \.offset) { rang, url in
                 let dernier = rang == liste.count - 1
                 if rang > 0 { sousDossiers(liste[rang - 1]) }
@@ -47,12 +47,16 @@ struct BarreChemin: View {
                     .layoutPriority(dernier ? 2 : (rang == 0 ? 1 : 0))
                 if dernier && estDossier(url) { sousDossiers(url) }
             }
-            Spacer(minLength: 0)
         }
-        .padding(.horizontal, 8)
+        .padding(.leading, 3)
+        .padding(.trailing, 6)
+        .frame(height: 28)
+        .background(Capsule().fill(Gris.leger))
+        .overlay(Capsule().strokeBorder(Gris.filet, lineWidth: 1))
+        .fixedSize(horizontal: false, vertical: true)
+        .padding(.horizontal, 10)
         .frame(height: Self.hauteur)
-        .frame(maxWidth: .infinity)
-        .overlay(alignment: .top) { Divider() }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     /// Remonter au dossier parent (la flèche « Haut » de l'Explorateur de Windows).
@@ -63,8 +67,8 @@ struct BarreChemin: View {
             Image(systemName: "arrow.up")
                 .font(.system(size: 12, weight: .semibold))
                 .foregroundStyle(actif ? Color.primary : Color.secondary.opacity(0.5))
-                .frame(width: 26, height: 24)
-                .background(RoundedRectangle(cornerRadius: Rayon.vignette).fill(Gris.leger))
+                .frame(width: 22, height: 22)
+                .background(Circle().fill(Gris.moyen))
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -74,22 +78,7 @@ struct BarreChemin: View {
     }
 
     private func morceau(_ url: URL, dernier: Bool) -> some View {
-        Button { ouvrir(url) } label: {
-            HStack(spacing: 5) {
-                Image(nsImage: Icones.petite(url.path))
-                    .resizable().frame(width: 16, height: 16)
-                Text(Fichiers.nom(url))
-                    .font(.system(size: 12, weight: dernier ? .medium : .regular))
-                    .foregroundStyle(dernier ? Color.primary : Color.secondary)
-                    .lineLimit(1).truncationMode(.middle)
-            }
-            .padding(.horizontal, 5)
-            .frame(height: 24)
-            .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-        .help(url.path)
-        .accessibilityLabel("Aller à \(Fichiers.nom(url))")
+        MorceauChemin(url: url, dernier: dernier) { ouvrir(url) }
     }
 
     /// Le chevron entre deux dossiers : il déroule les sous-dossiers de celui qui le précède.
@@ -99,7 +88,7 @@ struct BarreChemin: View {
             Image(systemName: "chevron.right")
                 .font(.system(size: 9, weight: .bold))
                 .foregroundStyle(.secondary)
-                .frame(width: 16, height: 24)
+                .frame(width: 14, height: 22)
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -169,4 +158,42 @@ final class ElementMenu: NSMenuItem {
     }
     required init(coder: NSCoder) { fatalError() }
     @objc private func lancer() { geste() }
+}
+
+/// Un dossier du fil d'Ariane : son icône (une maison pour le dossier personnel) et son nom,
+/// surligné au passage de la souris.
+private struct MorceauChemin: View {
+    let url: URL
+    let dernier: Bool
+    let action: () -> Void
+    @State private var survol = false
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 5) {
+                if url.standardizedFileURL.path == Fichiers.home.standardizedFileURL.path {
+                    Image(systemName: "house.fill")
+                        .font(.system(size: 12))
+                        .foregroundStyle(Color.accentColor)
+                        .frame(width: 16, height: 16)
+                } else {
+                    Image(nsImage: Icones.petite(url.path))
+                        .resizable().frame(width: 16, height: 16)
+                }
+                Text(Fichiers.nom(url))
+                    .font(.system(size: 12, weight: dernier ? .medium : .regular))
+                    .foregroundStyle(dernier ? Color.primary : Color.secondary)
+                    .lineLimit(1).truncationMode(.middle)
+            }
+            .padding(.horizontal, 7)
+            .frame(height: 22)
+            .background(Capsule().fill(survol ? Gris.moyen : .clear))
+            .contentShape(Capsule())
+        }
+        .buttonStyle(.plain)
+        .onHover { survol = $0 }
+        .animation(Mouvement.survol, value: survol)
+        .help(url.path)
+        .accessibilityLabel("Aller à \(Fichiers.nom(url))")
+    }
 }

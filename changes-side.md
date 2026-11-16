@@ -7,6 +7,11 @@ Il est mis à jour à chaque modification, en même temps que le code.
 
 ## 16/11/2026
 
+### Fil d'Ariane dans une pastille
+- Tout le fil (la flèche du dossier parent et le chemin) tient dans une pastille arrondie, posée en bas de la grande zone, au lieu d'une barre sur toute la largeur.
+- Le dossier personnel a une maison bleue pour icône, comme dans la barre latérale.
+- Chaque dossier du chemin se surligne au passage de la souris.
+
 ### Fil d'Ariane : plus haut, dossier parent et sous-dossiers comme sous Windows
 - La barre du chemin est plus haute (34 points), avec un texte et des icônes plus grands.
 - Une flèche vers le haut, à gauche, remonte au dossier parent (comme la flèche « Haut » de l'Explorateur de Windows).

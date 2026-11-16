@@ -222,6 +222,8 @@ Press Esc to cancel.</string>
 	<string>No results for “%@”.</string>
 	<key>Aucun serveur ne répond</key>
 	<string>No server answers</string>
+	<key>Aucun sous-dossier</key>
+	<string>No subfolders</string>
 	<key>Aucun sujet trouvé dans %@.</key>
 	<string>No subject found in %@.</string>
 	<key>Aucun élément</key>
@@ -432,6 +434,10 @@ Press Esc to cancel.</string>
 	<string>Documents</string>
 	<key>Dossier</key>
 	<string>Folder</string>
+	<key>Dossier parent</key>
+	<string>Parent folder</string>
+	<key>Dossier parent : %@</key>
+	<string>Parent folder: %@</string>
 	<key>Dossier précédent</key>
 	<string>Previous folder</string>
 	<key>Dossier suivant</key>
@@ -1300,6 +1306,8 @@ Press Esc to cancel.</string>
 	<string>Mouse: open the Finder</string>
 	<key>Souris et trackpad</key>
 	<string>Mouse and Trackpad</string>
+	<key>Sous-dossiers de %@</key>
+	<string>Subfolders of %@</string>
 	<key>Spotify</key>
 	<string>Spotify</string>
 	<key>Spotify est fermé</key>
