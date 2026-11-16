@@ -38,6 +38,7 @@ Un fichier = un thème. Les quatre parties de Side (Finder, Plein écran, Tiroir
 | --- | --- |
 | `Design.swift` | arrondis et durées nommés (voir `design/DESIGN-SYSTEM.md`) |
 | `Gestes.swift`, `Gestes4Doigts.swift` | cercle à la souris, geste à quatre doigts |
+| `Ecrans.swift` | les écrans : le seul endroit qui choisit un écran (`Ecrans.deTravail`, celui de la souris), passe d'AppKit à AX (`versAX`, `versNS`), gare les fenêtres (`garage`) et lit le plein écran d'Apple d'un écran. Logique pure dans `DispositionEcrans`, vérifiée par `Side --test-ecrans` |
 | `Systeme.swift`, `Reseau.swift` | ce que Side lit de macOS : captures en cours, raccourcis du système, serveurs du réseau |
 | `Parties.swift` | les quatre parties et leur interrupteur |
 | `Raccourcis.swift` | tous les raccourcis clavier globaux, et la saisie d'un nouveau raccourci |
@@ -54,6 +55,7 @@ Un fichier = un thème. Les quatre parties de Side (Finder, Plein écran, Tiroir
   dans les réglages : `SaisieRaccourci` (sauf la grille, qui a sa petite fenêtre).
 - Mode photo (`--image`) : `lancerModePhoto()` est appelé avant tout démarrage. La copie partage les réglages du vrai Side :
   elle ne doit rien écouter ni rien écrire.
+- Écrans : jamais `NSScreen.main` ni `NSScreen.screens.first` pour choisir un écran ou convertir des coordonnées : passer par `Ecrans`. Le tiroir garde l'écran choisi à l'ouverture (`écranDuTiroir`).
 - Le travail lent (copie de fichiers, disques réseau, questions aux autres applications) ne se fait pas sur le fil principal :
   les filtres d'événements de Side tournent dessus, et un blocage retiendrait les clics de tout le Mac.
 - Les réglages des autres applications sont interrogés avec un délai maximum de 0,3 s.
