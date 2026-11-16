@@ -305,6 +305,7 @@ enum Devant {
     static func alerte(_ a: NSAlert) -> NSApplication.ModalResponse {
         a.window.level = niveau
         NSApp.activate(ignoringOtherApps: true)
+        remonter(a.window)
         return a.runModal()
     }
 
@@ -312,7 +313,17 @@ enum Devant {
     static func panneau(_ p: NSSavePanel) -> NSApplication.ModalResponse {
         p.level = niveau
         NSApp.activate(ignoringOtherApps: true)
+        remonter(p)
         return p.runModal()
+    }
+
+    /// En lançant une fenêtre modale, macOS lui remet son propre niveau (celui des fenêtres modales), plus bas que la carte
+    /// et le tiroir de Side : elle passait derrière (16/11/2026). On la remonte une fois affichée.
+    private static func remonter(_ w: NSWindow) {
+        RunLoop.main.perform(inModes: [.modalPanel, .common]) {
+            w.level = niveau
+            w.orderFrontRegardless()
+        }
     }
 }
 

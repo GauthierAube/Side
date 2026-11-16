@@ -7,6 +7,11 @@ Il est mis à jour à chaque modification, en même temps que le code.
 
 ## 16/11/2026
 
+### Renommer sur place, et les fenêtres secondaires à leur place
+- Finder : Entrée (ou « Renommer » du clic droit) rend le nom modifiable sur place, surligné en bleu sans son extension, comme dans le Finder. Entrée valide, Échap annule, un clic ailleurs valide. Plus de fenêtre « Renommer », qui passait derrière la carte.
+- Les fenêtres de question de Side (erreur, ouvrir, enregistrer) passent toujours devant la carte et le tiroir : macOS leur remettait son propre niveau en les affichant, plus bas que Side.
+- Plein écran : les réglages ou une boîte de dialogue d'une application (les réglages de Safari) n'ont plus leur propre case dans la grille ni dans le carrousel. Ils restent au-dessus de la grande fenêtre de leur application, et repassent devant quand Side la ramène.
+- Tiroir : les réglages ou une boîte de dialogue de l'application affichée s'ouvrent au-dessus d'elle, centrés sur sa place dans le tiroir (une seule fois : on peut ensuite les déplacer).
 ### IA locale : les captures d'écran prennent un nom qui dit ce qu'on y voit
 - Quelques secondes après une capture d'écran, Side la renomme d'après son contenu, suivi de sa date : « gestion de cartes wakatoo 2026-11-16 12.20.05.png ». Le nom vient d'un modèle d'IA qui tourne sur ton Mac avec Ollama (`gemma4:26b`).
 - Rien ne part sur Internet : l'image, réduite, n'est envoyée qu'au serveur Ollama de ce Mac (`localhost`), sinon à celui du Mac mini (`mac-mini-de-gauthier.local`). Side essaie les adresses dans l'ordre et garde cinq minutes la première qui répond.

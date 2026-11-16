@@ -12,6 +12,27 @@ extension PanneauBas {
     /// - une fenêtre que vous élargissez pousse ses voisines (c'est un carrousel : rien ne se chevauche) ;
     /// - une fenêtre que vous déplacez change de rang dans la bande quand vous la lâchez ;
     /// - on repère les boutons jaune et vert, pour les intercepter.
+    /// Les réglages ou une boîte de dialogue de l'application affichée dans le tiroir s'ouvrent au-dessus d'elle, centrés
+    /// sur sa place dans le tiroir (16/11/2026 ; avant, là où l'application les mettait, parfois ailleurs sur l'écran).
+    func poserLesSecondaires() {
+        guard let p = panneau, let (e, zone) = entières(p.frame).first, let a = app(e), let principale = fenetre(e) else { return }
+        var v: CFTypeRef?
+        AXUIElementCopyAttributeValue(AXUIElementCreateApplication(a.processIdentifier), kAXWindowsAttribute as CFString, &v)
+        var idPrincipale: CGWindowID = 0
+        _ = _AXUIElementGetWindow(principale, &idPrincipale)
+        for el in (v as? [AXUIElement]) ?? [] {
+            var wid: CGWindowID = 0
+            guard _AXUIElementGetWindow(el, &wid) == .success, wid != idPrincipale, !secondairesPosées.contains(wid),
+                  !AX.vrai(el, kAXMinimizedAttribute), Relevé.estSecondaire(el), let c = AXBas.cadre(el),
+                  c.width >= 120, c.height >= 80 else { continue }
+            secondairesPosées.insert(wid)
+            let w = min(c.width, zone.width), h = min(c.height, zone.height)
+            AXBas.placer(el, CGRect(x: (zone.midX - w / 2).rounded(), y: (zone.midY - h / 2).rounded(), width: c.width, height: c.height))
+            AXBas.lever(el)
+            journalBas("%@ : fenêtre secondaire posée au-dessus, dans le tiroir", e.nom)
+        }
+    }
+
     func veiller() {
         // Pendant une capture d'écran : Échap doit annuler la capture (pas refermer le tiroir), et aucune fenêtre ne doit
         // être ramenée devant. Le tiroir rend donc sa touche Échap et ne fait plus rien, jusqu'à la fin de la capture.
@@ -46,6 +67,7 @@ extension PanneauBas {
                 relayable = c
             }
             PanneauBas.fenêtreRelayable = relayable
+            poserLesSecondaires()
         }
         for (e, zone) in entières(p.frame) where posées.contains(e.nom) {
             if let a = app(e), a.isHidden { continue }

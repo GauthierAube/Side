@@ -118,10 +118,8 @@ extension AppDelegate {
         a.alertStyle = .warning
         a.messageText = texte
         a.informativeText = e.localizedDescription
-        a.window.level = auDessus
         epingle = true
-        NSApp.activate(ignoringOtherApps: true)
-        a.runModal()
+        Devant.alerte(a)
     }
 
     /// Fait une action sur le fichier visé, affiche l'erreur éventuelle, puis rafraîchit les colonnes.
@@ -264,23 +262,26 @@ extension AppDelegate {
         p.terminationHandler = { [weak self] _ in DispatchQueue.main.async { self?.store.reloadAll() } }
         do { try p.run() } catch { erreur(String(localized: "Impossible de compresser « \(u.lastPathComponent) »"), error) }
     }
+    /// Renommer, comme dans le Finder : le nom devient modifiable sur place, surligné en bleu (sans son extension).
+    /// Entrée valide, Échap annule, un clic ailleurs valide. (Avant le 16/11/2026 : une fenêtre de question, qui passait
+    /// derrière la carte.)
     @objc func mRenommer() {
         guard let u = cible else { return }
-        let a = NSAlert()
-        a.messageText = String(localized: "Renommer « \(u.lastPathComponent) »")
-        a.addButton(withTitle: String(localized: "Renommer"))
-        a.addButton(withTitle: String(localized: "Annuler"))
-        let champ = NSTextField(string: u.lastPathComponent)
-        champ.frame = NSRect(x: 0, y: 0, width: 320, height: 24)
-        a.accessoryView = champ
-        a.window.initialFirstResponder = champ
-        a.window.level = auDessus
         epingle = true
         NSApp.activate(ignoringOtherApps: true)
-        guard a.runModal() == .alertFirstButtonReturn else { return }
-        let nom = champ.stringValue.trimmingCharacters(in: .whitespacesAndNewlines)
+        panel.makeKey()
+        Renommage.shared.url = u
+    }
+    /// Le nom tapé sur place est validé : le fichier change de nom, et reste choisi sous son nouveau nom.
+    func renommer(_ u: URL, en nom: String) {
+        let nom = nom.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !nom.isEmpty, nom != u.lastPathComponent, !nom.contains("/") else { return }
-        agir({ String(localized: "Impossible de renommer « \($0) »") }) { try FileManager.default.moveItem(at: $0, to: $0.deletingLastPathComponent().appendingPathComponent(nom)) }
+        let nouveau = u.deletingLastPathComponent().appendingPathComponent(nom)
+        do { try FileManager.default.moveItem(at: u, to: nouveau) }
+        catch { erreur(String(localized: "Impossible de renommer « \(u.lastPathComponent) »"), error); return }
+        let col = Selection.shared.colonne
+        store.reloadAll()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { Selection.shared.choisir(nouveau, col) }
     }
     @objc func mInfos() {
         guard let u = cible else { return }

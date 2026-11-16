@@ -585,6 +585,9 @@ final class PanneauBas: NSObject {
             if ouvert != oldValue { UserDefaults.standard.set(ouvert, forKey: "tiroirOuvert") }
         }
     }
+    /// Les fenêtres secondaires (réglages, boîtes de dialogue) déjà posées au-dessus de leur application dans le tiroir :
+    /// chacune n'est posée qu'une fois, ensuite on peut la déplacer.
+    var secondairesPosées: Set<CGWindowID> = []
     /// Mulot mène le tiroir (bouton de pouce tenu) : voir « tiroir:debut » dans commandeExterieure.
     var sourisMène = false
     var ouvertAvantLaSouris = false      // le tiroir était déjà ouvert au début du geste

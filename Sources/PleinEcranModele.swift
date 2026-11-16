@@ -110,6 +110,7 @@ enum Relevé {
                                             titre: (i[kCGWindowName as String] as? String) ?? "",
                                             cadre: cadre, agrandie: agrandie, masquee: masquee))
                 }
+                if !plein { fenetres = Relevé.sansSecondaires(fenetres) }
                 var esp = Espace(id: id, pleinEcran: plein, ecran: ecran, rang: rang, fenetres: fenetres)
                 if !plein {
                     numeroBureau += 1
@@ -122,6 +123,47 @@ enum Relevé {
     }
 
     static func espaceCourant(ecran: String) -> UInt64? { tout().courants[ecran] }
+
+    // MARK: Fenêtres secondaires (16/11/2026)
+    /// Les fenêtres secondaires de chaque application (réglages, boîtes de dialogue, palettes), vues au dernier relevé :
+    /// elles n'ont pas de case à elles, et repassent devant quand Side amène la grande fenêtre de leur application.
+    static var secondaires: [pid_t: [AXUIElement]] = [:]
+
+    /// Retire de la liste les fenêtres secondaires : une fenêtre qui n'est pas agrandie, d'une application qui a déjà une
+    /// grande fenêtre sur ce bureau, et qui n'est pas une fenêtre de travail (pas de bouton plein écran utilisable,
+    /// ou pas une fenêtre ordinaire). Ainsi les réglages de Safari restent au-dessus de Safari, au lieu de faire une
+    /// « application » de plus dans la grille et le carrousel.
+    static func sansSecondaires(_ fs: [Fenetre]) -> [Fenetre] {
+        let pidsAgrandis = Set(fs.filter { $0.agrandie && !$0.masquee }.map(\.pid))
+        let candidates = Set(fs.filter { !$0.agrandie && pidsAgrandis.contains($0.pid) }.map(\.wid))
+        guard !candidates.isEmpty else { return fs }
+        var retirees: Set<CGWindowID> = []
+        for pid in Set(fs.filter { candidates.contains($0.wid) }.map(\.pid)) {
+            var v: CFTypeRef?
+            AXUIElementCopyAttributeValue(AXUIElementCreateApplication(pid), kAXWindowsAttribute as CFString, &v)
+            var liste: [AXUIElement] = []
+            for el in (v as? [AXUIElement]) ?? [] {
+                var wid: CGWindowID = 0
+                guard _AXUIElementGetWindow(el, &wid) == .success, candidates.contains(wid), estSecondaire(el) else { continue }
+                retirees.insert(wid)
+                liste.append(el)
+            }
+            secondaires[pid] = liste
+        }
+        return fs.filter { !retirees.contains($0.wid) }
+    }
+
+    /// Une fenêtre de réglages, une boîte de dialogue ou une palette : pas une fenêtre ordinaire, ou pas de bouton plein
+    /// écran utilisable (le même critère que l'agrandissement automatique).
+    static func estSecondaire(_ el: AXUIElement) -> Bool {
+        var sousRole: CFTypeRef?
+        AXUIElementCopyAttributeValue(el, kAXSubroleAttribute as CFString, &sousRole)
+        if (sousRole as? String) != kAXStandardWindowSubrole { return true }
+        var bouton: CFTypeRef?
+        guard AXUIElementCopyAttributeValue(el, kAXFullScreenButtonAttribute as CFString, &bouton) == .success, let bouton,
+              CFGetTypeID(bouton) == AXUIElementGetTypeID() else { return true }
+        return !AX.vrai(bouton as! AXUIElement, kAXEnabledAttribute)
+    }
 
     static let side = "com.gauthieraube.side"
     /// La fenêtre de la vidéo que Side affiche en grand (réglage `videoPleinEcran` de Side), si elle existe bien et lui appartient.

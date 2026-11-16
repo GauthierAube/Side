@@ -597,7 +597,7 @@ struct MillerRow: View {
         HStack(spacing: 8) {
             Image(nsImage: NSWorkspace.shared.icon(forFile: item.url.path))
                 .resizable().frame(width: 18, height: 18)
-            Text(item.name).lineLimit(1).truncationMode(.middle)
+            NomFichier(item: item) { Text(item.name).lineLimit(1).truncationMode(.middle) }
             Spacer(minLength: 4)
             NuageIcone(item: item, blanc: choisi)
             // Flèche réservée aux dossiers : sur un fichier, le nuage se cale ainsi au bord droit, comme dans le Finder.
@@ -789,11 +789,13 @@ struct IconView: View {
         let texte = VStack(alignment: droite ? .leading : .center, spacing: 2) {
             HStack(alignment: .firstTextBaseline, spacing: 4) {
                 NuageIcone(item: item, blanc: choisi)
-                Text(item.name)
-                    .font(.system(size: CGFloat(config.tailleTexte)))
-                    .multilineTextAlignment(droite ? .leading : .center)
-                    .lineLimit(2).truncationMode(.middle)
-                    .foregroundStyle(choisi ? Color.white : Color.primary)
+                NomFichier(item: item) {
+                    Text(item.name)
+                        .font(.system(size: CGFloat(config.tailleTexte)))
+                        .multilineTextAlignment(droite ? .leading : .center)
+                        .lineLimit(2).truncationMode(.middle)
+                        .foregroundStyle(choisi ? Color.white : Color.primary)
+                }
             }
             .padding(.horizontal, 5).padding(.vertical, 1)
             .background(RoundedRectangle(cornerRadius: Rayon.puce).fill(choisi ? Selection.bleu : .clear))
@@ -876,7 +878,7 @@ struct RowView: View {
             Image(nsImage: NSWorkspace.shared.icon(forFile: item.url.path))
                 .resizable().frame(width: 18, height: 18)
             VStack(alignment: .leading, spacing: 1) {
-                Text(item.name).lineLimit(1).truncationMode(.middle)
+                NomFichier(item: item) { Text(item.name).lineLimit(1).truncationMode(.middle) }
                 if ((column.kind == .recents || column.kind == .dossiers) && column.pile.isEmpty) || column.resultats != nil {
                     Text(detail).font(.caption).foregroundStyle(discret).lineLimit(1)
                 }

@@ -186,6 +186,8 @@ enum Bascule {
         // Une fenêtre qui partage l'écran avec d'autres les amène devant avec elle.
         Groupes.monterLeGroupe(de: f) {
             if let el { AX.lever(el) }
+            // Ses réglages ou ses boîtes de dialogue restent au-dessus d'elle, comme dans macOS.
+            for s in Relevé.secondaires[f.pid] ?? [] { AX.lever(s) }
             app.activate(options: [])
         }
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
