@@ -138,26 +138,42 @@ extension PanneauBas {
             Pilule.montrer(String(commande.dropFirst(7)), symbole: "arrow.up.and.down")
         // Mulot, bouton de pouce tenu : le tiroir s'ouvre s'il ne l'est pas, puis son sélecteur vertical suit la souris
         // (« tiroir:suivre:1.5 » = une application et demie plus loin) ; « tiroir:fin » pose l'application du centre.
-        // Le tiroir s'ouvre dès le début du geste (pas au relâchement) ; le sélecteur n'apparaît que si la souris continue
-        // (position positive). Tiroir déjà ouvert et souris lâchée avant le sélecteur : il se referme, comme un geste simple.
+        // Mulot, bouton de pouce tenu : le tiroir monte en suivant la souris, comme les doigts au trackpad
+        // (« tiroir:suivre:0.5 » = à mi-chemin), puis le sélecteur prend le relais dans le même mouvement
+        // (« tiroir:suivre:1.5 » = une demi-application plus loin). Tiroir déjà ouvert : le sélecteur apparaît au-delà de 1,
+        // et un geste lâché avant le referme, comme un geste simple.
         case "tiroir:debut":
             sourisMène = true
             ouvertAvantLaSouris = ouvert
             sélecteurParLaSouris = false
-            if !ouvert { ouvrir() }
+            positionSouris = 0
+            if !ouvert { commencerSuivi(fermeture: false) }
         case "tiroir:fin":
+            guard sourisMène else { return }
             sourisMène = false
-            if navDepart != nil { lacherDoigts(ouvrir: true, elan: 0) }
-            else if ouvertAvantLaSouris, !sélecteurParLaSouris, ouvert { fermer(rendreLaMain: true) }
-        case _ where commande.hasPrefix("tiroir:suivre:"):
-            guard sourisMène, ouvert, let q = Double(commande.dropFirst(14)) else { return }
-            if navDepart == nil {
-                guard q > 0, enPlace else { return }    // pas encore assez loin, ou le tiroir finit de glisser à sa place
-                commencerNavigation()
-                guard navDepart != nil else { return }  // une seule application : pas de sélecteur
-                sélecteurParLaSouris = true
+            if ouvertAvantLaSouris {
+                if navDepart != nil { lacherDoigts(ouvrir: true, elan: 0) }
+                else if !sélecteurParLaSouris, ouvert { fermer(rendreLaMain: true) }
+            } else {
+                // Lâché très près du départ (la souris est revenue en arrière) : le tiroir redescend.
+                lacherDoigts(ouvrir: positionSouris > 0.12 || navDepart != nil, elan: 0)
             }
-            suivreDoigts(1 + CGFloat(q) * parApp)
+        case _ where commande.hasPrefix("tiroir:suivre:"):
+            guard sourisMène, ouvert, let v = Double(commande.dropFirst(14)).map({ CGFloat($0) }) else { return }
+            positionSouris = v
+            if ouvertAvantLaSouris {
+                if navDepart == nil {
+                    guard v > 1, enPlace else { return }
+                    commencerNavigation()
+                    guard navDepart != nil else { return }   // une seule application : pas de sélecteur
+                    sélecteurParLaSouris = true
+                }
+                suivreDoigts(1 + (v - 1) * parApp)
+            } else {
+                // Les mêmes unités que le trackpad : au-delà de 1, « parApp » de progression par application.
+                if v > 1 { sélecteurParLaSouris = true }
+                suivreDoigts(v <= 1 ? max(0, v) : 1 + (v - 1) * parApp)
+            }
         case "mini:debut": commencerNavigation()
         case "mini:fin": lacherDoigts(ouvrir: true, elan: 0)
         case "video":                                     // la vidéo YouTube du tiroir : en plein écran, ou de retour

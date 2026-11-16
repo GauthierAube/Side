@@ -583,6 +583,7 @@ final class PanneauBas: NSObject {
     var sourisMène = false
     var ouvertAvantLaSouris = false      // le tiroir était déjà ouvert au début du geste
     var sélecteurParLaSouris = false     // la souris est allée jusqu'au sélecteur pendant ce geste
+    var positionSouris: CGFloat = 0      // la dernière position envoyée par Mulot (0 fermé, 1 ouvert, au-delà : le sélecteur)
     /// L'écran choisi à l'ouverture (celui de la souris) : le tiroir y reste tant qu'il est ouvert (voir écranDuTiroir).
     var écranOuvert: NSScreen?
     var ouvertÀ = Date.distantPast
