@@ -579,6 +579,8 @@ final class PanneauBas: NSObject {
     static var boutonsJaunes: [(nom: String, cadre: CGRect)] = []
     static var clicAvalé = false
     var ouvert = false { didSet { PanneauBas.estOuvertBrut = ouvert } }
+    /// Mulot mène le sélecteur d'applications (bouton de pouce tenu) : voir « tiroir:debut » dans commandeExterieure.
+    var sourisMène = false
     /// L'écran choisi à l'ouverture (celui de la souris) : le tiroir y reste tant qu'il est ouvert (voir écranDuTiroir).
     var écranOuvert: NSScreen?
     var ouvertÀ = Date.distantPast

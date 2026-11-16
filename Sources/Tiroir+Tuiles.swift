@@ -105,7 +105,7 @@ extension PanneauBas {
 
     @objc func commandeExterieure(_ note: Notification) {
         guard let commande = note.object as? String else { return }
-        journalBas("commande reçue : %@", commande)
+        if !commande.hasPrefix("tiroir:suivre:") { journalBas("commande reçue : %@", commande) }   // pas 60 lignes par seconde
         switch commande {
         case "carte": AppDelegate.shared.basculer()      // la carte Finder
         case "panneau": basculer()                        // le panneau du bas
@@ -136,6 +136,22 @@ extension PanneauBas {
             }
         case _ where commande.hasPrefix("pilule:"):          // pour les essais : afficher une pastille
             Pilule.montrer(String(commande.dropFirst(7)), symbole: "arrow.up.and.down")
+        // Mulot, bouton de pouce tenu : le tiroir s'ouvre s'il ne l'est pas, puis son sélecteur vertical suit la souris
+        // (« tiroir:suivre:1.5 » = une application et demie plus loin) ; « tiroir:fin » pose l'application du centre.
+        case "tiroir:debut":
+            sourisMène = true
+            if !ouvert { ouvrir() }
+        case "tiroir:fin":
+            sourisMène = false
+            if navDepart != nil { lacherDoigts(ouvrir: true, elan: 0) }
+        case _ where commande.hasPrefix("tiroir:suivre:"):
+            guard sourisMène, ouvert, let q = Double(commande.dropFirst(14)) else { return }
+            if navDepart == nil {
+                guard enPlace else { return }           // le tiroir finit d'abord de glisser à sa place
+                commencerNavigation()
+                guard navDepart != nil else { return }  // une seule application : pas de sélecteur
+            }
+            suivreDoigts(1 + CGFloat(q) * parApp)
         case "mini:debut": commencerNavigation()
         case "mini:fin": lacherDoigts(ouvrir: true, elan: 0)
         case "video":                                     // la vidéo YouTube du tiroir : en plein écran, ou de retour
