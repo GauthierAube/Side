@@ -396,7 +396,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         if CommandLine.arguments.count == 1 { MesApps.commun.demarrer() }   // « Mes applications » : tout se met en place
         nettoyerDepot()
         creerDepot()
-        if let e = NSScreen.main { placer(sur: e, anime: false) }   // fixe l'emplacement des zones de dépôt
+        if let e = Ecrans.deTravail { placer(sur: e, anime: false) }   // fixe l'emplacement des zones de dépôt
         store.reloadAll()
         // Surveille le presse-papiers deux fois par seconde pour tenir l'historique du copier-coller.
         let surveillance = Timer(timeInterval: 0.5, repeats: true) { _ in PressePapiers.shared.verifier() }

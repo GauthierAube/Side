@@ -197,7 +197,7 @@ extension AppDelegate {
     }
 
     @objc func afficherEpingle() {
-        guard let e = NSScreen.main ?? NSScreen.screens.first else { return }
+        guard let e = Ecrans.deTravail else { return }
         epingle = true
         show(sur: e)
     }

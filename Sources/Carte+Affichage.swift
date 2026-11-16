@@ -356,7 +356,7 @@ extension AppDelegate {
             + (deplie != nil ? DepotFlottant.depliee.height - Reglages.hauteurDepot * e : 0)
         // À l'endroit où tu l'as posée, sinon à côté de la carte ; toujours dans l'écran.
         var coin = ancrePerso ?? ancreDepot
-        if let ecran = NSScreen.screens.first(where: { $0.frame.insetBy(dx: -1, dy: -1).contains(coin) }) ?? NSScreen.main {
+        if let ecran = NSScreen.screens.first(where: { $0.frame.insetBy(dx: -1, dy: -1).contains(coin) }) ?? Ecrans.deTravail {
             let unique = min(hauteur, ecran.frame.height - 8)
             coin.x = min(max(coin.x, ecran.frame.minX + 4), ecran.frame.maxX - largeur - 4)
             coin.y = zonesVersHaut

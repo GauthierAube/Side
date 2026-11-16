@@ -37,7 +37,7 @@ enum Pilule {
     /// Affiche `message` en bas de l'écran (celui de la souris).
     static func montrer(_ message: String, symbole: String = "info.circle.fill", couleur: Color = Color(red: 0.94, green: 0.60, blue: 0.47)) {
         if messageAffiche == message, panneau?.isVisible == true { relancer(); return }
-        guard let ecran = NSScreen.screens.first(where: { $0.frame.contains(NSEvent.mouseLocation) }) ?? NSScreen.main else { return }
+        guard let ecran = Ecrans.deTravail else { return }
         let p = panneau ?? {
             let p = NSPanel(contentRect: .zero, styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
             p.isOpaque = false

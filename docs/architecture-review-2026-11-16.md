@@ -35,7 +35,7 @@ mais seul le plein écran s'en sert. Le tiroir refait tout à la main, et la fon
    (Tiroir+Emprunts:214 et 424, Tiroir+BoutonsFenetres:166 et 223, Tiroir+OuvrirFermer:319) centrent la fenêtre
    sur `NSScreen.main`, pas sur l'écran du tiroir.
 
-## Écrans : un seul module pour choisir l'écran, convertir et garer  [Forte]  ÉTAPES 1 À 4 FAITES le 16/11/2026
+## Écrans : un seul module pour choisir l'écran, convertir et garer  [Forte]  ÉTAPES 1 À 5 FAITES le 16/11/2026
 
 Fichiers : 20 fichiers, 77 endroits (surtout `Tiroir+*.swift`, `PanneauBas.swift`, `PleinEcranModele.swift`).
 Signal : le même genre de bug revient (garage corrigé le 15/11 mais pas partout) ; une fonctionnalité (le tiroir)
@@ -84,3 +84,6 @@ s'ouvre-t-il ? (Proposé : celui de la souris, comme la carte du Finder.)
 Étapes 1 à 4, un commit chacune. Décision : le tiroir s'ouvre sur l'écran de la souris. Essai réel sur le Mac mini :
 souris sur le LG, le tiroir sort en bas du LG (1843 points, 80 % de 2304) ; souris sur le Studio, en bas du Studio
 (2304 points, 80 % de 2880). Reste l'étape 5 (plein écran, carte du Finder, presse-papiers : 13 `NSScreen.main` restants, hors du tiroir).
+
+Étape 5 faite le même jour : plus aucun `NSScreen.main` pour choisir un écran (il n'en reste que trois pour l'échelle
+Retina des vignettes, sans effet ici : les deux écrans sont en ×2).

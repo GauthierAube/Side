@@ -477,7 +477,7 @@ final class Appli: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     private func ecranSousLaSouris() -> NSScreen? {
         let p = NSEvent.mouseLocation
-        return NSScreen.screens.first { $0.frame.contains(p) } ?? NSScreen.main
+        return NSScreen.screens.first { $0.frame.contains(p) } ?? Ecrans.deTravail
     }
 
     /// Construit les cases : les fenêtres agrandies, les plein écran d'Apple, puis les bureaux.

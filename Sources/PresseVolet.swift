@@ -985,7 +985,7 @@ final class VoletPresse {
     func ouvrir(sur ecran: NSScreen? = nil) {
         guard Partie.presse.active else { return }          // presse-papiers coupé dans les réglages
         guard !ouvert, !CaptureEcran.enCours,
-              let e = ecran ?? NSScreen.screens.first(where: { $0.frame.contains(NSEvent.mouseLocation) }) ?? NSScreen.main else { return }
+              let e = ecran ?? Ecrans.deTravail else { return }
         let p = panneau ?? {
             let p = PanneauPresse(contentRect: .zero, styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
             p.level = NSWindow.Level(rawValue: NSWindow.Level.statusBar.rawValue + 2)
@@ -1024,7 +1024,7 @@ final class VoletPresse {
         TouchesBas.retirer(idEchap)
         if let ecouteClics { NSEvent.removeMonitor(ecouteClics) }
         ecouteClics = nil
-        let e = p.screen ?? NSScreen.main
+        let e = p.screen ?? Ecrans.deTravail
         NSAnimationContext.runAnimationGroup({ ctx in
             ctx.duration = 0.2
             ctx.timingFunction = CAMediaTimingFunction(controlPoints: 0.5, 0, 0.75, 0.4)

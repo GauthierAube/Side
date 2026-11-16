@@ -142,7 +142,7 @@ extension AppDelegate {
     func ecranSous(_ p: NSPoint) -> NSScreen? {
         NSScreen.screens.first(where: { NSMouseInRect(p, $0.frame, false) })
             ?? NSScreen.screens.first(where: { $0.frame.insetBy(dx: -2, dy: -2).contains(p) })
-            ?? NSScreen.main
+            ?? Ecrans.deTravail
     }
 
     func basculer() {
