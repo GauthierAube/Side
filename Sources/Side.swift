@@ -181,6 +181,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
     /// Où en est la carte de son glissement, à l'instant même (ce qu'on voit à l'écran) : son écart à sa place, et
     /// l'écart total du trajet. La barre de commande s'y cale image par image, pour arriver et repartir collée à elle.
     var epingle = false            // reste ouvert (test ou clic dans la barre des menus)
+    /// Dernière ouverture de la carte : un fichier enregistré après elle (moins de 10 minutes) l'ouvre sur lui (voir Enregistrements).
+    var derniereOuvertureCarte = Date()
     /// Mode test (argument --show) : garde la carte ouverte pour une capture d'écran.
     /// Il ne dure que 8 secondes, pour ne jamais bloquer les fermetures pendant qu'on utilise l'app.
     let lancement = ProcessInfo.processInfo.systemUptime
@@ -393,6 +395,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         installerRaccourci()
         installerMenuEdition()
         Programme.appli.demarrer()        // le plein écran (grille, carrousel, agrandissement) : l'ancien Square
+        Enregistrements.demarrer()        // les fichiers enregistrés ailleurs : la carte s'ouvre sur eux
+        VisualiseurFichiers.ecouter()     // « Afficher dans le Finder », quand Side est le visualiseur de fichiers
         if CommandLine.arguments.count == 1 { MesApps.commun.demarrer() }   // « Mes applications » : tout se met en place
         nettoyerDepot()
         creerDepot()

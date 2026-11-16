@@ -20,7 +20,8 @@ extension AppDelegate {
     }
     func reveler(_ url: URL) {
         hide()
-        DispatchQueue.main.async { NSWorkspace.shared.activateFileViewerSelecting([url]) }
+        // Toujours le vrai Finder : si Side est le visualiseur de fichiers, macOS renverrait la demande à Side.
+        DispatchQueue.main.async { VisualiseurFichiers.revelerDansLeFinder(url) }
     }
 
     func lacherChamp() {

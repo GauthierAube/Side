@@ -484,6 +484,12 @@ struct ReglagesView: View {
                 Toggle("Afficher les informations", isOn: $config.infos)
                 Toggle("Utiliser un aperçu comme icône", isOn: $config.apercus)
             }
+            Section {
+                Toggle("Ouvrir les dossiers dans Side", isOn: Binding(get: { VisualiseurFichiers.actif },
+                                                                     set: { VisualiseurFichiers.choisir($0) }))
+            } header: { Text("À la place du Finder") } footer: {
+                note("« Afficher dans le Finder » des autres applications, et l'ouverture d'un dossier, montrent la carte de Side. Décoché : le Finder de macOS, comme avant.")
+            }
             Section("Options avancées") {
                 Toggle("Afficher toutes les extensions de fichiers", isOn: $config.extensions)
                 Toggle("Laisser les dossiers en haut lors du tri par nom", isOn: $config.dossiersEnHaut)

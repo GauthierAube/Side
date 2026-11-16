@@ -481,6 +481,13 @@ extension AppDelegate {
         aQuitteCoin = false
         suivreBureaux(doitSuivre())
         Selection.shared.choisir(nil, nil)
+        // Un fichier vient d'être enregistré (export, téléchargement) : la carte s'ouvre sur lui, plutôt que sur le dernier dossier.
+        if let u = Enregistrements.aMontrer(depuis: derniereOuvertureCarte) {
+            journal("ouverture sur le fichier enregistré \(u.lastPathComponent)")
+            store.naviguer(.folder(u.deletingLastPathComponent()))
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) { Selection.shared.choisir(u, self.store.navigateur) }
+        }
+        derniereOuvertureCarte = Date()
         // Le cercle ne peut refermer qu'après un arrêt de la souris : la fin du geste d'ouverture ne compte pas.
         attendrePause = true
         derniereSecousse = ProcessInfo.processInfo.systemUptime

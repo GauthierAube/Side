@@ -40,6 +40,22 @@
 			</array>
 		</dict>
 	</array>
+	<!-- Pour pouvoir ouvrir les dossiers à la place du Finder (Réglages > Finder > « Ouvrir les dossiers dans Side »). -->
+	<key>CFBundleDocumentTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeName</key>
+			<string>Folder</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>LSHandlerRank</key>
+			<string>Alternate</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>public.folder</string>
+			</array>
+		</dict>
+	</array>
 	<key>LSUIElement</key>
 	<true/>
 	<key>NSHighResolutionCapable</key>

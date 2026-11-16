@@ -1016,6 +1016,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Ouvrir le réglage</string>
 	<key>Ouvrir le site Spotify</key>
 	<string>Ouvrir le site Spotify</string>
+	<key>Ouvrir les dossiers dans Side</key>
+	<string>Ouvrir les dossiers dans Side</string>
 	<key>Ouvrir les réglages d'accessibilité</key>
 	<string>Ouvrir les réglages d'accessibilité</string>
 	<key>Ouvrir les réglages du trackpad</key>
@@ -1534,12 +1536,16 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>« %@ » ne peut pas être moins haute : le tiroir s'arrête à %lld points</string>
 	<key>« %@ » ne peut pas être moins large : le tiroir s'arrête à %lld points</key>
 	<string>« %@ » ne peut pas être moins large : le tiroir s'arrête à %lld points</string>
+	<key>« Afficher dans le Finder » des autres applications, et l'ouverture d'un dossier, montrent la carte de Side. Décoché : le Finder de macOS, comme avant.</key>
+	<string>« Afficher dans le Finder » des autres applications, et l'ouverture d'un dossier, montrent la carte de Side. Décoché : le Finder de macOS, comme avant.</string>
 	<key>À droite</key>
 	<string>À droite</string>
 	<key>À gauche</key>
 	<string>À gauche</string>
 	<key>À gauche, la musique et la vidéo : YouTube, Spotify ou le site de ton choix.</key>
 	<string>À gauche, la musique et la vidéo : YouTube, Spotify ou le site de ton choix.</string>
+	<key>À la place du Finder</key>
+	<string>À la place du Finder</string>
 	<key>À sa première utilisation, ce Dock est une copie de celui de macOS ; ensuite il vit sa vie. Son premier bouton ouvre la liste de toutes les applications : Entrée ajoute au Dock l'application choisie, Suppr l'en retire. Un clic droit sur une icône permet de la retirer du Dock ou de quitter l'application.</key>
 	<string>À sa première utilisation, ce Dock est une copie de celui de macOS ; ensuite il vit sa vie. Son premier bouton ouvre la liste de toutes les applications : Entrée ajoute au Dock l'application choisie, Suppr l'en retire. Un clic droit sur une icône permet de la retirer du Dock ou de quitter l'application.</string>
 	<key>À utiliser seulement s'il reste des fenêtres dans un plein écran d'Apple : elles en sortent et remplissent l'écran à la place.</key>

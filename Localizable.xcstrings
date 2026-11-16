@@ -5124,6 +5124,9 @@
         }
       }
     },
+    "Ouvrir les dossiers dans Side" : {
+
+    },
     "Ouvrir les réglages d'accessibilité" : {
       "localizations" : {
         "en" : {
@@ -5946,6 +5949,7 @@
       }
     },
     "Renommer « %@ »" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -7750,6 +7754,9 @@
         }
       }
     },
+    "« Afficher dans le Finder » des autres applications, et l'ouverture d'un dossier, montrent la carte de Side. Décoché : le Finder de macOS, comme avant." : {
+
+    },
     "À droite" : {
       "localizations" : {
         "en" : {
@@ -7779,6 +7786,9 @@
           }
         }
       }
+    },
+    "À la place du Finder" : {
+
     },
     "À sa première utilisation, ce Dock est une copie de celui de macOS ; ensuite il vit sa vie. Son premier bouton ouvre la liste de toutes les applications : Entrée ajoute au Dock l'application choisie, Suppr l'en retire. Un clic droit sur une icône permet de la retirer du Dock ou de quitter l'application." : {
       "localizations" : {
