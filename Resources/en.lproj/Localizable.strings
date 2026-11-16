@@ -158,6 +158,8 @@
 	<string>Album</string>
 	<key>Albums</key>
 	<string>Albums</string>
+	<key>Aller à %@</key>
+	<string>Go to %@</string>
 	<key>Aller à la fenêtre 1, 2, 3…</key>
 	<string>Go to window 1, 2, 3…</string>
 	<key>Amener le pointeur dans un coin de l'écran ouvre le Finder, le tiroir ou le presse-papiers.</key>

@@ -224,6 +224,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Aucun résultat pour « %@ ».</string>
 	<key>Aucun serveur ne répond</key>
 	<string>Aucun serveur ne répond</string>
+	<key>Aucun sous-dossier</key>
+	<string>Aucun sous-dossier</string>
 	<key>Aucun sujet trouvé dans %@.</key>
 	<string>Aucun sujet trouvé dans %@.</string>
 	<key>Aucun élément</key>
@@ -434,6 +436,10 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Documents</string>
 	<key>Dossier</key>
 	<string>Dossier</string>
+	<key>Dossier parent</key>
+	<string>Dossier parent</string>
+	<key>Dossier parent : %@</key>
+	<string>Dossier parent : %@</string>
 	<key>Dossier précédent</key>
 	<string>Dossier précédent</string>
 	<key>Dossier suivant</key>
@@ -1308,6 +1314,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Souris : ouvrir le Finder</string>
 	<key>Souris et trackpad</key>
 	<string>Souris et trackpad</string>
+	<key>Sous-dossiers de %@</key>
+	<string>Sous-dossiers de %@</string>
 	<key>Spotify</key>
 	<string>Spotify</string>
 	<key>Spotify est fermé</key>

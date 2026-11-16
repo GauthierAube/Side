@@ -7,6 +7,11 @@ Il est mis à jour à chaque modification, en même temps que le code.
 
 ## 16/11/2026
 
+### Fil d'Ariane : plus haut, dossier parent et sous-dossiers comme sous Windows
+- La barre du chemin est plus haute (34 points), avec un texte et des icônes plus grands.
+- Une flèche vers le haut, à gauche, remonte au dossier parent (comme la flèche « Haut » de l'Explorateur de Windows).
+- Chaque chevron du chemin se clique : il déroule les sous-dossiers du dossier qui le précède, pour sauter directement dans l'un d'eux. Le chevron au bout du chemin montre les sous-dossiers du dossier ouvert.
+
 ### Fil d'Ariane en bas du Finder
 - Une barre du chemin en bas de la grande zone, comme dans le Finder : on voit où l'on est (depuis le dossier personnel, iCloud Drive ou le disque), jusqu'à l'élément sélectionné.
 - Cliquer un dossier du chemin y remonte (Précédent et Suivant restent utilisables) ; cliquer le fichier sélectionné l'ouvre.

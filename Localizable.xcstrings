@@ -486,9 +486,7 @@
         }
       }
     },
-    "Afficher en arborescence, comme l'Explorateur de Windows" : {
-
-    },
+    "Afficher en arborescence, comme l'Explorateur de Windows" : {},
     "Afficher en colonnes" : {
       "localizations" : {
         "en" : {
@@ -1089,6 +1087,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "No server answers"
+          }
+        }
+      }
+    },
+    "Aucun sous-dossier" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No subfolders"
           }
         }
       }
@@ -2167,6 +2175,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Folder"
+          }
+        }
+      }
+    },
+    "Dossier parent" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Parent folder"
+          }
+        }
+      }
+    },
+    "Dossier parent : %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Parent folder: %@"
           }
         }
       }
@@ -3278,9 +3306,7 @@
         }
       }
     },
-    "Impossible d'éjecter « %@ »" : {
-
-    },
+    "Impossible d'éjecter « %@ »" : {},
     "Impossible de coller certains éléments" : {
       "localizations" : {
         "en" : {
@@ -5140,9 +5166,7 @@
         }
       }
     },
-    "Ouvrir les dossiers dans Side" : {
-
-    },
+    "Ouvrir les dossiers dans Side" : {},
     "Ouvrir les réglages d'accessibilité" : {
       "localizations" : {
         "en" : {
@@ -6438,9 +6462,7 @@
         }
       }
     },
-    "Se règle aussi en tirant le bord gauche ou droit du tiroir ouvert. Sur un grand écran, la part se compte sur 1800 points au plus." : {
-
-    },
+    "Se règle aussi en tirant le bord gauche ou droit du tiroir ouvert. Sur un grand écran, la part se compte sur 1800 points au plus." : {},
     "Secouer le pointeur" : {
       "localizations" : {
         "en" : {
@@ -6578,6 +6600,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Mouse and Trackpad"
+          }
+        }
+      }
+    },
+    "Sous-dossiers de %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Subfolders of %@"
           }
         }
       }
@@ -7223,9 +7255,7 @@
         }
       }
     },
-    "Une application utilise peut-être encore un fichier de ce disque. Ferme-la, puis réessaie." : {
-
-    },
+    "Une application utilise peut-être encore un fichier de ce disque. Ferme-la, puis réessaie." : {},
     "Une application à la fois" : {
       "localizations" : {
         "en" : {
@@ -7773,9 +7803,7 @@
         }
       }
     },
-    "« Afficher dans le Finder » des autres applications, et l'ouverture d'un dossier, montrent la carte de Side. Décoché : le Finder de macOS, comme avant." : {
-
-    },
+    "« Afficher dans le Finder » des autres applications, et l'ouverture d'un dossier, montrent la carte de Side. Décoché : le Finder de macOS, comme avant." : {},
     "À droite" : {
       "localizations" : {
         "en" : {
@@ -7806,9 +7834,7 @@
         }
       }
     },
-    "À la place du Finder" : {
-
-    },
+    "À la place du Finder" : {},
     "À sa première utilisation, ce Dock est une copie de celui de macOS ; ensuite il vit sa vie. Son premier bouton ouvre la liste de toutes les applications : Entrée ajoute au Dock l'application choisie, Suppr l'en retire. Un clic droit sur une icône permet de la retirer du Dock ou de quitter l'application." : {
       "localizations" : {
         "en" : {
@@ -7860,9 +7886,7 @@
         }
       }
     },
-    "Éjecter « %@ »" : {
-
-    },
+    "Éjecter « %@ »" : {},
     "Élargir ou rétrécir le lecteur" : {
       "localizations" : {
         "en" : {
