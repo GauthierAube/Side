@@ -138,18 +138,24 @@ extension PanneauBas {
             Pilule.montrer(String(commande.dropFirst(7)), symbole: "arrow.up.and.down")
         // Mulot, bouton de pouce tenu : le tiroir s'ouvre s'il ne l'est pas, puis son sélecteur vertical suit la souris
         // (« tiroir:suivre:1.5 » = une application et demie plus loin) ; « tiroir:fin » pose l'application du centre.
+        // Le tiroir s'ouvre dès le début du geste (pas au relâchement) ; le sélecteur n'apparaît que si la souris continue
+        // (position positive). Tiroir déjà ouvert et souris lâchée avant le sélecteur : il se referme, comme un geste simple.
         case "tiroir:debut":
             sourisMène = true
+            ouvertAvantLaSouris = ouvert
+            sélecteurParLaSouris = false
             if !ouvert { ouvrir() }
         case "tiroir:fin":
             sourisMène = false
             if navDepart != nil { lacherDoigts(ouvrir: true, elan: 0) }
+            else if ouvertAvantLaSouris, !sélecteurParLaSouris, ouvert { fermer(rendreLaMain: true) }
         case _ where commande.hasPrefix("tiroir:suivre:"):
             guard sourisMène, ouvert, let q = Double(commande.dropFirst(14)) else { return }
             if navDepart == nil {
-                guard enPlace else { return }           // le tiroir finit d'abord de glisser à sa place
+                guard q > 0, enPlace else { return }    // pas encore assez loin, ou le tiroir finit de glisser à sa place
                 commencerNavigation()
                 guard navDepart != nil else { return }  // une seule application : pas de sélecteur
+                sélecteurParLaSouris = true
             }
             suivreDoigts(1 + CGFloat(q) * parApp)
         case "mini:debut": commencerNavigation()
