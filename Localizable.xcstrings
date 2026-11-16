@@ -5089,6 +5089,16 @@
         }
       }
     },
+    "Par iCloud Drive, dans le dossier Side : ce que tu copies sur un Mac apparaît sur l'autre en moins d'une minute, et un élément effacé ou épinglé l'est des deux côtés. Les mots de passe et les fichiers copiés restent sur le Mac où ils ont été copiés. Activé au départ sur chaque Mac où Side est à jour." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Through iCloud Drive, in the Side folder: what you copy on one Mac shows up on the other within a minute, and an item you delete or pin is deleted or pinned on both. Passwords and copied files stay on the Mac where they were copied. On by default on every Mac running the latest Side."
+          }
+        }
+      }
+    },
     "Partager entre mes Mac (iCloud Drive)" : {
       "localizations" : {
         "en" : {
@@ -6282,6 +6292,7 @@
       }
     },
     "Se règle aussi en tirant le bord gauche ou droit du tiroir ouvert." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -6290,6 +6301,9 @@
           }
         }
       }
+    },
+    "Se règle aussi en tirant le bord gauche ou droit du tiroir ouvert. Sur un grand écran, la part se compte sur 1800 points au plus." : {
+
     },
     "Secouer le pointeur" : {
       "localizations" : {
@@ -7857,16 +7871,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "⌥ + number"
-          }
-        }
-      }
-    },
-    "Par iCloud Drive, dans le dossier Side : ce que tu copies sur un Mac apparaît sur l'autre en moins d'une minute, et un élément effacé ou épinglé l'est des deux côtés. Les mots de passe et les fichiers copiés restent sur le Mac où ils ont été copiés. Activé au départ sur chaque Mac où Side est à jour." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Through iCloud Drive, in the Side folder: what you copy on one Mac shows up on the other within a minute, and an item you delete or pin is deleted or pinned on both. Passwords and copied files stay on the Mac where they were copied. On by default on every Mac running the latest Side."
           }
         }
       }

@@ -1248,6 +1248,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Se connecter à « %@ » dans le Finder. Une fois connecté, il apparaît ici et se parcourt dans Side.</string>
 	<key>Se règle aussi en tirant le bord gauche ou droit du tiroir ouvert.</key>
 	<string>Se règle aussi en tirant le bord gauche ou droit du tiroir ouvert.</string>
+	<key>Se règle aussi en tirant le bord gauche ou droit du tiroir ouvert. Sur un grand écran, la part se compte sur 1800 points au plus.</key>
+	<string>Se règle aussi en tirant le bord gauche ou droit du tiroir ouvert. Sur un grand écran, la part se compte sur 1800 points au plus.</string>
 	<key>Secouer le pointeur</key>
 	<string>Secouer le pointeur</string>
 	<key>Secousse</key>

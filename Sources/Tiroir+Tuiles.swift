@@ -203,12 +203,16 @@ extension PanneauBas {
     }
 
     // MARK: Géométrie
-    /// Hauteur du panneau, choisie en tirant son bord haut. 0 : jamais réglée (la moitié basse de l'écran).
     /// La largeur du tiroir, en part de l'écran (1 = toute la largeur), réglée en tirant un de ses côtés.
+    /// Sur un grand écran, la part se compte sur 1800 points au plus (16/11/2026) : 87 % d'un Studio Display (2880 points)
+    /// donnait un tiroir de 2500 points, avec un grand vide entre le coin multimédia et l'application.
     var largeurChoisie: CGFloat {
         get { let v = UserDefaults.standard.double(forKey: "tiroirLargeur"); return v > 0 ? CGFloat(v) : 1 }
         set { UserDefaults.standard.set(Double(newValue), forKey: "tiroirLargeur") }
     }
+    static let largeurRéférenceMaxi: CGFloat = 1800
+    /// La largeur sur laquelle se compte la part choisie : celle de l'écran, sans dépasser 1800 points.
+    static func largeurRéférence(_ largeurÉcran: CGFloat) -> CGFloat { min(largeurÉcran, largeurRéférenceMaxi) }
     /// La largeur minimum de chaque application du tiroir (celles qui refusent d'être plus étroites), apprise en les posant.
     var largeursMini: [String: CGFloat] {
         get { (UserDefaults.standard.dictionary(forKey: "tiroirLargeursMini") as? [String: Double])?.mapValues { CGFloat($0) } ?? [:] }
@@ -250,6 +254,7 @@ extension PanneauBas {
         installer(déjàArrivé: true)
     }
 
+    /// Hauteur du panneau, choisie en tirant son bord haut. 0 : jamais réglée (la moitié basse de l'écran).
     var hauteurChoisie: CGFloat {
         get { CGFloat(UserDefaults.standard.double(forKey: "panneauBasHauteur")) }
         set { UserDefaults.standard.set(Double(newValue), forKey: "panneauBasHauteur") }

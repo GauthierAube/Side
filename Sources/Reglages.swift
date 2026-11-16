@@ -198,7 +198,7 @@ final class Config: ObservableObject {
         suivi = d.string(forKey: "suivi") ?? "commande"
         largeurAvec = d.object(forKey: "largeurAvec") as? Double ?? 0.7
         memeLargeur = d.bool(forKey: "memeLargeur")
-        apps = d.object(forKey: "apps") as? Bool ?? true
+        apps = d.object(forKey: "apps") as? Bool ?? false   // le mini-Dock n'est plus proposé (12/11/2026) : masqué au départ
         dockPosition = d.string(forKey: "dockPosition") ?? "bas"
         tailleDock = d.object(forKey: "tailleDock") as? Double ?? 45
         grossissement = d.object(forKey: "grossissement") as? Double ?? 1.25

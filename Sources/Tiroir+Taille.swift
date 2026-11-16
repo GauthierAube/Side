@@ -101,7 +101,7 @@ extension PanneauBas {
         guard let p = panneau, let ecran = écranDuTiroir else { enDirect = false; return }
         let z = ecran.visibleFrame
         if PanneauBas.relaisCôté == 0 { hauteurChoisie = p.frame.height }
-        else { largeurChoisie = min(1, max(0.3, p.frame.width / z.width)) }
+        else { largeurChoisie = min(1, max(0.3, p.frame.width / Self.largeurRéférence(z.width))) }
         let fin = cadre(ecran)
         if PanneauBas.relaisCôté == 0 { hauteurChoisie = fin.height }
         // L'application affichée se laissait rendre plus petite, mais une autre application du tiroir ne le permet pas :
@@ -196,7 +196,7 @@ extension PanneauBas {
     func recentrerAprèsLaFenêtre() {
         guard let p = panneau, let ecran = écranDuTiroir else { return }
         let z = ecran.visibleFrame
-        largeurChoisie = min(1, max(0.3, p.frame.width / z.width))
+        largeurChoisie = min(1, max(0.3, p.frame.width / Self.largeurRéférence(z.width)))
         let fin = cadre(ecran)
         journalBas("largeur du tiroir suivie depuis la fenêtre : %.0f", fin.width)
         guard abs(fin.minX - p.frame.minX) > 1 || abs(fin.width - p.frame.width) > 1 else { recaler(); return }
@@ -224,7 +224,7 @@ extension PanneauBas {
         guard ouvert, défile || enDirect, let p = panneau, let ecran = écranDuTiroir else { return }
         let z = ecran.visibleFrame
         let voulue = largeurAuDépart - 2 * écart
-        largeurChoisie = min(1, max(0.3, voulue / z.width))     // les deux côtés bougent ensemble
+        largeurChoisie = min(1, max(0.3, voulue / Self.largeurRéférence(z.width)))     // les deux côtés bougent ensemble
         let fin = cadre(ecran)
         p.setFrame(fin, display: true)
         disposerLeFond(fin)

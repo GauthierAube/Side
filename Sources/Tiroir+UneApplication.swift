@@ -28,7 +28,7 @@ extension PanneauBas {
         let hApps = (emprunts.compactMap { hauteursMini[$0.bundle] }.max() ?? 0) + 2 * marge
         let h = min(max(voulue, hauteurMini, hApps), (z.height * 0.94).rounded())
         // Réduit, le tiroir reste centré ; jamais moins que le coin multimédia et une application (720 points au moins).
-        let w = min(z.width, max(min(largeurTiroirMini, z.width), (z.width * largeurChoisie).rounded()))
+        let w = min(z.width, max(min(largeurTiroirMini, z.width), (Self.largeurRéférence(z.width) * largeurChoisie).rounded()))
         return CGRect(x: (z.midX - w / 2).rounded(), y: enHaut ? z.maxY - h : z.minY, width: w, height: h)
     }
 

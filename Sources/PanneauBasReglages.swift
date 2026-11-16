@@ -288,7 +288,7 @@ struct LargeurTiroirLigne: View {
                     .foregroundStyle(.secondary).frame(width: 50, alignment: .trailing)
             }
         }
-        .help("Se règle aussi en tirant le bord gauche ou droit du tiroir ouvert.")
+        .help("Se règle aussi en tirant le bord gauche ou droit du tiroir ouvert. Sur un grand écran, la part se compte sur 1800 points au plus.")
     }
 }
 

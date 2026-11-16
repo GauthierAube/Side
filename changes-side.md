@@ -15,6 +15,9 @@ Il est mis à jour à chaque modification, en même temps que le code.
 - Une fenêtre rendue par le tiroir revient sur l'écran de la souris.
 - « Plein écran d'Apple : macOS empêche d'y afficher les tuiles » : le tiroir regarde maintenant son propre écran. Avant, il regardait toujours le premier : une app en plein écran sur un écran faisait croire au tiroir ouvert sur l'autre qu'il ne pouvait rien montrer.
 - Même règle partout : la carte du Finder (raccourci, zones de dépôt), le volet du presse-papiers, la pastille d'information et le plein écran s'ouvrent sur l'écran de la souris quand rien d'autre ne le dit (avant : l'écran de la fenêtre active).
+- Tiroir sur grand écran : sa largeur (Réglages > Tiroir, ou en tirant ses côtés) se compte sur 1800 points au plus. 87 % d'un Studio Display (2880 points) donnait 2500 points, avec un grand vide entre le coin multimédia et l'application ; c'est maintenant 1565 points, centré. Rien ne change sur un écran de portable.
+- Le mini-Dock sous le Finder est masqué au départ. Son réglage n'est plus proposé depuis le 12/11 mais restait « affiché » par défaut : un Mac qui ne l'avait jamais coupé (le Mac mini) le montrait encore.
+- Les réglages de Side restent propres à chaque Mac (barre latérale, largeurs, mini-Dock). Pour reprendre ceux d'un autre Mac : `defaults export com.gauthieraube.side fichier.plist` d'un côté, `defaults import` de l'autre, Side quitté (et corriger les chemins si le nom du dossier personnel diffère).
 
 ### Presse-papiers : l'historique et les liens enregistrés, partagés entre mes Mac
 - Ce que tu copies sur un Mac apparaît dans le presse-papiers de Side sur l'autre, en moins d'une minute (Side y jette un œil toutes les 20 secondes, et à chaque ouverture du volet).
