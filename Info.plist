@@ -45,7 +45,12 @@
 	<key>NSHighResolutionCapable</key>
 	<true/>
 	<key>NSLocalNetworkUsageDescription</key>
-	<string>Side finds the computers on your network that share files, to show them in its sidebar.</string>
+	<string>Side finds the computers on your network that share files, to show them in its sidebar, and can ask the local AI running on one of your own Macs to name your screenshots.</string>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsLocalNetworking</key>
+		<true/>
+	</dict>
 	<key>NSBonjourServices</key>
 	<array>
 		<string>_smb._tcp</string>

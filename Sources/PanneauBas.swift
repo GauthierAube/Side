@@ -578,7 +578,13 @@ final class PanneauBas: NSObject {
     }
     static var boutonsJaunes: [(nom: String, cadre: CGRect)] = []
     static var clicAvalé = false
-    var ouvert = false { didSet { PanneauBas.estOuvertBrut = ouvert } }
+    var ouvert = false {
+        didSet {
+            PanneauBas.estOuvertBrut = ouvert
+            // Lu par Mulot à l'appui du bouton de pouce : tiroir ouvert, son sélecteur apparaît tout de suite.
+            if ouvert != oldValue { UserDefaults.standard.set(ouvert, forKey: "tiroirOuvert") }
+        }
+    }
     /// Mulot mène le tiroir (bouton de pouce tenu) : voir « tiroir:debut » dans commandeExterieure.
     var sourisMène = false
     var ouvertAvantLaSouris = false      // le tiroir était déjà ouvert au début du geste

@@ -40,6 +40,7 @@ Un fichier = un thème. Les quatre parties de Side (Finder, Plein écran, Tiroir
 | `Gestes.swift`, `Gestes4Doigts.swift` | cercle à la souris, geste à quatre doigts |
 | `Ecrans.swift` | les écrans : le seul endroit qui choisit un écran (`Ecrans.deTravail`, celui de la souris), passe d'AppKit à AX (`versAX`, `versNS`), gare les fenêtres (`garage`) et lit le plein écran d'Apple d'un écran. Logique pure dans `DispositionEcrans`, vérifiée par `Side --test-ecrans` |
 | `Systeme.swift`, `Reseau.swift` | ce que Side lit de macOS : captures en cours, raccourcis du système, serveurs du réseau |
+| `IALocale.swift` | l'IA locale (serveur Ollama du Mac ou du réseau, jamais Internet) : ses réglages (`ConfigIA`), le client (`IALocale`), le nom des captures d'écran (`NomDeCapture`, vérifié par `Side --test-nom-capture` et `--test-capture fichier`), son volet de réglages |
 | `Parties.swift` | les quatre parties et leur interrupteur |
 | `Raccourcis.swift` | tous les raccourcis clavier globaux, et la saisie d'un nouveau raccourci |
 | `Pilule.swift`, `Presentation.swift`, `Langue.swift` | pastille d'information, présentation, langue |
@@ -49,7 +50,7 @@ Un fichier = un thème. Les quatre parties de Side (Finder, Plein écran, Tiroir
 - `AppDelegate` (`Carte+*.swift`) et `PanneauBas` (`Tiroir+*.swift`) sont répartis en extensions. Ses variables restent dans la classe (`Side.swift`) : Swift n'en accepte pas dans une extension.
 
 - Les réglages sont lus et écrits par `Config` (Finder), `ConfigTiroir` (tiroir), `ConfigPresse` (presse-papiers),
-  `Appli` (plein écran). Une clé `UserDefaults` n'appartient qu'à un seul d'entre eux.
+  `Appli` (plein écran), `ConfigIA` (IA locale). Une clé `UserDefaults` n'appartient qu'à un seul d'entre eux.
 - Un seul registre de raccourcis globaux : `RaccourcisGlobaux` (`Raccourcis.swift`), un nom par raccourci (« finder »,
   « tiroir.42 », « pleinEcran.200 »). `Touches` et `TouchesBas` ne font que préfixer le nom. Une seule saisie de raccourci
   dans les réglages : `SaisieRaccourci` (sauf la grille, qui a sa petite fenêtre).
@@ -62,4 +63,4 @@ Un fichier = un thème. Les quatre parties de Side (Finder, Plein écran, Tiroir
 
 ## Preuve qu'un déplacement ne change rien
 
-`tools/snap.sh` avant et après : les 38 images doivent être identiques à l'octet près.
+`tools/snap.sh` avant et après : les 40 images doivent être identiques à l'octet près.

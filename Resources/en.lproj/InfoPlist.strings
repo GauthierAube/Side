@@ -11,7 +11,7 @@
 	<key>NSDownloadsFolderUsageDescription</key>
 	<string>Side shows your Downloads folder.</string>
 	<key>NSLocalNetworkUsageDescription</key>
-	<string>Side finds the computers on your network that share files, to show them in its sidebar.</string>
+	<string>Side finds the computers on your network that share files, to show them in its sidebar, and can ask the local AI running on one of your own Macs to name your screenshots.</string>
 	<key>Side mini Dock icon</key>
 	<string>Side mini Dock icon</string>
 </dict>

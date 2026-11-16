@@ -16,7 +16,9 @@ final class Captures: NSObject {
     static let shared = Captures()
     private let requete = NSMetadataQuery()
     private var depart = Date()
-    private var vues: Set<String> = []   // captures déjà traitées depuis le lancement
+    private var vues: Set<String> = []   // captures déjà traitées depuis le lancement (emplacement, et identité du fichier)
+    /// Les noms se demandent un par un, hors du fil principal : le modèle met plusieurs secondes à répondre.
+    private let fileDesNoms = DispatchQueue(label: "side.captures.noms", qos: .utility)
 
     func demarrer() {
         depart = Date()
@@ -34,10 +36,46 @@ final class Captures: NSObject {
             guard let chemin = item.value(forAttribute: NSMetadataItemPathKey) as? String else { return nil }
             return URL(fileURLWithPath: chemin)
         }
-        for url in urls where !vues.contains(url.path) {
-            vues.insert(url.path)
-            guard Config.shared.capturesAuto, FileManager.default.fileExists(atPath: url.path) else { continue }
-            AppDelegate.shared.recevoirCapture(url)
+        for url in urls where !vues.contains(Self.cle(url)) {
+            vues.insert(Self.cle(url))
+            guard FileManager.default.fileExists(atPath: url.path) else { continue }
+            // Une capture que Side vient de renommer revient ici sous son nouveau nom : c'est le même fichier, déjà traité.
+            if let identite = Self.identite(url) {
+                if vues.contains(identite) { continue }
+                vues.insert(identite)
+            }
+            // D'abord la zone de dépôt, tout de suite ; le nouveau nom arrive quelques secondes plus tard.
+            if Config.shared.capturesAuto { AppDelegate.shared.recevoirCapture(url) }
+            if ConfigIA.commun.renommerCaptures { renommer(url) }
+        }
+    }
+
+    /// Un emplacement, écrit toujours de la même façon (les accents ont deux écritures possibles sur le disque).
+    private static func cle(_ url: URL) -> String { url.standardizedFileURL.path.precomposedStringWithCanonicalMapping }
+    /// Ce qui ne change pas quand un fichier est renommé : son numéro sur le disque et sa date de création.
+    private static func identite(_ url: URL) -> String? {
+        guard let a = try? FileManager.default.attributesOfItem(atPath: url.path),
+              let numero = a[.systemFileNumber] as? NSNumber, let creation = a[.creationDate] as? Date else { return nil }
+        return "fichier \(numero) \(creation.timeIntervalSince1970)"
+    }
+
+    /// Demande à l'IA locale un nom qui décrit la capture, puis renomme le fichier sur place et prévient la zone de dépôt.
+    /// Serveur éteint, réponse refusée, fichier déplacé entre-temps : la capture garde son nom, sans rien dire.
+    private func renommer(_ url: URL) {
+        guard UTType(filenameExtension: url.pathExtension)?.conforms(to: .image) == true else { return }   // pas les vidéos de l'écran
+        let adresses = ConfigIA.adresses(ConfigIA.commun.serveurs)
+        let modele = ConfigIA.modele(ConfigIA.commun.modele)
+        fileDesNoms.async {
+            guard let nom = NomDeCapture.proposer(url, adresses: adresses, modele: modele),
+                  FileManager.default.fileExists(atPath: url.path) else { return }
+            let cible = NomDeCapture.cible(pour: url, nom: nom)
+            // Avant de renommer : le nouvel emplacement est noté comme déjà vu, et on retient la zone où la capture est rangée.
+            let zone: Int? = DispatchQueue.main.sync {
+                self.vues.insert(Self.cle(cible))
+                return AppDelegate.shared.zoneDeLaCapture(url)
+            }
+            guard (try? FileManager.default.moveItem(at: url, to: cible)) != nil else { return }   // n'écrase jamais un fichier
+            DispatchQueue.main.async { AppDelegate.shared.captureRenommee(url, cible, zone) }
         }
     }
 

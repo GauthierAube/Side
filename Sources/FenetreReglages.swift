@@ -37,13 +37,13 @@ enum Volet: String, CaseIterable, Identifiable {
         default: return nil
         }
     }
-    case general, coins, clavier, gestes, apparence, fermeture, fichiers, colonnes, depot, tiroir, multimedia, applications, presse
+    case general, ia, coins, clavier, gestes, apparence, fermeture, fichiers, colonnes, depot, tiroir, multimedia, applications, presse
     case grille, dock, carrousel, fenetres          // le plein écran (ex-Square)
     var id: String { rawValue }
 
     /// Les rubriques de la barre latérale, avec leur intitulé.
     static let groupes: [(String?, [Volet])] = [
-        (nil, [.general]),
+        (nil, [.general, .ia]),
         (String(localized: "Ouvrir et fermer"), [.coins, .clavier, .gestes]),
         ("Finder", [.apparence, .fermeture, .fichiers, .colonnes, .depot]),
         (String(localized: "Plein écran"), [.grille, .dock, .carrousel, .fenetres]),   // les applications de travail (ex-Square)
@@ -54,6 +54,7 @@ enum Volet: String, CaseIterable, Identifiable {
     var titre: String {
         switch self {
         case .general: return String(localized: "Général")
+        case .ia: return String(localized: "IA locale")
         case .coins: return String(localized: "Coins actifs")
         case .clavier: return String(localized: "Raccourcis clavier")
         case .gestes: return String(localized: "Souris et trackpad")
@@ -76,6 +77,7 @@ enum Volet: String, CaseIterable, Identifiable {
     var resume: String {
         switch self {
         case .general: return String(localized: "Ce qui vaut pour tout Side.")
+        case .ia: return String(localized: "Un modèle d'IA qui tourne chez toi, avec Ollama. Side ne parle qu'à ce serveur.")
         case .coins: return String(localized: "Amener le pointeur dans un coin de l'écran ouvre le Finder, le tiroir ou le presse-papiers.")
         case .clavier: return String(localized: "Un raccourci pour le Finder, le tiroir et le presse-papiers.")
         case .gestes: return String(localized: "Ouvrir le Finder et le tiroir d'un geste, à la souris ou au trackpad.")
@@ -107,6 +109,7 @@ enum Volet: String, CaseIterable, Identifiable {
     var symbole: String {
         switch self {
         case .general: return "gearshape.fill"
+        case .ia: return "sparkles"
         case .coins: return "rectangle.inset.topleft.filled"
         case .clavier: return "keyboard.fill"
         case .gestes: return "hand.draw.fill"
@@ -128,6 +131,7 @@ enum Volet: String, CaseIterable, Identifiable {
     var couleur: Color {
         switch self {
         case .general: return .gray
+        case .ia: return .purple
         case .coins: return .blue
         case .clavier: return .indigo
         case .gestes: return .teal
@@ -520,6 +524,8 @@ struct ReglagesView: View {
             } header: { Text("Zones de dépôt") } footer: {
                 note("Une zone apparaît en haut à droite de la carte quand tu fais glisser un fichier. Tant qu'elle contient quelque chose, elle reste à l'écran même quand Side est fermé, pour que tu puisses glisser son contenu ailleurs. Side fermé, secoue le pointeur pendant que tu glisses un fichier : la zone apparaît seule, à côté de la souris. Secoue encore pour en ajouter une autre. Si la carte vient du haut, la zone se place en bas de la carte et les suivantes s'empilent au-dessus. Les zones vides disparaissent toutes seules.")
             }
+        case .ia:
+            SectionsIA()
         case .tiroir:
             SectionsTiroir(partie: .ouverture)
         case .multimedia:

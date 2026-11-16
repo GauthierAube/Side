@@ -79,6 +79,7 @@ extension PanneauBas {
         DistributedNotificationCenter.default().addObserver(self, selector: #selector(commandeExterieure(_:)),
                                                             name: .init("com.gauthieraube.side.commande"), object: nil)
         UserDefaults.standard.set(true, forKey: "commandesExterieures")
+        UserDefaults.standard.set(false, forKey: "tiroirOuvert")      // au lancement, le tiroir est fermé (lu par Mulot)
         // Les photos des fenêtres pendant le glissement demandent l'autorisation « Enregistrement de l'écran ».
         // Sans elle, le panneau glisse avec de simples cartes grises à la place.
         let photos = CGPreflightScreenCaptureAccess()
@@ -138,37 +139,39 @@ extension PanneauBas {
             Pilule.montrer(String(commande.dropFirst(7)), symbole: "arrow.up.and.down")
         // Mulot, bouton de pouce tenu : le tiroir s'ouvre s'il ne l'est pas, puis son sélecteur vertical suit la souris
         // (« tiroir:suivre:1.5 » = une application et demie plus loin) ; « tiroir:fin » pose l'application du centre.
-        // Mulot, bouton de pouce tenu : le tiroir monte en suivant la souris, comme les doigts au trackpad
-        // (« tiroir:suivre:0.5 » = à mi-chemin), puis le sélecteur prend le relais dans le même mouvement
-        // (« tiroir:suivre:1.5 » = une demi-application plus loin). Tiroir déjà ouvert : le sélecteur apparaît au-delà de 1,
-        // et un geste lâché avant le referme, comme un geste simple.
+        // Mulot, bouton de pouce tenu.
+        //  - Tiroir fermé : il monte en suivant la souris, comme les doigts au trackpad, puis le sélecteur prend le relais
+        //    dans le même mouvement. « tiroir:suivre:<v>:<a> » : v = 0 fermé, 1 ouvert, au-delà le sélecteur.
+        //  - Tiroir ouvert : le sélecteur apparaît dès l'appui (« tiroir:debut »), sans attendre. a = le nombre
+        //    d'applications parcourues depuis l'appui (négatif vers l'arrière).
+        // « tiroir:fin » : l'application du centre prend la place.
         case "tiroir:debut":
             sourisMène = true
             ouvertAvantLaSouris = ouvert
             sélecteurParLaSouris = false
             positionSouris = 0
-            if !ouvert { commencerSuivi(fermeture: false) }
+            if ouvert {
+                if enPlace, !suiviDoigts { commencerNavigation(); sélecteurParLaSouris = navDepart != nil }
+            } else {
+                commencerSuivi(fermeture: false)
+            }
         case "tiroir:fin":
             guard sourisMène else { return }
             sourisMène = false
             if ouvertAvantLaSouris {
                 if navDepart != nil { lacherDoigts(ouvrir: true, elan: 0) }
-                else if !sélecteurParLaSouris, ouvert { fermer(rendreLaMain: true) }
             } else {
                 // Lâché très près du départ (la souris est revenue en arrière) : le tiroir redescend.
                 lacherDoigts(ouvrir: positionSouris > 0.12 || navDepart != nil, elan: 0)
             }
         case _ where commande.hasPrefix("tiroir:suivre:"):
-            guard sourisMène, ouvert, let v = Double(commande.dropFirst(14)).map({ CGFloat($0) }) else { return }
+            let n = commande.dropFirst(14).split(separator: ":").compactMap { Double($0) }.map { CGFloat($0) }
+            guard sourisMène, ouvert, let v = n.first else { return }
+            let a = n.count > 1 ? n[1] : 0
             positionSouris = v
             if ouvertAvantLaSouris {
-                if navDepart == nil {
-                    guard v > 1, enPlace else { return }
-                    commencerNavigation()
-                    guard navDepart != nil else { return }   // une seule application : pas de sélecteur
-                    sélecteurParLaSouris = true
-                }
-                suivreDoigts(1 + (v - 1) * parApp)
+                guard navDepart != nil else { return }
+                suivreDoigts(1 + a * parApp)
             } else {
                 // Les mêmes unités que le trackpad : au-delà de 1, « parApp » de progression par application.
                 if v > 1 { sélecteurParLaSouris = true }

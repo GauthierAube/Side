@@ -426,6 +426,9 @@
         }
       }
     },
+    "Adresses du serveur" : {
+
+    },
     "Affichage" : {
       "localizations" : {
         "en" : {
@@ -1060,6 +1063,9 @@
         }
       }
     },
+    "Aucun serveur ne répond" : {
+
+    },
     "Aucun sujet trouvé dans %@." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -1326,6 +1332,9 @@
           }
         }
       }
+    },
+    "Captures d'écran" : {
+
     },
     "Carrousel" : {
       "localizations" : {
@@ -1781,6 +1790,9 @@
           }
         }
       }
+    },
+    "Connexion" : {
+
     },
     "Connexion réussie. Vous pouvez fermer cette page et revenir au panneau." : {
       "localizations" : {
@@ -3143,6 +3155,9 @@
         }
       }
     },
+    "IA locale" : {
+
+    },
     "Icônes" : {
       "localizations" : {
         "en" : {
@@ -4091,6 +4106,19 @@
         }
       }
     },
+    "Le serveur répond (%@)" : {
+
+    },
+    "Le serveur répond (%@), mais le modèle « %@ » n'y est pas installé" : {
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Le serveur répond (%1$@), mais le modèle « %2$@ » n'y est pas installé"
+          }
+        }
+      }
+    },
     "Le tiroir" : {
       "localizations" : {
         "en" : {
@@ -4360,6 +4388,9 @@
           }
         }
       }
+    },
+    "Les images ne sont envoyées qu'à ton propre Mac, ou à un Mac de ton réseau : rien ne part sur Internet. Plusieurs adresses, séparées par des virgules : Side les essaie dans l'ordre et garde la première qui répond." : {
+
     },
     "Les originaux ne sont pas touchés : le résultat est un nouveau fichier, à côté." : {
       "extractionState" : "stale",
@@ -4644,6 +4675,9 @@
           }
         }
       }
+    },
+    "Modèle" : {
+
     },
     "Molette" : {
       "extractionState" : "stale",
@@ -5608,6 +5642,9 @@
         }
       }
     },
+    "Quelques secondes après une capture, son nom dit ce qu'on y voit, suivi de la date : « safari page github side 2026-11-16 14.32.05 ». Si le serveur ne répond pas, la capture garde son nom." : {
+
+    },
     "Quitter %@" : {
       "localizations" : {
         "en" : {
@@ -5828,6 +5865,9 @@
           }
         }
       }
+    },
+    "Renommer mes captures d'écran d'après leur contenu" : {
+
     },
     "Renommer « %@ »" : {
       "localizations" : {
@@ -6355,6 +6395,9 @@
         }
       }
     },
+    "Serveur Ollama" : {
+
+    },
     "Side a aussi un tiroir, pour tes applications à usage rapide. Il va s'ouvrir pour se présenter." : {
       "localizations" : {
         "en" : {
@@ -6737,6 +6780,9 @@
         }
       }
     },
+    "Tester" : {
+
+    },
     "Texte" : {
       "localizations" : {
         "en" : {
@@ -7036,6 +7082,9 @@
           }
         }
       }
+    },
+    "Un modèle d'IA qui tourne chez toi, avec Ollama. Side ne parle qu'à ce serveur." : {
+
     },
     "Un raccourci pour le Finder, le tiroir et le presse-papiers." : {
       "localizations" : {

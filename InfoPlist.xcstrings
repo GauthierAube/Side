@@ -70,13 +70,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Side finds the computers on your network that share files, to show them in its sidebar."
+            "value": "Side finds the computers on your network that share files, to show them in its sidebar, and can ask the local AI running on one of your own Macs to name your screenshots."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Side repère les ordinateurs du réseau qui partagent des fichiers, pour les afficher dans sa barre latérale."
+            "value": "Side repère les ordinateurs du réseau qui partagent des fichiers, pour les afficher dans sa barre latérale, et peut demander à l'IA locale d'un de tes Mac de nommer tes captures d'écran."
           }
         }
       }

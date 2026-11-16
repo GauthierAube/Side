@@ -681,6 +681,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
 enum Main {
     static func main() {
         if CommandLine.arguments.contains("--test-ecrans") { exit(Int32(Ecrans.essai())) }   // essai sans écran réel
+        // IA locale : « --test-capture fichier » affiche le nom proposé pour cette image, sans rien renommer ;
+        // « --test-nom-capture » vérifie le nettoyage des réponses du modèle, sans serveur.
+        if CommandLine.arguments.contains("--test-nom-capture") { exit(NomDeCapture.essaiNettoyage()) }
+        if let i = CommandLine.arguments.firstIndex(of: "--test-capture") {
+            guard i + 1 < CommandLine.arguments.count else { print("usage : Side --test-capture fichier"); exit(64) }
+            NomDeCapture.essai(CommandLine.arguments[i + 1])
+        }
         reprendreAnciensReglages()
         deplacerAncienDossier()
         reprendreReglagesDeSquare()

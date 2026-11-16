@@ -131,6 +131,29 @@ extension AppDelegate {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in self?.majDepot() }
     }
 
+    /// La zone où une capture est rangée (aucune si elle n'y est pas, ou plus).
+    func zoneDeLaCapture(_ url: URL) -> Int? {
+        let chemins: Set<String> = [url.path, url.resolvingSymlinksInPath().standardizedFileURL.path]
+        return (0..<store.etageres.count).first { Etagere.fichiers($0).contains { chemins.contains($0.path) } }
+    }
+
+    /// L'IA locale vient de renommer une capture (voir `Captures.renommer`) : la zone de dépôt suit le fichier.
+    /// `zone` est celle où elle était rangée juste avant d'être renommée.
+    func captureRenommee(_ ancien: URL, _ nouveau: URL, _ zone: Int?) {
+        let avant = ancien.resolvingSymlinksInPath().standardizedFileURL.path
+        var rangees = Captures.rangees
+        if rangees.remove(avant) != nil || rangees.remove(ancien.path) != nil {
+            rangees.insert(nouveau.resolvingSymlinksInPath().standardizedFileURL.path)
+            Captures.rangees = rangees
+        }
+        // Si la zone a oublié l'ancien emplacement pendant le changement de nom (elle oublie les fichiers disparus),
+        // la capture y est remise sous son nouveau nom.
+        if !Etagere.renommer(ancien, nouveau), let zone, zone < store.etageres.count { Etagere.ajouter(nouveau, zone) }
+        journal("capture renommée : \(ancien.lastPathComponent) → \(nouveau.lastPathComponent)")
+        store.reloadAll()
+        majDepot()
+    }
+
     /// Pose des éléments sur l'étagère. Les vrais fichiers ne sont pas déplacés : seul leur emplacement est retenu.
     func poser(_ fournisseurs: [NSItemProvider], _ zone: Int) {
         // Option maintenue au moment de lâcher : Side reste ouvert, pour enchaîner.

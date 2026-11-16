@@ -365,6 +365,19 @@ enum Etagere {
         ecrire(chemins(i).filter { $0 != url.standardizedFileURL.path && $0 != url.path }, i)
     }
     static func vider(_ i: Int) { ecrire([], i) }
+    /// Un fichier rangé dans une zone vient d'être renommé : la zone retient son nouvel emplacement, à la même place.
+    /// Rend faux si aucune zone ne le contenait.
+    @discardableResult
+    static func renommer(_ ancien: URL, _ nouveau: URL) -> Bool {
+        let anciens: Set<String> = [ancien.path, ancien.standardizedFileURL.path, ancien.resolvingSymlinksInPath().standardizedFileURL.path]
+        let c = nouveau.resolvingSymlinksInPath().standardizedFileURL.path
+        var trouve = false
+        for i in 0..<maximum where chemins(i).contains(where: anciens.contains) {
+            ecrire(chemins(i).map { anciens.contains($0) ? c : $0 }, i)
+            trouve = true
+        }
+        return trouve
+    }
     /// Oublie les fichiers qui ne sont plus à l'endroit retenu (déplacés ou supprimés depuis).
     static func purger(_ i: Int) {
         let restants = chemins(i).filter { FileManager.default.fileExists(atPath: $0) || surDisqueAbsent($0) }

@@ -25,7 +25,7 @@ BIN="$APP/Contents/MacOS/Side"
 # Garde-fou : une photo qui ne rend pas la main au bout de 30 s est arrêtée (elle manquera dans la liste).
 ( sleep 30; pkill -f "$BIN --image" ) &
 GARDE=$!
-VOLETS="general coins clavier gestes apparence fermeture fichiers colonnes depot tiroir multimedia applications presse grille dock carrousel fenetres"
+VOLETS="general ia coins clavier gestes apparence fermeture fichiers colonnes depot tiroir multimedia applications presse grille dock carrousel fenetres"
 for mode in clair sombre; do
   "$BIN" --image "$SORTIE/carte-$mode.png" --$mode >/dev/null 2>&1 &
   "$BIN" --image "$SORTIE/carte-presse-$mode.png" --presse --$mode >/dev/null 2>&1 &

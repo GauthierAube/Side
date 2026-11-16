@@ -86,6 +86,8 @@
 	<string>Adresse copiée : collez-la dans « Redirect URIs ».</string>
 	<key>Adresse e-mail</key>
 	<string>Adresse e-mail</string>
+	<key>Adresses du serveur</key>
+	<string>Adresses du serveur</string>
 	<key>Affichage</key>
 	<string>Affichage</string>
 	<key>Afficher</key>
@@ -216,6 +218,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Aucun résultat</string>
 	<key>Aucun résultat pour « %@ ».</key>
 	<string>Aucun résultat pour « %@ ».</string>
+	<key>Aucun serveur ne répond</key>
+	<string>Aucun serveur ne répond</string>
 	<key>Aucun sujet trouvé dans %@.</key>
 	<string>Aucun sujet trouvé dans %@.</string>
 	<key>Aucun élément</key>
@@ -268,6 +272,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Bouton vert</string>
 	<key>Bureau</key>
 	<string>Bureau</string>
+	<key>Captures d'écran</key>
+	<string>Captures d'écran</string>
 	<key>Carrousel</key>
 	<string>Carrousel</string>
 	<key>Carrousel à quatre doigts</key>
@@ -358,6 +364,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Connecter Spotify</string>
 	<key>Connecté</key>
 	<string>Connecté</string>
+	<key>Connexion</key>
+	<string>Connexion</string>
 	<key>Connexion réussie. Vous pouvez fermer cette page et revenir au panneau.</key>
 	<string>Connexion réussie. Vous pouvez fermer cette page et revenir au panneau.</string>
 	<key>Conversion impossible : %@</key>
@@ -626,6 +634,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Historique du presse-papiers</string>
 	<key>Historique et liens</key>
 	<string>Historique et liens</string>
+	<key>IA locale</key>
+	<string>IA locale</string>
 	<key>Icônes</key>
 	<string>Icônes</string>
 	<key>Il s'ouvre par un coin actif (en bas à droite au départ) ou par son raccourci clavier : voir les volets Coins actifs et Raccourcis clavier.</key>
@@ -812,6 +822,10 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Le port 8765 du Mac est déjà pris. Fermez l'application qui l'utilise et réessayez.</string>
 	<key>Le presse-papiers</key>
 	<string>Le presse-papiers</string>
+	<key>Le serveur répond (%@)</key>
+	<string>Le serveur répond (%@)</string>
+	<key>Le serveur répond (%@), mais le modèle « %@ » n'y est pas installé</key>
+	<string>Le serveur répond (%@), mais le modèle « %@ » n'y est pas installé</string>
 	<key>Le tiroir</key>
 	<string>Le tiroir</string>
 	<key>Le tiroir arrive</key>
@@ -866,6 +880,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Les deux</string>
 	<key>Les en sortir</key>
 	<string>Les en sortir</string>
+	<key>Les images ne sont envoyées qu'à ton propre Mac, ou à un Mac de ton réseau : rien ne part sur Internet. Plusieurs adresses, séparées par des virgules : Side les essaie dans l'ordre et garde la première qui répond.</key>
+	<string>Les images ne sont envoyées qu'à ton propre Mac, ou à un Mac de ton réseau : rien ne part sur Internet. Plusieurs adresses, séparées par des virgules : Side les essaie dans l'ordre et garde la première qui répond.</string>
 	<key>Les originaux ne sont pas touchés : le résultat est un nouveau fichier, à côté.</key>
 	<string>Les originaux ne sont pas touchés : le résultat est un nouveau fichier, à côté.</string>
 	<key>Les parties de Side</key>
@@ -922,6 +938,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Modifier…</string>
 	<key>Modifié le</key>
 	<string>Modifié le</string>
+	<key>Modèle</key>
+	<string>Modèle</string>
 	<key>Molette</key>
 	<string>Molette</string>
 	<key>Mon site</key>
@@ -1112,6 +1130,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Quatre doigts vers la gauche ou la droite, pour passer d'une application de travail à l'autre.</string>
 	<key>Que faire de ces fichiers ? (ex. : convertis en JPG)</key>
 	<string>Que faire de ces fichiers ? (ex. : convertis en JPG)</string>
+	<key>Quelques secondes après une capture, son nom dit ce qu'on y voit, suivi de la date : « safari page github side 2026-11-16 14.32.05 ». Si le serveur ne répond pas, la capture garde son nom.</key>
+	<string>Quelques secondes après une capture, son nom dit ce qu'on y voit, suivi de la date : « safari page github side 2026-11-16 14.32.05 ». Si le serveur ne répond pas, la capture garde son nom.</string>
 	<key>Quitter %@</key>
 	<string>Quitter %@</string>
 	<key>Quitter Side</key>
@@ -1156,6 +1176,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Refermer le volet après avoir copié</string>
 	<key>Renommer</key>
 	<string>Renommer</string>
+	<key>Renommer mes captures d'écran d'après leur contenu</key>
+	<string>Renommer mes captures d'écran d'après leur contenu</string>
 	<key>Renommer « %@ »</key>
 	<string>Renommer « %@ »</string>
 	<key>Repartir du Dock de macOS</key>
@@ -1260,6 +1282,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Sensibilité</string>
 	<key>Sensibilité : plus elle est haute, moins tes doigts ont à glisser pour passer d'une application à la suivante (100 % : réglage d'origine). Le geste accélère aussi : lent, il avance d'une application à la fois ; rapide, il en saute plusieurs, pour atteindre vite celle du bout. Roue sans fin : les cartes tournent comme dans le tiroir, et après la dernière application revient la première. Bande : les cartes en ligne, qui s'arrêtent aux deux bouts. Pendant que tu règles la taille, le vrai carrousel s'affiche au milieu de l'écran. Apparition : plus court, le carrousel vient plus tôt mais un simple effleurement risque de l'afficher ; plus long, c'est l'inverse.</key>
 	<string>Sensibilité : plus elle est haute, moins tes doigts ont à glisser pour passer d'une application à la suivante (100 % : réglage d'origine). Le geste accélère aussi : lent, il avance d'une application à la fois ; rapide, il en saute plusieurs, pour atteindre vite celle du bout. Roue sans fin : les cartes tournent comme dans le tiroir, et après la dernière application revient la première. Bande : les cartes en ligne, qui s'arrêtent aux deux bouts. Pendant que tu règles la taille, le vrai carrousel s'affiche au milieu de l'écran. Apparition : plus court, le carrousel vient plus tôt mais un simple effleurement risque de l'afficher ; plus long, c'est l'inverse.</string>
+	<key>Serveur Ollama</key>
+	<string>Serveur Ollama</string>
 	<key>Side a aussi un tiroir, pour tes applications à usage rapide. Il va s'ouvrir pour se présenter.</key>
 	<string>Side a aussi un tiroir, pour tes applications à usage rapide. Il va s'ouvrir pour se présenter.</string>
 	<key>Side et Mulot sont deux petites applications gratuites, faites pour aller ensemble.</key>
@@ -1336,6 +1360,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Tes fichiers par-dessus n'importe quelle app. Ce que tu déposes à côté reste sous la main.</string>
 	<key>Tes fichiers par-dessus n'importe quelle application, et les zones de dépôt.</key>
 	<string>Tes fichiers par-dessus n'importe quelle application, et les zones de dépôt.</string>
+	<key>Tester</key>
+	<string>Tester</string>
 	<key>Texte</key>
 	<string>Texte</string>
 	<key>Tiroir</key>
@@ -1396,6 +1422,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Un clic remplit l'écran en restant sur le même bureau ; un second rend à la fenêtre sa taille. Maj + clic ou Option + clic gardent le plein écran d'Apple.</string>
 	<key>Un effleurement rapide change d'application sans rien afficher. Un geste posé fait apparaître le carrousel, et l'application du centre passe devant quand les doigts se lèvent. Le geste ne s'active que s'il n'y a qu'un seul bureau ; sinon macOS glisse d'un bureau à l'autre.</key>
 	<string>Un effleurement rapide change d'application sans rien afficher. Un geste posé fait apparaître le carrousel, et l'application du centre passe devant quand les doigts se lèvent. Le geste ne s'active que s'il n'y a qu'un seul bureau ; sinon macOS glisse d'un bureau à l'autre.</string>
+	<key>Un modèle d'IA qui tourne chez toi, avec Ollama. Side ne parle qu'à ce serveur.</key>
+	<string>Un modèle d'IA qui tourne chez toi, avec Ollama. Side ne parle qu'à ce serveur.</string>
 	<key>Un raccourci pour le Finder, le tiroir et le presse-papiers.</key>
 	<string>Un raccourci pour le Finder, le tiroir et le presse-papiers.</string>
 	<key>Une application du Mac se range plutôt dans « Applications ».</key>
