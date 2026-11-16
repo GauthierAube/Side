@@ -13,6 +13,7 @@ Il est mis à jour à chaque modification, en même temps que le code.
 - Fenêtres garées par le tiroir : partout après le bord droit de tous les écrans. Deux endroits utilisaient encore le bord de l'écran principal (fenêtre envoyée au tiroir, boutons vert et jaune) : avec un écran à droite, la fenêtre « garée » s'y montrait.
 - Le tiroir s'ouvre sur l'écran de la souris (avant : celui de la fenêtre active, qui pouvait être l'autre écran), et y reste tant qu'il est ouvert. Ses tuiles, la liste du « + », les fenêtres sorties en grand et Spotify prennent la taille de cet écran-là : plus de tuiles calculées pour l'autre écran (fond gris, tuiles trop larges).
 - Une fenêtre rendue par le tiroir revient sur l'écran de la souris.
+- « Plein écran d'Apple : macOS empêche d'y afficher les tuiles » : le tiroir regarde maintenant son propre écran. Avant, il regardait toujours le premier : une app en plein écran sur un écran faisait croire au tiroir ouvert sur l'autre qu'il ne pouvait rien montrer.
 
 ### Presse-papiers : l'historique et les liens enregistrés, partagés entre mes Mac
 - Ce que tu copies sur un Mac apparaît dans le presse-papiers de Side sur l'autre, en moins d'une minute (Side y jette un œil toutes les 20 secondes, et à chaque ouverture du volet).

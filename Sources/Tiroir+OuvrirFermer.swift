@@ -294,11 +294,9 @@ extension PanneauBas {
         return Ecrans.deTravail
     }
 
-    func dansUnPleinÉcranApple() -> Bool {
-        let ecrans = (CGSCopyManagedDisplaySpaces(CGSMainConnectionID()) as? [[String: Any]]) ?? []
-        guard let e = ecrans.first, let courant = (e["Current Space"] as? [String: Any]) else { return false }
-        return (courant["type"] as? Int) == 4
-    }
+    /// Le tiroir s'ouvre-t-il par-dessus un plein écran d'Apple ? On regarde l'écran du tiroir (avant le 16/11/2026 :
+    /// toujours le premier écran, faux avec deux écrans).
+    func dansUnPleinÉcranApple() -> Bool { Ecrans.pleinEcranApple(sur: écranDuTiroir) }
 
     /// Bouton du bandeau : l'application de derrière quitte le plein écran d'Apple et remplit l'écran à la place
     /// (un faux plein écran). Le panneau se rouvre ensuite, avec ses vraies tuiles.
