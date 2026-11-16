@@ -192,6 +192,13 @@ enum NomDeCapture {
         return nom
     }
 
+    /// Le nom que macOS donne tout seul à une capture : il porte la date et l'heure à la seconde, dans toutes les langues
+    /// (« Capture d'écran 2026-11-16 à 14.32.05 », « Screenshot 2026-11-16 at 2.32.05 PM »).
+    static func nomDeMacOS(_ fichier: URL) -> Bool {
+        fichier.deletingPathExtension().lastPathComponent
+            .range(of: #"\d{4}-\d{2}-\d{2}\D{1,5}\d{1,2}\.\d{2}\.\d{2}"#, options: .regularExpression) != nil
+    }
+
     /// La date et l'heure d'une capture : celles de son nom d'origine (« Capture d'écran 2026-11-16 à 14.32.05 »),
     /// sinon la date de création du fichier.
     static func date(_ fichier: URL) -> String {
@@ -296,6 +303,19 @@ enum NomDeCapture {
             if obtenu != attendu { echecs += 1 }
             print((obtenu == attendu ? "ok    " : "ÉCHEC ") + nom + " → " + obtenu)
         }
+        let noms: [(String, Bool)] = [
+            ("Capture d’écran 2026-11-16 à 14.32.05.png", true),
+            ("Screenshot 2026-11-16 at 9.05.41 PM.png", true),
+            ("Bildschirmfoto 2026-11-16 um 14.32.05 (2).png", true),
+            ("lexicon-dark.png", false),
+            ("reglages-ia-clair.png", false),
+            ("safari page github side 2026-11-16 14.32.png", false),
+        ]
+        for (nom, attendu) in noms {
+            let obtenu = nomDeMacOS(URL(fileURLWithPath: "/tmp/" + nom))
+            if obtenu != attendu { echecs += 1 }
+            print((obtenu == attendu ? "ok    " : "ÉCHEC ") + nom + " → " + (obtenu ? "nom de macOS, à renommer" : "nom choisi, gardé"))
+        }
         print(echecs == 0 ? "Tout est bon." : "\(echecs) échec(s).")
         return echecs == 0 ? 0 : 1
     }
@@ -312,7 +332,7 @@ struct SectionsIA: View {
         Section {
             Toggle("Renommer mes captures d'écran d'après leur contenu", isOn: $config.renommerCaptures)
         } header: { Text("Captures d'écran") } footer: {
-            note("Quelques secondes après une capture, son nom dit ce qu'on y voit, suivi de la date : « safari page github side 2026-11-16 14.32.05 ». Si le serveur ne répond pas, la capture garde son nom.")
+            note("Quelques secondes après une capture, son nom dit ce qu'on y voit, suivi de la date : « safari page github side 2026-11-16 14.32.05 ». Si le serveur ne répond pas, la capture garde son nom. Une capture enregistrée sous un nom choisi (par un outil, par exemple) n'est pas renommée.")
         }
         Section {
             TextField("Adresses du serveur", text: $config.serveurs, prompt: Text(verbatim: ConfigIA.serveursParDefaut))

@@ -427,7 +427,14 @@
       }
     },
     "Adresses du serveur" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Server addresses"
+          }
+        }
+      }
     },
     "Affichage" : {
       "localizations" : {
@@ -1064,7 +1071,14 @@
       }
     },
     "Aucun serveur ne répond" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No server answers"
+          }
+        }
+      }
     },
     "Aucun sujet trouvé dans %@." : {
       "extractionState" : "stale",
@@ -1334,7 +1348,14 @@
       }
     },
     "Captures d'écran" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Screenshots"
+          }
+        }
+      }
     },
     "Carrousel" : {
       "localizations" : {
@@ -1792,7 +1813,14 @@
       }
     },
     "Connexion" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connection"
+          }
+        }
+      }
     },
     "Connexion réussie. Vous pouvez fermer cette page et revenir au panneau." : {
       "localizations" : {
@@ -3156,7 +3184,14 @@
       }
     },
     "IA locale" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Local AI"
+          }
+        }
+      }
     },
     "Icônes" : {
       "localizations" : {
@@ -4107,7 +4142,14 @@
       }
     },
     "Le serveur répond (%@)" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The server answers (%@)"
+          }
+        }
+      }
     },
     "Le serveur répond (%@), mais le modèle « %@ » n'y est pas installé" : {
       "localizations" : {
@@ -4115,6 +4157,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Le serveur répond (%1$@), mais le modèle « %2$@ » n'y est pas installé"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The server answers (%1$@), but the model “%2$@” is not installed there"
           }
         }
       }
@@ -4390,7 +4438,14 @@
       }
     },
     "Les images ne sont envoyées qu'à ton propre Mac, ou à un Mac de ton réseau : rien ne part sur Internet. Plusieurs adresses, séparées par des virgules : Side les essaie dans l'ordre et garde la première qui répond." : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Images are only sent to your own Mac, or to a Mac on your network: nothing goes to the Internet. Several addresses, separated by commas: Side tries them in order and keeps the first that answers."
+          }
+        }
+      }
     },
     "Les originaux ne sont pas touchés : le résultat est un nouveau fichier, à côté." : {
       "extractionState" : "stale",
@@ -4677,7 +4732,14 @@
       }
     },
     "Modèle" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Model"
+          }
+        }
+      }
     },
     "Molette" : {
       "extractionState" : "stale",
@@ -5642,8 +5704,15 @@
         }
       }
     },
-    "Quelques secondes après une capture, son nom dit ce qu'on y voit, suivi de la date : « safari page github side 2026-11-16 14.32.05 ». Si le serveur ne répond pas, la capture garde son nom." : {
-
+    "Quelques secondes après une capture, son nom dit ce qu'on y voit, suivi de la date : « safari page github side 2026-11-16 14.32.05 ». Si le serveur ne répond pas, la capture garde son nom. Une capture enregistrée sous un nom choisi (par un outil, par exemple) n'est pas renommée." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A few seconds after a screenshot, its name says what it shows, followed by the date: “safari page github side 2026-11-16 14.32.05”. If the server does not answer, the screenshot keeps its name. A screenshot saved under a chosen name (by a tool, for example) is not renamed."
+          }
+        }
+      }
     },
     "Quitter %@" : {
       "localizations" : {
@@ -5867,7 +5936,14 @@
       }
     },
     "Renommer mes captures d'écran d'après leur contenu" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rename my screenshots after what they show"
+          }
+        }
+      }
     },
     "Renommer « %@ »" : {
       "localizations" : {
@@ -6396,7 +6472,14 @@
       }
     },
     "Serveur Ollama" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ollama server"
+          }
+        }
+      }
     },
     "Side a aussi un tiroir, pour tes applications à usage rapide. Il va s'ouvrir pour se présenter." : {
       "localizations" : {
@@ -6781,7 +6864,14 @@
       }
     },
     "Tester" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Test"
+          }
+        }
+      }
     },
     "Texte" : {
       "localizations" : {
@@ -7084,7 +7174,14 @@
       }
     },
     "Un modèle d'IA qui tourne chez toi, avec Ollama. Side ne parle qu'à ce serveur." : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "An AI model running at home, with Ollama. Side only talks to that server."
+          }
+        }
+      }
     },
     "Un raccourci pour le Finder, le tiroir et le presse-papiers." : {
       "localizations" : {

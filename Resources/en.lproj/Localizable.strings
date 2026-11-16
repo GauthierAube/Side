@@ -86,6 +86,8 @@
 	<string>Address copied: paste it into “Redirect URIs”.</string>
 	<key>Adresse e-mail</key>
 	<string>Email Address</string>
+	<key>Adresses du serveur</key>
+	<string>Server addresses</string>
 	<key>Affichage</key>
 	<string>Display</string>
 	<key>Afficher</key>
@@ -216,6 +218,8 @@ Press Esc to cancel.</string>
 	<string>No results</string>
 	<key>Aucun résultat pour « %@ ».</key>
 	<string>No results for “%@”.</string>
+	<key>Aucun serveur ne répond</key>
+	<string>No server answers</string>
 	<key>Aucun sujet trouvé dans %@.</key>
 	<string>No subject found in %@.</string>
 	<key>Aucun élément</key>
@@ -268,6 +272,8 @@ Press Esc to cancel.</string>
 	<string>Green Button</string>
 	<key>Bureau</key>
 	<string>Desktop</string>
+	<key>Captures d'écran</key>
+	<string>Screenshots</string>
 	<key>Carrousel</key>
 	<string>Carousel</string>
 	<key>Carrousel à quatre doigts</key>
@@ -358,6 +364,8 @@ Press Esc to cancel.</string>
 	<string>Connect Spotify</string>
 	<key>Connecté</key>
 	<string>Connected</string>
+	<key>Connexion</key>
+	<string>Connection</string>
 	<key>Connexion réussie. Vous pouvez fermer cette page et revenir au panneau.</key>
 	<string>Connected. You can close this page and go back to the drawer.</string>
 	<key>Conversion impossible : %@</key>
@@ -626,6 +634,8 @@ Press Esc to cancel.</string>
 	<string>Clipboard history</string>
 	<key>Historique et liens</key>
 	<string>History and Links</string>
+	<key>IA locale</key>
+	<string>Local AI</string>
 	<key>Icônes</key>
 	<string>Icons</string>
 	<key>Il s'ouvre par un coin actif (en bas à droite au départ) ou par son raccourci clavier : voir les volets Coins actifs et Raccourcis clavier.</key>
@@ -812,6 +822,10 @@ Press Esc to cancel.</string>
 	<string>Port 8765 on this Mac is already in use. Quit the app using it and try again.</string>
 	<key>Le presse-papiers</key>
 	<string>The Clipboard</string>
+	<key>Le serveur répond (%@)</key>
+	<string>The server answers (%@)</string>
+	<key>Le serveur répond (%@), mais le modèle « %@ » n'y est pas installé</key>
+	<string>The server answers (%1$@), but the model “%2$@” is not installed there</string>
 	<key>Le tiroir</key>
 	<string>The Drawer</string>
 	<key>Le tiroir arrive</key>
@@ -866,6 +880,8 @@ Press Esc to cancel.</string>
 	<string>Both</string>
 	<key>Les en sortir</key>
 	<string>Take Them Out</string>
+	<key>Les images ne sont envoyées qu'à ton propre Mac, ou à un Mac de ton réseau : rien ne part sur Internet. Plusieurs adresses, séparées par des virgules : Side les essaie dans l'ordre et garde la première qui répond.</key>
+	<string>Images are only sent to your own Mac, or to a Mac on your network: nothing goes to the Internet. Several addresses, separated by commas: Side tries them in order and keeps the first that answers.</string>
 	<key>Les originaux ne sont pas touchés : le résultat est un nouveau fichier, à côté.</key>
 	<string>The originals aren't touched: the result is a new file, next to them.</string>
 	<key>Les parties de Side</key>
@@ -922,6 +938,8 @@ Press Esc to cancel.</string>
 	<string>Edit…</string>
 	<key>Modifié le</key>
 	<string>Modified</string>
+	<key>Modèle</key>
+	<string>Model</string>
 	<key>Molette</key>
 	<string>Scroll wheel</string>
 	<key>Mon site</key>
@@ -1112,6 +1130,8 @@ Press Esc to cancel.</string>
 	<string>Four fingers left or right to move from one work app to another.</string>
 	<key>Que faire de ces fichiers ? (ex. : convertis en JPG)</key>
 	<string>What should I do with these files? (e.g. convert to JPG)</string>
+	<key>Quelques secondes après une capture, son nom dit ce qu'on y voit, suivi de la date : « safari page github side 2026-11-16 14.32.05 ». Si le serveur ne répond pas, la capture garde son nom. Une capture enregistrée sous un nom choisi (par un outil, par exemple) n'est pas renommée.</key>
+	<string>A few seconds after a screenshot, its name says what it shows, followed by the date: “safari page github side 2026-11-16 14.32.05”. If the server does not answer, the screenshot keeps its name. A screenshot saved under a chosen name (by a tool, for example) is not renamed.</string>
 	<key>Quitter %@</key>
 	<string>Quit %@</string>
 	<key>Quitter Side</key>
@@ -1156,6 +1176,8 @@ Press Esc to cancel.</string>
 	<string>Close the panel after copying</string>
 	<key>Renommer</key>
 	<string>Rename</string>
+	<key>Renommer mes captures d'écran d'après leur contenu</key>
+	<string>Rename my screenshots after what they show</string>
 	<key>Renommer « %@ »</key>
 	<string>Rename “%@”</string>
 	<key>Repartir du Dock de macOS</key>
@@ -1258,6 +1280,8 @@ Press Esc to cancel.</string>
 	<string>Sensitivity</string>
 	<key>Sensibilité : plus elle est haute, moins tes doigts ont à glisser pour passer d'une application à la suivante (100 % : réglage d'origine). Le geste accélère aussi : lent, il avance d'une application à la fois ; rapide, il en saute plusieurs, pour atteindre vite celle du bout. Roue sans fin : les cartes tournent comme dans le tiroir, et après la dernière application revient la première. Bande : les cartes en ligne, qui s'arrêtent aux deux bouts. Pendant que tu règles la taille, le vrai carrousel s'affiche au milieu de l'écran. Apparition : plus court, le carrousel vient plus tôt mais un simple effleurement risque de l'afficher ; plus long, c'est l'inverse.</key>
 	<string>Sensitivity: the higher it is, the less your fingers have to slide to go from one app to the next (100%: original setting). The gesture also accelerates: slow, it moves one app at a time; fast, it skips several, to quickly reach the one at the end. Endless wheel: the cards turn as in the drawer, and after the last app comes the first again. Strip: the cards in a row, which stop at both ends. While you adjust the size, the real carousel appears in the middle of the screen. Appearance: shorter, the carousel comes sooner but a mere flick may show it; longer, the opposite.</string>
+	<key>Serveur Ollama</key>
+	<string>Ollama server</string>
 	<key>Side a aussi un tiroir, pour tes applications à usage rapide. Il va s'ouvrir pour se présenter.</key>
 	<string>Side also has a drawer, for the apps you use for quick tasks. It will open now to introduce itself.</string>
 	<key>Side et Mulot sont deux petites applications gratuites, faites pour aller ensemble.</key>
@@ -1334,6 +1358,8 @@ Press Esc to cancel.</string>
 	<string>Your files on top of any app. Whatever you drop beside it stays at hand.</string>
 	<key>Tes fichiers par-dessus n'importe quelle application, et les zones de dépôt.</key>
 	<string>Your files on top of any app, and the drop zones.</string>
+	<key>Tester</key>
+	<string>Test</string>
 	<key>Texte</key>
 	<string>Text</string>
 	<key>Tiroir</key>
@@ -1394,6 +1420,8 @@ Press Esc to cancel.</string>
 	<string>One click fills the screen while staying on the same desktop; a second click restores the window's size. Shift-click or Option-click keeps macOS full screen.</string>
 	<key>Un effleurement rapide change d'application sans rien afficher. Un geste posé fait apparaître le carrousel, et l'application du centre passe devant quand les doigts se lèvent. Le geste ne s'active que s'il n'y a qu'un seul bureau ; sinon macOS glisse d'un bureau à l'autre.</key>
 	<string>A quick flick switches apps without showing anything. A slower swipe brings up the carousel, and the app in the center comes to the front when you lift your fingers. The gesture only works when there is a single desktop; otherwise macOS swipes between desktops.</string>
+	<key>Un modèle d'IA qui tourne chez toi, avec Ollama. Side ne parle qu'à ce serveur.</key>
+	<string>An AI model running at home, with Ollama. Side only talks to that server.</string>
 	<key>Un raccourci pour le Finder, le tiroir et le presse-papiers.</key>
 	<string>A shortcut for the Finder, the drawer and the clipboard.</string>
 	<key>Une application du Mac se range plutôt dans « Applications ».</key>

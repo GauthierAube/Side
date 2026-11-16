@@ -7,6 +7,16 @@ Il est mis à jour à chaque modification, en même temps que le code.
 
 ## 16/11/2026
 
+### IA locale : les captures d'écran prennent un nom qui dit ce qu'on y voit
+- Quelques secondes après une capture d'écran, Side la renomme d'après son contenu, suivi de sa date : « gestion de cartes wakatoo 2026-11-16 12.20.05.png ». Le nom vient d'un modèle d'IA qui tourne sur ton Mac avec Ollama (`gemma4:26b`).
+- Rien ne part sur Internet : l'image, réduite, n'est envoyée qu'au serveur Ollama de ce Mac (`localhost`), sinon à celui du Mac mini (`mac-mini-de-gauthier.local`). Side essaie les adresses dans l'ordre et garde cinq minutes la première qui répond.
+- La capture arrive d'abord dans sa zone de dépôt, tout de suite, comme avant ; son nom change ensuite sur place, et la zone suit le fichier. Le nom se demande hors du fil principal.
+- Serveur éteint, réponse bizarre (une phrase, juste « capture d'écran »), fichier déplacé entre-temps : la capture garde son nom, sans message. Un fichier n'est jamais écrasé (« 2 », « 3 »… au besoin), et une capture n'est jamais renommée deux fois.
+- Seules les captures nommées par macOS (« Capture d'écran 2026-11-16 à 14.32.05 ») sont renommées. Celles qu'un outil enregistre sous un nom choisi (les images d'un dépôt, par exemple) gardent ce nom, comme les vidéos de l'écran.
+- Nouveau volet Réglages > IA locale : l'interrupteur (activé au départ), les adresses du serveur, le modèle, et un bouton « Tester » qui dit si le serveur répond et si le modèle y est installé. Réglages gardés par `ConfigIA` (clés `iaRenommerCaptures`, `iaServeurs`, `iaModele`).
+- `Info.plist` : les connexions en clair sont permises vers le réseau local seulement (`NSAllowsLocalNetworking`), pour joindre le Mac mini ; le message de la demande d'accès au réseau local parle maintenant aussi de l'IA locale.
+- Essais : `Side --test-capture fichier` affiche le nom proposé sans rien renommer ; `Side --test-nom-capture` vérifie le nettoyage des réponses, sans serveur. `tools/snap.sh` photographie le nouveau volet (40 images).
+
 ### Deux écrans (revue BAMA, `docs/architecture-review-2026-11-16.md`)
 - Nouveau module `Ecrans.swift` : le seul endroit qui choisit un écran, passe d'un repère à l'autre (AppKit, AX) et gare les fenêtres. Avant, Side faisait ce choix à 77 endroits avec quatre règles différentes : invisible avec un seul écran, faux avec deux.
 - Essai sans écran : `Side --test-ecrans` vérifie le tout sur trois dispositions (un écran ; Mac mini avec l'écran LG à gauche ; MacBook Air avec un écran à droite).

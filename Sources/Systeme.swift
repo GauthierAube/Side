@@ -63,6 +63,9 @@ final class Captures: NSObject {
     /// Serveur éteint, réponse refusée, fichier déplacé entre-temps : la capture garde son nom, sans rien dire.
     private func renommer(_ url: URL) {
         guard UTType(filenameExtension: url.pathExtension)?.conforms(to: .image) == true else { return }   // pas les vidéos de l'écran
+        // Seulement les captures nommées par macOS (« Capture d'écran 2026-11-16 à 14.32.05 »). Une capture faite par un outil
+        // sous un nom choisi (les images d'un dépôt, par exemple) garde ce nom : quelqu'un compte dessus.
+        guard NomDeCapture.nomDeMacOS(url) else { return }
         let adresses = ConfigIA.adresses(ConfigIA.commun.serveurs)
         let modele = ConfigIA.modele(ConfigIA.commun.modele)
         fileDesNoms.async {

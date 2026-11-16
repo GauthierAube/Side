@@ -1130,8 +1130,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Quatre doigts vers la gauche ou la droite, pour passer d'une application de travail à l'autre.</string>
 	<key>Que faire de ces fichiers ? (ex. : convertis en JPG)</key>
 	<string>Que faire de ces fichiers ? (ex. : convertis en JPG)</string>
-	<key>Quelques secondes après une capture, son nom dit ce qu'on y voit, suivi de la date : « safari page github side 2026-11-16 14.32.05 ». Si le serveur ne répond pas, la capture garde son nom.</key>
-	<string>Quelques secondes après une capture, son nom dit ce qu'on y voit, suivi de la date : « safari page github side 2026-11-16 14.32.05 ». Si le serveur ne répond pas, la capture garde son nom.</string>
+	<key>Quelques secondes après une capture, son nom dit ce qu'on y voit, suivi de la date : « safari page github side 2026-11-16 14.32.05 ». Si le serveur ne répond pas, la capture garde son nom. Une capture enregistrée sous un nom choisi (par un outil, par exemple) n'est pas renommée.</key>
+	<string>Quelques secondes après une capture, son nom dit ce qu'on y voit, suivi de la date : « safari page github side 2026-11-16 14.32.05 ». Si le serveur ne répond pas, la capture garde son nom. Une capture enregistrée sous un nom choisi (par un outil, par exemple) n'est pas renommée.</string>
 	<key>Quitter %@</key>
 	<string>Quitter %@</string>
 	<key>Quitter Side</key>
