@@ -164,12 +164,38 @@ enum VisualiseurFichiers {
 extension AppDelegate {
     /// Ouvre la carte sur ce fichier (son dossier, le fichier choisi), ou sur ce dossier.
     func montrerDansLaCarte(_ u: URL) {
-        var dossier: ObjCBool = false
-        FileManager.default.fileExists(atPath: u.path, isDirectory: &dossier)
-        let lieu = dossier.boolValue && !NSWorkspace.shared.isFilePackage(atPath: u.path) ? u : u.deletingLastPathComponent()
         if !visible, let e = Ecrans.deTravail { epingle = true; show(sur: e) }
-        store.naviguer(.folder(lieu))
-        guard lieu != u else { return }
+        afficherAvecArborescence(u)
+    }
+
+    /// Affiche ce fichier ou ce dossier avec toute son arborescence, comme le Finder en colonnes : on part du favori qui le
+    /// contient (« 02 Domaines »…), sinon de Documents, d'iCloud Drive, du dossier personnel ou du disque, et les colonnes
+    /// descendent jusqu'à lui. (Le 16/11/2026 : avant, la carte partait du dossier du fichier, sur une seule colonne.)
+    func afficherAvecArborescence(_ u: URL) {
+        var estDossier: ObjCBool = false
+        FileManager.default.fileExists(atPath: u.path, isDirectory: &estDossier)
+        let dossier = estDossier.boolValue && !NSWorkspace.shared.isFilePackage(atPath: u.path)
+        let lieu = (dossier ? u : u.deletingLastPathComponent()).standardizedFileURL
+        let fm = FileManager.default
+        let home = fm.homeDirectoryForCurrentUser
+        var departs = store.favoris.map(\.standardizedFileURL)
+        departs += [fm.urls(for: .documentDirectory, in: .userDomainMask).first,
+                    home.appendingPathComponent("Library/Mobile Documents/com~apple~CloudDocs"), home].compactMap { $0 }
+        if lieu.path.hasPrefix("/Volumes/") { departs.append(URL(fileURLWithPath: "/Volumes/" + lieu.pathComponents[2])) }
+        // Le départ le plus proche du fichier parmi ceux qui le contiennent.
+        let racine = departs.filter { lieu.path == $0.path || lieu.path.hasPrefix($0.path + "/") }
+            .max { $0.pathComponents.count < $1.pathComponents.count } ?? lieu
+        store.naviguer(.folder(racine))
+        // Les dossiers entre le départ et le fichier, ouverts l'un après l'autre.
+        var pile: [URL] = []
+        var d = racine
+        for composant in lieu.pathComponents.dropFirst(racine.pathComponents.count) {
+            d = d.appendingPathComponent(composant)
+            pile.append(d)
+        }
+        if !pile.isEmpty { store.navigateur.pile = pile; store.navigateur.reload() }
+        store.memoriser()
+        guard !dossier else { return }
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) { Selection.shared.choisir(u, self.store.navigateur) }
     }
 
