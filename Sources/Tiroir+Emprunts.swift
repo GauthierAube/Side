@@ -189,8 +189,8 @@ extension PanneauBas {
             var v: CFTypeRef?
             AXUIElementCopyAttributeValue(AXUIElementCreateApplication(a.processIdentifier), kAXWindowsAttribute as CFString, &v)
             for f in (v as? [AXUIElement]) ?? [] where !self.estUneNoteDuTiroir(f, notes) {
-                guard let c = AXBas.cadre(f), c.minX < PanneauBas.bordGarage - 2 else { continue }
-                AXBas.placer(f, CGRect(x: PanneauBas.bordGarage - 1, y: ecran.frame.height - 1, width: c.width, height: c.height))
+                guard let c = AXBas.cadre(f), c.minX < Ecrans.bordGarage - 2 else { continue }
+                AXBas.placer(f, Ecrans.garage(taille: c.size))
             }
         }
         pousser()      // tout de suite : si Notes est déjà ouverte, sa fenêtre part avant même d'être appelée
@@ -216,7 +216,7 @@ extension PanneauBas {
         var v: CFTypeRef?
         AXUIElementCopyAttributeValue(AXUIElementCreateApplication(a.processIdentifier), kAXWindowsAttribute as CFString, &v)
         for f in (v as? [AXUIElement]) ?? [] where !estUneNoteDuTiroir(f, notes) {
-            guard let c = AXBas.cadre(f), c.minX >= PanneauBas.bordGarage - 2 else { continue }
+            guard let c = AXBas.cadre(f), c.minX >= Ecrans.bordGarage - 2 else { continue }
             let milieu = CGPoint(x: visible.midX, y: ecran.frame.height - visible.midY)
             AXBas.placer(f, CGRect(x: milieu.x - c.width / 2, y: milieu.y - c.height / 2, width: c.width, height: c.height))
             journalBas("grande fenêtre de Notes rendue")
@@ -372,7 +372,7 @@ extension PanneauBas {
         // Sa place d'avant l'emprunt, pour la lui rendre si on rouvre l'application normalement.
         if !vues.contains(e.nom) {
             vues.insert(e.nom)          // seulement la toute première fois, avant qu'on y touche
-            if avant.minX < PanneauBas.bordGarage - 2 { origines[e.nom] = avant }
+            if avant.minX < Ecrans.bordGarage - 2 { origines[e.nom] = avant }
         }
         let aSaPlace = abs(avant.minX - zone.minX) < 2 && abs(avant.minY - zone.minY) < 2
         let aSaTaille = abs(avant.width - zone.width) < 2 && abs(avant.height - zone.height) < 2
@@ -435,8 +435,8 @@ extension PanneauBas {
     func ranger(sauf gardées: Set<String>) {
         guard let ecran = NSScreen.screens.first else { return }
         for e in emprunts where !gardées.contains(e.nom) && e.nom != libérée {
-            guard let f = fenetre(e), let c = AXBas.cadre(f), c.minX < PanneauBas.bordGarage - 2 else { continue }
-            AXBas.placer(f, CGRect(x: PanneauBas.bordGarage - 1, y: ecran.frame.height - 1, width: c.width, height: c.height))
+            guard let f = fenetre(e), let c = AXBas.cadre(f), c.minX < Ecrans.bordGarage - 2 else { continue }
+            AXBas.placer(f, Ecrans.garage(taille: c.size))
         }
     }
 
@@ -460,7 +460,7 @@ extension PanneauBas {
             // sa fenêtre ne sort pas du panneau. C'est le panneau qui s'ouvre, sur sa tuile.
             guard let ecran = NSScreen.screens.first, Date().timeIntervalSince(ferméÀ) > 1.0 else { return }
             for (i, e) in emprunts.enumerated() where e.bundle == a.bundleIdentifier && e.note == nil {
-                guard let f = fenetre(e), let c = AXBas.cadre(f), c.minX >= PanneauBas.bordGarage - 2 else { continue }
+                guard let f = fenetre(e), let c = AXBas.cadre(f), c.minX >= Ecrans.bordGarage - 2 else { continue }
                 journalBas("%@ appelée : le panneau s'ouvre sur sa tuile", e.nom)
                 tuileÀMontrer = i
                 ouvrir()

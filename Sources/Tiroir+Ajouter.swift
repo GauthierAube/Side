@@ -163,7 +163,7 @@ extension PanneauBas {
             let zone = zoneÉcran(pour: cadre(ecran))
             let arrivée = Self.redimensionnable(f) ? zone
                 : CGRect(x: zone.minX, y: zone.maxY - min(c.height, zone.height), width: min(c.width, zone.width), height: min(c.height, zone.height))
-            AXBas.placer(f, CGRect(x: (NSScreen.screens.first?.frame.maxX ?? 0) - 1, y: c.minY, width: c.width, height: c.height))   // la photo la remplace
+            AXBas.placer(f, CGRect(x: Ecrans.bordGarage - 1, y: c.minY, width: c.width, height: c.height))   // la photo la remplace
             TransitionFenetre.animer(image, de: départ, vers: arrivée, durée: 0.42, arrondiDépart: 10, arrondiArrivée: 20) {
                 TransitionFenetre.effacer(après: 0.35)        // le temps que la vraie fenêtre se pose dans le tiroir
             }
@@ -238,7 +238,7 @@ extension PanneauBas {
         guard !ouvert else { return }
         // Seulement celles qui sont vraiment garées : une fenêtre déjà à l'écran ne bouge pas.
         for e in emprunts where e.note == nil {
-            guard let f = fenetre(e), let c = AXBas.cadre(f), c.minX >= PanneauBas.bordGarage - 2 else { continue }
+            guard let f = fenetre(e), let c = AXBas.cadre(f), c.minX >= Ecrans.bordGarage - 2 else { continue }
             rendreLaFenêtre(e)
         }
         if let notes = NSRunningApplication.runningApplications(withBundleIdentifier: "com.apple.Notes").first {

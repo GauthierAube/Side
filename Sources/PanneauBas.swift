@@ -422,7 +422,6 @@ func photoFenetreBas(_ zone: CGRect, _ options: UInt32, _ wid: CGWindowID, _ ima
 final class PanneauBas: NSObject {
     /// Là où le tiroir gare les fenêtres qu'il garde : juste après le bord droit du plus à droite des écrans.
     /// (Avant le 15/11/2026 : le bord de l'écran principal, donc en plein sur un second écran placé à droite.)
-    static var bordGarage: CGFloat { NSScreen.screens.map(\.frame.maxX).max() ?? 0 }
 
     static let commun = PanneauBas()
     /// Lus hors du fil principal (geste à quatre doigts, défilement).

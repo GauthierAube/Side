@@ -10,8 +10,7 @@ extension PanneauBas {
     /// Le bouton a-t-il été enfoncé sur un bord gauche ou droit de cette fenêtre ? (Seul ce geste-là fait suivre le tiroir :
     /// un clic sur la barre, ou une fenêtre qui se pose après un changement d'application, ne doit rien déplacer.)
     func appuiSurUnBord(_ c: CGRect) -> Bool {
-        let haut = NSScreen.screens.first?.frame.height ?? 0
-        let p = CGPoint(x: pointAppui.x, y: haut - pointAppui.y)
+        let p = CGPoint(x: pointAppui.x, y: Ecrans.disposition.hauteurPrincipal - pointAppui.y)
         guard p.y > c.minY - 10, p.y < c.maxY + 10 else { return false }
         return abs(p.x - c.maxX) < 60 || abs(p.x - c.minX) < 60
     }
@@ -63,7 +62,7 @@ extension PanneauBas {
         if let m = largeursMini[e.bundle], c.width < m - 2 { var t = largeursMini; t[e.bundle] = c.width.rounded(.up); largeursMini = t }
         // La souris va plus loin que le bord de la fenêtre : l'application refuse d'être plus petite. On dit pourquoi.
         if !piluleDuGeste, let d = PanneauBas.relais {
-            let haut = NSScreen.screens.first?.frame.height ?? 0
+            let haut = Ecrans.disposition.hauteurPrincipal
             let m = NSEvent.mouseLocation
             let cible = CGPoint(x: m.x + d.x, y: haut - m.y + d.y)
             let bloque: Bool
@@ -77,7 +76,7 @@ extension PanneauBas {
                 direLimite(app: e.nom, hauteur: PanneauBas.relaisCôté == 0, points: PanneauBas.relaisCôté == 0 ? c.height : c.width)
             }
         }
-        let haut = NSScreen.screens.first?.frame.height ?? 0
+        let haut = Ecrans.disposition.hauteurPrincipal
         let z = ecran.visibleFrame
         var g = panneauGlobal(p.frame)
         if PanneauBas.relaisCôté == 0 {

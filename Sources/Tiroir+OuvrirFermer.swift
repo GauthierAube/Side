@@ -135,8 +135,7 @@ extension PanneauBas {
     func zoneÉcran(pour cadreTiroir: CGRect) -> CGRect {
         let z = bande(cadreTiroir)
         let x = z.minX + débutTuiles, w = max(200, z.width - débutTuiles - largeurColonne - marge)
-        let haut = NSScreen.screens.first?.frame.height ?? 0
-        return CGRect(x: x, y: haut - z.maxY, width: w, height: z.height)
+        return Ecrans.versNS(CGRect(x: x, y: z.minY, width: w, height: z.height))   // z est en AX : retour au repère AppKit
     }
 
     func ouvrirMiniCarrousel() {

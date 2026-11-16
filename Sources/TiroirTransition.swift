@@ -10,8 +10,7 @@ enum TransitionFenetre {
 
     /// Coordonnées de l'écran à l'origine en haut à gauche (celles des fenêtres des autres applications) → origine en bas à gauche.
     static func versÉcran(_ r: CGRect) -> CGRect {
-        let h = NSScreen.screens.first?.frame.height ?? 0
-        return CGRect(x: r.minX, y: h - r.maxY, width: r.width, height: r.height)
+        Ecrans.versNS(r)
     }
 
     /// Anime l'image de `de` vers `vers` (coordonnées de l'écran, origine en bas à gauche), puis appelle `arrivée`.

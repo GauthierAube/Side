@@ -34,8 +34,7 @@ extension PanneauBas {
 
     /// Le panneau en coordonnées globales (origine en haut à gauche), comme les fenêtres des autres applications.
     func panneauGlobal(_ c: CGRect) -> CGRect {
-        let hautEcran = NSScreen.screens.first?.frame.height ?? c.maxY
-        return CGRect(x: c.minX, y: hautEcran - c.maxY, width: c.width, height: c.height)
+        Ecrans.versAX(c)
     }
 
     /// La bande où tout défile, sur toute la largeur du panneau (coordonnées globales) : le lecteur Spotify d'abord, puis les tuiles.

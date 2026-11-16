@@ -128,7 +128,7 @@ extension PanneauBas {
     func pousser(sauf nom: String) {
         guard let p = panneau else { return }
         for (e, zone) in zip(emprunts, zones(p.frame)) where e.nom != nom && posées.contains(e.nom) {
-            guard let f = fenetre(e), let c = AXBas.cadre(f), c.minX < (NSScreen.screens.first?.frame.maxX ?? 0) - 2,
+            guard let f = fenetre(e), let c = AXBas.cadre(f), c.minX < Ecrans.bordGarage - 2,
                   abs(c.minX - zone.minX) > 1 else { continue }
             AXBas.placer(f, zone)
         }
