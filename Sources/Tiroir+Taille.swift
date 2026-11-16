@@ -55,7 +55,7 @@ extension PanneauBas {
     /// Le tiroir prend la taille qui va à la fenêtre, telle que l'application vient de la redimensionner.
     func suivreRelais() {
         guard enDirect, let p = panneau, let e = entières(p.frame).first?.0 ?? emprunts.indices.contains(rangDirect).then({ emprunts[rangDirect] }),
-              let f = fenetre(e), let c = AXBas.cadre(f), let ecran = p.screen ?? NSScreen.main else { return }
+              let f = fenetre(e), let c = AXBas.cadre(f), let ecran = écranDuTiroir else { return }
         // L'application se laisse rendre plus petite que la taille minimum retenue pour elle (retenue un jour où elle
         // n'avait pas encore suivi) : on corrige, sinon le tiroir regrandissait une seconde après qu'on l'a lâché.
         if let m = hauteursMini[e.bundle], c.height < m - 2 { var t = hauteursMini; t[e.bundle] = c.height.rounded(.up); hauteursMini = t }
@@ -98,7 +98,7 @@ extension PanneauBas {
     /// Bouton relâché : le tiroir retient sa nouvelle taille, se recale (bornes, centrage) et la fenêtre avec lui.
     func finirRelais() {
         suivreRelais()
-        guard let p = panneau, let ecran = p.screen ?? NSScreen.main else { enDirect = false; return }
+        guard let p = panneau, let ecran = écranDuTiroir else { enDirect = false; return }
         let z = ecran.visibleFrame
         if PanneauBas.relaisCôté == 0 { hauteurChoisie = p.frame.height }
         else { largeurChoisie = min(1, max(0.3, p.frame.width / z.width)) }
@@ -159,7 +159,7 @@ extension PanneauBas {
     }
 
     func tirerHauteur(_ montée: CGFloat) {
-        guard ouvert, défile || enDirect, let p = panneau, let ecran = p.screen ?? NSScreen.main else { return }
+        guard ouvert, défile || enDirect, let p = panneau, let ecran = écranDuTiroir else { return }
         hauteurChoisie = hauteurAuDepart + (enHaut ? -montée : montée)          // bornée par cadre() : un minimum, et presque tout l'écran au plus
         let voulue = hauteurChoisie
         let fin = cadre(ecran)
@@ -181,7 +181,7 @@ extension PanneauBas {
     /// Pendant qu'on élargit (ou rétrécit) la fenêtre de l'application affichée par son bord : le tiroir change de largeur
     /// avec elle, en direct. La barre d'icônes est poussée (ou ramenée) au lieu d'être recouverte.
     func suivreLaFenêtre(_ c: CGRect) {
-        guard let p = panneau, let ecran = p.screen ?? NSScreen.main else { return }
+        guard let p = panneau, let ecran = écranDuTiroir else { return }
         let z = ecran.visibleFrame
         let x = max(z.minX, c.minX - débutTuiles - marge)
         let l = min(z.maxX - x, max(min(largeurTiroirMini, z.width), c.width + débutTuiles + largeurColonne + 3 * marge))
@@ -194,7 +194,7 @@ extension PanneauBas {
 
     /// Fenêtre lâchée : le tiroir retient sa nouvelle largeur et revient au centre de l'écran, d'un mouvement doux.
     func recentrerAprèsLaFenêtre() {
-        guard let p = panneau, let ecran = p.screen ?? NSScreen.main else { return }
+        guard let p = panneau, let ecran = écranDuTiroir else { return }
         let z = ecran.visibleFrame
         largeurChoisie = min(1, max(0.3, p.frame.width / z.width))
         let fin = cadre(ecran)
@@ -221,7 +221,7 @@ extension PanneauBas {
 
     /// `écart` : le chemin fait par la souris depuis le début, vers l'intérieur du tiroir (positif = plus étroit).
     func tirerLargeur(_ écart: CGFloat) {
-        guard ouvert, défile || enDirect, let p = panneau, let ecran = p.screen ?? NSScreen.main else { return }
+        guard ouvert, défile || enDirect, let p = panneau, let ecran = écranDuTiroir else { return }
         let z = ecran.visibleFrame
         let voulue = largeurAuDépart - 2 * écart
         largeurChoisie = min(1, max(0.3, voulue / z.width))     // les deux côtés bougent ensemble

@@ -211,7 +211,7 @@ extension PanneauBas {
 
     /// Notes appelée normalement (Dock, raccourci) alors que sa grande fenêtre est garée hors de l'écran : on la lui rend.
     func rendreLaGrandeFenêtreDeNotes(_ a: NSRunningApplication) {
-        guard let ecran = NSScreen.screens.first, let visible = NSScreen.main?.visibleFrame else { return }
+        guard let ecran = NSScreen.screens.first, let visible = Ecrans.deTravail?.visibleFrame else { return }
         let notes = Set(emprunts.compactMap { $0.note })
         var v: CFTypeRef?
         AXUIElementCopyAttributeValue(AXUIElementCreateApplication(a.processIdentifier), kAXWindowsAttribute as CFString, &v)
@@ -421,7 +421,7 @@ extension PanneauBas {
 
     /// Remet à l'écran la fenêtre d'une tuile rangée (application rouverte normalement, ou tuile retirée du panneau).
     func rendreLaFenêtre(_ e: EmpruntBas) {
-        guard let ecran = NSScreen.screens.first, let visible = NSScreen.main?.visibleFrame,
+        guard let ecran = NSScreen.screens.first, let visible = Ecrans.deTravail?.visibleFrame,
               let f = fenetre(e), let c = AXBas.cadre(f) else { return }
         let milieu = CGPoint(x: visible.midX, y: ecran.frame.height - visible.midY)
         let r = origines[e.nom] ?? CGRect(x: milieu.x - c.width / 2, y: milieu.y - c.height / 2, width: c.width, height: c.height)

@@ -163,7 +163,7 @@ extension PanneauBas {
         NSWorkspace.shared.openApplication(at: URL(fileURLWithPath: "/Applications/Spotify.app"), configuration: config) { app, _ in
             guard let pid = app?.processIdentifier else { return }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
-                guard let ecran = NSScreen.main, let principal = NSScreen.screens.first else { return }
+                guard let ecran = self.écranDuTiroir, let principal = NSScreen.screens.first else { return }
                 var v: CFTypeRef?
                 AXUIElementCopyAttributeValue(AXUIElementCreateApplication(pid), kAXWindowsAttribute as CFString, &v)
                 guard let f = (v as? [AXUIElement])?.first else { return }
@@ -192,7 +192,7 @@ extension PanneauBas {
     /// Elle reste une application du tiroir : elle y retourne à sa prochaine ouverture.
     func sortirAuCentre(nom: String) {
         guard let i = emprunts.firstIndex(where: { $0.nom == nom }), let principal = NSScreen.screens.first,
-              let ecran = panneau?.screen ?? NSScreen.main else { return }
+              let ecran = écranDuTiroir else { return }
         let e = emprunts[i]
         guard let f = fenetre(e), let c = AXBas.cadre(f) else { return }
         journalBas("%@ sort du tiroir au centre", nom)
@@ -220,7 +220,7 @@ extension PanneauBas {
     }
 
     func sortirEnGrand(_ i: Int) {
-        guard ouvert, emprunts.indices.contains(i), let ecran = NSScreen.main, let principal = NSScreen.screens.first else { return }
+        guard ouvert, emprunts.indices.contains(i), let ecran = écranDuTiroir, let principal = NSScreen.screens.first else { return }
         let e = emprunts[i]
         journalBas("%@ sort du panneau en grand", e.nom)
         enGrand = e.nom

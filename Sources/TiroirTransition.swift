@@ -17,7 +17,7 @@ enum TransitionFenetre {
     /// La photo reste affichée jusqu'à `effacer()`, pour couvrir le moment où la vraie fenêtre se pose.
     static func animer(_ image: NSImage?, de: CGRect, vers: CGRect, durée: TimeInterval = 0.38,
                        arrondiDépart: CGFloat = 20, arrondiArrivée: CGFloat = 10, arrivée: @escaping () -> Void) {
-        guard let ecran = NSScreen.screens.first(where: { $0.frame.intersects(vers) }) ?? NSScreen.main else { arrivée(); return }
+        guard let ecran = NSScreen.screens.first(where: { $0.frame.intersects(vers) }) ?? Ecrans.deTravail else { arrivée(); return }
         let p = panneau ?? {
             let p = NSPanel(contentRect: .zero, styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
             p.level = .screenSaver

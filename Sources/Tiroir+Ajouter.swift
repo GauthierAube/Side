@@ -154,7 +154,7 @@ extension PanneauBas {
         let e = emprunts[i]
         tuileÀMontrer = i
         // La transition : la fenêtre rétrécit jusqu'à sa place dans le tiroir, pendant que le tiroir arrive.
-        if !ouvert, uneApp, let f = fenetre(e), let c = AXBas.cadre(f), let ecran = NSScreen.main {
+        if !ouvert, uneApp, let f = fenetre(e), let c = AXBas.cadre(f), let ecran = Ecrans.deTravail {
             let image = photo(e, taille: c.size, fraîche: true)
             let départ = TransitionFenetre.versÉcran(c)
             // Le tiroir s'ouvre directement sur elle.
@@ -181,7 +181,7 @@ extension PanneauBas {
         journalBas("%@ passe en plein écran", nom)
         let f = fenetre(e), c = f.flatMap { AXBas.cadre($0) }
         let image = c.map { photo(e, taille: $0.size, fraîche: true) }
-        let visible = NSScreen.main?.visibleFrame ?? .zero
+        let visible = écranDuTiroir?.visibleFrame ?? .zero
         let finale = { [weak self] in
             guard let self, let a = self.app(e) else { return }
             if a.isHidden { a.unhide() }

@@ -11,7 +11,9 @@ extension PanneauBas {
     func préparerOuverture() -> Bool {
         guard Partie.tiroir.active else { journalBas("tiroir coupé dans les réglages : pas d'ouverture"); return false }
         // Pendant une capture d'écran, le tiroir ne s'ouvre par aucun geste.
-        guard !ouvert, !CaptureEcran.enCours, let ecran = NSScreen.main else { return false }
+        // Le tiroir s'ouvre sur l'écran de la souris (16/11/2026 ; avant : celui de la fenêtre active), et y reste.
+        guard !ouvert, !CaptureEcran.enCours, let ecran = Ecrans.deTravail else { return false }
+        écranOuvert = ecran
         ouvert = true
         ouvertÀ = Date()
         vivantes = []
@@ -139,7 +141,7 @@ extension PanneauBas {
     }
 
     func ouvrirMiniCarrousel() {
-        guard let p = panneau, let ecran = p.screen ?? NSScreen.main, let z = zoneÉcran() else { return }
+        guard let p = panneau, let ecran = écranDuTiroir, let z = zoneÉcran() else { return }
         let départ = rangCourant
         navDepart = départ
         let visibles = Set(entières(p.frame).map { $0.0.nom })
@@ -286,6 +288,12 @@ extension PanneauBas {
 
     // MARK: Plein écran d'Apple
     /// L'espace affiché est-il un plein écran d'Apple ? (Les fenêtres des autres applications ne peuvent pas y venir.)
+    /// L'écran du tiroir : celui choisi à l'ouverture tant qu'il est ouvert (et toujours branché), sinon celui de la souris.
+    var écranDuTiroir: NSScreen? {
+        if ouvert, let e = écranOuvert, NSScreen.screens.contains(e) { return e }
+        return Ecrans.deTravail
+    }
+
     func dansUnPleinÉcranApple() -> Bool {
         let ecrans = (CGSCopyManagedDisplaySpaces(CGSMainConnectionID()) as? [[String: Any]]) ?? []
         guard let e = ecrans.first, let courant = (e["Current Space"] as? [String: Any]) else { return false }
@@ -315,7 +323,7 @@ extension PanneauBas {
                 return
             }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) { [weak self] in
-                if let ecran = NSScreen.main, let principal = NSScreen.screens.first {
+                if let ecran = Ecrans.deTravail, let principal = NSScreen.screens.first {
                     let z = ecran.visibleFrame
                     AXBas.placer(f, CGRect(x: z.minX, y: principal.frame.height - z.maxY, width: z.width, height: z.height))
                 }

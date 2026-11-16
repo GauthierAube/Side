@@ -28,7 +28,7 @@ extension PanneauBas {
     /// La largeur du coin multimédia, la même pour tous ses éléments ; rien du tout s'il est vide.
     var largeurTête: CGFloat {
         guard !médias.isEmpty else { return 0 }
-        let place = (NSScreen.main?.visibleFrame.width ?? 1440) - 2 * marge      // jamais plus large que la bande
+        let place = (écranDuTiroir?.visibleFrame.width ?? 1440) - 2 * marge      // jamais plus large que la bande
         guard uneApp else { return min(LecteurYouTubeBas.largeurCommune, place) }
         // Une app à la fois : quand la place manque, c'est le coin multimédia qui cède d'abord (jusqu'à sa largeur minimum),
         // pour que l'application garde au moins la largeur qu'elle exige, comme dans les vues partagées de macOS.
@@ -240,7 +240,7 @@ extension PanneauBas {
     }
     /// Le tiroir est plus étroit qu'une de ses applications ne l'accepte : il s'élargit et tout se replace.
     func respecterLesLargeursMini() {
-        guard ouvert, let p = panneau, let ecran = p.screen ?? NSScreen.main else { return }
+        guard ouvert, let p = panneau, let ecran = écranDuTiroir else { return }
         let fin = cadre(ecran)
         guard abs(fin.width - p.frame.width) > 1 || abs(fin.height - p.frame.height) > 1 else { return }
         p.setFrame(fin, display: true)

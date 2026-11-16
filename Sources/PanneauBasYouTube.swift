@@ -592,7 +592,7 @@ final class LecteurYouTubeBas: NSView, WKNavigationDelegate, WKUIDelegate, WKScr
     }
 
     private func sortirEnGrand() {
-        guard fenetreVideo == nil, let ecran = window?.screen ?? NSScreen.main else { return }
+        guard fenetreVideo == nil, let ecran = window?.screen ?? Ecrans.deTravail else { return }
         let w = NSWindow(contentRect: ecran.visibleFrame, styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
                          backing: .buffered, defer: false)
         w.title = page.title?.isEmpty == false ? page.title! : "YouTube"

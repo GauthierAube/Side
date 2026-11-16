@@ -363,7 +363,7 @@ final class SelecteurTuilesBas {
             v.frame = NSRect(x: v is NSTextField ? 12 : 4, y: hauteur - haut - h, width: largeur - (v is NSTextField ? 24 : 8), height: h)
             pile.addSubview(v)
         }
-        let ecran = NSScreen.main?.visibleFrame ?? .zero
+        let ecran = (PanneauBas.commun.écranDuTiroir)?.visibleFrame ?? .zero
         let visible = min(hauteur, max(160, ecran.height - 60))
         let p = FenetrePanneauBas(contentRect: NSRect(x: 0, y: 0, width: largeur, height: visible),
                                   styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
@@ -579,6 +579,8 @@ final class PanneauBas: NSObject {
     static var boutonsJaunes: [(nom: String, cadre: CGRect)] = []
     static var clicAvalé = false
     var ouvert = false { didSet { PanneauBas.estOuvertBrut = ouvert } }
+    /// L'écran choisi à l'ouverture (celui de la souris) : le tiroir y reste tant qu'il est ouvert (voir écranDuTiroir).
+    var écranOuvert: NSScreen?
     var ouvertÀ = Date.distantPast
     var ferméÀ = Date.distantPast
     var tuileÀMontrer: Int?             // la tuile à amener à l'écran une fois le panneau arrivé
