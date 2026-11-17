@@ -12,6 +12,7 @@ Il est mis à jour à chaque modification, en même temps que le code.
 - Le premier ⌘V est retenu jusqu'au lâcher de ⌘ : rien n'est jamais collé deux fois. Seul ⌘V « nu » est concerné (⌘⇧V, ⌥⌘V… restent ceux de macOS). La fenêtre ne prend pas le clavier : on reste dans l'application où l'on écrit.
 - Réglage dans Presse-papiers > Historique : « Collage en cascade », coché au départ. Sans historique, ⌘V reste celui de macOS.
 - Essais sans clavier : `Side --test-cascade` ; image de la fenêtre : `Side --image-cascade fichier.png [--clair|--sombre]`.
+- Essayé par Gauthier dans une vraie application le 17/11/2026 : ça marche.
 
 ## 16/11/2026
 
