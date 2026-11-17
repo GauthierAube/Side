@@ -40,6 +40,32 @@ extension PanneauBas {
         }
     }
 
+    // MARK: Les vues d'Horizon (17/11/2026)
+    /// Horizon (l'app de Gauthier) installe à côté de lui de petites applications qui ne montrent qu'une de ses vues
+    /// (CRM, Aujourd'hui, À planifier…), rangées dans ce dossier. Ce sont des applications comme les autres : le tiroir
+    /// n'a rien de particulier à faire pour elles, il les propose seulement d'un geste. Sans ce dossier, la ligne n'apparaît pas.
+    static let dossierVuesHorizon = "/Applications/Horizon Vues"
+    var vuesHorizon: [URL] {
+        let dossier = URL(fileURLWithPath: Self.dossierVuesHorizon)
+        let contenu = (try? FileManager.default.contentsOfDirectory(at: dossier, includingPropertiesForKeys: nil)) ?? []
+        return contenu.filter { $0.pathExtension == "app" }
+            .sorted { $0.lastPathComponent.localizedCaseInsensitiveCompare($1.lastPathComponent) == .orderedAscending }
+    }
+
+    /// « Une vue d'Horizon… » : la liste des vues qui ne sont pas encore dans le tiroir, on clique sur celle qu'on veut.
+    func demanderUneVueHorizon() {
+        guard let fenetre = plus.window else { return }
+        let ancre = fenetre.convertToScreen(plus.convert(plus.bounds, to: nil))
+        let libres = vuesHorizon.filter { url in !emprunts.contains { $0.chemin == url.path } }
+        let lignes = libres.map { url in
+            SelecteurTuilesBas.Ligne(icone: NSWorkspace.shared.icon(forFile: url.path),
+                                     nom: FileManager.default.displayName(atPath: url.path).replacingOccurrences(of: ".app", with: ""),
+                                     signe: "plus.circle.fill", couleur: .systemGreen) { [weak self] in self?.ajouter(url) }
+        }
+        let vide = [SelecteurTuilesBas.Ligne(icone: nil, nom: String(localized: "Toutes les vues sont déjà dans le tiroir"), signe: nil, couleur: .clear, action: nil)]
+        selecteur.montrer(pres: ancre, [(String(localized: "Choisir une vue d'Horizon"), lignes.isEmpty ? vide : lignes)])
+    }
+
     /// Range une note précise dans le tiroir (par son titre). Aussi appelé depuis les réglages.
     func ajouterNote(_ titre: String, id: String? = nil) {
         guard !titre.isEmpty, !emprunts.contains(where: { $0.note == titre }) else { return }
@@ -101,7 +127,7 @@ extension PanneauBas {
             }
         }
         let symbole: (String) -> NSImage? = { NSImage(systemSymbolName: $0, accessibilityDescription: nil)?.withSymbolConfiguration(.init(pointSize: 15, weight: .medium)) }
-        let autre = [
+        let autre: [SelecteurTuilesBas.Ligne] = [
             SelecteurTuilesBas.Ligne(icone: symbole("square.grid.2x2"), nom: String(localized: "Choisir une application…"), signe: "chevron.right", couleur: .tertiaryLabelColor) { [weak self] in
                 self?.choisirApplication()
             },
@@ -109,7 +135,12 @@ extension PanneauBas {
             SelecteurTuilesBas.Ligne(icone: icone("/System/Applications/Notes.app"), nom: String(localized: "Une seule note…"), signe: "chevron.right", couleur: .tertiaryLabelColor) { [weak self] in
                 self?.demanderUneNote()
             },
-        ]
+        ] + (vuesHorizon.first.map { premiere in
+            // Une seule vue d'Horizon (le CRM, Aujourd'hui…), quand Horizon a installé ses vues sur ce Mac.
+            [SelecteurTuilesBas.Ligne(icone: icone(premiere.path), nom: String(localized: "Une vue d'Horizon…"), signe: "chevron.right", couleur: .tertiaryLabelColor) { [weak self] in
+                self?.demanderUneVueHorizon()
+            }]
+        } ?? [])
         guard let fenetre = bouton.window else { return }
         let ancre = fenetre.convertToScreen(bouton.convert(bouton.bounds, to: nil))
         journalBas("liste + ouverte")

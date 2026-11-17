@@ -13,6 +13,19 @@ extension PanneauBas {
                       width: côté, height: côté)
     }
 
+    /// Met en avant l'icône de ce rang dans la colonne de droite, sans attendre que l'application soit en place :
+    /// pendant le geste à quatre doigts, elle suit l'application qui passe au centre du mini carrousel.
+    func marquerIcône(_ rang: Int) {
+        guard uneApp, glisseIcône == nil, icônesColonne.indices.contains(rang), !repèreColonne.isHidden else { return }
+        let f = cadreIcône(rang: rang).insetBy(dx: -4, dy: -4)
+        guard repèreColonne.frame != f else { return }
+        NSAnimationContext.runAnimationGroup { ctx in
+            ctx.duration = 0.16
+            ctx.timingFunction = CAMediaTimingFunction(controlPoints: 0.2, 0.9, 0.3, 1)
+            repèreColonne.animator().frame = f
+        }
+    }
+
     /// L'icône suit la souris ; les autres s'écartent pour lui faire place, comme dans le Dock.
     func glisserIcône(_ i: Int, _ dy: CGFloat) {
         guard icônesColonne.indices.contains(i) else { return }

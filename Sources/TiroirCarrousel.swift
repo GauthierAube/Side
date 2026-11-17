@@ -39,6 +39,30 @@ final class CarrouselTiroir {
     }
 
     /// `zone` : la place de l'application dans le tiroir, en coordonnées de l'écran (origine en bas à gauche).
+    /// La photo d'une tuile, réduite à la taille d'une carte. Gardée tant que la photo ne change pas : la réduire à chaque
+    /// geste, pour toutes les tuiles, prenait plusieurs centièmes de seconde au départ du geste (17/11/2026).
+    private var miniatures: [ObjectIdentifier: (taille: CGSize, image: CGImage)] = [:]
+    private func miniature(_ img: NSImage) -> CGImage? {
+        let cle = ObjectIdentifier(img), taille = CGSize(width: largeur * 2, height: hauteur * 2)
+        if let m = miniatures[cle], m.taille == taille { return m.image }
+        // À la proportion de la photo, assez grande pour couvrir la carte (elle est recadrée).
+        let e = max(taille.width / max(img.size.width, 1), taille.height / max(img.size.height, 1))
+        let w = Int((img.size.width * e).rounded()), h = Int((img.size.height * e).rounded())
+        guard w > 0, h > 0, let ctx = CGContext(data: nil, width: w, height: h, bitsPerComponent: 8, bytesPerRow: 0,
+                                                 space: CGColorSpace(name: CGColorSpace.sRGB)!, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue) else {
+            return img.cgImage(forProposedRect: nil, context: nil, hints: nil)
+        }
+        ctx.interpolationQuality = .medium
+        let g = NSGraphicsContext(cgContext: ctx, flipped: false)
+        NSGraphicsContext.saveGraphicsState()
+        NSGraphicsContext.current = g
+        img.draw(in: CGRect(x: 0, y: 0, width: w, height: h))
+        NSGraphicsContext.restoreGraphicsState()
+        guard let mini = ctx.makeImage() else { return nil }
+        miniatures[cle] = (taille, mini)
+        return mini
+    }
+
     func ouvrir(images: [NSImage?], icones: [NSImage?], depart: Int, zone: CGRect, ecran: NSScreen, enHaut: Bool) {
         let p = panneau ?? construire()
         panneau = p
@@ -52,6 +76,8 @@ final class CarrouselTiroir {
         CATransaction.setDisableActions(true)
         groupe.frame = CGRect(origin: .zero, size: ecran.frame.size)
         cartes.forEach { $0.carte.removeFromSuperlayer() }
+        let gardées = Set(images.compactMap { $0.map(ObjectIdentifier.init) })
+        miniatures = miniatures.filter { gardées.contains($0.key) }       // les photos remplacées sont oubliées
         cartes = zip(images, icones).map { img, ico in
             let carte = CALayer()
             carte.bounds = CGRect(x: 0, y: 0, width: largeur, height: hauteur)
@@ -67,7 +93,7 @@ final class CarrouselTiroir {
             image.masksToBounds = true
             image.backgroundColor = NSColor(white: 0.2, alpha: 1).cgColor
             image.contentsGravity = .resizeAspectFill
-            image.contents = img?.cgImage(forProposedRect: nil, context: nil, hints: nil)
+            image.contents = img.flatMap { miniature($0) }
             image.borderColor = NSColor.controlAccentColor.cgColor
             carte.addSublayer(image)
             // L'icône de l'application, à cheval sur le bord gauche de la carte.

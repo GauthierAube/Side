@@ -130,8 +130,8 @@ extension PanneauBas {
             if let v = Volet(rawValue: String(commande.dropFirst(6))) { Volet.demandeDirecte(v) }
         case "video-etat": lecteursWeb.first(where: { $0.estUnYouTube })?.noterEtat()
         // Pour les essais : joue le geste du mini carrousel (« mini:debut », « mini:0.5 » pour un trajet, « mini:fin »).
-        case "tuile:0", "tuile:1", "tuile:2", "tuile:3":       // pour les essais : afficher l'application de ce rang
-            if let i = Int(commande.suffix(1)), emprunts.indices.contains(i) { montrerTuile(i) }
+        case _ where commande.hasPrefix("tuile:"):          // pour les essais : afficher l'application de ce rang
+            if let i = Int(commande.dropFirst(6)), emprunts.indices.contains(i) { montrerTuile(i) }
         // Les commandes d'essai qui agissent sur des fichiers ou sur la page YouTube ne sont écoutées que si on l'a demandé
         case _ where commande.hasPrefix("bord:"):           // pour les essais : « bord:x:y » (coordonnées globales, en haut à gauche)
             let v = commande.split(separator: ":").dropFirst().compactMap { Double($0) }
@@ -243,7 +243,8 @@ extension PanneauBas {
     }
 
     func app(_ e: EmpruntBas) -> NSRunningApplication? {
-        NSWorkspace.shared.runningApplications.first { $0.bundleIdentifier == e.bundle }
+        // Demandée par son identifiant : passer en revue toutes les applications ouvertes, à chaque appel, coûtait cher pendant un geste.
+        NSRunningApplication.runningApplications(withBundleIdentifier: e.bundle).first
     }
     func estEmpruntée(_ a: NSRunningApplication?) -> Bool {
         guard let b = a?.bundleIdentifier else { return false }

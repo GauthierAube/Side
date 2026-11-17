@@ -502,6 +502,10 @@ final class PanneauBas: NSObject {
     let idEchap: UInt32 = 2
     var enCapture = false               // une capture d'écran est en cours, tiroir ouvert : il se fait oublier
     var notesIntrouvables: Set<String> = []   // notes qu'on n'a pas retrouvées dans Notes : on ne les réclame plus en boucle
+    /// Un geste a choisi une application, mais un autre geste a commencé avant que sa fenêtre soit posée : à faire à la fin.
+    var installationEnAttente = false
+    /// La fenêtre de chaque tuile, telle que son application l'a donnée il y a un instant (voir fenetre).
+    var fenêtresGardées: [String: (fenêtre: AXUIElement?, sansRéponse: Bool, à: CFAbsoluteTime)] = [:]
     var titresDeNotes: [String: String] = [:] // le titre actuel de chaque note (il change si on modifie sa première ligne)
     let largeurLecteur: CGFloat = 300
     let largeurPlus: CGFloat = 44

@@ -21,6 +21,24 @@ extension PanneauBas {
 
     /// La fenêtre à emprunter, si elle existe déjà : pour une note, celle qui porte son nom.
     func fenetre(_ e: EmpruntBas) -> AXUIElement? {
+        // La réponse est gardée un court instant (17/11/2026). Demander ses fenêtres à une application se fait sur le fil
+        // principal, et un seul geste dans le tiroir le demandait trois ou quatre fois de suite à chacune : le geste saccadait.
+        // Pire, une application occupée (qui démarre, par exemple) fait attendre 0,3 s à chaque demande ; redemandée vingt
+        // fois par seconde, elle figeait Side pendant plusieurs secondes. On ne lui repose donc la question qu'une fois par seconde.
+        let maintenant = CFAbsoluteTimeGetCurrent()
+        if let g = fenêtresGardées[e.nom], maintenant - g.à < (g.sansRéponse ? 1.0 : 0.12) {
+            sansRéponse = g.sansRéponse
+            return g.fenêtre
+        }
+        let f = chercherFenetre(e)
+        let durée = CFAbsoluteTimeGetCurrent() - maintenant
+        if durée > 0.05 { journalBas("%@ a mis %d ms à répondre", e.nom, Int(durée * 1000)) }
+        fenêtresGardées[e.nom] = (f, sansRéponse, CFAbsoluteTimeGetCurrent())
+        return f
+    }
+
+    /// La question posée à l'application, sans mémoire (voir fenetre).
+    func chercherFenetre(_ e: EmpruntBas) -> AXUIElement? {
         sansRéponse = false
         guard let a = app(e), !a.isHidden else { return nil }
         let el = AXUIElementCreateApplication(a.processIdentifier)

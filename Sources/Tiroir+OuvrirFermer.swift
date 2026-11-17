@@ -165,6 +165,8 @@ extension PanneauBas {
             // Sans fin : on peut monter ou descendre aussi loin qu'on veut, les applications reviennent en boucle.
             let q = (p - 1) / parApp
             CarrouselTiroir.commun.placer(CGFloat(d) + q, anime: false)
+            // La mise en avant de la colonne de droite suit l'application du centre, pendant le geste (17/11/2026).
+            marquerIcône(CarrouselTiroir.commun.rangCentral)
             return
         }
         poser(min(1, max(0, p)))
@@ -192,11 +194,19 @@ extension PanneauBas {
         // Le temps que la carte arrive à sa place, puis la vraie fenêtre prend le relais.
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.18) { [weak self] in
             guard let self, self.ouvert else { return }
+            // Un nouveau geste a déjà commencé (on enchaîne les gestes pour aller à une application éloignée) : les vraies
+            // fenêtres attendent sa fin. Les poser maintenant, sous le carrousel, le faisait saccader (17/11/2026).
+            if depuisOuvert, self.navDepart != nil {
+                if cible != d { self.installationEnAttente = true }
+                return
+            }
+            let àPoser = cible != d || self.installationEnAttente
+            self.installationEnAttente = false
             if depuisOuvert {
-                if cible != d { self.défile = false; self.installer(déjàArrivé: true) }
+                if àPoser { self.défile = false; self.installer(déjàArrivé: true) }
             } else {
                 self.arrivé()
-                if cible != d { self.installer(déjàArrivé: true) }
+                if àPoser { self.défile = false; self.installer(déjàArrivé: true) }
             }
         }
     }

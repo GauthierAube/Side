@@ -7,6 +7,26 @@ Il est mis à jour à chaque modification, en même temps que le code.
 
 ## 17/11/2026
 
+### Tiroir : passer d'une application à l'autre ne saccade plus
+- Signalé par Gauthier : le geste à quatre doigts saccadait, ou bloquait, surtout sur un grand geste rapide vers une application éloignée.
+- Gestes enchaînés : quand un nouveau geste commençait moins de deux dixièmes de seconde après le précédent, Side posait quand même la fenêtre de l'application de passage, sous le carrousel (il la déplaçait, la lançait au besoin, lui donnait le clavier). Maintenant il attend la fin du dernier geste : les applications de passage ne sont ni lancées ni activées.
+- Une application qui met du temps à répondre (une vue d'Horizon qui démarre, par exemple) n'est plus interrogée qu'une fois par seconde, au lieu de vingt fois : c'est ce qui figeait Side plusieurs secondes. Et la réponse d'une application est gardée un court instant (0,12 s), au lieu de lui redemander trois ou quatre fois ses fenêtres pour un seul geste.
+- Les miniatures du carrousel sont gardées d'un geste à l'autre au lieu d'être refaites à chaque fois, et retrouver une application ne passe plus en revue toutes les applications ouvertes.
+- Mesuré en rejouant le même geste huit fois (`sample`) : le temps pendant lequel Side ne répond pas est divisé par trois sur de petits gestes, et bien plus sur de grands gestes enchaînés.
+- Le journal note maintenant toute application qui met plus de 50 ms à répondre (« … a mis 72 ms à répondre ») : les vues d'Horizon sont lentes sur ce point (50 à 100 ms).
+- Essayé avec des gestes rejoués par commande, pas au trackpad : à confirmer par Gauthier.
+
+### Tiroir : la colonne de droite suit le geste
+- Demandé par Gauthier : quand on passe d'une application à l'autre dans le tiroir (geste à quatre doigts, mini carrousel), la mise en avant de la colonne d'icônes à droite suit maintenant l'application qui passe au centre, pendant le geste. Avant, elle ne bougeait qu'une fois les doigts levés.
+
+### Tiroir : une vue d'Horizon comme tuile
+- Horizon (l'app de Gauthier) installe maintenant de petites applications qui ne montrent qu'une de ses vues : Horizon CRM, Horizon Aujourd'hui, Horizon À planifier, Horizon Projets, Horizon Coffre, Horizon Réseaux. Elles sont rangées dans `/Applications/Horizon Vues`.
+- La liste « + » du tiroir gagne « Une vue d'Horizon… » : la liste des vues qui ne sont pas encore dans le tiroir s'affiche, on clique sur celle qu'on veut. La ligne n'apparaît que si ce dossier existe sur le Mac.
+- Ce sont des applications comme les autres : le tiroir les range, les agrandit et les retire comme n'importe quelle tuile, sans code particulier. (Un premier plan prévoyait une seule application à plusieurs fenêtres ; le tiroir reconnaît une application à son identifiant, donc une petite application par vue est plus simple et plus sûr.)
+- Essais : la commande « tuile:N » affiche maintenant la tuile de n'importe quel rang (avant : les quatre premières).
+- Chaque vue a sa propre icône (dessinée côté Horizon), pour s'y retrouver dans la colonne d'icônes.
+- Vérifié : Horizon CRM rangée dans le tiroir, à sa taille de tuile ; Gauthier a ajouté lui-même Horizon Aujourd'hui et confirmé que ça marche.
+
 ### Recherche sur le web, dans une pilule qui descend de l'encoche
 - Un raccourci (⇧⌘ Espace au départ) fait descendre de l'encoche une pilule noire avec un champ, comme Spotlight. Sur un écran sans encoche, elle descend du haut de l'écran.
 - On tape une recherche ou une adresse, puis Entrée : la pilule s'élargit et s'étire vers le bas, avec le ressort de l'île, et montre la page (même moteur que Safari).

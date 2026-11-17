@@ -352,6 +352,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Choisir une application…</string>
 	<key>Choisir une note</key>
 	<string>Choisir une note</string>
+	<key>Choisir une vue d'Horizon</key>
+	<string>Choisir une vue d'Horizon</string>
 	<key>Choisis comment l'ouvrir dans les réglages.</key>
 	<string>Choisis comment l'ouvrir dans les réglages.</string>
 	<key>Choisis le dossier à épingler dans Side</key>
@@ -1502,6 +1504,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Toute la journée</string>
 	<key>Toutes les applications</key>
 	<string>Toutes les applications</string>
+	<key>Toutes les vues sont déjà dans le tiroir</key>
+	<string>Toutes les vues sont déjà dans le tiroir</string>
 	<key>Toutes tes applications de travail en vignettes, pour passer de l'une à l'autre.</key>
 	<string>Toutes tes applications de travail en vignettes, pour passer de l'une à l'autre.</string>
 	<key>Trackpad : ouvrir le Finder</key>
@@ -1554,6 +1558,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Une secousse de souris</string>
 	<key>Une seule note…</key>
 	<string>Une seule note…</string>
+	<key>Une vue d'Horizon…</key>
+	<string>Une vue d'Horizon…</string>
 	<key>Une zone apparaît en haut à droite de la carte quand tu fais glisser un fichier. Tant qu'elle contient quelque chose, elle reste à l'écran même quand Side est fermé, pour que tu puisses glisser son contenu ailleurs. Side fermé, secoue le pointeur pendant que tu glisses un fichier : la zone apparaît seule, à côté de la souris. Secoue encore pour en ajouter une autre. Si la carte vient du haut, la zone se place en bas de la carte et les suivantes s'empilent au-dessus. Les zones vides disparaissent toutes seules.</key>
 	<string>Une zone apparaît en haut à droite de la carte quand tu fais glisser un fichier. Tant qu'elle contient quelque chose, elle reste à l'écran même quand Side est fermé, pour que tu puisses glisser son contenu ailleurs. Side fermé, secoue le pointeur pendant que tu glisses un fichier : la zone apparaît seule, à côté de la souris. Secoue encore pour en ajouter une autre. Si la carte vient du haut, la zone se place en bas de la carte et les suivantes s'empilent au-dessus. Les zones vides disparaissent toutes seules.</string>
 	<key>Utiliser un aperçu comme icône</key>

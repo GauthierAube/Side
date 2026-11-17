@@ -324,6 +324,8 @@ Press Esc to cancel.</string>
 	<string>Choose an App…</string>
 	<key>Choisir une note</key>
 	<string>Choose a Note</string>
+	<key>Choisir une vue d'Horizon</key>
+	<string>Choose a Horizon View</string>
 	<key>Choisis comment l'ouvrir dans les réglages.</key>
 	<string>Choose how to open it in Settings.</string>
 	<key>Choisis le dossier à épingler dans Side</key>
@@ -1420,6 +1422,8 @@ Press Esc to cancel.</string>
 	<string>Select All</string>
 	<key>Toutes les applications</key>
 	<string>All Applications</string>
+	<key>Toutes les vues sont déjà dans le tiroir</key>
+	<string>All views are already in the drawer</string>
 	<key>Toutes tes applications de travail en vignettes, pour passer de l'une à l'autre.</key>
 	<string>All your work apps as thumbnails, to move from one to another.</string>
 	<key>Trackpad : ouvrir le Finder</key>
@@ -1470,6 +1474,8 @@ Press Esc to cancel.</string>
 	<string>A shake of the mouse</string>
 	<key>Une seule note…</key>
 	<string>A Single Note…</string>
+	<key>Une vue d'Horizon…</key>
+	<string>A Horizon View…</string>
 	<key>Une zone apparaît en haut à droite de la carte quand tu fais glisser un fichier. Tant qu'elle contient quelque chose, elle reste à l'écran même quand Side est fermé, pour que tu puisses glisser son contenu ailleurs. Side fermé, secoue le pointeur pendant que tu glisses un fichier : la zone apparaît seule, à côté de la souris. Secoue encore pour en ajouter une autre. Si la carte vient du haut, la zone se place en bas de la carte et les suivantes s'empilent au-dessus. Les zones vides disparaissent toutes seules.</key>
 	<string>A zone appears at the top right of the card when you drag a file. As long as it holds something, it stays on screen even when Side is closed, so you can drag its contents elsewhere. With Side closed, shake the pointer while dragging a file: the zone appears on its own, next to the pointer. Shake again to add another one. If the card comes from the top, the zone sits at the bottom of the card and the next ones stack above it. Empty zones disappear on their own.</string>
 	<key>Utiliser un aperçu comme icône</key>

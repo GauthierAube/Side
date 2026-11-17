@@ -1651,6 +1651,16 @@
         }
       }
     },
+    "Choisir une vue d'Horizon" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose a Horizon View"
+          }
+        }
+      }
+    },
     "Choisis comment l'ouvrir dans les réglages." : {
       "localizations" : {
         "en" : {
@@ -7300,6 +7310,16 @@
         }
       }
     },
+    "Toutes les vues sont déjà dans le tiroir" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All views are already in the drawer"
+          }
+        }
+      }
+    },
     "Toutes tes applications de travail en vignettes, pour passer de l'une à l'autre." : {
       "localizations" : {
         "en" : {
@@ -7549,6 +7569,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "A Single Note…"
+          }
+        }
+      }
+    },
+    "Une vue d'Horizon…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A Horizon View…"
           }
         }
       }
