@@ -347,6 +347,7 @@ struct ReglagesView: View {
             } header: { Text("Changer de place") } footer: {
                 note("Le plus simple : le bouton jaune d'une application l'envoie au tiroir, et le bouton vert d'une application du tiroir la remet en plein écran (Option + clic : le comportement habituel de macOS). Aussi au clic droit sur une case de la grille, et dans la liste du « + » du tiroir.")
             }
+            SectionRecherche()
             Section {
                 RaccourciPresseLigne()
             } header: { Text("Presse-papiers") } footer: {

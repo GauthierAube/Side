@@ -116,6 +116,9 @@ extension PanneauBas {
         case "encoche:finder": Descente.finder()          // le Finder qui descend de l'encoche
         case "encoche:suivante": Ile.commun.feuilleter(1) // pour les essais : la vue suivante de l'île ouverte
         case "encoche:hud": Ile.commun.montrerHud(.volume, niveau: 0.6)   // pour les essais : la jauge du volume
+        case "recherche": Recherche.commun.basculer()     // la recherche sur le web
+        // Pour les essais : « recherche:didgeridoo » ouvre la pilule sans prendre le clavier et lance la recherche.
+        case _ where commande.hasPrefix("recherche:"): Recherche.commun.essai(String(commande.dropFirst(10)))
         // Pour les essais : « dock:/Applications/X.app » fait comme un clic sur cette icône du Dock de la grille.
         case _ where commande.hasPrefix("dock:") && UserDefaults.standard.bool(forKey: "essais"):
             Programme.appli.essaiDock(String(commande.dropFirst(5)))

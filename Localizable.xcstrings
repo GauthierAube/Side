@@ -137,7 +137,9 @@
         }
       }
     },
-    "%lld h" : {},
+    "%lld h" : {
+
+    },
     "%lld images" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -182,7 +184,9 @@
         }
       }
     },
-    "%lld rendez-vous" : {},
+    "%lld rendez-vous" : {
+
+    },
     "%lld sur %lld" : {
       "localizations" : {
         "en" : {
@@ -272,7 +276,9 @@
         }
       }
     },
-    "1 fichier" : {},
+    "1 fichier" : {
+
+    },
     "1 fichier — par exemple : %@" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -295,7 +301,9 @@
         }
       }
     },
-    "1 rendez-vous" : {},
+    "1 rendez-vous" : {
+
+    },
     "1 vidéo" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -489,7 +497,9 @@
         }
       }
     },
-    "Afficher en arborescence, comme l'Explorateur de Windows" : {},
+    "Afficher en arborescence, comme l'Explorateur de Windows" : {
+
+    },
     "Afficher en colonnes" : {
       "localizations" : {
         "en" : {
@@ -520,7 +530,9 @@
         }
       }
     },
-    "Afficher l'agenda (aujourd'hui et le calendrier)" : {},
+    "Afficher l'agenda (aujourd'hui et le calendrier)" : {
+
+    },
     "Afficher la corbeille" : {
       "localizations" : {
         "en" : {
@@ -601,7 +613,9 @@
         }
       }
     },
-    "Afficher mon agenda" : {},
+    "Afficher mon agenda" : {
+
+    },
     "Afficher toutes les extensions de fichiers" : {
       "localizations" : {
         "en" : {
@@ -924,7 +938,9 @@
         }
       }
     },
-    "Approche un fichier de l'encoche : elle s'ouvre sur le bac. Les fichiers restent où ils sont ; le bac n'en garde que le chemin." : {},
+    "Approche un fichier de l'encoche : elle s'ouvre sur le bac. Les fichiers restent où ils sont ; le bac n'en garde que le chemin." : {
+
+    },
     "Appuyez sur le nouveau raccourci.\nIl faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).\nÉchap pour annuler." : {
       "localizations" : {
         "en" : {
@@ -1178,7 +1194,9 @@
         }
       }
     },
-    "Aujourd'hui" : {},
+    "Aujourd'hui" : {
+
+    },
     "Aussi pour les liens simplement copiés" : {
       "localizations" : {
         "en" : {
@@ -1209,7 +1227,9 @@
         }
       }
     },
-    "Autorise Side dans Réglages Système > Confidentialité > Calendriers." : {},
+    "Autorise Side dans Réglages Système > Confidentialité > Calendriers." : {
+
+    },
     "Autoriser « Accessibilité »…" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -1252,8 +1272,12 @@
         }
       }
     },
-    "Bac" : {},
-    "Bac à fichiers" : {},
+    "Bac" : {
+
+    },
+    "Bac à fichiers" : {
+
+    },
     "Bande" : {
       "localizations" : {
         "en" : {
@@ -1378,7 +1402,9 @@
         }
       }
     },
-    "Calendrier" : {},
+    "Calendrier" : {
+
+    },
     "Captures d'écran" : {
       "localizations" : {
         "en" : {
@@ -1429,7 +1455,9 @@
         }
       }
     },
-    "Ce que montre l'île" : {},
+    "Ce que montre l'île" : {
+
+    },
     "Ce que tu copies apparaîtra ici." : {
       "localizations" : {
         "en" : {
@@ -2061,7 +2089,9 @@
         }
       }
     },
-    "Dans %lld min" : {},
+    "Dans %lld min" : {
+
+    },
     "Dans 15 minutes" : {
       "localizations" : {
         "en" : {
@@ -2502,7 +2532,9 @@
         }
       }
     },
-    "En cours" : {},
+    "En cours" : {
+
+    },
     "En effectuant une recherche" : {
       "localizations" : {
         "en" : {
@@ -2553,7 +2585,9 @@
         }
       }
     },
-    "Encoche" : {},
+    "Encoche" : {
+
+    },
     "Enregistrer" : {
       "localizations" : {
         "en" : {
@@ -2664,9 +2698,15 @@
         }
       }
     },
-    "Et %lld autres" : {},
-    "Et %lld de plus" : {},
-    "Et 1 autre" : {},
+    "Et %lld autres" : {
+
+    },
+    "Et %lld de plus" : {
+
+    },
+    "Et 1 autre" : {
+
+    },
     "Extraire le son (%@) en M4A" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -3062,8 +3102,12 @@
         }
       }
     },
-    "Gestes à deux doigts" : {},
-    "Glisse des fichiers ici : ils t'attendent dans l'encoche." : {},
+    "Gestes à deux doigts" : {
+
+    },
+    "Glisse des fichiers ici : ils t'attendent dans l'encoche." : {
+
+    },
     "Glisse ici un élément du presse-papiers, ou ajoute un lien avec le +. Il restera là, sans limite." : {
       "localizations" : {
         "en" : {
@@ -3376,7 +3420,9 @@
         }
       }
     },
-    "Impossible d'éjecter « %@ »" : {},
+    "Impossible d'éjecter « %@ »" : {
+
+    },
     "Impossible de coller certains éléments" : {
       "localizations" : {
         "en" : {
@@ -3683,7 +3729,9 @@
         }
       }
     },
-    "L'encoche devient une île : la musique, le volume, ton agenda, un bac à fichiers." : {},
+    "L'encoche devient une île : la musique, le volume, ton agenda, un bac à fichiers." : {
+
+    },
     "L'historique du copier-coller est désactivé dans les réglages de Side." : {
       "localizations" : {
         "en" : {
@@ -3898,7 +3946,9 @@
         }
       }
     },
-    "Lance un morceau dans Spotify ou Musique." : {},
+    "Lance un morceau dans Spotify ou Musique." : {
+
+    },
     "Lancer" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -4032,7 +4082,9 @@
         }
       }
     },
-    "Le Finder de Side descend de l'encoche" : {},
+    "Le Finder de Side descend de l'encoche" : {
+
+    },
     "Le Finder n'a pas répondu." : {
       "localizations" : {
         "en" : {
@@ -4236,7 +4288,9 @@
         }
       }
     },
-    "Le pointeur ouvre l'île" : {},
+    "Le pointeur ouvre l'île" : {
+
+    },
     "Le port 8765 du Mac est déjà pris. Fermez l'application qui l'utilise et réessayez." : {
       "localizations" : {
         "en" : {
@@ -4888,7 +4942,9 @@
         }
       }
     },
-    "Montrer la musique en cours autour de l'encoche" : {},
+    "Montrer la musique en cours autour de l'encoche" : {
+
+    },
     "Mot de passe" : {
       "localizations" : {
         "en" : {
@@ -4929,7 +4985,9 @@
         }
       }
     },
-    "Musique" : {},
+    "Musique" : {
+
+    },
     "Musique et vidéo, au début du tiroir." : {
       "localizations" : {
         "en" : {
@@ -5272,7 +5330,9 @@
         }
       }
     },
-    "Ouvrir les dossiers dans Side" : {},
+    "Ouvrir les dossiers dans Side" : {
+
+    },
     "Ouvrir les réglages d'accessibilité" : {
       "localizations" : {
         "en" : {
@@ -5393,6 +5453,9 @@
           }
         }
       }
+    },
+    "Passe le pointeur sur l'encoche : ta journée, ton calendrier, la musique et un bac à fichiers, une vue à la fois." : {
+
     },
     "Passer" : {
       "localizations" : {
@@ -6104,7 +6167,9 @@
         }
       }
     },
-    "Remplace le carré gris de macOS. Maintiens ⇧⌥ pour des pas plus fins. Demande l'autorisation Accessibilité, que Side a déjà." : {},
+    "Remplace le carré gris de macOS. Maintiens ⇧⌥ pour des pas plus fins. Demande l'autorisation Accessibilité, que Side a déjà." : {
+
+    },
     "Renommer" : {
       "localizations" : {
         "en" : {
@@ -6287,7 +6352,9 @@
         }
       }
     },
-    "Retirer du bac" : {},
+    "Retirer du bac" : {
+
+    },
     "Retirer du mini-Dock" : {
       "localizations" : {
         "en" : {
@@ -6349,8 +6416,12 @@
         }
       }
     },
-    "Rien de prévu aujourd'hui." : {},
-    "Rien de prévu." : {},
+    "Rien de prévu aujourd'hui." : {
+
+    },
+    "Rien de prévu." : {
+
+    },
     "Rien en lecture" : {
       "localizations" : {
         "en" : {
@@ -6571,7 +6642,9 @@
         }
       }
     },
-    "Sans « Le pointeur ouvre l'île », elle gonfle seulement et un clic l'ouvre. Deux doigts : vers le bas pour ouvrir, de côté pour changer de vue, vers le haut pour refermer. Le Finder descend de l'encoche quelle que soit la façon de l'ouvrir : raccourci, coin, secousse." : {},
+    "Sans « Le pointeur ouvre l'île », elle gonfle seulement et un clic l'ouvre. Deux doigts : vers le bas pour ouvrir, de côté pour changer de vue, vers le haut pour refermer. Le Finder descend de l'encoche quelle que soit la façon de l'ouvrir : raccourci, coin, secousse." : {
+
+    },
     "Se connecter" : {
       "localizations" : {
         "en" : {
@@ -6613,7 +6686,9 @@
         }
       }
     },
-    "Se règle aussi en tirant le bord gauche ou droit du tiroir ouvert. Sur un grand écran, la part se compte sur 1800 points au plus." : {},
+    "Se règle aussi en tirant le bord gauche ou droit du tiroir ouvert. Sur un grand écran, la part se compte sur 1800 points au plus." : {
+
+    },
     "Secouer le pointeur" : {
       "localizations" : {
         "en" : {
@@ -7066,7 +7141,9 @@
         }
       }
     },
-    "Tes rendez-vous, ici." : {},
+    "Tes rendez-vous, ici." : {
+
+    },
     "Tester" : {
       "localizations" : {
         "en" : {
@@ -7207,8 +7284,12 @@
         }
       }
     },
-    "Tout vider" : {},
-    "Toute la journée" : {},
+    "Tout vider" : {
+
+    },
+    "Toute la journée" : {
+
+    },
     "Toutes les applications" : {
       "localizations" : {
         "en" : {
@@ -7369,7 +7450,6 @@
         }
       }
     },
-    "Un clic sur l'encoche l'ouvre : la musique, ton agenda, un bac à fichiers, et tes applications qui en descendent." : {},
     "Un effleurement rapide change d'application sans rien afficher. Un geste posé fait apparaître le carrousel, et l'application du centre passe devant quand les doigts se lèvent. Le geste ne s'active que s'il n'y a qu'un seul bureau ; sinon macOS glisse d'un bureau à l'autre." : {
       "localizations" : {
         "en" : {
@@ -7410,7 +7490,9 @@
         }
       }
     },
-    "Une application utilise peut-être encore un fichier de ce disque. Ferme-la, puis réessaie." : {},
+    "Une application utilise peut-être encore un fichier de ce disque. Ferme-la, puis réessaie." : {
+
+    },
     "Une application à la fois" : {
       "localizations" : {
         "en" : {
@@ -7661,7 +7743,9 @@
         }
       }
     },
-    "Volume et luminosité dans l'encoche" : {},
+    "Volume et luminosité dans l'encoche" : {
+
+    },
     "Vos artistes du moment" : {
       "localizations" : {
         "en" : {
@@ -7979,8 +8063,12 @@
         }
       }
     },
-    "« Afficher dans le Finder » des autres applications, et l'ouverture d'un dossier, montrent la carte de Side. Décoché : le Finder de macOS, comme avant." : {},
-    "· les 4 derniers" : {},
+    "« Afficher dans le Finder » des autres applications, et l'ouverture d'un dossier, montrent la carte de Side. Décoché : le Finder de macOS, comme avant." : {
+
+    },
+    "· les 4 derniers" : {
+
+    },
     "À droite" : {
       "localizations" : {
         "en" : {
@@ -8011,7 +8099,9 @@
         }
       }
     },
-    "À la place du Finder" : {},
+    "À la place du Finder" : {
+
+    },
     "À sa première utilisation, ce Dock est une copie de celui de macOS ; ensuite il vit sa vie. Son premier bouton ouvre la liste de toutes les applications : Entrée ajoute au Dock l'application choisie, Suppr l'en retire. Un clic droit sur une icône permet de la retirer du Dock ou de quitter l'application." : {
       "localizations" : {
         "en" : {
@@ -8063,7 +8153,9 @@
         }
       }
     },
-    "Éjecter « %@ »" : {},
+    "Éjecter « %@ »" : {
+
+    },
     "Élargir ou rétrécir le lecteur" : {
       "localizations" : {
         "en" : {
@@ -8174,7 +8266,9 @@
         }
       }
     },
-    "Île de l'encoche" : {},
+    "Île de l'encoche" : {
+
+    },
     "–" : {
       "localizations" : {
         "en" : {

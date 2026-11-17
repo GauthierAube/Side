@@ -7,6 +7,16 @@ Il est mis à jour à chaque modification, en même temps que le code.
 
 ## 17/11/2026
 
+### Recherche sur le web, dans une pilule qui descend de l'encoche
+- Un raccourci (⇧⌘ Espace au départ) fait descendre de l'encoche une pilule noire avec un champ, comme Spotlight. Sur un écran sans encoche, elle descend du haut de l'écran.
+- On tape une recherche ou une adresse, puis Entrée : la pilule s'élargit et s'étire vers le bas, avec le ressort de l'île, et montre la page (même moteur que Safari).
+- Échap, un clic ailleurs ou le raccourci la referment : elle remonte dans l'encoche. La page reste en mémoire : à la prochaine ouverture, une pastille à droite du champ (ou Entrée, champ vide) la reprend.
+- Ce n'est pas un onglet de Safari (Apple ne le permet pas) : le bouton Safari, ou ⌘ Entrée, envoie la page dans un vrai onglet de Safari. Les connexions aux sites sont donc séparées de celles de Safari.
+- Aussi : page précédente et suivante (boutons, ou deux doigts de côté), ⌘L pour revenir au champ, ⌘R pour recharger.
+- Réglages > Raccourcis clavier > Recherche sur le web : le raccourci et le moteur (Google, DuckDuckGo, Ecosia, Qwant, Bing).
+- Essais : `Side --test-recherche` (ce que le champ fait de quelques saisies) ; commande « recherche:texte » (ouvre sans prendre le clavier).
+- PAS ENCORE ESSAYÉ au clavier par Gauthier.
+
 ### L'encoche devient une île (comme la Dynamic Island de l'iPhone)
 - Idées reprises des meilleures applications du genre (Alcove, MediaMate, Boring Notch, Droppy), avec l'animation d'abord : une seule forme noire qui s'étire avec un ressort et un léger rebond, la pochette qui glisse de sa petite place jusqu'au lecteur, le contenu qui arrive flou puis se précise.
 - Au repos, l'île se confond avec l'encoche. Quand de la musique joue (Spotify ou Musique), elle s'élargit : la pochette à gauche, une petite onde à la couleur de la pochette à droite.

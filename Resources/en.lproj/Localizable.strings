@@ -424,6 +424,8 @@ Press Esc to cancel.</string>
 	<string>From the right</string>
 	<key>De la gauche</key>
 	<string>From the left</string>
+	<key>Dernière page</key>
+	<string>Last page</string>
 	<key>Descendre</key>
 	<string>Move Down</string>
 	<key>Dimensions</key>
@@ -542,6 +544,8 @@ Press Esc to cancel.</string>
 	<string>Windows in macOS full screen</string>
 	<key>Fermer</key>
 	<string>Close</string>
+	<key>Fermer (Échap)</key>
+	<string>Close (Esc)</string>
 	<key>Fermer d'un clic en dehors</key>
 	<string>Close with a click outside</string>
 	<key>Fermer l'onglet</key>
@@ -960,6 +964,8 @@ Press Esc to cancel.</string>
 	<string>Move Up</string>
 	<key>Mot de passe</key>
 	<string>Password</string>
+	<key>Moteur de recherche</key>
+	<string>Search engine</string>
 	<key>Moyenne</key>
 	<string>Medium</string>
 	<key>Multimédia</key>
@@ -1008,10 +1014,14 @@ Press Esc to cancel.</string>
 	<string>Open With</string>
 	<key>Ouvrir ces applications au lancement de Side</key>
 	<string>Open these apps when Side launches</string>
+	<key>Ouvrir dans Safari (⌘ Entrée)</key>
+	<string>Open in Safari (⌘ Return)</string>
 	<key>Ouvrir dans le Finder</key>
 	<string>Open in Finder</string>
 	<key>Ouvrir et fermer</key>
 	<string>Open and Close</string>
+	<key>Ouvrir et fermer la recherche</key>
+	<string>Open and close search</string>
 	<key>Ouvrir et fermer le Finder</key>
 	<string>Open and close the Finder</string>
 	<key>Ouvrir et fermer le presse-papiers</key>
@@ -1038,6 +1048,8 @@ Press Esc to cancel.</string>
 	<string>Merged PDFs</string>
 	<key>Page précédente</key>
 	<string>Previous page</string>
+	<key>Page suivante</key>
+	<string>Next page</string>
 	<key>Pages</key>
 	<string>Pages</string>
 	<key>Par iCloud Drive, dans le dossier Side : ce que tu copies sur un Mac apparaît sur l'autre en moins d'une minute, et un élément effacé ou épinglé l'est des deux côtés. Les mots de passe et les fichiers copiés restent sur le Mac où ils ont été copiés. Activé au départ sur chaque Mac où Side est à jour.</key>
@@ -1166,12 +1178,16 @@ Press Esc to cancel.</string>
 	<string>Recenter</string>
 	<key>Recherche</key>
 	<string>Search</string>
+	<key>Recherche sur le web</key>
+	<string>Web search</string>
 	<key>Rechercher</key>
 	<string>Search</string>
 	<key>Rechercher dans le dossier affiché</key>
 	<string>Search the current folder</string>
 	<key>Rechercher dans le presse-papiers</key>
 	<string>Search the clipboard</string>
+	<key>Rechercher ou saisir une adresse</key>
+	<string>Search or enter an address</string>
 	<key>Rechercher sur ce Mac</key>
 	<string>Search this Mac</string>
 	<key>Rechercher une app</key>
@@ -1200,6 +1216,8 @@ Press Esc to cancel.</string>
 	<string>Collapse</string>
 	<key>Replier la zone</key>
 	<string>Collapse the drop zone</string>
+	<key>Reprendre la dernière page (Entrée, champ vide)</key>
+	<string>Reopen the last page (Return, empty field)</string>
 	<key>Resserrer la grille</key>
 	<string>Tighten Grid</string>
 	<key>Reste sous la main</key>
@@ -1446,6 +1464,8 @@ Press Esc to cancel.</string>
 	<string>A part that is turned off no longer opens: not by its corner, its shortcut or its gesture. Its settings stay here for the day you turn it back on.</string>
 	<key>Une petite app à la fois, à côté de ta musique. Continue le geste : les autres apps du tiroir défilent.</key>
 	<string>One small app at a time, next to your music. Keep swiping: the other drawer apps scroll by.</string>
+	<key>Une pilule descend de l'encoche : tape ta recherche ou une adresse, puis Entrée. Échap referme ; la page reste en mémoire pour la prochaine fois. ⌘ Entrée l'envoie dans Safari. Pour utiliser ⌘ Espace, libère-le d'abord dans Réglages Système &gt; Clavier &gt; Raccourcis clavier &gt; Spotlight.</key>
+	<string>A pill drops from the notch: type your search or an address, then Return. Esc closes it; the page stays in memory for next time. ⌘ Return sends it to Safari. To use ⌘ Space, free it first in System Settings &gt; Keyboard &gt; Keyboard Shortcuts &gt; Spotlight.</string>
 	<key>Une secousse de souris</key>
 	<string>A shake of the mouse</string>
 	<key>Une seule note…</key>

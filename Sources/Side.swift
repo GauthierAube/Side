@@ -324,6 +324,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         // Pour les essais : « --test-cascade » rejoue des suites de touches du collage en cascade ;
         // « --image-cascade fichier.png [--sombre] » dessine sa fenêtre avec un historique d'exemple.
         if CommandLine.arguments.contains("--test-cascade") { CollageCascade.essais() }
+        // « --test-recherche » : ce que le champ de recherche ferait de quelques saisies.
+        if CommandLine.arguments.contains("--test-recherche") { Recherche.essais() }
         if let i = CommandLine.arguments.firstIndex(of: "--image-cascade"), i + 1 < CommandLine.arguments.count {
             if CommandLine.arguments.contains("--sombre") { NSApp.appearance = NSAppearance(named: .darkAqua) }
             if CommandLine.arguments.contains("--clair") { NSApp.appearance = NSAppearance(named: .aqua) }
@@ -348,6 +350,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { PanneauBas.commun.brancher() }
             // L'île de l'encoche (Encoche.swift).
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) { Ile.commun.brancher() }
+            // La recherche sur le web (Recherche.swift).
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) { Recherche.commun.brancher() }
         }
         panel = DrawerPanel(
             contentRect: NSRect(x: 0, y: 0, width: 800, height: 400),

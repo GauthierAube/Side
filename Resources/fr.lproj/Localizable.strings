@@ -1124,6 +1124,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Partager…</string>
 	<key>Partagé dans iCloud Drive, dossier Side.</key>
 	<string>Partagé dans iCloud Drive, dossier Side.</string>
+	<key>Passe le pointeur sur l'encoche : ta journée, ton calendrier, la musique et un bac à fichiers, une vue à la fois.</key>
+	<string>Passe le pointeur sur l'encoche : ta journée, ton calendrier, la musique et un bac à fichiers, une vue à la fois.</string>
 	<key>Passer</key>
 	<string>Passer</string>
 	<key>Passer d'une app à l'autre</key>
@@ -1530,8 +1532,6 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Un cercle avec la souris</string>
 	<key>Un clic remplit l'écran en restant sur le même bureau ; un second rend à la fenêtre sa taille. Maj + clic ou Option + clic gardent le plein écran d'Apple.</key>
 	<string>Un clic remplit l'écran en restant sur le même bureau ; un second rend à la fenêtre sa taille. Maj + clic ou Option + clic gardent le plein écran d'Apple.</string>
-	<key>Un clic sur l'encoche l'ouvre : la musique, ton agenda, un bac à fichiers, et tes applications qui en descendent.</key>
-	<string>Un clic sur l'encoche l'ouvre : la musique, ton agenda, un bac à fichiers, et tes applications qui en descendent.</string>
 	<key>Un effleurement rapide change d'application sans rien afficher. Un geste posé fait apparaître le carrousel, et l'application du centre passe devant quand les doigts se lèvent. Le geste ne s'active que s'il n'y a qu'un seul bureau ; sinon macOS glisse d'un bureau à l'autre.</key>
 	<string>Un effleurement rapide change d'application sans rien afficher. Un geste posé fait apparaître le carrousel, et l'application du centre passe devant quand les doigts se lèvent. Le geste ne s'active que s'il n'y a qu'un seul bureau ; sinon macOS glisse d'un bureau à l'autre.</string>
 	<key>Un modèle d'IA qui tourne chez toi, avec Ollama. Side ne parle qu'à ce serveur.</key>
