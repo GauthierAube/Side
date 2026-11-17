@@ -48,8 +48,12 @@ extension PanneauBas {
     var vuesHorizon: [URL] {
         let dossier = URL(fileURLWithPath: Self.dossierVuesHorizon)
         let contenu = (try? FileManager.default.contentsOfDirectory(at: dossier, includingPropertiesForKeys: nil)) ?? []
-        return contenu.filter { $0.pathExtension == "app" }
+        let vues = contenu.filter { $0.pathExtension == "app" }
             .sorted { $0.lastPathComponent.localizedCaseInsensitiveCompare($1.lastPathComponent) == .orderedAscending }
+        // Horizon Mail aussi : étroite, elle devient un aperçu des boîtes, sans barre latérale (le bouton vert lui rend tout).
+        let mail = URL(fileURLWithPath: "/Applications/Horizon Mail.app")
+        guard !vues.isEmpty, FileManager.default.fileExists(atPath: mail.path) else { return vues }
+        return [mail] + vues
     }
 
     /// « Une vue d'Horizon… » : la liste des vues qui ne sont pas encore dans le tiroir, on clique sur celle qu'on veut.

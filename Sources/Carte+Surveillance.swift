@@ -132,6 +132,7 @@ extension AppDelegate {
         PanneauBas.commun.surveillerCoin(p, e, taille: CGFloat(config.tailleCoin))
         VoletPresse.commun.surveillerCoin(p, e, taille: CGFloat(config.tailleCoin))      // le volet du presse-papiers, à droite
         ConfigSquare.commun.surveillerCoin(p, e, taille: CGFloat(config.tailleCoin))     // la grille de Square, s'il est installé
+        VoletVue.commun.surveillerCoin(p, e, taille: CGFloat(config.tailleCoin))         // le volet d'une vue d'Horizon
         let coin = dansCoin(p, e)
 
         if !visible {

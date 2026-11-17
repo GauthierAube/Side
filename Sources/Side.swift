@@ -220,6 +220,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
     /// Side quitte : les fenêtres que le tiroir gardait hors de l'écran reviennent, sinon elles resteraient invisibles.
     func applicationWillTerminate(_ note: Notification) {
         PanneauBas.commun.rendreToutesLesFenêtres()
+        VoletVue.commun.rendreLesFenêtres()
     }
 
     /// Mode photo : dessine la carte (ou un volet des réglages) dans une image, puis quitte. Voir tools/snap.sh.
@@ -347,7 +348,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         }
         // Version personnelle : le panneau du bas, branché après le raccourci de Side (voir PanneauBas.swift).
         if !CommandLine.arguments.contains("--image") {      // pas en mode photo (voir lancerModePhoto)
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { PanneauBas.commun.brancher() }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { PanneauBas.commun.brancher(); VoletVue.commun.brancher() }
             // L'île de l'encoche (Encoche.swift).
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) { Ile.commun.brancher() }
             // La recherche sur le web (Recherche.swift).

@@ -7,6 +7,20 @@ Il est mis à jour à chaque modification, en même temps que le code.
 
 ## 17/11/2026
 
+### Tiroir : Horizon Mail parmi les vues d'Horizon
+- « + » du tiroir › « Une vue d'Horizon… » propose Horizon Mail en tête de liste (et les coins actifs aussi). Étroite, Horizon Mail devient un aperçu de ses boîtes, sans barre latérale ; le bouton vert de la tuile la passe en plein écran, où elle retrouve sa barre (le changement est côté Horizon).
+
+### Coins actifs : une vue d'Horizon qui glisse depuis le bord de l'écran
+- Demandé par Gauthier : faire apparaître une vue d'Horizon (Aujourd'hui, CRM, un projet…) depuis un coin, « qui viendrait de la gauche et prendrait toute la hauteur », à redimensionner librement. (Sa première idée, le survol de l'île de l'encoche, a été écartée avec lui : l'île s'ouvre déjà au survol, et une grande page surgirait au milieu de l'écran par accident.)
+- Réglages > Coins actifs : chaque coin peut recevoir une vue d'Horizon (la liste vient de `/Applications/Horizon Vues`). Plusieurs coins peuvent avoir chacun la leur.
+- La vue glisse depuis le bord du côté du coin (la gauche pour les coins de gauche, la droite pour ceux de droite) et prend toute la hauteur. Sa largeur se règle en tirant son bord, comme une fenêtre ; Side s'en souvient, vue par vue.
+- Elle repart quand la souris la quitte (0,6 s), quand une autre application passe devant, avec Échap, ou en retournant dans le coin.
+- Comme pour le tiroir, c'est la vraie fenêtre de l'application : elle attend hors de l'écran entre deux usages, et le glissement se fait avec sa photo. Les vues des coins sont lancées avec Side, pour arriver tout de suite.
+- Un seul volet à la fois sur le bord droit : ouvrir le presse-papiers referme une vue ouverte à droite, et l'inverse.
+- Le plein écran de Side n'agrandit pas la fenêtre du volet.
+- Code : `Sources/VoletVue.swift`. Essais : commande « vue:hautGauche », ou « vue:basDroite:/chemin/Appli.app » sans toucher aux réglages.
+- Essayé par Gauthier avec Horizon Projet 1 en haut à gauche : « ça marche très bien ». Cas pas encore au point : une vue dont la fenêtre avait été fermée est rouverte, mais arrive une fois en grand avant de prendre sa place.
+
 ### Tiroir : passer d'une application à l'autre ne saccade plus
 - Signalé par Gauthier : le geste à quatre doigts saccadait, ou bloquait, surtout sur un grand geste rapide vers une application éloignée.
 - Gestes enchaînés : quand un nouveau geste commençait moins de deux dixièmes de seconde après le précédent, Side posait quand même la fenêtre de l'application de passage, sous le carrousel (il la déplaçait, la lançait au besoin, lui donnait le clavier). Maintenant il attend la fin du dernier geste : les applications de passage ne sont ni lancées ni activées.

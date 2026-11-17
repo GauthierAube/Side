@@ -986,6 +986,7 @@ final class VoletPresse {
     func suspendreRaccourci() { TouchesBas.retirer(idRaccourci) }
 
     func ouvrir(sur ecran: NSScreen? = nil) {
+        VoletVue.commun.laisserLeBordDroit()        // un seul volet à la fois sur le bord droit
         guard Partie.presse.active else { return }          // presse-papiers coupé dans les réglages
         guard !ouvert, !CaptureEcran.enCours,
               let e = ecran ?? Ecrans.deTravail else { return }

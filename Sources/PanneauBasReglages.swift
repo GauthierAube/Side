@@ -202,15 +202,18 @@ struct CoinsActifsView: View {
     @ObservedObject var tiroir = ConfigTiroir.commun
     @ObservedObject var presse = ConfigPresse.commun
     @ObservedObject var square = ConfigSquare.commun
+    @ObservedObject var volet = VoletVue.commun
 
     private func choix(_ c: Coin) -> Binding<String> {
-        Binding(get: { config.coin == c ? "finder" : (tiroir.coin == c ? "tiroir" : (presse.coin == c ? "presse" : (square.coin == c ? "square" : ""))) },
+        Binding(get: { volet.chemin(c).map { "vue:" + $0 } ?? (config.coin == c ? "finder" : (tiroir.coin == c ? "tiroir" : (presse.coin == c ? "presse" : (square.coin == c ? "square" : "")))) },
                 set: { v in
                     // Un coin ne fait qu'une chose, et le Finder, le tiroir et le presse-papiers n'ont qu'un coin chacun.
                     if config.coin == c { config.coin = .aucun }
                     if tiroir.coin == c { tiroir.coin = .aucun }
                     if presse.coin == c { presse.coin = .aucun }
                     if square.coin == c { square.coin = .aucun }
+                    // Une vue d'Horizon (le volet qui glisse depuis le bord) : chaque coin peut avoir la sienne.
+                    volet.régler(c, chemin: v.hasPrefix("vue:") ? String(v.dropFirst(4)) : nil)
                     switch v {
                     case "finder": config.coin = c
                     case "tiroir": tiroir.coin = c
@@ -230,9 +233,18 @@ struct CoinsActifsView: View {
             if true {
                 Label("Grille des applications", systemImage: "square.grid.2x2.fill").tag("square")
             }
+            // Les vues d'Horizon installées sur ce Mac : la vue glisse depuis le bord de l'écran, de ce côté.
+            let vues = PanneauBas.commun.vuesHorizon
+            if !vues.isEmpty {
+                Divider()
+                ForEach(vues, id: \.path) { url in
+                    Label(FileManager.default.displayName(atPath: url.path).replacingOccurrences(of: ".app", with: ""),
+                          systemImage: "sidebar.left").tag("vue:" + url.path)
+                }
+            }
         }
         .labelsHidden()
-        .frame(width: 150)
+        .frame(width: 170)
         .accessibilityLabel(c.titre)
     }
 
@@ -241,6 +253,7 @@ struct CoinsActifsView: View {
         if tiroir.coin == c { return .pink }
         if presse.coin == c { return .yellow }
         if square.coin == c { return .green }
+        if volet.chemin(c) != nil { return .orange }
         return Color.white.opacity(0.35)
     }
 

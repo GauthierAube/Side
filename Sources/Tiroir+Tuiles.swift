@@ -52,7 +52,8 @@ extension PanneauBas {
     }
     /// Les numéros des fenêtres rangées dans le tiroir, pour Square : il ne les met ni dans sa grille ni dans son carrousel.
     func publierFenêtres() {
-        let ids = emprunts.filter { $0.nom != enGrand }.compactMap { numéros[$0.nom] }.map { Int($0) }.sorted()
+        // Avec la fenêtre du volet d'une vue (VoletVue) : elle non plus ne doit pas être agrandie par le plein écran.
+        let ids = (emprunts.filter { $0.nom != enGrand }.compactMap { numéros[$0.nom] }.map { Int($0) } + VoletVue.commun.numéros).sorted()
         PanneauBas.numerosDuTiroir = Set(ids + [panneau?.windowNumber ?? -1])
         let d = UserDefaults.standard
         if (d.array(forKey: "fenetresDuTiroir") as? [Int]) != ids { d.set(ids, forKey: "fenetresDuTiroir") }
@@ -183,6 +184,13 @@ extension PanneauBas {
                 // Les mêmes unités que le trackpad : au-delà de 1, « parApp » de progression par application.
                 if v > 1 { sélecteurParLaSouris = true }
                 suivreDoigts(v <= 1 ? max(0, v) : 1 + (v - 1) * parApp)
+            }
+        // Pour les essais : « vue:hautGauche » fait comme le coin actif de ce nom (le volet d'une vue d'Horizon).
+        case _ where commande.hasPrefix("vue:"):
+            // « vue:basDroite:/chemin/de/l'application.app » essaie une application sans toucher aux réglages.
+            let m = commande.dropFirst(4).split(separator: ":", maxSplits: 1).map(String.init)
+            if let c = m.first.flatMap(Coin.init(rawValue:)), let ch = m.count > 1 ? m[1] : VoletVue.commun.chemin(c), let e = Ecrans.deTravail {
+                VoletVue.commun.ouvrir(c, ch, sur: e)
             }
         case "mini:debut": commencerNavigation()
         case "mini:fin": lacherDoigts(ouvrir: true, elan: 0)
