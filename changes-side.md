@@ -8,7 +8,13 @@ Il est mis à jour à chaque modification, en même temps que le code.
 ## 17/11/2026
 
 ### Tiroir : Horizon Mail parmi les vues d'Horizon
-- « + » du tiroir › « Une vue d'Horizon… » propose Horizon Mail en tête de liste (et les coins actifs aussi). Étroite, Horizon Mail devient un aperçu de ses boîtes, sans barre latérale ; le bouton vert de la tuile la passe en plein écran, où elle retrouve sa barre (le changement est côté Horizon).
+- Demandé par Gauthier : Horizon Mail dans le tiroir comme les autres vues, « juste un aperçu pour avoir une vue très rapide d'un mail », et le bouton vert pour la passer en plein écran.
+- « + » du tiroir › « Une vue d'Horizon… » propose Horizon Mail en tête de liste (et les coins actifs aussi).
+- Pas de seconde application Mail : elle relèverait les boîtes en double. C'est Horizon Mail elle-même qui change d'allure selon sa largeur (le changement est côté Horizon) :
+  - à la largeur d'une tuile du tiroir (moins de 1100 points) : pas de barre latérale ; en haut, des pastilles « Toutes » puis chaque boîte avec sa couleur et ses mails sans réponse, un clic n'affiche qu'elle ; « Nouveau message » et « Relever » en petites icônes au bout ; la liste commence directement aux onglets Personnes, Notifications, Reçus (ni titre, ni « Mis à jour », ni recherche) ;
+  - le bouton vert de la tuile la passe en plein écran, où elle retrouve sa barre latérale et sa recherche.
+- Deux réglages en cours de route, à la demande de Gauthier (captures à l'appui) : le seuil, d'abord à 780 points, laissait la barre latérale dans sa tuile de 920 points ; puis l'en-tête de la liste prenait trop de place (« je veux voir mes mails »).
+- Validé par Gauthier dans le tiroir le 17/11.
 
 ### Coins actifs : une vue d'Horizon qui glisse depuis le bord de l'écran
 - Demandé par Gauthier : faire apparaître une vue d'Horizon (Aujourd'hui, CRM, un projet…) depuis un coin, « qui viendrait de la gauche et prendrait toute la hauteur », à redimensionner librement. (Sa première idée, le survol de l'île de l'encoche, a été écartée avec lui : l'île s'ouvre déjà au survol, et une grande page surgirait au milieu de l'écran par accident.)
