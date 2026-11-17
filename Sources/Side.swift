@@ -346,6 +346,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         // Version personnelle : le panneau du bas, branché après le raccourci de Side (voir PanneauBas.swift).
         if !CommandLine.arguments.contains("--image") {      // pas en mode photo (voir lancerModePhoto)
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { PanneauBas.commun.brancher() }
+            // L'île de l'encoche (Encoche.swift).
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) { Ile.commun.brancher() }
         }
         panel = DrawerPanel(
             contentRect: NSRect(x: 0, y: 0, width: 800, height: 400),

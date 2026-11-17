@@ -4,7 +4,7 @@
 import SwiftUI
 
 enum Partie: String, CaseIterable, Identifiable {
-    case finder, pleinEcran, tiroir, presse
+    case finder, pleinEcran, tiroir, presse, encoche
     var id: String { rawValue }
 
     private var cle: String { "partie." + rawValue }
@@ -25,6 +25,7 @@ enum Partie: String, CaseIterable, Identifiable {
         case .pleinEcran: return String(localized: "Plein écran")
         case .tiroir: return String(localized: "Tiroir")
         case .presse: return String(localized: "Presse-papiers")
+        case .encoche: return String(localized: "Encoche")
         }
     }
     var description: String {
@@ -33,6 +34,7 @@ enum Partie: String, CaseIterable, Identifiable {
         case .pleinEcran: return String(localized: "Tes applications de travail en grand : la grille, le carrousel, les numéros.")
         case .tiroir: return String(localized: "Les petites applications et la musique, une à la fois.")
         case .presse: return String(localized: "Tout ce que tu as copié, et les liens que tu gardes.")
+        case .encoche: return String(localized: "L'encoche devient une île : la musique, le volume, ton agenda, un bac à fichiers.")
         }
     }
     var symbole: String {
@@ -41,6 +43,7 @@ enum Partie: String, CaseIterable, Identifiable {
         case .pleinEcran: return "macwindow"
         case .tiroir: return "rectangle.bottomthird.inset.filled"
         case .presse: return "doc.on.clipboard.fill"
+        case .encoche: return "capsule.fill"
         }
     }
     var couleur: Color {
@@ -49,6 +52,7 @@ enum Partie: String, CaseIterable, Identifiable {
         case .pleinEcran: return .orange
         case .tiroir: return .pink
         case .presse: return .yellow
+        case .encoche: return .indigo
         }
     }
 }

@@ -38,6 +38,7 @@ enum Volet: String, CaseIterable, Identifiable {
         }
     }
     case general, ia, coins, clavier, gestes, apparence, fermeture, fichiers, colonnes, depot, tiroir, multimedia, applications, presse
+    case encoche                                    // l'île de l'encoche
     case grille, dock, carrousel, fenetres          // le plein écran (ex-Square)
     var id: String { rawValue }
 
@@ -49,6 +50,7 @@ enum Volet: String, CaseIterable, Identifiable {
         (String(localized: "Plein écran"), [.grille, .dock, .carrousel, .fenetres]),   // les applications de travail (ex-Square)
         (String(localized: "Tiroir"), [.tiroir, .multimedia, .applications]),     // le second panneau de Side, au bord opposé au Finder
         (String(localized: "Presse-papiers"), [.presse]),                         // le volet de droite : historique et liens enregistrés
+        (String(localized: "Encoche"), [.encoche]),                               // l'île de l'encoche
     ]
 
     var titre: String {
@@ -71,6 +73,7 @@ enum Volet: String, CaseIterable, Identifiable {
         case .dock: return String(localized: "Dock")
         case .carrousel: return String(localized: "Carrousel")
         case .fenetres: return String(localized: "Fenêtres")
+        case .encoche: return String(localized: "Île de l'encoche")
         }
     }
     /// Une phrase sous le titre du volet, pour dire de quoi il s'agit.
@@ -94,6 +97,7 @@ enum Volet: String, CaseIterable, Identifiable {
         case .dock: return String(localized: "Le Dock affiché dans la grille.")
         case .carrousel: return String(localized: "Quatre doigts vers la gauche ou la droite, pour passer d'une application de travail à l'autre.")
         case .fenetres: return String(localized: "Les applications de travail remplissent l'écran, sans le plein écran d'Apple.")
+        case .encoche: return String(localized: "Passe le pointeur sur l'encoche : ta journée, ton calendrier, la musique et un bac à fichiers, une vue à la fois.")
         }
     }
     /// La partie de Side dont ce volet fait partie (aucune pour les réglages communs).
@@ -103,6 +107,7 @@ enum Volet: String, CaseIterable, Identifiable {
         case .grille, .dock, .carrousel, .fenetres: return .pleinEcran
         case .tiroir, .multimedia, .applications: return .tiroir
         case .presse: return .presse
+        case .encoche: return .encoche
         default: return nil
         }
     }
@@ -126,6 +131,7 @@ enum Volet: String, CaseIterable, Identifiable {
         case .dock: return "dock.rectangle"
         case .carrousel: return "rectangle.stack.fill"
         case .fenetres: return "macwindow"
+        case .encoche: return "capsule.fill"
         }
     }
     var couleur: Color {
@@ -148,6 +154,7 @@ enum Volet: String, CaseIterable, Identifiable {
         case .dock: return .green
         case .carrousel: return .orange
         case .fenetres: return .purple
+        case .encoche: return .indigo
         }
     }
 }
@@ -305,6 +312,8 @@ struct ReglagesView: View {
             }
         case .presse:
             ReglagesVoletPresse()
+        case .encoche:
+            ReglagesEncoche()
         case .grille, .dock, .carrousel, .fenetres:
             if let v = volet.pleinEcran { ContenuPleinEcran(volet: v) }
         case .coins:

@@ -466,8 +466,11 @@ extension AppDelegate {
         fputs(String(format: "%.1f ", ProcessInfo.processInfo.systemUptime - lancement) + texte + "\n", stderr)
     }
 
-    func show(sur e: NSScreen, suivi: Bool = false) {
+    func show(sur e: NSScreen, suivi: Bool = false, encoche: Bool = false) {
         guard Partie.finder.active else { journal("Finder coupé dans les réglages : pas d'ouverture"); return }
+        // Sur l'écran à encoche, la carte peut descendre de l'encoche quelle que soit la façon de l'ouvrir (réglage).
+        let encoche = encoche || (!suivi && !visible && Partie.encoche.active && ConfigEncoche.commun.finderDescend
+                                  && Ile.commun.ecran != nil && Ecrans.identifiant(Ile.commun.ecran) == Ecrans.identifiant(e))
         // Pendant une capture d'écran, Side ne s'ouvre par aucun geste : on doit pouvoir viser un coin sans rien déclencher.
         if !visible, CaptureEcran.enCours { journal("ouverture ignorée : capture d'écran en cours"); return }
         journal("ouverture (déjà visible : \(visible))")
@@ -497,7 +500,7 @@ extension AppDelegate {
         let reduit = NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
         // La carte part de derrière le bord de l'écran et glisse jusqu'à sa place.
         // « Réduire les animations » : fondu seul.
-        host.setFrameOrigin(reduit && !suivi ? repos : loin)
+        host.setFrameOrigin(encoche || (reduit && !suivi) ? repos : loin)
         panel.alphaValue = 0
         panel.makeKeyAndOrderFront(nil)
         montrerFlou(sur: e)
@@ -520,9 +523,11 @@ extension AppDelegate {
             zoneSuivie = arrivee
             return
         }
-        NSAnimationContext.runAnimationGroup({ ctx in
+        // Depuis l'encoche : une forme noire descend jusqu'à la place de la carte, qui apparaît ensuite dessous en fondu.
+        if encoche { Descente.versCarte(cadreSeule, sur: e) }
+        let apparition = { [self] in NSAnimationContext.runAnimationGroup({ ctx in
             // Un vrai glissement depuis le bord : part avec élan, puis ralentit longuement pour se poser en douceur.
-            ctx.duration = reduit ? 0.15 : 0.45
+            ctx.duration = encoche ? Mouvement.duree(0.26) : reduit ? 0.15 : 0.45
             ctx.timingFunction = CAMediaTimingFunction(controlPoints: 0.16, 1, 0.3, 1)
             if let arrivee, let zone = depotPanel {
                 zone.animator().setFrame(arrivee, display: true)
@@ -530,7 +535,12 @@ extension AppDelegate {
             }
             host.animator().setFrameOrigin(repos)
             panel.animator().alphaValue = 1
-        })
+        }) }
+        if encoche {
+            DispatchQueue.main.asyncAfter(deadline: .now() + Mouvement.duree(Descente.arrivee)) { [weak self] in
+                if self?.visible == true { apparition() }
+            }
+        } else { apparition() }
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in self?.panel.invalidateShadow() }
     }
 

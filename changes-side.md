@@ -7,6 +7,21 @@ Il est mis à jour à chaque modification, en même temps que le code.
 
 ## 17/11/2026
 
+### L'encoche devient une île (comme la Dynamic Island de l'iPhone)
+- Idées reprises des meilleures applications du genre (Alcove, MediaMate, Boring Notch, Droppy), avec l'animation d'abord : une seule forme noire qui s'étire avec un ressort et un léger rebond, la pochette qui glisse de sa petite place jusqu'au lecteur, le contenu qui arrive flou puis se précise.
+- Au repos, l'île se confond avec l'encoche. Quand de la musique joue (Spotify ou Musique), elle s'élargit : la pochette à gauche, une petite onde à la couleur de la pochette à droite.
+- Elle s'ouvre dès que le pointeur passe dessus : elle gonfle un instant (avec un petit retour du trackpad), puis s'ouvre ; un passage très rapide vers un menu ne l'ouvre pas. Aussi d'un clic, de deux doigts vers le bas, ou quand on en approche un fichier. Elle se referme quand le pointeur s'éloigne, d'un clic ailleurs, d'Échap ou de deux doigts vers le haut.
+- Ouverte, elle reste étroite (460 points) et montre une seule vue à la fois. Des points en haut à droite disent où l'on est (un clic sur un point y mène) ; deux doigts de côté passent d'une vue à l'autre, et la vue glisse dans le sens du geste :
+  - « Aujourd'hui », à l'ouverture : la frise de la journée (de 8 h à 20 h, plus si besoin) avec les rendez-vous en couleur et l'heure qu'il est, puis ce qu'il reste à faire, avec « En cours » ou « Dans 20 min » ;
+  - « Calendrier » : le mois, un point sous les jours qui ont des rendez-vous ; un clic sur un jour montre ses rendez-vous à côté ;
+  - « Lecture » : la pochette, le titre, la progression, les boutons ;
+  - « Bac » : des fichiers mis de côté (ils restent où ils sont), les quatre derniers en vue.
+- Le Finder de Side descend de l'encoche quand on l'ouvre (raccourci, coin, secousse) : une forme noire part de l'encoche, s'étire jusqu'à la place de la fenêtre avec l'icône qui grandit, puis se fond dans la fenêtre. Réglable.
+- Volume et luminosité : à la place du carré gris de macOS, l'île s'étire avec l'icône et une jauge. ⇧⌥ pour des pas plus fins. Si Side ne peut pas régler (sortie audio sans volume), la touche est rendue à macOS.
+- Nouvelle partie « Encoche » dans Réglages > Général, et son volet de réglages (ouverture au survol, gestes, agenda, bac, musique, volume et luminosité, Finder qui descend). « Réduire les animations » coupe tous ces mouvements.
+- Essayée par Gauthier le 17/11/2026, puis revue à sa demande : ouverture au survol, plus étroite, plus de rangée d'applications, une vue à la fois.
+- Essais sans souris : commandes « encoche », « encoche:suivante », « encoche:finder », « encoche:hud ».
+
 ### Collage en cascade : ⌘V V V
 - ⌘V colle le dernier copié, comme toujours. Mais si l'on garde ⌘ enfoncé et qu'on tape V une deuxième fois, une petite fenêtre s'ouvre au centre de l'écran avec les 5 derniers copiés, sur l'avant-dernier. Chaque V de plus descend d'un cran (après le 5ᵉ, retour au 1ᵉʳ). Lâcher ⌘ colle l'élément choisi ; Échap referme sans rien coller.
 - Le premier ⌘V est retenu jusqu'au lâcher de ⌘ : rien n'est jamais collé deux fois. Seul ⌘V « nu » est concerné (⌘⇧V, ⌥⌘V… restent ceux de macOS). La fenêtre ne prend pas le clavier : on reste dans l'application où l'on écrit.

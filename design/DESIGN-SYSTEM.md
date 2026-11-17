@@ -18,6 +18,7 @@ Règle de base : un écran utilise un nom (`Rayon.carte`), jamais un nombre écr
 | `Rayon.panneau` | 16 | panneaux flottants posés sur la carte, zones de dépôt |
 | `Rayon.tuile` | 20 | les tuiles du tiroir et leurs photos |
 | `Rayon.fenetre` | 22 | la carte du Finder et les grandes surfaces flottantes |
+| `Rayon.ile` | 30 | le bas de l'île de l'encoche, ouverte |
 | `Rayon.dessin(x)` | libre | les dessins à l'échelle de la présentation, et les traits de 2 à 3 points |
 
 - Un élément posé dans un autre a un arrondi plus petit : arrondi intérieur = arrondi extérieur moins la marge.
@@ -33,6 +34,10 @@ SwiftUI : quatre mouvements, et rien d'autre.
 | `Mouvement.bascule` | 0,2 s, doux aux deux bouts | une page qui change, une liste qui se réordonne, un défilement vers un élément |
 | `Mouvement.glissement` | 0,25 s | des éléments d'une rangée qui changent de place (mini-Dock) |
 | `Mouvement.ressort` | ressort de 0,3 s | un panneau ou une zone qui apparaît, s'ouvre ou se déplie |
+| `Mouvement.ile` | ressort de 0,42 s, léger rebond | l'île de l'encoche qui s'ouvre ou s'étire, ce qui y apparaît |
+| `Mouvement.ileRetour` | ressort de 0,34 s, sans rebond | l'île qui se referme |
+| `Mouvement.ileSurvol` | ressort vif de 0,26 s, élastique | l'île sous le pointeur, une jauge, un bouton de l'île qui rebondit |
+| `Mouvement.descente` | ressort de 0,46 s | une fenêtre qui descend de l'encoche (Finder, applications) |
 
 - Ils valent `nil` (pas d'animation) quand le Mac demande de réduire les animations.
 - Core Animation (grille, carrousels, tiroir) : `CATransaction.setAnimationDuration(Mouvement.duree(x))`. Ces durées suivent

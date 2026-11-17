@@ -4,43 +4,8 @@
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
-	<key>CFBundleLocalizations</key>
-	<array>
-		<string>en</string>
-		<string>fr</string>
-	</array>
-	<key>CFBundleName</key>
-	<string>Side</string>
 	<key>CFBundleDisplayName</key>
 	<string>Side</string>
-	<key>CFBundleIdentifier</key>
-	<string>com.gauthieraube.side</string>
-	<key>CFBundleExecutable</key>
-	<string>Side</string>
-	<key>CFBundleIconFile</key>
-	<string>Side</string>
-	<key>CFBundlePackageType</key>
-	<string>APPL</string>
-	<key>CFBundleShortVersionString</key>
-	<string>1.0</string>
-	<key>CFBundleVersion</key>
-	<string>1</string>
-	<key>LSMinimumSystemVersion</key>
-	<string>14.0</string>
-	<key>UTExportedTypeDeclarations</key>
-	<array>
-		<dict>
-			<key>UTTypeIdentifier</key>
-			<string>com.gauthieraube.side.app</string>
-			<key>UTTypeDescription</key>
-			<string>Side mini Dock icon</string>
-			<key>UTTypeConformsTo</key>
-			<array>
-				<string>public.data</string>
-			</array>
-		</dict>
-	</array>
-	<!-- Pour pouvoir ouvrir les dossiers à la place du Finder (Réglages > Finder > « Ouvrir les dossiers dans Side »). -->
 	<key>CFBundleDocumentTypes</key>
 	<array>
 		<dict>
@@ -56,29 +21,65 @@
 			</array>
 		</dict>
 	</array>
+	<key>CFBundleExecutable</key>
+	<string>Side</string>
+	<key>CFBundleIconFile</key>
+	<string>Side</string>
+	<key>CFBundleIdentifier</key>
+	<string>com.gauthieraube.side</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>en</string>
+		<string>fr</string>
+	</array>
+	<key>CFBundleName</key>
+	<string>Side</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>1.0</string>
+	<key>CFBundleVersion</key>
+	<string>1</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>14.0</string>
 	<key>LSUIElement</key>
 	<true/>
-	<key>NSHighResolutionCapable</key>
-	<true/>
-	<key>NSLocalNetworkUsageDescription</key>
-	<string>Side finds the computers on your network that share files, to show them in its sidebar, and can ask the local AI running on one of your own Macs to name your screenshots.</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsLocalNetworking</key>
 		<true/>
 	</dict>
+	<key>NSAppleEventsUsageDescription</key>
+	<string>Side asks the Finder to show a file's Get Info window, controls Spotify, and opens your notes from the drawer.</string>
 	<key>NSBonjourServices</key>
 	<array>
 		<string>_smb._tcp</string>
 		<string>_afpovertcp._tcp</string>
 	</array>
-	<key>NSAppleEventsUsageDescription</key>
-	<string>Side asks the Finder to show a file's Get Info window, controls Spotify, and opens your notes from the drawer.</string>
+	<key>NSCalendarsFullAccessUsageDescription</key>
+	<string>Side affiche tes rendez-vous du jour dans l’encoche.</string>
+	<key>NSDesktopFolderUsageDescription</key>
+	<string>Side shows your folders.</string>
 	<key>NSDocumentsFolderUsageDescription</key>
 	<string>Side shows your folders.</string>
 	<key>NSDownloadsFolderUsageDescription</key>
 	<string>Side shows your Downloads folder.</string>
-	<key>NSDesktopFolderUsageDescription</key>
-	<string>Side shows your folders.</string>
+	<key>NSHighResolutionCapable</key>
+	<true/>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>Side finds the computers on your network that share files, to show them in its sidebar, and can ask the local AI running on one of your own Macs to name your screenshots.</string>
+	<key>UTExportedTypeDeclarations</key>
+	<array>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>Side mini Dock icon</string>
+			<key>UTTypeIdentifier</key>
+			<string>com.gauthieraube.side.app</string>
+		</dict>
+	</array>
 </dict>
 </plist>

@@ -33,6 +33,7 @@ Un fichier = un thème. Les quatre parties de Side (Finder, Plein écran, Tiroir
 | `PleinEcran*.swift` | le plein écran (ex-Square) : modèle des fenêtres, placement, images, raccourcis, grille, pilotage (`PleinEcranAppli`), Dock, carrousel, écran partagé, bouton vert |
 | `PanneauBas*.swift`, `Tiroir*.swift`, `MesApplications.swift` | le tiroir : `PanneauBas.swift` garde ses variables et ses petites pièces ; `Tiroir+…` ses fonctions par thème (ouvrir et fermer, taille, défilement, fenêtres empruntées…) ; YouTube et Spotify à part |
 | `PresseVolet.swift`, `PressePapiers.swift` | le presse-papiers : volet et historique |
+| `Encoche*.swift`, `Descente.swift` | l'île de l'encoche : fenêtre, souris et réglages (`Encoche`), dessin (`EncocheVues`), musique, agenda et bac (`EncocheSources`), volume et luminosité (`EncocheTouches`), fenêtres qui descendent de l'encoche (`Descente`) |
 
 ## Commun
 

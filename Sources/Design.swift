@@ -25,6 +25,8 @@ enum Rayon {
     static let tuile: CGFloat = 20
     /// Les grandes surfaces flottantes : la carte du Finder elle-même.
     static let fenetre: CGFloat = 22
+    /// Le bas de l'île de l'encoche, ouverte (fermée, elle reprend l'arrondi de l'encoche elle-même).
+    static let ile: CGFloat = 30
 
     /// Les dessins de la présentation (fenêtres en miniature, à l'échelle) : valeur libre, gardée telle quelle.
     static func dessin(_ v: CGFloat) -> CGFloat { v }
@@ -48,6 +50,15 @@ enum Mouvement {
     static var glissement: Animation? { reduit ? nil : .smooth(duration: 0.25) }
     /// Ressort : un panneau ou une zone qui apparaît, s'ouvre ou se déplie.
     static var ressort: Animation? { reduit ? nil : .spring(response: ample, dampingFraction: 0.82) }
+
+    /// L'île de l'encoche qui s'ouvre ou s'étire : un ressort avec un léger rebond, comme la Dynamic Island de l'iPhone.
+    static var ile: Animation? { reduit ? nil : .spring(response: 0.42, dampingFraction: 0.72) }
+    /// L'île qui se referme : plus brève, sans rebond.
+    static var ileRetour: Animation? { reduit ? nil : .spring(response: 0.34, dampingFraction: 0.88) }
+    /// L'île qui gonfle sous le pointeur, une jauge qui bouge, un bouton qui rebondit : vif et élastique.
+    static var ileSurvol: Animation? { reduit ? nil : .spring(response: 0.26, dampingFraction: 0.62) }
+    /// Une fenêtre qui descend de l'encoche (Finder, applications).
+    static var descente: Animation? { reduit ? nil : .spring(response: 0.46, dampingFraction: 0.8) }
 
     private static var reduit: Bool { NSWorkspace.shared.accessibilityDisplayShouldReduceMotion }
 

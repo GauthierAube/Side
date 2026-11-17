@@ -348,6 +348,8 @@ Press Esc to cancel.</string>
 	<string>Screen Corner</string>
 	<key>Coins actifs</key>
 	<string>Hot Corners</string>
+	<key>Collage en cascade : ⌘V V pour choisir parmi les 5 derniers copiés</key>
+	<string>Cascade paste: ⌘V V to pick from your last 5 copies</string>
 	<key>Coller</key>
 	<string>Paste</string>
 	<key>Collez d'abord l'identifiant (Client ID).</key>
@@ -572,6 +574,8 @@ Press Esc to cancel.</string>
 	<string>Merge</string>
 	<key>Fusionner les PDF en un seul</key>
 	<string>Merge the PDFs into one</string>
+	<key>Garde ⌘ enfoncé et tape V une deuxième fois : une petite fenêtre montre les 5 derniers copiés. Chaque V passe au suivant, lâcher ⌘ colle, Échap annule.</key>
+	<string>Hold ⌘ and press V a second time: a small window shows your last 5 copies. Each V moves to the next one, releasing ⌘ pastes, Esc cancels.</string>
 	<key>Garder dans le mini-Dock</key>
 	<string>Keep in Mini Dock</string>
 	<key>Garder dans les liens…</key>
@@ -1450,6 +1454,8 @@ Press Esc to cancel.</string>
 	<string>A zone appears at the top right of the card when you drag a file. As long as it holds something, it stays on screen even when Side is closed, so you can drag its contents elsewhere. With Side closed, shake the pointer while dragging a file: the zone appears on its own, next to the pointer. Shake again to add another one. If the card comes from the top, the zone sits at the bottom of the card and the next ones stack above it. Empty zones disappear on their own.</string>
 	<key>Utiliser un aperçu comme icône</key>
 	<string>Show icon preview</string>
+	<key>V : suivant · lâcher ⌘ : coller · Échap : annuler</key>
+	<string>V: next · release ⌘: paste · Esc: cancel</string>
 	<key>Verrouillée : reste à l'écran quand Side se ferme. Clique pour qu'elle se cache avec Side.</key>
 	<string>Locked: stays on screen when Side closes. Click to have it hide with Side.</string>
 	<key>Vers le bas</key>
