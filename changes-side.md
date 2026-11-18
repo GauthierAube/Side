@@ -5,6 +5,38 @@ Il est mis à jour à chaque modification, en même temps que le code.
 
 ---
 
+## 18/11/2026
+
+### Volets à plusieurs vues : dans chaque coin, à gauche ou à droite
+- Demandé par Gauthier : pouvoir mettre le volet à plusieurs vues dans n'importe quel coin, et le faire apparaître à gauche ou à droite.
+- Chaque coin propose « Plusieurs vues ». Les coins de gauche ouvrent le volet de gauche, ceux de droite le volet de droite. Chaque côté a sa propre liste de vues (cinq au plus), sa vue en cours et sa largeur.
+- À droite, tout est en miroir : le volet flotte à 10 points du bord droit, la carte en cours part vers la droite, et quatre doigts vers la droite donnent la vue suivante.
+- Réglages › Coins actifs : une seule section « Volets à plusieurs vues », avec un choix Gauche / Droite. Une flèche monte une vue d'un rang (le glisser-déposer est retiré : il dérangeait la mise en page des réglages).
+
+### Volet de gauche : cartes fluides, roulement sans fin, fenêtre qui flotte
+- Demandé par Gauthier : l'animation des cartes n'était « pas fluide » ; il voulait la fluidité du carrousel du tiroir, un roulement sans fin et une fenêtre qui semble flotter.
+- Les cartes sont maintenant dessinées comme le carrousel du tiroir (des calques déplacés par la carte graphique, au lieu de fenêtres dont on changeait la taille à chaque image). Vérifié sur un film de l'écran : une image nouvelle à presque chaque soixantième de seconde.
+- Les photos des vues voisines sont prises d'avance, à chaque arrivée : au départ du geste, les cartes sont posées en 30 à 50 millisecondes.
+- Roulement sans fin : après la dernière vue, on revient à la première, et inversement.
+- Le volet flotte : 10 points de bord à gauche, en haut et en bas ; les cartes ont une ombre portée et des coins arrondis.
+- Pour les essais sans trackpad, Side joue un geste fabriqué quand il reçoit la notification « com.gauthieraube.side.essai-cartes » (objet « 1 » ou « -1 »).
+
+### Volet de gauche : les vues sont des cartes, comme Slide Over sur l'iPad
+- Demandé par Gauthier : l'ancien glissement « page par page » ne lui plaisait pas ; il voulait les cartes de Slide Over de l'iPad.
+- La carte suit maintenant les doigts en direct. Vers la gauche : la vue en cours glisse vers le bord de l'écran et découvre la suivante, qui attendait derrière, un peu plus petite et assombrie, et grandit pour prendre sa place. Vers la droite : la vue précédente revient du bord par-dessus, et la vue en cours recule derrière.
+- En levant les doigts : passé la moitié du chemin, ou d'un geste vif, la carte change ; sinon elle revient. Un retour vif annule.
+- Au bout de la liste, la carte suit un peu les doigts puis revient, comme un élastique.
+- Un clic sur un point fait le même mouvement.
+
+### Volet de gauche : plusieurs vues d'Horizon, d'un geste
+- Demandé par Gauthier : sur le bord gauche, plusieurs fenêtres d'Horizon entre lesquelles passer « très facilement ».
+- Réglages › Coins actifs : un coin de gauche peut ouvrir « Plusieurs vues ». La section « Volet de gauche » en dessous choisit les vues (cinq au plus), leur ordre (glisser) et en retire.
+- Le volet s'ouvre sur la dernière vue montrée. Quatre doigts vers la gauche : vue suivante ; vers la droite : vue précédente. Les vues défilent comme des pages. Au bout de la liste, rien ne se passe.
+- Des points en haut du volet montrent la vue en cours ; un clic sur un point y va.
+- Le geste n'est pris que quand le pointeur est sur le volet : ailleurs, quatre doigts à l'horizontale font toujours défiler le carrousel des applications.
+- Toutes les vues du volet ont la même largeur : tirer le bord l'élargit pour toutes.
+- Le volet de droite et le tiroir ne changent pas.
+
 ## 17/11/2026
 
 ### Tiroir : Horizon Mail parmi les vues d'Horizon

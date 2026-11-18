@@ -324,6 +324,7 @@ struct ReglagesView: View {
             } footer: {
                 note("Choisis pour chaque coin ce qu'il ouvre : le Finder, le tiroir, le presse-papiers, la grille des applications, ou rien. Revenir dans le coin referme. Si macOS utilise déjà ce coin, désactive-le dans Réglages Système > Bureau et Dock > Coins actifs.")
             }
+            ReglagesPileVues()
         case .clavier:
             Section("Finder") {
                 LabeledContent("Ouvrir et fermer le Finder") {

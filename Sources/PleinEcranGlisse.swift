@@ -88,6 +88,21 @@ enum Glisse {
 
     /// Appelé par macOS à chaque instant où des doigts touchent le trackpad (hors du fil principal).
     private static func recevoir(_ touches: UnsafeMutableRawPointer?, _ nombre: Int) {
+        // Le pointeur est sur le volet de gauche à plusieurs vues : le geste horizontal change de vue, et Square n'en fait rien.
+        if VoletVue.pointeurSurPile {
+            var doigts: [(Int32, Float, Float)] = []
+            if let touches, nombre > 0 {
+                let c = touches.bindMemory(to: ContactGlisse.self, capacity: nombre)
+                doigts = (0..<nombre).map { (c[$0].identifiant, c[$0].x, c[$0].y) }
+            }
+            if var e = GestePages.suivre(doigts, instant: ProcessInfo.processInfo.systemUptime) {
+                if case .début(let s) = e, inverse { e = .début(-s) }
+                DispatchQueue.main.async { VoletVue.commun.geste(e) }
+            }
+            if phase == 0, nombre >= 3 { phase = -1 }
+        } else if nombre < 3 {
+            _ = GestePages.suivre([], instant: 0)
+        }
         let actif = Glisse.actif && Partie.pleinEcran.active     // aussi coupé avec la partie « plein écran »
         guard actif, let touches, nombre == 4 else {
             // Doigts levés : le carrousel choisit la fenêtre sous le cadre. (Un doigt levé un instant ne suffit pas.)

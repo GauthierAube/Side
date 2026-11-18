@@ -237,6 +237,9 @@ struct CoinsActifsView: View {
             let vues = PanneauBas.commun.vuesHorizon
             if !vues.isEmpty {
                 Divider()
+                // Le volet à plusieurs vues, du côté du coin : on passe de l'une à l'autre avec quatre doigts à l'horizontale.
+                let pile = (c == .hautGauche || c == .basGauche) ? PileVues.gauche : PileVues.droite
+                Label("Plusieurs vues", systemImage: "rectangle.stack").tag("vue:" + pile.sentinelle)
                 ForEach(vues, id: \.path) { url in
                     Label(FileManager.default.displayName(atPath: url.path).replacingOccurrences(of: ".app", with: ""),
                           systemImage: "sidebar.left").tag("vue:" + url.path)

@@ -776,6 +776,9 @@
         }
       }
     },
+    "Ajouter une vue" : {
+
+    },
     "Ajouter…" : {
       "localizations" : {
         "en" : {
@@ -2089,6 +2092,9 @@
         }
       }
     },
+    "Côté" : {
+
+    },
     "Dans %lld h %@" : {
       "localizations" : {
         "fr" : {
@@ -2331,6 +2337,9 @@
           }
         }
       }
+    },
+    "Droite" : {
+
     },
     "Du bas" : {
       "localizations" : {
@@ -3071,6 +3080,9 @@
           }
         }
       }
+    },
+    "Gauche" : {
+
     },
     "Geste" : {
       "localizations" : {
@@ -4952,6 +4964,9 @@
         }
       }
     },
+    "Monter cette vue d'un rang" : {
+
+    },
     "Montrer la musique en cours autour de l'encoche" : {
 
     },
@@ -5664,6 +5679,9 @@
         }
       }
     },
+    "Plusieurs vues" : {
+
+    },
     "Podcast" : {
       "localizations" : {
         "en" : {
@@ -5773,6 +5791,9 @@
           }
         }
       }
+    },
+    "Pour un coin réglé sur « Plusieurs vues » : les coins de gauche ouvrent le volet de gauche, ceux de droite le volet de droite. Quatre doigts à l’horizontale sur le volet passent d’une vue à l’autre, en boucle ; les points en haut du volet aussi. Avec plusieurs bureaux sur l’écran, macOS garde le geste pour changer de bureau : utilise alors les points. La flèche monte une vue d’un rang. Cinq vues au plus par côté." : {
+
     },
     "Pour épingler un dossier : glisse-le vers le bord droit de la carte, ou utilise le bouton + de la dernière colonne." : {
       "localizations" : {
@@ -6311,6 +6332,9 @@
           }
         }
       }
+    },
+    "Retirer cette vue du volet" : {
+
     },
     "Retirer de l'étagère" : {
       "localizations" : {
@@ -7773,6 +7797,9 @@
         }
       }
     },
+    "Volets à plusieurs vues" : {
+
+    },
     "Volume et luminosité dans l'encoche" : {
 
     },
@@ -7802,6 +7829,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "You declined authorization in Spotify."
+          }
+        }
+      }
+    },
+    "Vues : %lld sur %lld" : {
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Vues : %1$lld sur %2$lld"
           }
         }
       }

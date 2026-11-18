@@ -7,6 +7,7 @@
 // glissement se fait avec sa photo (déplacer la vraie fenêtre image par image saccaderait), remplacée par la fenêtre à l'arrivée.
 import AppKit
 import Carbon.HIToolbox
+import Combine
 
 final class VoletVue: NSObject, ObservableObject {
     static let commun = VoletVue()
@@ -34,6 +35,8 @@ final class VoletVue: NSObject, ObservableObject {
 
     private struct Ouvert {
         let coin: Coin, chemin: String, bundle: String
+        var pile: PileVues?          // le volet à plusieurs vues (gauche ou droit), nil pour une seule vue
+        var gesteLibre = true        // le geste horizontal est au volet (pas à macOS pour changer de bureau)
         var cadre: NSRect            // la place du volet, en coordonnées de l'écran (origine en bas à gauche)
         var arrivé = false
     }
@@ -51,6 +54,10 @@ final class VoletVue: NSObject, ObservableObject {
 
     private func gauche(_ c: Coin) -> Bool { c == .hautGauche || c == .basGauche }
 
+    /// Le volet ouvert est un volet à plusieurs vues, et le pointeur est dessus : le geste horizontal à quatre doigts
+    /// est pour lui (voir Glisse.recevoir). Écrit sur le fil principal à chaque relevé de la souris, lu hors du fil principal.
+    static var pointeurSurPile = false
+
     // MARK: Démarrage et fin
 
     /// Au lancement de Side, et quand un coin change : les applications des coins sont lancées et rangées hors de l'écran,
@@ -59,10 +66,42 @@ final class VoletVue: NSObject, ObservableObject {
         NSWorkspace.shared.notificationCenter.addObserver(self, selector: #selector(appActivée(_:)),
                                                           name: NSWorkspace.didActivateApplicationNotification, object: nil)
         préparer()
+        // Pour les essais : un geste fabriqué, sans trackpad (objet « 1 » : vue suivante, « -1 » : précédente).
+        DistributedNotificationCenter.default().addObserver(self, selector: #selector(essaiGeste(_:)),
+                                                            name: .init("com.gauthieraube.side.essai-cartes"), object: nil)
+        // La liste d'un volet change (réglages) : ses applications sont lancées et rangées à leur tour.
+        suivis = [PileVues.gauche, PileVues.droite].map {
+            $0.$vues.dropFirst().receive(on: RunLoop.main).sink { [weak self] _ in self?.préparer() }
+        }
+    }
+    private var suivis: [AnyCancellable] = []
+
+    /// Les applications à garder prêtes : celles des coins, plus toutes celles des volets à plusieurs vues qui ont un coin.
+    private var tousLesChemins: Set<String> {
+        var s = Set(coins.values)
+        for pile in [PileVues.gauche, PileVues.droite] where s.remove(pile.sentinelle) != nil { s.formUnion(pile.vues) }
+        return s
+    }
+
+    /// Les applications rangées par Side jusqu'ici : celles qui sortent des réglages retrouvent leur fenêtre.
+    private var connus: Set<String> = []
+
+    /// Les applications sorties des réglages, sauf celle affichée dans le volet (elle reviendra quand il se fermera).
+    static func retirées(avant: Set<String>, après: Set<String>, affiché: String?) -> Set<String> {
+        avant.subtracting(après).subtracting([affiché].compactMap { $0 })
+    }
+
+    /// Le geste horizontal est-il au volet ? Avec plusieurs bureaux sur l'écran, c'est macOS qui glisse d'un bureau
+    /// à l'autre (même règle que le carrousel de Square), sauf si Square prend toujours le geste.
+    static func gesteLibre(bureaux: Int, toujours: Bool, systèmeLibre: Bool) -> Bool {
+        bureaux <= 1 || toujours || systèmeLibre
     }
 
     private func préparer() {
-        for chemin in Set(coins.values) where chemin != ouvert?.chemin {
+        let tous = tousLesChemins
+        rendre(VoletVue.retirées(avant: connus, après: tous, affiché: ouvert?.chemin))
+        connus = tous.union(Set([ouvert?.chemin].compactMap { $0 }).intersection(connus))
+        for chemin in tous where chemin != ouvert?.chemin {
             guard let bundle = Bundle(path: chemin)?.bundleIdentifier else { continue }
             if app(bundle) == nil { lancer(chemin, devant: false) }
             ranger(bundle, essais: 80)
@@ -70,8 +109,11 @@ final class VoletVue: NSObject, ObservableObject {
     }
 
     /// Side quitte : les fenêtres rangées hors de l'écran reviennent, sinon elles resteraient invisibles.
-    func rendreLesFenêtres() {
-        for chemin in Set(coins.values) {
+    func rendreLesFenêtres() { rendre(tousLesChemins) }
+
+    /// Les fenêtres de ces applications reviennent de hors de l'écran (Side quitte, ou elles ne sont plus dans les réglages).
+    private func rendre(_ chemins: Set<String>) {
+        for chemin in chemins {
             guard let bundle = Bundle(path: chemin)?.bundleIdentifier, let f = fenêtre(bundle), let c = AXBas.cadre(f),
                   c.minX >= Ecrans.bordGarage - 2, let e = NSScreen.screens.first else { continue }
             let z = Ecrans.versAX(e.visibleFrame)
@@ -170,10 +212,16 @@ final class VoletVue: NSObject, ObservableObject {
 
     /// La souris a quitté le volet depuis un moment : il repart. (Pas pendant qu'on tire son bord, ni avant son arrivée.)
     private func surveillerSortie(_ p: NSPoint) {
-        guard let o = ouvert, o.arrivé else { horsDepuis = nil; return }
+        guard let o = ouvert else { horsDepuis = nil; VoletVue.pointeurSurPile = false; return }
+        guard o.arrivé else {
+            horsDepuis = nil
+            VoletVue.pointeurSurPile = o.pile != nil && o.gesteLibre && p.x >= o.cadre.minX && p.x <= o.cadre.maxX
+            return
+        }
         var zone = o.cadre
         // La largeur a pu changer : on suit la vraie fenêtre.
         if let f = fenêtre(o.bundle), let c = AXBas.cadre(f) { zone = Ecrans.versNS(c); ouvert?.cadre = zone }
+        VoletVue.pointeurSurPile = o.pile != nil && o.gesteLibre && p.x >= zone.minX && p.x <= zone.maxX
         // Toute la hauteur de l'écran compte (la barre des menus est au-dessus du volet), avec une marge sur le côté.
         let dedans = p.x >= zone.minX - 60 && p.x <= zone.maxX + 60
         guard !dedans, NSEvent.pressedMouseButtons == 0, !PanneauBas.menuOuvert else { horsDepuis = nil; return }
@@ -183,10 +231,12 @@ final class VoletVue: NSObject, ObservableObject {
 
     // MARK: Ouvrir
 
-    private func cadreCible(_ chemin: String, _ coin: Coin, sur e: NSScreen) -> NSRect {
+    private func cadreCible(_ chemin: String, _ coin: Coin, pile: PileVues?, sur e: NSScreen) -> NSRect {
         let z = e.visibleFrame
-        let w = min(max(CGFloat(largeurs[chemin] ?? 520), 380), (z.width * 0.8).rounded())
-        return NSRect(x: gauche(coin) ? z.minX : z.maxX - w, y: z.minY, width: w, height: z.height)
+        let voulue = pile?.largeur ?? (largeurs[chemin] ?? 520)
+        let w = min(max(CGFloat(voulue), 380), (z.width * 0.8).rounded())
+        let r = NSRect(x: gauche(coin) ? z.minX : z.maxX - w, y: z.minY, width: w, height: z.height)
+        return pile == nil ? r : VoletVue.flottant(r, droite: !gauche(coin))
     }
 
     private func horsÉcran(_ r: NSRect, _ coin: Coin, sur e: NSScreen) -> NSRect {
@@ -195,6 +245,8 @@ final class VoletVue: NSObject, ObservableObject {
         return d
     }
 
+    /// Le calque qui porte la photo d'une fenêtre pendant un glissement. Le second ne sert qu'au changement de page
+    /// du volet de gauche : la vue qui arrive glisse à côté de celle qui part.
     private func montrerPhoto(_ img: NSImage?, icône chemin: String, à cadre: NSRect) {
         let p = panneau ?? {
             let p = NSPanel(contentRect: .zero, styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
@@ -214,17 +266,21 @@ final class VoletVue: NSObject, ObservableObject {
             panneau = p
             return p
         }()
-        // Sans photo (application pas encore ouverte, ou pas d'autorisation) : une carte claire avec son icône.
-        image.image = img ?? NSImage(size: cadre.size, flipped: false) { r in
+        image.image = img ?? carteIcône(chemin, cadre.size)
+        p.setFrame(cadre, display: true)
+        p.alphaValue = 1
+        p.orderFrontRegardless()
+    }
+
+    /// Sans photo (application pas encore ouverte, ou pas d'autorisation) : une carte claire avec son icône.
+    private func carteIcône(_ chemin: String, _ taille: NSSize) -> NSImage {
+        NSImage(size: taille, flipped: false) { r in
             NSColor.windowBackgroundColor.setFill()
             r.fill()
             let c: CGFloat = 96
             NSWorkspace.shared.icon(forFile: chemin).draw(in: NSRect(x: r.midX - c / 2, y: r.midY - c / 2, width: c, height: c))
             return true
         }
-        p.setFrame(cadre, display: true)
-        p.alphaValue = 1
-        p.orderFrontRegardless()
     }
 
     private func glisser(vers cadre: NSRect, fin: @escaping () -> Void) {
@@ -236,8 +292,10 @@ final class VoletVue: NSObject, ObservableObject {
         }, completionHandler: fin)
     }
 
-    func ouvrir(_ coin: Coin, _ chemin: String, sur e: NSScreen) {
-        guard let bundle = Bundle(path: chemin)?.bundleIdentifier else { return }
+    func ouvrir(_ coin: Coin, _ demandé: String, sur e: NSScreen) {
+        let pile = PileVues.pour(demandé)
+        guard let chemin = pile.map({ $0.cheminCourant }) ?? demandé,
+              let bundle = Bundle(path: chemin)?.bundleIdentifier else { return }
         if ouvert != nil { fermer(animé: false) }
         // Un seul volet à la fois sur le bord droit : le presse-papiers lui laisse la place.
         if !gauche(coin), VoletPresse.commun.ouvert { VoletPresse.commun.fermer() }
@@ -246,8 +304,8 @@ final class VoletVue: NSObject, ObservableObject {
         avant = NSWorkspace.shared.frontmostApplication
         // Pas lancée : on la lance. Lancée mais sans fenêtre (elle a été fermée ou rangée) : la rouvrir lui en redonne une.
         if app(bundle) == nil { lancer(chemin, devant: false) } else if fenêtre(bundle) == nil { lancer(chemin, devant: true) }
-        let cible = cadreCible(chemin, coin, sur: e)
-        ouvert = Ouvert(coin: coin, chemin: chemin, bundle: bundle, cadre: cible)
+        let cible = cadreCible(chemin, coin, pile: pile, sur: e)
+        ouvert = Ouvert(coin: coin, chemin: chemin, bundle: bundle, pile: pile, cadre: cible)
         horsDepuis = nil
         // La fenêtre, encore hors de l'écran, prend déjà sa taille : sa photo est alors à la bonne proportion.
         let f = fenêtre(bundle)
@@ -264,11 +322,11 @@ final class VoletVue: NSObject, ObservableObject {
     }
 
     /// Le volet est arrivé : la vraie fenêtre prend la place de sa photo (dès qu'elle existe, si l'application démarre).
-    private func poser(essais: Int, tour monTour: Int) {
+    private func poser(essais: Int, tour monTour: Int, cartes: Bool? = nil) {
         guard tour == monTour, let o = ouvert else { return }
         guard let f = fenêtre(o.bundle) else {
             guard essais > 0 else { fermer(); return }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) { [weak self] in self?.poser(essais: essais - 1, tour: monTour) }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) { [weak self] in self?.poser(essais: essais - 1, tour: monTour, cartes: cartes) }
             return
         }
         noter(f)
@@ -276,12 +334,162 @@ final class VoletVue: NSObject, ObservableObject {
         app(o.bundle)?.activate(options: [])
         AXBas.lever(f)
         ouvert?.arrivé = true
+        if o.pile != nil, let e = NSScreen.screens.first(where: { $0.frame.intersects(o.cadre) }) {
+            let id = Ecrans.identifiant(e)
+            ouvert?.gesteLibre = VoletVue.gesteLibre(bureaux: Relevé.tout().0.filter { $0.ecran == id }.count,
+                                                     toujours: UserDefaults.standard.bool(forKey: "glisseToujours"),
+                                                     systèmeLibre: Glisse.systemeLibre)
+        }
+        if let pile = o.pile {
+            PointsPile.commun.montrer(pile, au: o.cadre) { [weak self] i in self?.allerÀ(i) }
+            photographierVoisines(tour: monTour)
+        }
         // Le temps que la fenêtre soit dessinée à sa place, puis la photo s'efface.
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) { [weak self] in
-            guard let self, self.tour == monTour, let p = self.panneau else { return }
+            guard let self, self.tour == monTour else { return }
+            if cartes != nil { CartesPile.commun.effacer(); return }
+            guard let p = self.panneau else { return }
             NSAnimationContext.runAnimationGroup({ $0.duration = Mouvement.duree(Mouvement.bref); p.animator().alphaValue = 0 }) {
                 if self.tour == monTour { p.orderOut(nil) }
             }
+        }
+    }
+
+    // MARK: Le volet à plusieurs vues (gauche ou droit)
+
+    /// Le volet à plusieurs vues flotte : un peu de bord côté écran, en haut et en bas, pour que son ombre se voie.
+    static func flottant(_ r: NSRect, droite: Bool = false) -> NSRect {
+        NSRect(x: r.minX + (droite ? -10 : 10), y: r.minY + 10, width: r.width, height: r.height - 20)
+    }
+
+    /// Les dernières photos des vues du volet. Celles des voisines sont prises d'avance, à chaque arrivée : au départ
+    /// d'un geste, il n'y a plus qu'à photographier la vue en cours, et les cartes partent sans attendre.
+    private var photos: [String: NSImage] = [:]
+
+    private func photographierVoisines(tour monTour: Int) {
+        guard let o = ouvert, let pile = o.pile else { return }
+        for chemin in Set([1, -1].compactMap { pile.page($0) }.map { pile.vues[$0] }) where chemin != o.chemin {
+            guard let bundle = Bundle(path: chemin)?.bundleIdentifier, let f = fenêtre(bundle), let c = AXBas.cadre(f),
+                  c.minX >= Ecrans.bordGarage - 2 else { continue }
+            // Hors de l'écran, à la taille du volet : la photo est alors à la bonne proportion.
+            if abs(c.width - o.cadre.width) > 1 || abs(c.height - o.cadre.height) > 1 { AXBas.placer(f, Ecrans.garage(taille: o.cadre.size)) }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { [weak self] in
+                guard let self, self.tour == monTour, let img = self.photo(f) else { return }
+                self.photos[chemin] = img
+            }
+        }
+    }
+
+    /// Un changement de vue en cours : les cartes sont à l'écran, les vraies fenêtres hors de l'écran.
+    private struct Transition {
+        let cible: Int?              // la vue qui arrive (nil au bout de la liste : la carte fait l'élastique)
+        let ancien: Ouvert
+        let neuf: Ouvert?
+    }
+    private var transition: Transition?
+    private var enGeste = false      // les doigts tiennent les cartes (pas encore lâchées)
+
+    /// Quatre doigts à l'horizontale sur le volet : les cartes suivent les doigts (voir GestePages et CartesPile).
+    func geste(_ e: GestePages.Événement) {
+        switch e {
+        case .début(let doigts):
+            // Les doigts vers le bord de l'écran poussent la carte dehors : vue suivante. À droite, c'est donc l'inverse.
+            guard let pile = ouvert?.pile else { return }
+            let sens = pile.àDroite ? -doigts : doigts
+            enGeste = commencer(sens: sens, cible: pile.page(sens))
+        case .suivi(let p):
+            if enGeste { CartesPile.commun.dessiner(CGFloat(p)) }
+        case .fin(let p, let élan):
+            guard enGeste else { return }
+            enGeste = false
+            // Comme sur l'iPad : à mi-chemin, ou d'un geste vif, la carte change ; un retour vif la ramène.
+            terminer(arrivée: (p > 0.4 || élan > 0.6) && élan > -0.4, depuis: CGFloat(p))
+        }
+    }
+
+    @objc private func essaiGeste(_ note: Notification) {
+        let sens = Int(note.object as? String ?? "1") ?? 1
+        geste(.début(sens))
+        let départ = CACurrentMediaTime()
+        Timer.scheduledTimer(withTimeInterval: 1.0 / 120, repeats: true) { [weak self] t in
+            let p = Float(min((CACurrentMediaTime() - départ) / 0.35, 1)) * 0.7
+            if p >= 0.7 { t.invalidate(); self?.geste(.fin(0.7, 1.5)); return }
+            self?.geste(.suivi(p))
+        }
+    }
+
+    /// Un clic sur un point : la vue numéro i, avec le même mouvement de cartes.
+    func allerÀ(_ i: Int) {
+        guard let pile = ouvert?.pile, pile.vues.indices.contains(i), i != pile.index else { return }
+        guard !enGeste, commencer(sens: i > pile.index ? 1 : -1, cible: i) else { return }
+        terminer(arrivée: true, depuis: 0)
+    }
+
+    /// Pose les cartes au départ du mouvement. Faux si le volet n'est pas prêt (pas ouvert, ou un mouvement pas fini).
+    private func commencer(sens: Int, cible: Int?) -> Bool {
+        guard transition == nil, let o = ouvert, let pile = o.pile, o.arrivé else { return false }
+        let t0 = CACurrentMediaTime()
+        defer { journalBas("volet à plusieurs vues : cartes posées en %.0f ms", (CACurrentMediaTime() - t0) * 1000) }
+        tour += 1
+        // Le volet garde sa place et sa largeur (tirer le bord change la largeur de toutes les vues).
+        var cadre = o.cadre
+        let enCours = fenêtre(o.bundle)
+        if let enCours, let c = AXBas.cadre(enCours), c.minX < Ecrans.bordGarage - 2 {
+            cadre = Ecrans.versNS(c)
+            if c.width >= 300 {
+                if abs(Double(c.width) - pile.largeur) > 1 { photos.removeAll() }     // la largeur a changé : photos à refaire
+                pile.largeur = Double(c.width)
+            }
+        }
+        let photoEnCours = enCours.flatMap { photo($0) } ?? photos[o.chemin] ?? carteIcône(o.chemin, cadre.size)
+        photos[o.chemin] = photoEnCours
+        // La vue voisine : lancée si besoin, mise à la taille du volet hors de l'écran, puis photographiée.
+        var neuf: Ouvert?
+        var photoVoisine: NSImage?
+        if let cible, pile.vues.indices.contains(cible), let bundle = Bundle(path: pile.vues[cible])?.bundleIdentifier {
+            let chemin = pile.vues[cible]
+            if app(bundle) == nil { lancer(chemin, devant: false) } else if fenêtre(bundle) == nil { lancer(chemin, devant: true) }
+            let f = fenêtre(bundle)
+            // Déjà à la bonne taille hors de l'écran (c'est fait à chaque arrivée) : rien à déplacer, les cartes partent plus vite.
+            if let f {
+                noter(f)
+                let c = AXBas.cadre(f)
+                if c == nil || abs(c!.width - cadre.width) > 1 || abs(c!.height - cadre.height) > 1 || c!.minX < Ecrans.bordGarage - 2 {
+                    AXBas.placer(f, Ecrans.garage(taille: cadre.size))
+                }
+            }
+            photoVoisine = photos[chemin] ?? f.flatMap { photo($0) } ?? carteIcône(chemin, cadre.size)
+            neuf = Ouvert(coin: o.coin, chemin: chemin, bundle: bundle, pile: pile, gesteLibre: o.gesteLibre, cadre: cadre)
+        }
+        // Vers la suivante, la vue en cours est devant et s'en va ; vers la précédente, celle-ci revient par-dessus.
+        if sens > 0 || photoVoisine == nil {
+            CartesPile.commun.préparer(devant: photoEnCours, derrière: photoVoisine, cadre: cadre, sens: sens, droite: pile.àDroite)
+        } else {
+            CartesPile.commun.préparer(devant: photoVoisine!, derrière: photoEnCours, cadre: cadre, sens: sens, droite: pile.àDroite)
+        }
+        panneau?.orderOut(nil)
+        PointsPile.commun.cacher()
+        // Les cartes sont à l'écran : la vraie fenêtre peut partir.
+        if let enCours { AXBas.placer(enCours, Ecrans.garage(taille: cadre.size)) }
+        var ancien = o
+        ancien.cadre = cadre
+        ancien.arrivé = false
+        ouvert = ancien
+        horsDepuis = nil
+        transition = Transition(cible: neuf == nil ? nil : cible, ancien: ancien, neuf: neuf)
+        return true
+    }
+
+    private func terminer(arrivée: Bool, depuis p: CGFloat) {
+        guard let t = transition else { return }
+        let monTour = tour
+        let va = arrivée && t.neuf != nil
+        CartesPile.commun.finir(vers: va ? 1 : 0, depuis: p) { [weak self] in
+            guard let self, self.tour == monTour else { return }
+            self.transition = nil
+            if va, let n = t.neuf, let i = t.cible { n.pile?.index = i; self.ouvert = n } else { self.ouvert = t.ancien }
+            self.poser(essais: 60, tour: monTour, cartes: va)
+            self.préparer()          // la vue quittée a peut-être été retirée des réglages : sa fenêtre revient
         }
     }
 
@@ -294,15 +502,23 @@ final class VoletVue: NSObject, ObservableObject {
         tour += 1
         let monTour = tour
         TouchesBas.retirer(idEchap)
+        PointsPile.commun.cacher()
+        CartesPile.commun.cacher()
+        transition = nil
+        enGeste = false
+        VoletVue.pointeurSurPile = false
         guard let f = fenêtre(o.bundle), let c = AXBas.cadre(f), c.minX < Ecrans.bordGarage - 2 else {
             panneau?.orderOut(nil)
             return
         }
         // La largeur choisie en tirant le bord est gardée.
-        if c.width >= 300 { var l = largeurs; l[o.chemin] = Double(c.width); largeurs = l }
+        if c.width >= 300 {
+            if let pile = o.pile { pile.largeur = Double(c.width) } else { var l = largeurs; l[o.chemin] = Double(c.width); largeurs = l }
+        }
         let place = Ecrans.versNS(c)
         if animé { montrerPhoto(photo(f), icône: o.chemin, à: place) }
         AXBas.placer(f, Ecrans.garage(taille: c.size))
+        préparer()                   // la vue fermée a peut-être été retirée des réglages : sa fenêtre revient
         // L'application d'avant reprend la main, si c'est bien le volet qui l'avait.
         if NSWorkspace.shared.frontmostApplication?.bundleIdentifier == o.bundle, let avant, !avant.isTerminated { avant.activate(options: []) }
         guard animé, let e = NSScreen.screens.first(where: { $0.frame.intersects(place) }) ?? NSScreen.screens.first else {

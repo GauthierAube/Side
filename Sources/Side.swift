@@ -520,6 +520,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         if config.quatreDoigts { Doigts.demarrer(); Doigts.bloquerDefilement() }
         Captures.shared.demarrer()
         CollageCascade.demarrer()
+        if CommandLine.arguments.contains("--test-pages") { exit(EssaisPages.lancer()) }   // le volet de gauche à plusieurs vues
         if CommandLine.arguments.contains("--test-doigts") {   // pour les tests : le module des gestes répond-il ?
             print("trackpads trouvés :", Doigts.demarrer())
             // Gestes fabriqués : (numéro du doigt, hauteur) image par image.

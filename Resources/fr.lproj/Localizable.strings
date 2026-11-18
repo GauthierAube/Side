@@ -166,6 +166,8 @@
 	<string>Ajouter une application</string>
 	<key>Ajouter une application…</key>
 	<string>Ajouter une application…</string>
+	<key>Ajouter une vue</key>
+	<string>Ajouter une vue</string>
 	<key>Ajouter…</key>
 	<string>Ajouter…</string>
 	<key>Album</key>
@@ -436,6 +438,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Créer un alias</string>
 	<key>Créé le</key>
 	<string>Créé le</string>
+	<key>Côté</key>
+	<string>Côté</string>
 	<key>Dans %lld h %@</key>
 	<string>Dans %lld h %@</string>
 	<key>Dans %lld min</key>
@@ -486,6 +490,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Dossiers récents</string>
 	<key>Double-clic : ouvrir</key>
 	<string>Double-clic : ouvrir</string>
+	<key>Droite</key>
+	<string>Droite</string>
 	<key>Du bas</key>
 	<string>Du bas</string>
 	<key>Du haut</key>
@@ -640,6 +646,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Gardé 7 jours · clic pour copier</string>
 	<key>Gardé sans limite · clic pour copier</key>
 	<string>Gardé sans limite · clic pour copier</string>
+	<key>Gauche</key>
+	<string>Gauche</string>
 	<key>Geste</key>
 	<string>Geste</string>
 	<key>Geste de la souris</key>
@@ -1020,6 +1028,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Mon site</string>
 	<key>Monter</key>
 	<string>Monter</string>
+	<key>Monter cette vue d'un rang</key>
+	<string>Monter cette vue d'un rang</string>
 	<key>Montrer la musique en cours autour de l'encoche</key>
 	<string>Montrer la musique en cours autour de l'encoche</string>
 	<key>Mot de passe</key>
@@ -1166,6 +1176,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Plein écran d'Apple : macOS empêche d'y afficher les tuiles.</string>
 	<key>Plus tard</key>
 	<string>Plus tard</string>
+	<key>Plusieurs vues</key>
+	<string>Plusieurs vues</string>
 	<key>Podcast</key>
 	<string>Podcast</string>
 	<key>Podcasts</key>
@@ -1188,6 +1200,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Pour ouvrir et fermer le Finder :</string>
 	<key>Pour ranger des applications, Side a besoin de l'autorisation Accessibilité.</key>
 	<string>Pour ranger des applications, Side a besoin de l'autorisation Accessibilité.</string>
+	<key>Pour un coin réglé sur « Plusieurs vues » : les coins de gauche ouvrent le volet de gauche, ceux de droite le volet de droite. Quatre doigts à l’horizontale sur le volet passent d’une vue à l’autre, en boucle ; les points en haut du volet aussi. Avec plusieurs bureaux sur l’écran, macOS garde le geste pour changer de bureau : utilise alors les points. La flèche monte une vue d’un rang. Cinq vues au plus par côté.</key>
+	<string>Pour un coin réglé sur « Plusieurs vues » : les coins de gauche ouvrent le volet de gauche, ceux de droite le volet de droite. Quatre doigts à l’horizontale sur le volet passent d’une vue à l’autre, en boucle ; les points en haut du volet aussi. Avec plusieurs bureaux sur l’écran, macOS garde le geste pour changer de bureau : utilise alors les points. La flèche monte une vue d’un rang. Cinq vues au plus par côté.</string>
 	<key>Pour épingler un dossier : glisse-le vers le bord droit de la carte, ou utilise le bouton + de la dernière colonne.</key>
 	<string>Pour épingler un dossier : glisse-le vers le bord droit de la carte, ou utilise le bouton + de la dernière colonne.</string>
 	<key>Presse-papiers</key>
@@ -1296,6 +1310,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Retirer %@</string>
 	<key>Retirer cette colonne</key>
 	<string>Retirer cette colonne</string>
+	<key>Retirer cette vue du volet</key>
+	<string>Retirer cette vue du volet</string>
 	<key>Retirer de l'étagère</key>
 	<string>Retirer de l'étagère</string>
 	<key>Retirer de la liste</key>
@@ -1598,6 +1614,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Voir le tiroir</string>
 	<key>Voir les fichiers un par un</key>
 	<string>Voir les fichiers un par un</string>
+	<key>Volets à plusieurs vues</key>
+	<string>Volets à plusieurs vues</string>
 	<key>Volume et luminosité dans l'encoche</key>
 	<string>Volume et luminosité dans l'encoche</string>
 	<key>Vos artistes du moment</key>
@@ -1606,6 +1624,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Vos titres du moment</string>
 	<key>Vous avez refusé l'autorisation dans Spotify.</key>
 	<string>Vous avez refusé l'autorisation dans Spotify.</string>
+	<key>Vues : %lld sur %lld</key>
+	<string>Vues : %lld sur %lld</string>
 	<key>Y garder aussi les mots de passe (affichés masqués)</key>
 	<string>Y garder aussi les mots de passe (affichés masqués)</string>
 	<key>YouTube</key>
