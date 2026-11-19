@@ -83,8 +83,16 @@ enum Enregistrements {
         if u.pathComponents.dropLast().contains(where: { $0.hasPrefix(".") }) { return false }
         // La bibliothèque du dossier personnel ne compte pas, sauf iCloud Drive.
         if chemin.hasPrefix(home + "/Library/") && !chemin.hasPrefix(home + "/Library/Mobile Documents/com~apple~CloudDocs/") { return false }
-        // Les fichiers de Side elle-même (zones de dépôt, historique).
-        if chemin.contains("/Application Support/Side/") { return false }
+        // Les fichiers de Side elle-même (zones de dépôt, historique, presse-papiers et liens gardés dans iCloud Drive).
+        if chemin.contains("/Application Support/Side/")
+            || chemin.hasPrefix(home + "/Library/Mobile Documents/com~apple~CloudDocs/Side/") { return false }
+        // Les dossiers techniques (19/11/2026) : le code dans GitHub, que Claude modifie sans cesse, et les sauvegardes
+        // automatiques du site. Ce ne sont pas des dossiers où l'on travaille au quotidien.
+        let techniques = ["/GitHub/", "/Sauvegardes/"]
+        if techniques.contains(where: { chemin.hasPrefix(home + $0) }) { return false }
+        // Où qu'ils soient, les dossiers de compilation et de dépendances.
+        let compilation: Set<String> = ["build", "DerivedData", "node_modules", ".build", "Pods", "vendor"]
+        if u.pathComponents.dropLast().contains(where: { compilation.contains($0) }) { return false }
         // À l'intérieur d'un paquet (un projet Logic, une photothèque, une app) : ce sont ses fichiers de travail.
         var parent = u.deletingLastPathComponent()
         while parent.path.count > 1 && parent.path != home {

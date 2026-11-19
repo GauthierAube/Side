@@ -5,6 +5,13 @@ Il est mis à jour à chaque modification, en même temps que le code.
 
 ---
 
+## 19/11/2026
+
+### Carte du Finder : elle ne s'ouvre plus sur des dossiers techniques
+- Demandé par Gauthier : en rouvrant la carte, il tombait sans cesse sur un dossier « bizarre » au lieu de ses dossiers de tous les jours.
+- Le journal de Side montrait la cause : les fichiers créés en continu par les compilations dans GitHub (Horizon, Side, Flow, Parole), par les modifications de Claude, par la sauvegarde du site Wakademy et par le presse-papiers de Side (dans iCloud Drive › Side) passaient pour des fichiers enregistrés.
+- Ces dossiers sont maintenant ignorés : tout `~/GitHub`, tout `~/Sauvegardes`, iCloud Drive › Side, et partout les dossiers de compilation (`build`, `DerivedData`, `node_modules`, `Pods`, `vendor`). Un export dans Documents ou un téléchargement ouvre toujours la carte sur son dossier.
+
 ## 18/11/2026
 
 ### Volets à plusieurs vues : dans chaque coin, à gauche ou à droite
