@@ -29,6 +29,10 @@ final class ConfigEncoche: ObservableObject {
     @Published var geste: Bool { didSet { UserDefaults.standard.set(geste, forKey: "encocheGeste") } }
     /// Le Finder de Side descend de l'encoche, quelle que soit la façon de l'ouvrir (raccourci, coin, secousse).
     @Published var finderDescend: Bool { didSet { UserDefaults.standard.set(finderDescend, forKey: "encocheFinder") } }
+    /// Sur un Mac sans encoche (Mac mini, écran externe), une fausse encoche en haut, au milieu de l'écran principal.
+    @Published var sansEncoche: Bool {
+        didSet { UserDefaults.standard.set(sansEncoche, forKey: "encocheSansEncoche"); Ile.commun.placer() }
+    }
 
     private init() {
         let d = UserDefaults.standard
@@ -40,6 +44,7 @@ final class ConfigEncoche: ObservableObject {
         geste = oui("encocheGeste")
         survolOuvre = oui("encocheSurvolOuvre")
         finderDescend = oui("encocheFinder")
+        sansEncoche = oui("encocheSansEncoche")
     }
 }
 
@@ -155,7 +160,9 @@ final class Ile: ObservableObject {
 
     /// Trouve l'encoche et y pose la fenêtre (ou la retire s'il n'y a plus d'encoche, ou si la partie est coupée).
     func placer() {
-        let e = NSScreen.screens.first { $0.safeAreaInsets.top > 0 }
+        // L'écran qui a une encoche ; sinon (19/11/2026, Mac mini), l'écran principal, avec une fausse encoche.
+        let vraie = NSScreen.screens.first { $0.safeAreaInsets.top > 0 }
+        let e = vraie ?? (ConfigEncoche.commun.sansEncoche ? NSScreen.screens.first : nil)
         guard Partie.encoche.active, let e else {
             if ouverte { fermer() }
             panneau?.orderOut(nil)
@@ -165,11 +172,18 @@ final class Ile: ObservableObject {
             return
         }
         ecran = e
-        let gauche = e.auxiliaryTopLeftArea?.width ?? (e.frame.width - encoche.width) / 2
-        let droite = e.auxiliaryTopRightArea?.width ?? (e.frame.width - encoche.width) / 2
-        let largeur = max(120, e.frame.width - gauche - droite)
-        encoche = CGSize(width: largeur, height: e.safeAreaInsets.top)
-        centreX = e.frame.minX + gauche + largeur / 2
+        if vraie != nil {
+            let gauche = e.auxiliaryTopLeftArea?.width ?? (e.frame.width - encoche.width) / 2
+            let droite = e.auxiliaryTopRightArea?.width ?? (e.frame.width - encoche.width) / 2
+            let largeur = max(120, e.frame.width - gauche - droite)
+            encoche = CGSize(width: largeur, height: e.safeAreaInsets.top)
+            centreX = e.frame.minX + gauche + largeur / 2
+        } else {
+            // La fausse encoche : la largeur de celle d'un MacBook Air, la hauteur de la barre des menus.
+            let barre = e.frame.maxY - e.visibleFrame.maxY
+            encoche = CGSize(width: 185, height: max(24, min(barre > 0 ? barre : 32, 40)))
+            centreX = e.frame.midX
+        }
         let p = panneau ?? creerPanneau()
         p.setFrame(NSRect(x: (centreX - Ile.largeurFenetre / 2).rounded(), y: e.frame.maxY - Ile.hauteurFenetre,
                           width: Ile.largeurFenetre, height: Ile.hauteurFenetre), display: true)
@@ -416,6 +430,12 @@ struct ReglagesEncoche: View {
             Toggle("Le Finder de Side descend de l'encoche", isOn: $config.finderDescend)
         } header: { Text("Ouvrir") } footer: {
             Text("Sans « Le pointeur ouvre l'île », elle gonfle seulement et un clic l'ouvre. Deux doigts : vers le bas pour ouvrir, de côté pour changer de vue, vers le haut pour refermer. Le Finder descend de l'encoche quelle que soit la façon de l'ouvrir : raccourci, coin, secousse.")
+                .font(.caption).foregroundStyle(.secondary)
+        }
+        Section {
+            Toggle("Afficher l'île sur les écrans sans encoche", isOn: $config.sansEncoche)
+        } footer: {
+            Text("Une fausse encoche apparaît en haut, au milieu de l'écran principal.")
                 .font(.caption).foregroundStyle(.secondary)
         }
         Section {

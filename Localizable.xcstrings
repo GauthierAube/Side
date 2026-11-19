@@ -533,6 +533,9 @@
     "Afficher l'agenda (aujourd'hui et le calendrier)" : {
 
     },
+    "Afficher l'île sur les écrans sans encoche" : {
+
+    },
     "Afficher la corbeille" : {
       "localizations" : {
         "en" : {
@@ -7546,6 +7549,9 @@
           }
         }
       }
+    },
+    "Une fausse encoche apparaît en haut, au milieu de l'écran principal." : {
+
     },
     "Une partie coupée ne s'ouvre plus : ni par son coin, ni par son raccourci, ni par son geste. Ses réglages restent là pour le jour où tu la rallumes." : {
       "localizations" : {

@@ -116,6 +116,8 @@
 	<string>Afficher en liste</string>
 	<key>Afficher l'agenda (aujourd'hui et le calendrier)</key>
 	<string>Afficher l'agenda (aujourd'hui et le calendrier)</string>
+	<key>Afficher l'île sur les écrans sans encoche</key>
+	<string>Afficher l'île sur les écrans sans encoche</string>
 	<key>Afficher la corbeille</key>
 	<string>Afficher la corbeille</string>
 	<key>Afficher la corbeille au bout du Dock</key>
@@ -1564,6 +1566,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Une application utilise peut-être encore un fichier de ce disque. Ferme-la, puis réessaie.</string>
 	<key>Une application à la fois</key>
 	<string>Une application à la fois</string>
+	<key>Une fausse encoche apparaît en haut, au milieu de l'écran principal.</key>
+	<string>Une fausse encoche apparaît en haut, au milieu de l'écran principal.</string>
 	<key>Une partie coupée ne s'ouvre plus : ni par son coin, ni par son raccourci, ni par son geste. Ses réglages restent là pour le jour où tu la rallumes.</key>
 	<string>Une partie coupée ne s'ouvre plus : ni par son coin, ni par son raccourci, ni par son geste. Ses réglages restent là pour le jour où tu la rallumes.</string>
 	<key>Une petite app à la fois, à côté de ta musique. Continue le geste : les autres apps du tiroir défilent.</key>
