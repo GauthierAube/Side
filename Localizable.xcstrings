@@ -11,6 +11,19 @@
         }
       }
     },
+    "%@ est déjà pris par macOS ou par une autre application. L'ancien raccourci est gardé." : {
+
+    },
+    "%@ ouvre déjà %@ dans Side. L'ancien raccourci est gardé." : {
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ ouvre déjà %2$@ dans Side. L'ancien raccourci est gardé."
+          }
+        }
+      }
+    },
     "%@, section ouverte" : {
       "localizations" : {
         "en" : {
@@ -84,6 +97,7 @@
       }
     },
     "%lld fichiers" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -137,9 +151,6 @@
         }
       }
     },
-    "%lld h" : {
-
-    },
     "%lld images" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -183,9 +194,6 @@
           }
         }
       }
-    },
-    "%lld rendez-vous" : {
-
     },
     "%lld sur %lld" : {
       "localizations" : {
@@ -276,9 +284,6 @@
         }
       }
     },
-    "1 fichier" : {
-
-    },
     "1 fichier — par exemple : %@" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -300,9 +305,6 @@
           }
         }
       }
-    },
-    "1 rendez-vous" : {
-
     },
     "1 vidéo" : {
       "extractionState" : "stale",
@@ -530,9 +532,6 @@
         }
       }
     },
-    "Afficher l'agenda (aujourd'hui et le calendrier)" : {
-
-    },
     "Afficher l'île sur les écrans sans encoche" : {
 
     },
@@ -585,6 +584,9 @@
           }
         }
       }
+    },
+    "Afficher le calendrier" : {
+
     },
     "Afficher le chemin de ce dossier" : {
       "localizations" : {
@@ -944,9 +946,6 @@
         }
       }
     },
-    "Approche un fichier de l'encoche : elle s'ouvre sur le bac. Les fichiers restent où ils sont ; le bac n'en garde que le chemin." : {
-
-    },
     "Appuyez sur le nouveau raccourci.\nIl faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).\nÉchap pour annuler." : {
       "localizations" : {
         "en" : {
@@ -1200,9 +1199,6 @@
         }
       }
     },
-    "Aujourd'hui" : {
-
-    },
     "Aussi pour les liens simplement copiés" : {
       "localizations" : {
         "en" : {
@@ -1277,12 +1273,6 @@
           }
         }
       }
-    },
-    "Bac" : {
-
-    },
-    "Bac à fichiers" : {
-
     },
     "Bande" : {
       "localizations" : {
@@ -2720,13 +2710,7 @@
         }
       }
     },
-    "Et %lld autres" : {
-
-    },
     "Et %lld de plus" : {
-
-    },
-    "Et 1 autre" : {
 
     },
     "Extraire le son (%@) en M4A" : {
@@ -3128,9 +3112,6 @@
       }
     },
     "Gestes à deux doigts" : {
-
-    },
-    "Glisse des fichiers ici : ils t'attendent dans l'encoche." : {
 
     },
     "Glisse ici un élément du presse-papiers, ou ajoute un lien avec le +. Il restera là, sans limite." : {
@@ -3754,7 +3735,7 @@
         }
       }
     },
-    "L'encoche devient une île : la musique, le volume, ton agenda, un bac à fichiers." : {
+    "L'encoche devient une île : ton calendrier, la musique, le volume." : {
 
     },
     "L'historique du copier-coller est désactivé dans les réglages de Side." : {
@@ -5482,7 +5463,7 @@
         }
       }
     },
-    "Passe le pointeur sur l'encoche : ta journée, ton calendrier, la musique et un bac à fichiers, une vue à la fois." : {
+    "Passe le pointeur sur l'encoche : ton calendrier, puis la musique, une vue à la fois." : {
 
     },
     "Passer" : {
@@ -6389,9 +6370,6 @@
         }
       }
     },
-    "Retirer du bac" : {
-
-    },
     "Retirer du mini-Dock" : {
       "localizations" : {
         "en" : {
@@ -6452,9 +6430,6 @@
           }
         }
       }
-    },
-    "Rien de prévu aujourd'hui." : {
-
     },
     "Rien de prévu." : {
 
@@ -7321,9 +7296,6 @@
         }
       }
     },
-    "Tout vider" : {
-
-    },
     "Toute la journée" : {
 
     },
@@ -7518,6 +7490,7 @@
       }
     },
     "Un raccourci pour le Finder, le tiroir et le presse-papiers." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -7526,6 +7499,9 @@
           }
         }
       }
+    },
+    "Un raccourci pour le Finder, le tiroir, la recherche sur le web et le presse-papiers." : {
+
     },
     "Une application du Mac se range plutôt dans « Applications »." : {
       "localizations" : {
@@ -7573,7 +7549,11 @@
         }
       }
     },
+    "Une pilule descend de l'encoche : tape ta recherche ou une adresse, puis Entrée. Échap referme ; la page reste en mémoire pour la prochaine fois. ⌘ Entrée l'envoie dans Safari. Clique sur le raccourci, puis tape la nouvelle combinaison (avec Commande, Contrôle ou Option). Si rien ne se passe, la combinaison est déjà prise par macOS ou par une autre application : libère-la dans Réglages Système > Clavier > Raccourcis clavier (⌘ Espace : Spotlight), ou choisis-en une autre." : {
+
+    },
     "Une pilule descend de l'encoche : tape ta recherche ou une adresse, puis Entrée. Échap referme ; la page reste en mémoire pour la prochaine fois. ⌘ Entrée l'envoie dans Safari. Pour utiliser ⌘ Espace, libère-le d'abord dans Réglages Système > Clavier > Raccourcis clavier > Spotlight." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -8022,6 +8002,9 @@
         }
       }
     },
+    "le Finder" : {
+
+    },
     "le coin %@" : {
       "localizations" : {
         "en" : {
@@ -8042,6 +8025,12 @@
           }
         }
       }
+    },
+    "le plein écran" : {
+
+    },
+    "le tiroir" : {
+
     },
     "macOS réserve le contenu de la corbeille aux applications qui ont l'« Accès complet au disque ». Ouvre le réglage, active Side dans la liste, puis relance Side : la corbeille s'affichera dans la carte." : {
       "localizations" : {
@@ -8137,9 +8126,6 @@
       }
     },
     "« Afficher dans le Finder » des autres applications, et l'ouverture d'un dossier, montrent la carte de Side. Décoché : le Finder de macOS, comme avant." : {
-
-    },
-    "· les 4 derniers" : {
 
     },
     "À droite" : {
