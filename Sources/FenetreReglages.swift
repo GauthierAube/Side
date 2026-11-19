@@ -82,7 +82,7 @@ enum Volet: String, CaseIterable, Identifiable {
         case .general: return String(localized: "Ce qui vaut pour tout Side.")
         case .ia: return String(localized: "Un modèle d'IA qui tourne chez toi, avec Ollama. Side ne parle qu'à ce serveur.")
         case .coins: return String(localized: "Amener le pointeur dans un coin de l'écran ouvre le Finder, le tiroir ou le presse-papiers.")
-        case .clavier: return String(localized: "Un raccourci pour le Finder, le tiroir et le presse-papiers.")
+        case .clavier: return String(localized: "Un raccourci pour le Finder, le tiroir, la recherche sur le web et le presse-papiers.")
         case .gestes: return String(localized: "Ouvrir le Finder et le tiroir d'un geste, à la souris ou au trackpad.")
         case .apparence: return String(localized: "Le Finder de Side : d'où il arrive, sa taille, son fond.")
         case .fermeture: return String(localized: "Quand le Finder de Side se referme.")
@@ -97,7 +97,7 @@ enum Volet: String, CaseIterable, Identifiable {
         case .dock: return String(localized: "Le Dock affiché dans la grille.")
         case .carrousel: return String(localized: "Quatre doigts vers la gauche ou la droite, pour passer d'une application de travail à l'autre.")
         case .fenetres: return String(localized: "Les applications de travail remplissent l'écran, sans le plein écran d'Apple.")
-        case .encoche: return String(localized: "Passe le pointeur sur l'encoche : ta journée, ton calendrier, la musique et un bac à fichiers, une vue à la fois.")
+        case .encoche: return String(localized: "Passe le pointeur sur l'encoche : ton calendrier, puis la musique, une vue à la fois.")
         }
     }
     /// La partie de Side dont ce volet fait partie (aucune pour les réglages communs).

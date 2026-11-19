@@ -1,9 +1,10 @@
 // L'île de l'encoche (17/11/2026), d'après les meilleures applications du genre (Alcove, Boring Notch, MediaMate, Droppy) :
 // l'encoche du MacBook devient une île noire qui vit. Au repos elle épouse l'encoche ; la musique en cours l'élargit
-// (pochette à gauche, petite onde à droite) ; le pointeur l'ouvre (elle gonfle d'abord un instant), comme un clic, deux
-// doigts vers le bas ou un fichier qu'on approche. Ouverte, elle montre une seule vue à la fois (le 17/11, à la demande de
-// Gauthier) : aujourd'hui, le calendrier du mois, la lecture en cours, le bac à fichiers ; deux doigts de côté passent de
-// l'une à l'autre. Le Finder de Side en descend (Descente.swift). Les touches du volume et de la luminosité s'y affichent
+// (pochette à gauche, petite onde à droite) ; le pointeur l'ouvre (elle gonfle d'abord un instant), comme un clic ou deux
+// doigts vers le bas. Ouverte, elle montre une seule vue à la fois (le 17/11, à la demande de
+// Gauthier) : le calendrier du mois, puis la lecture en cours ; deux doigts de côté passent de l'une à l'autre. (Le 19/11,
+// la vue « Aujourd'hui » et le bac à fichiers ont été retirés : Gauthier ne s'en servait pas.) Le Finder de Side en
+// descend (Descente.swift). Les touches du volume et de la luminosité s'y affichent
 // à la place du carré gris de macOS (EncocheTouches.swift).
 // Ici : les réglages, la fenêtre, la souris. Le dessin est dans EncocheVues.swift, les sources dans EncocheSources.swift.
 import AppKit
@@ -21,8 +22,6 @@ final class ConfigEncoche: ObservableObject {
     }
     /// L'agenda du jour, à droite de la lecture.
     @Published var calendrier: Bool { didSet { UserDefaults.standard.set(calendrier, forKey: "encocheCalendrier") } }
-    /// Le bac à fichiers : un fichier approché de l'encoche l'ouvre.
-    @Published var bac: Bool { didSet { UserDefaults.standard.set(bac, forKey: "encocheBac.actif") } }
     /// Le pointeur ouvre l'île (sinon, il la fait seulement gonfler et il faut cliquer).
     @Published var survolOuvre: Bool { didSet { UserDefaults.standard.set(survolOuvre, forKey: "encocheSurvolOuvre") } }
     /// Deux doigts vers le bas sur l'encoche l'ouvrent, vers le haut la referment, de côté changent de vue.
@@ -40,7 +39,6 @@ final class ConfigEncoche: ObservableObject {
         activite = oui("encocheActivite")
         touches = oui("encocheTouches")
         calendrier = oui("encocheCalendrier")
-        bac = oui("encocheBac.actif")
         geste = oui("encocheGeste")
         survolOuvre = oui("encocheSurvolOuvre")
         finderDescend = oui("encocheFinder")
@@ -51,22 +49,18 @@ final class ConfigEncoche: ObservableObject {
 enum EtatIle { case repos, hud, ouvert }
 /// Les vues de l'île ouverte, une à la fois, dans cet ordre (deux doigts de côté pour passer de l'une à l'autre).
 enum PageIle: CaseIterable {
-    case aujourdhui, calendrier, lecture, bac
+    case calendrier, lecture
 
     var nom: String {
         switch self {
-        case .aujourdhui: return String(localized: "Aujourd'hui")
         case .calendrier: return String(localized: "Calendrier")
         case .lecture: return String(localized: "Lecture")
-        case .bac: return String(localized: "Bac")
         }
     }
     var symbole: String {
         switch self {
-        case .aujourdhui: return "sun.horizon.fill"
         case .calendrier: return "calendar"
         case .lecture: return "music.note"
-        case .bac: return "tray.fill"
         }
     }
 }
@@ -87,11 +81,10 @@ final class Ile: ObservableObject {
 
     @Published private(set) var etat: EtatIle = .repos
     @Published var survol = false
-    @Published private(set) var page: PageIle = .aujourdhui
+    @Published private(set) var page: PageIle = .calendrier
     /// Le sens du dernier changement de vue (1 : vers la droite de la liste), pour que la vue glisse du bon côté.
     @Published private(set) var sens: CGFloat = 1
     @Published private(set) var hud: HudIle?
-    @Published var cibleDepot = false
     /// La taille de l'encoche elle-même (celle d'un MacBook Air 13 pouces par défaut).
     @Published private(set) var encoche = CGSize(width: 185, height: 32)
 
@@ -102,7 +95,6 @@ final class Ile: ObservableObject {
     private var finHud: Timer?
     private var departFermeture: Timer?
     private var departOuverture: Timer?
-    private var changementGlisse = 0
     private var surveillances: [Any] = []
 
     /// La fenêtre de l'île reste fixe ; c'est l'île dessinée dedans qui change de taille (animations SwiftUI, bien plus
@@ -234,16 +226,8 @@ final class Ile: ObservableObject {
             if ouverte, e.keyCode == 53 { fermer() }                 // Échap
             return
         case .leftMouseDown, .rightMouseDown:
-            changementGlisse = NSPasteboard(name: .drag).changeCount
             // Un clic ailleurs referme l'île (les clics dans d'autres fenêtres de Side aussi).
             if ouverte, !cadre.insetBy(dx: -4, dy: -4).contains(p), !(local && e.window === panneau) { fermer() }
-        case .leftMouseDragged:
-            // Un fichier qu'on approche de l'encoche l'ouvre, sur le bac.
-            let glisse = NSPasteboard(name: .drag)
-            if ConfigEncoche.commun.bac, !ouverte, glisse.changeCount != changementGlisse,
-               glisse.types?.contains(.fileURL) == true, cadre.insetBy(dx: -70, dy: -50).contains(p) {
-                ouvrir(.bac)
-            }
         default: break
         }
         suivreSouris(p)
@@ -292,9 +276,8 @@ final class Ile: ObservableObject {
         let c = ConfigEncoche.commun
         return PageIle.allCases.filter { p in
             switch p {
-            case .aujourdhui, .calendrier: return c.calendrier
+            case .calendrier: return c.calendrier
             case .lecture: return true
-            case .bac: return c.bac
             }
         }
     }
@@ -306,7 +289,7 @@ final class Ile: ObservableObject {
             if let p { allerA(p) }
             return
         }
-        // Par défaut, ce qu'il y a à faire aujourd'hui.
+        // Par défaut, le calendrier du mois (le 19/11/2026, à la demande de Gauthier).
         page = p ?? pages.first ?? .lecture
         if ConfigEncoche.commun.calendrier { CalendrierIle.commun.revenirAujourdhui() }
         LectureIle.commun.rafraichir()
@@ -344,7 +327,6 @@ final class Ile: ObservableObject {
         guard ouverte else { return }
         withAnimation(Mouvement.ileRetour) {
             etat = .repos
-            cibleDepot = false
             survol = cadreRepos.insetBy(dx: -3, dy: -3).contains(NSEvent.mouseLocation)
         }
         panneau?.ignoresMouseEvents = !cadre.contains(NSEvent.mouseLocation)
@@ -418,12 +400,8 @@ struct ReglagesEncoche: View {
     var body: some View {
         Section {
             Toggle("Montrer la musique en cours autour de l'encoche", isOn: $config.activite)
-            Toggle("Afficher l'agenda (aujourd'hui et le calendrier)", isOn: $config.calendrier)
-            Toggle("Bac à fichiers", isOn: $config.bac)
-        } header: { Text("Ce que montre l'île") } footer: {
-            Text("Approche un fichier de l'encoche : elle s'ouvre sur le bac. Les fichiers restent où ils sont ; le bac n'en garde que le chemin.")
-                .font(.caption).foregroundStyle(.secondary)
-        }
+            Toggle("Afficher le calendrier", isOn: $config.calendrier)
+        } header: { Text("Ce que montre l'île") }
         Section {
             Toggle("Le pointeur ouvre l'île", isOn: $config.survolOuvre)
             Toggle("Gestes à deux doigts", isOn: $config.geste)

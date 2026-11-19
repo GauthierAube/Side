@@ -34,7 +34,7 @@ enum Partie: String, CaseIterable, Identifiable {
         case .pleinEcran: return String(localized: "Tes applications de travail en grand : la grille, le carrousel, les numéros.")
         case .tiroir: return String(localized: "Les petites applications et la musique, une à la fois.")
         case .presse: return String(localized: "Tout ce que tu as copié, et les liens que tu gardes.")
-        case .encoche: return String(localized: "L'encoche devient une île : la musique, le volume, ton agenda, un bac à fichiers.")
+        case .encoche: return String(localized: "L'encoche devient une île : ton calendrier, la musique, le volume.")
         }
     }
     var symbole: String {

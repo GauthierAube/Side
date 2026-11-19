@@ -78,19 +78,10 @@ struct VueIle: View {
         .frame(width: t.width, height: t.height, alignment: .top)
         .padding(.horizontal, haut)
         .background(forme.fill(Color.black))
-        .overlay(forme.stroke(Color.white.opacity(ile.cibleDepot ? 0.55 : 0), lineWidth: 1.5))
         .clipShape(forme)
         .contentShape(forme)
-        .scaleEffect(ile.cibleDepot ? 1.03 : 1, anchor: .top)
         .shadow(color: .black.opacity(ouverte ? 0.5 : 0), radius: ouverte ? 24 : 0, y: 10)
         .onTapGesture { if !ile.ouverte { ile.ouvrir() } }
-        .onDrop(of: [.fileURL], isTargeted: Binding(
-            get: { ile.cibleDepot },
-            set: { v in withAnimation(Mouvement.ileSurvol) { ile.cibleDepot = v } })) { fournis in
-            guard config.bac else { return false }
-            ile.ouvrir(.bac)
-            return BacIle.commun.recevoir(fournis)
-        }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .environment(\.colorScheme, .dark)
     }
@@ -238,10 +229,8 @@ private struct VueOuverte: View {
 
     @ViewBuilder private var page: some View {
         switch ile.page {
-        case .aujourdhui: JourneeVue()
         case .calendrier: MoisVue()
         case .lecture: LectureVue(ns: ns)
-        case .bac: BacVue()
         }
     }
 
@@ -461,103 +450,6 @@ private struct LigneRdv: View {
     }
 }
 
-/// Aujourd'hui : la frise de la journée, puis ce qu'il reste à faire.
-private struct JourneeVue: View {
-    @ObservedObject private var cal = CalendrierIle.commun
-
-    var body: some View {
-        if !cal.autorise {
-            AccesAgenda()
-        } else {
-            TimelineView(.periodic(from: .now, by: 30)) { ctx in
-                let m = ctx.date
-                VStack(alignment: .leading, spacing: 9) {
-                    HStack(alignment: .firstTextBaseline, spacing: 6) {
-                        Text(m.formatted(.dateTime.weekday(.wide)).uppercased())
-                            .font(.system(size: 10, weight: .bold)).foregroundStyle(Color.red)
-                        Text(m.formatted(.dateTime.day().month(.wide))).font(.system(size: 15, weight: .semibold)).foregroundStyle(.white)
-                        Spacer()
-                        Text(resume).font(.system(size: 10)).foregroundStyle(.white.opacity(0.5))
-                    }
-                    FriseJour(rdv: cal.aujourdhui, maintenant: m)
-                    if cal.aujourdhui.isEmpty {
-                        Text("Rien de prévu aujourd'hui.").font(.system(size: 12)).foregroundStyle(.white.opacity(0.55))
-                            .frame(maxWidth: .infinity, alignment: .leading).padding(.top, 6)
-                    } else {
-                        let (liste, reste) = choix(m)
-                        VStack(alignment: .leading, spacing: 5) {
-                            ForEach(liste) { r in LigneRdv(rdv: r, maintenant: m).transition(.ile) }
-                        }
-                        if reste > 0 {
-                            Text(reste == 1 ? String(localized: "Et 1 autre") : String(localized: "Et \(reste) autres"))
-                                .font(.system(size: 10)).foregroundStyle(.white.opacity(0.45))
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    private var resume: String {
-        let n = cal.aujourdhui.count
-        return n == 0 ? "" : (n == 1 ? String(localized: "1 rendez-vous") : String(localized: "\(n) rendez-vous"))
-    }
-
-    /// Ce qui n'est pas encore fini d'abord ; si tout est passé, les derniers de la journée.
-    private func choix(_ m: Date) -> ([CalendrierIle.Rdv], Int) {
-        let restants = cal.aujourdhui.filter { $0.journee || $0.fin > m }
-        let base = restants.isEmpty ? Array(cal.aujourdhui.suffix(3)) : restants
-        let liste = Array(base.prefix(3))
-        return (liste, restants.isEmpty ? 0 : restants.count - liste.count)
-    }
-}
-
-/// La journée d'un coup d'œil : une barre de 8 h à 20 h (plus si besoin), les rendez-vous en couleur, l'heure qu'il est.
-private struct FriseJour: View {
-    let rdv: [CalendrierIle.Rdv]
-    let maintenant: Date
-
-    private func heure(_ d: Date) -> Double { d.timeIntervalSince(Calendar.current.startOfDay(for: maintenant)) / 3600 }
-
-    var body: some View {
-        let horaires = rdv.filter { !$0.journee }
-        let debut = min(8, horaires.map { floor(heure($0.debut)) }.min() ?? 8)
-        let fin = max(20, horaires.map { ceil(heure($0.fin)) }.max() ?? 20)
-        let duree = max(1, fin - debut)
-        VStack(spacing: 3) {
-            GeometryReader { g in
-                let w = g.size.width
-                let x = { (h: Double) -> CGFloat in CGFloat((min(max(h, debut), fin) - debut) / duree) * w }
-                ZStack(alignment: .leading) {
-                    Capsule().fill(Color.white.opacity(0.12))
-                    ForEach(horaires) { r in
-                        Capsule().fill(r.couleur.opacity(r.fin <= maintenant ? 0.4 : 1))
-                            .frame(width: max(4, x(heure(r.fin)) - x(heure(r.debut))))
-                            .offset(x: x(heure(r.debut)))
-                    }
-                    let h = heure(maintenant)
-                    if h >= debut && h <= fin {
-                        Capsule().fill(Color.white).frame(width: 2, height: 12).offset(x: x(h) - 1)
-                            .shadow(color: .black.opacity(0.6), radius: 2)
-                    }
-                }
-                .frame(height: 6)
-                .frame(maxHeight: .infinity)
-            }
-            .frame(height: 12)
-            HStack {
-                Text("\(Int(debut)) h")
-                Spacer()
-                Text("\(Int((debut + fin) / 2)) h")
-                Spacer()
-                Text("\(Int(fin)) h")
-            }
-            .font(.system(size: 9, weight: .medium).monospacedDigit())
-            .foregroundStyle(.white.opacity(0.4))
-        }
-    }
-}
-
 /// Le calendrier du mois à gauche (un clic sur un jour), les rendez-vous de ce jour à droite.
 private struct MoisVue: View {
     @ObservedObject private var cal = CalendrierIle.commun
@@ -656,78 +548,5 @@ private struct GrilleMois: View {
                 .frame(width: 18, height: 16).contentShape(Rectangle())
         }
         .buttonStyle(BoutonIle())
-    }
-}
-
-// MARK: - Bac à fichiers
-
-private struct BacVue: View {
-    @ObservedObject private var bac = BacIle.commun
-    @ObservedObject private var ile = Ile.commun
-
-    var body: some View {
-        if bac.fichiers.isEmpty {
-            VStack(spacing: 6) {
-                Image(systemName: "tray.and.arrow.down.fill").font(.system(size: 22, weight: .semibold))
-                    .foregroundStyle(.white.opacity(ile.cibleDepot ? 1 : 0.6))
-                    .symbolEffect(.bounce, value: ile.cibleDepot)
-                Text("Glisse des fichiers ici : ils t'attendent dans l'encoche.")
-                    .font(.system(size: 11)).foregroundStyle(.white.opacity(0.6))
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(RoundedRectangle(cornerRadius: Rayon.tuile, style: .continuous)
-                .strokeBorder(Color.white.opacity(ile.cibleDepot ? 0.6 : 0.22), style: StrokeStyle(lineWidth: 1.5, dash: [6, 5])))
-        } else {
-            // Pas de défilement ici : deux doigts de côté changent de vue. Les plus récents d'abord.
-            VStack(alignment: .leading, spacing: 8) {
-                HStack(spacing: 6) {
-                    ForEach(bac.fichiers.suffix(4).reversed(), id: \.self) { u in TuileFichier(url: u).transition(.ile) }
-                }
-                HStack {
-                    Text(bac.fichiers.count == 1 ? String(localized: "1 fichier") : String(localized: "\(bac.fichiers.count) fichiers"))
-                        .font(.system(size: 10)).foregroundStyle(.white.opacity(0.5))
-                    if bac.fichiers.count > 4 {
-                        Text("· les 4 derniers").font(.system(size: 10)).foregroundStyle(.white.opacity(0.35))
-                    }
-                    Spacer()
-                    Button { bac.vider() } label: {
-                        Text("Tout vider").font(.system(size: 10, weight: .medium)).foregroundStyle(.white.opacity(0.75))
-                    }
-                    .buttonStyle(BoutonIle())
-                }
-            }
-        }
-    }
-}
-
-private struct TuileFichier: View {
-    let url: URL
-    @State private var survol = false
-
-    var body: some View {
-        VStack(spacing: 4) {
-            Image(nsImage: NSWorkspace.shared.icon(forFile: url.path)).resizable().frame(width: 46, height: 46)
-                .scaleEffect(survol ? 1.08 : 1)
-            Text(url.lastPathComponent).font(.system(size: 10)).foregroundStyle(.white.opacity(0.85))
-                .lineLimit(2).multilineTextAlignment(.center).frame(width: 74)
-        }
-        .padding(6)
-        .background(RoundedRectangle(cornerRadius: Rayon.encadre, style: .continuous).fill(Color.white.opacity(survol ? 0.1 : 0)))
-        .overlay(alignment: .topTrailing) {
-            if survol {
-                Button { BacIle.commun.retirer(url) } label: {
-                    Image(systemName: "xmark").font(.system(size: 8, weight: .bold)).foregroundStyle(.white)
-                        .frame(width: 16, height: 16).background(Circle().fill(Color(white: 0.3)))
-                }
-                .buttonStyle(BoutonIle())
-                .transition(.scale.combined(with: .opacity))
-                .help("Retirer du bac")
-            }
-        }
-        .contentShape(Rectangle())
-        .onHover { oui in withAnimation(Mouvement.ileSurvol) { survol = oui } }
-        .onTapGesture(count: 2) { NSWorkspace.shared.open(url) }
-        .onDrag { NSItemProvider(contentsOf: url) ?? NSItemProvider() }
-        .help(url.path)
     }
 }

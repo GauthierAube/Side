@@ -7,6 +7,17 @@ Il est mis à jour à chaque modification, en même temps que le code.
 
 ## 19/11/2026
 
+### Île de l'encoche : le calendrier d'abord, sans « Aujourd'hui » ni bac
+- Demandé par Gauthier : arriver directement sur la deuxième vue (le calendrier du mois), retirer la première (« Aujourd'hui ») et le bac à fichiers, dont il ne se sert pas.
+- L'île ouverte montre maintenant deux vues : le calendrier, puis la lecture en cours. Approcher un fichier de l'encoche ne l'ouvre plus.
+- Réglages › Île de l'encoche : « Afficher le calendrier » remplace « Afficher l'agenda » ; l'interrupteur du bac est retiré.
+
+### Raccourci de la recherche sur le web : la saisie est plus sûre
+- Demandé par Gauthier : il n'arrivait pas à changer le raccourci qui ouvre la recherche sur le web (Réglages › Raccourcis clavier › Recherche sur le web).
+- Pendant la saisie, Side prend le clavier et met tous ses propres raccourcis de côté : une combinaison déjà utilisée par Side arrive dans la saisie au lieu d'ouvrir le Finder ou le tiroir.
+- Si macOS refuse la combinaison (déjà prise par Side ou par une autre application), un message en rouge le dit et l'ancien raccourci est gardé. Avant, rien ne s'affichait.
+- La note sous le réglage explique quoi faire quand rien ne se passe (combinaison tenue par macOS, comme ⌘ Espace pour Spotlight).
+
 ### Carte du Finder : elle ne s'ouvre plus sur des dossiers techniques
 - Demandé par Gauthier : en rouvrant la carte, il tombait sans cesse sur un dossier « bizarre » au lieu de ses dossiers de tous les jours.
 - Le journal de Side montrait la cause : les fichiers créés en continu par les compilations dans GitHub (Horizon, Side, Flow, Parole), par les modifications de Claude, par la sauvegarde du site Wakademy et par le presse-papiers de Side (dans iCloud Drive › Side) passaient pour des fichiers enregistrés.

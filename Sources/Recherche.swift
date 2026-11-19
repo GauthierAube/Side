@@ -46,10 +46,26 @@ final class ConfigRecherche: ObservableObject {
     @Published var mods: Int { didSet { d.set(mods, forKey: "rechercheMods") } }
     @Published var libelle: String { didSet { d.set(libelle, forKey: "rechercheLibelle") } }
 
+    /// Pourquoi le dernier raccourci tapé n'a pas été pris (vide s'il l'a été).
+    @Published var refus = ""
+
     func definirRaccourci(touche: Int, mods: Int, libelle: String) {
+        let ancien = (self.touche, self.mods, self.libelle)
         self.touche = touche
         self.mods = mods
         self.libelle = libelle
+        refus = ""
+        guard !Recherche.commun.installerRaccourci() else { return }
+        // macOS refuse la combinaison : une autre partie de Side ou une autre application la tient. On garde l'ancien.
+        let autre = RaccourcisGlobaux.propriétaire(touche: UInt32(touche), modifs: UInt32(mods)).map { nom -> String in
+            if nom == "finder" { return String(localized: "le Finder") }
+            if nom.hasPrefix("tiroir") { return String(localized: "le tiroir") }
+            if nom.hasPrefix("pleinEcran") { return String(localized: "le plein écran") }
+            return nom
+        }
+        refus = autre.map { String(localized: "\(libelle) ouvre déjà \($0) dans Side. L'ancien raccourci est gardé.") }
+            ?? String(localized: "\(libelle) est déjà pris par macOS ou par une autre application. L'ancien raccourci est gardé.")
+        (self.touche, self.mods, self.libelle) = ancien
         Recherche.commun.installerRaccourci()
     }
 
@@ -130,12 +146,13 @@ final class Recherche: NSObject, ObservableObject, WKNavigationDelegate, WKUIDel
 
     func brancher() { installerRaccourci() }
 
-    /// (Ré)installe le raccourci clavier choisi dans les réglages (aucun si on l'a effacé).
-    func installerRaccourci() {
+    /// (Ré)installe le raccourci clavier choisi dans les réglages (aucun si on l'a effacé). Faux si macOS le refuse.
+    @discardableResult
+    func installerRaccourci() -> Bool {
         RaccourcisGlobaux.retirer(Recherche.nomRaccourci)
         let c = ConfigRecherche.commun
-        guard c.touche >= 0 else { return }
-        RaccourcisGlobaux.ajouter(Recherche.nomRaccourci, touche: UInt32(c.touche), modifs: UInt32(c.mods)) { [weak self] in
+        guard c.touche >= 0 else { return true }
+        return RaccourcisGlobaux.ajouter(Recherche.nomRaccourci, touche: UInt32(c.touche), modifs: UInt32(c.mods)) { [weak self] in
             self?.basculer()
         }
     }
@@ -542,11 +559,14 @@ struct SectionRecherche: View {
                         .disabled(config.touche == -1)
                 }
             }
+            if !config.refus.isEmpty {
+                Text(config.refus).font(.caption).foregroundStyle(.red)
+            }
             Picker("Moteur de recherche", selection: $config.moteur) {
                 ForEach(MoteurRecherche.allCases) { Text(verbatim: $0.nom).tag($0) }
             }
         } header: { Text("Recherche sur le web") } footer: {
-            Text("Une pilule descend de l'encoche : tape ta recherche ou une adresse, puis Entrée. Échap referme ; la page reste en mémoire pour la prochaine fois. ⌘ Entrée l'envoie dans Safari. Pour utiliser ⌘ Espace, libère-le d'abord dans Réglages Système > Clavier > Raccourcis clavier > Spotlight.")
+            Text("Une pilule descend de l'encoche : tape ta recherche ou une adresse, puis Entrée. Échap referme ; la page reste en mémoire pour la prochaine fois. ⌘ Entrée l'envoie dans Safari. Clique sur le raccourci, puis tape la nouvelle combinaison (avec Commande, Contrôle ou Option). Si rien ne se passe, la combinaison est déjà prise par macOS ou par une autre application : libère-la dans Réglages Système > Clavier > Raccourcis clavier (⌘ Espace : Spotlight), ou choisis-en une autre.")
                 .font(.caption).foregroundStyle(.secondary)
         }
     }

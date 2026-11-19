@@ -1,5 +1,5 @@
-// Ce que l'île de l'encoche montre (voir Encoche.swift) : la lecture en cours (Spotify et Musique), l'agenda du jour
-// et le bac à fichiers. Le travail lent (AppleScript, calendrier, images) se fait hors du fil principal.
+// Ce que l'île de l'encoche montre (voir Encoche.swift) : la lecture en cours (Spotify et Musique) et l'agenda.
+// Le travail lent (AppleScript, calendrier, images) se fait hors du fil principal.
 import AppKit
 import CoreImage
 import EventKit
@@ -295,50 +295,5 @@ final class CalendrierIle: ObservableObject {
         magasin.requestFullAccessToEvents { [weak self] _, _ in
             DispatchQueue.main.async { self?.rafraichir() }
         }
-    }
-}
-
-// MARK: - Bac à fichiers
-
-/// Les fichiers posés dans l'encoche. Ce ne sont que des renvois : les fichiers restent où ils sont.
-final class BacIle: ObservableObject {
-    static let commun = BacIle()
-    private static let cle = "encocheBac"
-
-    @Published private(set) var fichiers: [URL] = []
-
-    private init() {
-        let chemins = UserDefaults.standard.stringArray(forKey: BacIle.cle) ?? []
-        fichiers = chemins.map { URL(fileURLWithPath: $0) }.filter { FileManager.default.fileExists(atPath: $0.path) }
-    }
-
-    private func enregistrer() { UserDefaults.standard.set(fichiers.map(\.path), forKey: BacIle.cle) }
-
-    func ajouter(_ u: URL) {
-        guard !fichiers.contains(u) else { return }
-        withAnimation(Mouvement.ile) { fichiers.append(u) }
-        enregistrer()
-    }
-
-    func retirer(_ u: URL) {
-        withAnimation(Mouvement.ile) { fichiers.removeAll { $0 == u } }
-        enregistrer()
-    }
-
-    func vider() {
-        withAnimation(Mouvement.ile) { fichiers = [] }
-        enregistrer()
-    }
-
-    func recevoir(_ fournis: [NSItemProvider]) -> Bool {
-        var accepte = false
-        for f in fournis where f.canLoadObject(ofClass: URL.self) {
-            accepte = true
-            _ = f.loadObject(ofClass: URL.self) { u, _ in
-                guard let u, u.isFileURL else { return }
-                DispatchQueue.main.async { BacIle.commun.ajouter(u) }
-            }
-        }
-        return accepte
     }
 }

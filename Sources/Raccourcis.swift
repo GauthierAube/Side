@@ -64,6 +64,26 @@ enum RaccourcisGlobaux {
         combinaisons[nom] = nil
     }
 
+    /// Pendant la saisie d'un nouveau raccourci, tous ceux de Side sont mis de côté : sinon une combinaison déjà utilisée
+    /// par Side déclencherait son action au lieu d'arriver dans la saisie (19/11/2026).
+    private static var enPause = false
+    static func mettreEnPause() {
+        guard !enPause else { return }
+        enPause = true
+        refs.values.forEach { UnregisterEventHotKey($0) }
+        refs = [:]
+    }
+    static func reprendre() {
+        guard enPause else { return }
+        enPause = false
+        for (nom, c) in combinaisons {
+            guard let id = numéros[nom], refs[id] == nil else { continue }   // pas déjà remis pendant la pause
+            var ref: EventHotKeyRef?
+            if RegisterEventHotKey(c.touche, c.modifs, EventHotKeyID(signature: signature, id: id), GetApplicationEventTarget(), 0, &ref) == noErr,
+               let ref { refs[id] = ref }
+        }
+    }
+
     /// Le nom du raccourci de Side qui utilise déjà cette combinaison, s'il y en a un.
     static func propriétaire(touche: UInt32, modifs: UInt32) -> String? {
         combinaisons.first { $0.value.touche == touche && $0.value.modifs == modifs }?.key
@@ -86,6 +106,9 @@ enum SaisieRaccourci {
                          fin: @escaping () -> Void) {
         annuler()
         suspendre()
+        RaccourcisGlobaux.mettreEnPause()
+        // Side n'est pas toujours l'application active : sans le clavier, la saisie ne recevrait rien.
+        NSApp.activate(ignoringOtherApps: true)
         Self.reprendre = reprendre
         écouteur = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { ev in
             let f = ev.modifierFlags
@@ -118,5 +141,6 @@ enum SaisieRaccourci {
         if let e = écouteur { NSEvent.removeMonitor(e) }
         écouteur = nil
         reprendre = nil
+        RaccourcisGlobaux.reprendre()
     }
 }
