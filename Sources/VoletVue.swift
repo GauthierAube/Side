@@ -245,17 +245,36 @@ final class VoletVue: NSObject, ObservableObject {
             VoletVue.pointeurSurPile = o.pile != nil && o.gesteLibre && p.x >= o.cadre.minX && p.x <= o.cadre.maxX
             return
         }
-        var zone = o.cadre
-        // La largeur a pu changer : on suit la vraie fenêtre.
-        if let f = fenêtre(o.chemin), let c = AXBas.cadre(f) {
-            zone = Ecrans.versNS(c)
-            // Plein écran (le bouton, ou un double-clic sur la barre du haut, que macOS gère lui-même) : la fenêtre a
-            // grandi d'un coup. Le volet garde sa place d'avant, pour y revenir.
-            let plein = VoletVue.estAgrandie(zone, volet: o.cadre)
-            if plein != agrandi { agrandi = plein; journalBas(plein ? "volet en plein écran" : "volet revenu à sa place") }
-            if !agrandi { ouvert?.cadre = zone }
-            majBouton(zone)
+        var zone = zoneVue ?? o.cadre
+        // La largeur a pu changer : on suit la vraie fenêtre. Comme la veille du tiroir : huit fois par seconde, sur la
+        // fenêtre déjà trouvée. Chaque question à Horizon l'interrompt ; à chaque relevé de la souris (33 fois par
+        // seconde, avec recherche de la fenêtre), son agrandissement saccadait (20/11/2026).
+        let maintenant = CACurrentMediaTime()
+        if maintenant - dernierRelevé >= 0.12 {
+            dernierRelevé = maintenant
+            let f = (fenêtreSuivie?.chemin == o.chemin ? fenêtreSuivie?.f : nil) ?? fenêtre(o.chemin)
+            if let f, let c = AXBas.cadre(f) {
+                fenêtreSuivie = (o.chemin, f)
+                let z = Ecrans.versNS(c)
+                calme = (zoneVue.map { $0.equalTo(z) } ?? false) ? calme + 1 : 0
+                zoneVue = z
+                zone = z
+                // Plein écran (le bouton, ou un double-clic sur la barre du haut, que macOS gère lui-même) : la fenêtre a
+                // grandi d'un coup. Le volet garde sa place d'avant, pour y revenir.
+                let plein = VoletVue.estAgrandie(zone, volet: o.cadre)
+                if plein != agrandi { agrandi = plein; journalBas(plein ? "volet en plein écran" : "volet revenu à sa place") }
+                if !agrandi { ouvert?.cadre = zone }
+                // De retour dans le volet, une fois posée : les points des vues reviennent.
+                if !agrandi, calme == 1, let pile = o.pile {
+                    PointsPile.commun.montrer(pile, au: zone) { [weak self] i in self?.allerÀ(i) }
+                }
+                // Pendant que macOS anime la fenêtre, le bouton s'efface (comme le tiroir) ; il revient une fois posée.
+                if calme >= 1 { majBouton(zone) } else { bouton?.orderOut(nil) }
+            } else {
+                fenêtreSuivie = nil
+            }
         }
+        survolerBouton()
         if agrandi {
             // En plein écran, la vue reste jusqu'à ce qu'on la réduise (bouton, double-clic, Échap) ou qu'on change d'app.
             horsDepuis = nil
@@ -540,6 +559,12 @@ final class VoletVue: NSObject, ObservableObject {
     // natif du Mac (macOS anime la fenêtre) ; la même chose, ou Échap, la renvoie dans son volet.
 
     private var agrandi = false
+    /// La fenêtre de la vue, trouvée une fois (pas de recherche à chaque relevé), et son dernier cadre relevé.
+    private var fenêtreSuivie: (chemin: String, f: AXUIElement)?
+    private var zoneVue: NSRect?
+    private var dernierRelevé: CFTimeInterval = 0
+    /// Relevés de suite où la fenêtre n'a pas bougé (0 : macOS est en train de l'animer).
+    private var calme = 0
     private var bouton: NSPanel?
     private let boutonVue = BoutonPleinEcran(frame: NSRect(x: 0, y: 0, width: BoutonPleinEcran.côté, height: BoutonPleinEcran.côté))
     private var zoneBouton: NSRect = .zero
@@ -554,6 +579,10 @@ final class VoletVue: NSObject, ObservableObject {
         AXBas.lever(f)
         app(o.bundle)?.activate(options: [])
         let voulu = !agrandi
+        // Comme le tiroir : les commandes de Side s'effacent pendant que macOS anime la fenêtre.
+        bouton?.orderOut(nil)
+        PointsPile.commun.cacher()
+        calme = 0
         let écran = NSScreen.screens.first(where: { $0.frame.intersects(o.cadre) }) ?? NSScreen.main
         journalBas(voulu ? "volet : plein écran demandé" : "volet : retour demandé")
         // Le zoom natif (le bouton vert avec ⌥) ; sans lui, la fenêtre est posée directement.
@@ -599,10 +628,14 @@ final class VoletVue: NSObject, ObservableObject {
             placerBouton(animé: false)
         }
         if !p.isVisible { p.orderFrontRegardless() }
-        // Le survol, d'après la position de la souris. Pour se replier, la souris doit quitter le rond d'origine ET la
-        // pastille élargie : pas de va-et-vient pendant qu'elle s'élargit.
+    }
+
+    /// Le survol du bouton, d'après la position de la souris (à chaque relevé, sans rien demander à Horizon). Pour se
+    /// replier, la souris doit quitter le rond d'origine ET la pastille élargie : pas de va-et-vient pendant qu'elle s'élargit.
+    private func survolerBouton() {
+        guard let p = bouton, p.isVisible else { boutonVue.survol(false); return }
         let m = NSEvent.mouseLocation
-        let rond = NSRect(x: zone.maxX - 12 - BoutonPleinEcran.côté, y: zone.maxY - 8 - BoutonPleinEcran.côté,
+        let rond = NSRect(x: zoneBouton.maxX - 12 - BoutonPleinEcran.côté, y: zoneBouton.maxY - 8 - BoutonPleinEcran.côté,
                           width: BoutonPleinEcran.côté, height: BoutonPleinEcran.côté)
         boutonVue.survol(rond.contains(m) || p.frame.contains(m))
     }
@@ -639,6 +672,9 @@ final class VoletVue: NSObject, ObservableObject {
         VoletVue.pointeurSurPile = false
         let étaitAgrandi = agrandi
         agrandi = false
+        fenêtreSuivie = nil
+        zoneVue = nil
+        calme = 0
         bouton?.orderOut(nil)
         boutonVue.survol(false)
         guard let f = fenêtre(o.chemin), let vraie = AXBas.cadre(f), vraie.minX < Ecrans.bordGarage - 2 else {

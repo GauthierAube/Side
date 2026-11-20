@@ -5,6 +5,17 @@ Il est mis à jour à chaque modification, en même temps que le code.
 
 ---
 
+## 20/11/2026 — Volet : le passage en plein écran ne saccade plus
+
+- **Vu par Gauthier** : le plein écran du volet saccadait.
+- **Causes** : 1) le volet interrogeait Horizon 33 fois par seconde (avec recherche de la fenêtre), même pendant
+  l'animation, ce qui l'interrompait ; 2) à chaque étape de l'animation du Mac, Flutter redessine toute la vue : une
+  image tous les 70 à 100 ms (relevé : une dizaine de tailles en 0,4 s).
+- **Correction** : comme la veille du tiroir, le volet relève la fenêtre huit fois par seconde, sur la fenêtre déjà
+  trouvée ; le bouton s'efface pendant le changement et revient une fois la fenêtre posée ; les points des vues reviennent
+  au retour. Côté Horizon, le zoom d'une vue passe d'un coup à sa taille finale (comme quand le Mac réduit les
+  animations). Relevé : la fenêtre change en une fois, environ 0,1 s après la demande, à l'aller comme au retour.
+
 ## 20/11/2026 — Volet de gauche (et de droite) : plein écran, comme le tiroir
 
 - **Demandé par Gauthier** : les vues qui sortent du bord de l'écran doivent pouvoir passer en plein écran, comme le
