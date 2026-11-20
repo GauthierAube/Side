@@ -68,6 +68,17 @@ extension PanneauBas {
         activations += 1
         activéeÀ = Date()
         if a.isHidden { a.unhide() }
+        // Horizon a plusieurs fenêtres (sa grande fenêtre, et chaque vue du tiroir) : la vue passe d'abord devant les
+        // autres fenêtres d'Horizon, puis Horizon est activé sans « premier plan » forcé. macOS n'amène alors que cette
+        // fenêtre, comme un clic dessus. Avec le premier plan forcé, toutes ses fenêtres remontaient, la grande devant
+        // le tiroir, qui disparaissait (20/11/2026).
+        if a.bundleIdentifier == VuesHorizon.bundle {
+            AXBas.lever(f)
+            a.activate(options: [])
+            AXBas.lever(f)
+            AXUIElementSetAttributeValue(f, kAXFocusedAttribute as CFString, kCFBooleanTrue)
+            return
+        }
         AXUIElementSetAttributeValue(AXUIElementCreateApplication(a.processIdentifier), kAXFrontmostAttribute as CFString, kCFBooleanTrue)
         a.activate(options: [])
         AXBas.lever(f)

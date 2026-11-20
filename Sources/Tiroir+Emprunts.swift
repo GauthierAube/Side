@@ -46,6 +46,22 @@ extension PanneauBas {
         // L'application ne répond pas (figée, occupée) : ce n'est pas « fenêtre fermée ». veiller() ne compte pas d'absence.
         if AXUIElementCopyAttributeValue(el, kAXWindowsAttribute as CFString, &v) == .cannotComplete { sansRéponse = true }
         let toutes = (v as? [AXUIElement]) ?? []
+        // Une vue d'Horizon (20/11/2026) : la fenêtre d'Horizon qui porte son titre, et aucune autre.
+        if e.estUneVue {
+            let f = VuesHorizon.fenêtre(e.chemin, parmi: toutes)
+            if let f { noterNuméro(e, f) }
+            return f
+        }
+        // Toute l'application Horizon : seulement sa fenêtre principale, jamais celle d'une vue (elles ont leurs propres tuiles).
+        if e.bundle == VuesHorizon.bundle {
+            if let n = numéros[e.nom], let f = toutes.first(where: { w in var id: CGWindowID = 0; return _AXUIElementGetWindow(w, &id) == .success && id == n }),
+               !VuesHorizon.estFenêtreDeVue(f) {
+                return f
+            }
+            let f = VuesHorizon.fenêtrePrincipale(parmi: toutes)
+            if let f { noterNuméro(e, f) }
+            return f
+        }
         guard let note = e.note else {
             // La fenêtre de l'application dans le tiroir garde sa place, même quand l'application en ouvre une autre
             // devant (ses réglages, une boîte de dialogue) : on la reconnaît à son numéro. Les fenêtres secondaires
@@ -87,11 +103,32 @@ extension PanneauBas {
         if _AXUIElementGetWindow(f, &id) == .success, id != 0, numéros[e.nom] != id { numéros[e.nom] = id }
     }
 
+    /// Ouvre l'application de la tuile, ou, pour une vue d'Horizon, la fenêtre de cette vue (20/11/2026).
+    /// « Ouvrir » plutôt qu'« activer » : si l'application tourne sans fenêtre, macOS lui en redonne une.
+    func lancer(_ e: EmpruntBas, devant: Bool = true) {
+        if e.estUneVue { VuesHorizon.ouvrir(e.chemin, devant: devant); return }
+        let config = NSWorkspace.OpenConfiguration()
+        config.activates = devant
+        NSWorkspace.shared.openApplication(at: URL(fileURLWithPath: e.chemin), configuration: config, completionHandler: nil)
+    }
+
+    /// La fenêtre que l'application a au premier plan est-elle celle d'une tuile du tiroir (ou posée dans le tiroir) ?
+    /// Lu dans l'ordre des fenêtres à l'écran, sans rien demander à l'application (20/11/2026) : Horizon met jusqu'à une
+    /// demi-seconde à répondre à l'Accessibilité, et une réponse manquée refermait le tiroir dès qu'on cliquait dans une vue.
+    /// Dans le doute (aucune fenêtre trouvée), on répond oui : le tiroir reste ouvert.
+    func fenêtreDevantEstUneTuile(_ a: NSRunningApplication) -> Bool {
+        guard let devant = VuesHorizon.fenêtreDevant(de: a.processIdentifier) else { return true }
+        if emprunts.contains(where: { $0.bundle == a.bundleIdentifier && numéros[$0.nom] == devant.numéro }) { return true }
+        if let p = panneau, p.frame.intersects(Ecrans.versNS(devant.cadre)) { return true }
+        return false
+    }
+
     /// L'application a bien une fenêtre, mais pas sur le bureau affiché (l'Accessibilité ne voit que le bureau courant).
     func surUnAutreBureau(_ e: EmpruntBas) -> Bool {
         guard let a = app(e), !a.isHidden, fenetre(e) == nil else { return false }
         // Une note a sa propre fenêtre, qu'on ouvre à la demande : la grande fenêtre de Notes, où qu'elle soit, ne compte pas.
-        if e.note != nil { return false }
+        // De même pour une vue d'Horizon : les autres fenêtres d'Horizon ne disent rien de la sienne.
+        if e.fenêtreÀPart { return false }
         // Le bureau affiché, et celui de chaque fenêtre de l'application : elle est « ailleurs » si elle a une vraie fenêtre
         // et qu'aucune n'est sur le bureau affiché. (Une fenêtre simplement garée hors de l'écran est bien sur ce bureau.)
         let ecrans = (CGSCopyManagedDisplaySpaces(CGSMainConnectionID()) as? [[String: Any]]) ?? []
@@ -117,10 +154,7 @@ extension PanneauBas {
         demandées.insert(e.nom)
         journalBas("ouverture demandée pour %@", e.nom)
         guard let note = e.note else {
-            // « Ouvrir » plutôt qu'« activer » : si l'application tourne sans fenêtre, macOS lui en redonne une.
-            let config = NSWorkspace.OpenConfiguration()
-            config.activates = true
-            NSWorkspace.shared.openApplication(at: URL(fileURLWithPath: e.chemin), configuration: config, completionHandler: nil)
+            lancer(e)
             return
         }
         // Notes : on affiche la note, puis on demande « Ouvrir la note dans une nouvelle fenêtre » dans le menu Fenêtre.
@@ -330,6 +364,8 @@ extension PanneauBas {
             let e = emprunts[rangCourant]
             guard liste.contains(where: { $0.nom == e.nom }), let f = fenetre(e) else { return }
             mainRendue = serie
+            // La fenêtre d'abord devant celles de son application (Horizon en a plusieurs), puis l'application activée.
+            AXBas.lever(f)
             if NSWorkspace.shared.frontmostApplication?.bundleIdentifier != e.bundle { app(e)?.activate(options: []) }
             AXBas.lever(f)
             AXUIElementSetAttributeValue(f, kAXFocusedAttribute as CFString, kCFBooleanTrue)
@@ -382,13 +418,13 @@ extension PanneauBas {
                   let maintenant = self.entières(p.frame).first(where: { $0.0.nom == e.nom })?.1, maintenant == zone,
                   let c = AXBas.cadre(f) else { return }
             var change = false
-            if c.height > zone.height + 3, (self.hauteursMini[e.bundle] ?? 0) < c.height {
-                var m = self.hauteursMini; m[e.bundle] = c.height.rounded(.up); self.hauteursMini = m
+            if c.height > zone.height + 3, (self.hauteursMini[e.cléTaille] ?? 0) < c.height {
+                var m = self.hauteursMini; m[e.cléTaille] = c.height.rounded(.up); self.hauteursMini = m
                 journalBas("%@ : hauteur minimum %.0f (vérifiée), le tiroir grandit", e.nom, c.height)
                 change = true
             }
-            if self.uneApp, c.width > zone.width + 3, (self.largeursMini[e.bundle] ?? 0) < c.width {
-                var m = self.largeursMini; m[e.bundle] = c.width.rounded(.up); self.largeursMini = m
+            if self.uneApp, c.width > zone.width + 3, (self.largeursMini[e.cléTaille] ?? 0) < c.width {
+                var m = self.largeursMini; m[e.cléTaille] = c.width.rounded(.up); self.largeursMini = m
                 journalBas("%@ : largeur minimum %.0f (vérifiée), le tiroir s'élargit", e.nom, c.width)
                 change = true
             }
@@ -410,10 +446,10 @@ extension PanneauBas {
         // Bien placée six vérifications de suite (ou l'application refuse la taille demandée) : on la laisse tranquille.
         if aSaPlace && (aSaTaille || replacements[e.nom, default: 0] >= 2) {
             if uneApp, !aSaTaille, e.note == nil {
-                let maxi = taillesMaxi[e.bundle]
+                let maxi = taillesMaxi[e.cléTaille]
                 // Plus grande que la taille maximum retenue : l'application a changé d'avis, on l'oublie.
                 if let m = maxi, m.count == 2, avant.width > CGFloat(m[0]) + 3 || avant.height > CGFloat(m[1]) + 3 {
-                    var t = taillesMaxi; t[e.bundle] = nil; taillesMaxi = t
+                    var t = taillesMaxi; t[e.cléTaille] = nil; taillesMaxi = t
                     journalBas("%@ : taille maximum oubliée", e.nom)
                     stables[e.nom] = 0; replacements[e.nom] = 0
                     return
@@ -423,9 +459,9 @@ extension PanneauBas {
                 if pluspetite, avant.width <= zone.width + 3, avant.height <= zone.height + 3 {
                     // Seule la dimension refusée est retenue : Réglages Système a une largeur fixe, mais sa hauteur est libre.
                     let libre = 100_000.0
-                    let ancien = taillesMaxi[e.bundle] ?? [libre, libre]
+                    let ancien = taillesMaxi[e.cléTaille] ?? [libre, libre]
                     var t = taillesMaxi
-                    t[e.bundle] = [avant.width < zone.width - 3 ? Double(avant.width.rounded()) : (ancien.count == 2 ? ancien[0] : libre),
+                    t[e.cléTaille] = [avant.width < zone.width - 3 ? Double(avant.width.rounded()) : (ancien.count == 2 ? ancien[0] : libre),
                                    avant.height < zone.height - 3 ? Double(avant.height.rounded()) : (ancien.count == 2 ? ancien[1] : libre)]
                     taillesMaxi = t
                     journalBas("%@ : taille fixe %.0f × %.0f, centrée dans le tiroir", e.nom, avant.width, avant.height)
@@ -437,8 +473,8 @@ extension PanneauBas {
             // Plus haute (ou plus large) que le tiroir : l'application refuse peut-être d'être plus petite. On ne le croit
             // qu'après l'avoir vérifié : redemandée à sa place, elle a encore dépassé une demi-seconde plus tard. (Retenir
             // la taille d'une application qui n'avait simplement pas encore suivi empêchait ensuite de réduire le tiroir.)
-            let tropHaute = avant.height > zone.height + 3 && (hauteursMini[e.bundle] ?? 0) < avant.height
-            let tropLarge = uneApp && avant.width > zone.width + 3 && (largeursMini[e.bundle] ?? 0) < avant.width
+            let tropHaute = avant.height > zone.height + 3 && (hauteursMini[e.cléTaille] ?? 0) < avant.height
+            let tropLarge = uneApp && avant.width > zone.width + 3 && (largeursMini[e.cléTaille] ?? 0) < avant.width
             if tropHaute || tropLarge { verifierMinimum(e, f, zone) }
             stables[e.nom, default: 0] += 1
             if stables[e.nom, default: 0] >= 6 { posées.insert(e.nom) }
@@ -482,7 +518,11 @@ extension PanneauBas {
             if a.bundleIdentifier == "com.apple.Notes" { rendreLaGrandeFenêtreDeNotes(a) }
             // Tiroir coupé dans les réglages : il ne s'ouvrira pas, donc la fenêtre appelée revient simplement à l'écran.
             if !Partie.tiroir.active {
-                emprunts.filter { $0.bundle == a.bundleIdentifier && $0.note == nil }.forEach(rendreLaFenêtre)
+                // (Une vue d'Horizon seulement si sa fenêtre est garée : Horizon appelé ne doit pas empiler toutes ses vues au milieu.)
+                emprunts.filter { $0.bundle == a.bundleIdentifier && $0.note == nil }.forEach { e in
+                    if e.estUneVue, (fenetre(e).flatMap { AXBas.cadre($0) }.map { $0.minX < Ecrans.bordGarage - 2 } ?? true) { return }
+                    rendreLaFenêtre(e)
+                }
                 return
             }
             // Une application empruntée rouverte normalement (Dock, raccourci) pendant que le panneau est fermé :
@@ -490,6 +530,22 @@ extension PanneauBas {
             // Une application du panneau appelée normalement (Dock, raccourci, Square) pendant que le panneau est fermé :
             // sa fenêtre ne sort pas du panneau. C'est le panneau qui s'ouvre, sur sa tuile.
             guard let ecran = NSScreen.screens.first, Date().timeIntervalSince(ferméÀ) > 1.0 else { return }
+            // Horizon appelé par le volet d'un coin (une de ses vues y est montrée) : c'est le volet qui s'en occupe. Sans
+            // cela, le tiroir s'ouvrait en même temps sur une autre vue, et les deux clignotaient (20/11/2026).
+            if a.bundleIdentifier == VuesHorizon.bundle {
+                guard !VoletVue.commun.estOuvert else { return }
+                // La fenêtre qu'Horizon vient de faire passer devant, lue un instant après, dans l'ordre des fenêtres à l'écran.
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) { [weak self] in
+                    guard let self, !self.ouvert, !VoletVue.commun.estOuvert,
+                          let devant = VuesHorizon.fenêtreDevant(de: a.processIdentifier),
+                          let i = self.emprunts.firstIndex(where: { $0.bundle == VuesHorizon.bundle && self.numéros[$0.nom] == devant.numéro }),
+                          devant.cadre.minX >= Ecrans.bordGarage - 2 else { return }
+                    journalBas("%@ appelée : le panneau s'ouvre sur sa tuile", self.emprunts[i].nom)
+                    self.tuileÀMontrer = i
+                    self.ouvrir()
+                }
+                return
+            }
             for (i, e) in emprunts.enumerated() where e.bundle == a.bundleIdentifier && e.note == nil {
                 guard let f = fenetre(e), let c = AXBas.cadre(f), c.minX >= Ecrans.bordGarage - 2 else { continue }
                 journalBas("%@ appelée : le panneau s'ouvre sur sa tuile", e.nom)
@@ -507,7 +563,9 @@ extension PanneauBas {
             if let p = panneau, let (e, _) = entières(p.frame).first, let b = app(e), let f = fenetre(e), activations < 8 { activer(b, f) }
             return
         }
-        guard Date().timeIntervalSince(ouvertÀ) > 0.4, !estEmpruntée(a),
+        // Horizon a plusieurs tuiles possibles (lui-même, ses vues) : on regarde plus bas quelle fenêtre est passée devant.
+        let horizon = a.bundleIdentifier == VuesHorizon.bundle
+        guard Date().timeIntervalSince(ouvertÀ) > 0.4, !estEmpruntée(a) || horizon,
               a.processIdentifier != ProcessInfo.processInfo.processIdentifier else { return }
         guard a.bundleIdentifier != "com.apple.screencaptureui", !captureEnCours() else { return }
         // Une application du tiroir qui quitte quand on ferme sa fenêtre (Réglages Système) : macOS passe aussitôt la main
@@ -523,6 +581,9 @@ extension PanneauBas {
                 self.retirer(i)
                 return
             }
+            // Horizon passe devant sur la fenêtre d'une tuile du tiroir (une vue, ou lui-même) : le tiroir reste ouvert.
+            // Sur une autre de ses fenêtres (sa fenêtre principale, alors qu'une vue est dans le tiroir), il se referme.
+            if horizon, self.fenêtreDevantEstUneTuile(a) { return }
             journalBas("%@ passe devant", nom)
             self.fermer(rendreLaMain: false)
         }

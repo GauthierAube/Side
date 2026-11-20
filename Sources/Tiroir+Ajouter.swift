@@ -40,19 +40,16 @@ extension PanneauBas {
         }
     }
 
-    // MARK: Les vues d'Horizon (17/11/2026)
-    /// Horizon (l'app de Gauthier) installe à côté de lui de petites applications qui ne montrent qu'une de ses vues
-    /// (CRM, Aujourd'hui, À planifier…), rangées dans ce dossier. Ce sont des applications comme les autres : le tiroir
-    /// n'a rien de particulier à faire pour elles, il les propose seulement d'un geste. Sans ce dossier, la ligne n'apparaît pas.
-    static let dossierVuesHorizon = "/Applications/Horizon Vues"
-    var vuesHorizon: [URL] {
-        let dossier = URL(fileURLWithPath: Self.dossierVuesHorizon)
-        let contenu = (try? FileManager.default.contentsOfDirectory(at: dossier, includingPropertiesForKeys: nil)) ?? []
-        let vues = contenu.filter { $0.pathExtension == "app" }
-            .sorted { $0.lastPathComponent.localizedCaseInsensitiveCompare($1.lastPathComponent) == .orderedAscending }
+    // MARK: Les vues d'Horizon (17/11/2026, refait le 20/11/2026)
+    /// Les vues d'Horizon (l'app de Gauthier) : CRM, Aujourd'hui, À planifier… Depuis le 20/11/2026, ce ne sont plus de petites
+    /// applications à part mais des fenêtres du seul Horizon (voir VuesHorizon.swift) : une tuile de vue prend la fenêtre
+    /// d'Horizon qui porte son titre. Le tiroir les propose d'un geste. Sans Horizon sur ce Mac, la ligne n'apparaît pas.
+    /// Rend des chemins : celui d'Horizon Mail (une vraie application), puis « horizon-vue://… » pour chaque vue.
+    var vuesHorizon: [String] {
+        let vues = VuesHorizon.chemins
         // Horizon Mail aussi : étroite, elle devient un aperçu des boîtes, sans barre latérale (le bouton vert lui rend tout).
-        let mail = URL(fileURLWithPath: "/Applications/Horizon Mail.app")
-        guard !vues.isEmpty, FileManager.default.fileExists(atPath: mail.path) else { return vues }
+        let mail = "/Applications/Horizon Mail.app"
+        guard !vues.isEmpty, FileManager.default.fileExists(atPath: mail) else { return vues }
         return [mail] + vues
     }
 
@@ -60,14 +57,24 @@ extension PanneauBas {
     func demanderUneVueHorizon() {
         guard let fenetre = plus.window else { return }
         let ancre = fenetre.convertToScreen(plus.convert(plus.bounds, to: nil))
-        let libres = vuesHorizon.filter { url in !emprunts.contains { $0.chemin == url.path } }
-        let lignes = libres.map { url in
-            SelecteurTuilesBas.Ligne(icone: NSWorkspace.shared.icon(forFile: url.path),
-                                     nom: FileManager.default.displayName(atPath: url.path).replacingOccurrences(of: ".app", with: ""),
-                                     signe: "plus.circle.fill", couleur: .systemGreen) { [weak self] in self?.ajouter(url) }
+        let libres = vuesHorizon.filter { chemin in !emprunts.contains { $0.chemin == chemin } }
+        let lignes = libres.map { chemin in
+            SelecteurTuilesBas.Ligne(icone: VuesHorizon.icône(chemin), nom: VuesHorizon.nom(chemin),
+                                     signe: "plus.circle.fill", couleur: .systemGreen) { [weak self] in
+                if VuesHorizon.estUneVue(chemin) { self?.ajouterVue(chemin) } else { self?.ajouter(URL(fileURLWithPath: chemin)) }
+            }
         }
         let vide = [SelecteurTuilesBas.Ligne(icone: nil, nom: String(localized: "Toutes les vues sont déjà dans le tiroir"), signe: nil, couleur: .clear, action: nil)]
         selecteur.montrer(pres: ancre, [(String(localized: "Choisir une vue d'Horizon"), lignes.isEmpty ? vide : lignes)])
+    }
+
+    /// Range une vue d'Horizon dans le tiroir (« horizon-vue://crm ») : sa tuile prend la fenêtre de cette vue, dans Horizon.
+    func ajouterVue(_ chemin: String) {
+        guard VuesHorizon.estUneVue(chemin), !emprunts.contains(where: { $0.chemin == chemin }) else { return }
+        let nom = VuesHorizon.nom(chemin)
+        emprunts.append(EmpruntBas(nom: nom, bundle: VuesHorizon.bundle, chemin: chemin))
+        journalBas("tuile ajoutée : %@", nom)
+        recharger(versLaFin: true)
     }
 
     /// Range une note précise dans le tiroir (par son titre). Aussi appelé depuis les réglages.
@@ -107,7 +114,7 @@ extension PanneauBas {
 
     @objc func ouvrirMenu(_ bouton: NSView) {
         if selecteur.ouvert { selecteur.fermer(); return }
-        func icone(_ chemin: String) -> NSImage { NSWorkspace.shared.icon(forFile: chemin) }
+        func icone(_ chemin: String) -> NSImage { VuesHorizon.icône(chemin) }
         let presentes = emprunts.enumerated().map { i, e in
             var l = SelecteurTuilesBas.Ligne(icone: icone(e.chemin), nom: e.nom, signe: "minus.circle.fill", couleur: .systemRed) { [weak self] in
                 // Par le nom, pas par le rang : la liste a pu changer depuis l'ouverture de ce menu.
@@ -122,8 +129,11 @@ extension PanneauBas {
             return l
         }
         let moi = Bundle.main.bundleIdentifier
+        // Horizon reste proposé tant que lui-même n'est pas dans le tiroir, même si certaines de ses vues y sont.
+        let horizonEntier = emprunts.contains { $0.bundle == VuesHorizon.bundle && !$0.estUneVue }
         let ouvertes = NSWorkspace.shared.runningApplications.filter { a in
-            a.activationPolicy == .regular && a.bundleIdentifier != moi && a.bundleURL != nil && !estEmpruntée(a)
+            a.activationPolicy == .regular && a.bundleIdentifier != moi && a.bundleURL != nil
+                && (!estEmpruntée(a) || (a.bundleIdentifier == VuesHorizon.bundle && !horizonEntier))
                 && !PanneauBas.refusées.contains(a.bundleIdentifier ?? "")
         }.sorted { ($0.localizedName ?? "").localizedCaseInsensitiveCompare($1.localizedName ?? "") == .orderedAscending }
         let aAjouter = ouvertes.map { a in
@@ -140,9 +150,9 @@ extension PanneauBas {
             SelecteurTuilesBas.Ligne(icone: icone("/System/Applications/Notes.app"), nom: String(localized: "Une seule note…"), signe: "chevron.right", couleur: .tertiaryLabelColor) { [weak self] in
                 self?.demanderUneNote()
             },
-        ] + (vuesHorizon.first.map { premiere in
+        ] + (vuesHorizon.first.map { _ in
             // Une seule vue d'Horizon (le CRM, Aujourd'hui…), quand Horizon a installé ses vues sur ce Mac.
-            [SelecteurTuilesBas.Ligne(icone: icone(premiere.path), nom: String(localized: "Une vue d'Horizon…"), signe: "chevron.right", couleur: .tertiaryLabelColor) { [weak self] in
+            [SelecteurTuilesBas.Ligne(icone: icone(VuesHorizon.appHorizon), nom: String(localized: "Une vue d'Horizon…"), signe: "chevron.right", couleur: .tertiaryLabelColor) { [weak self] in
                 self?.demanderUneVueHorizon()
             }]
         } ?? [])
@@ -168,7 +178,7 @@ extension PanneauBas {
     func ajouter(_ url: URL) {
         guard let bundle = Bundle(url: url)?.bundleIdentifier, bundle != Bundle.main.bundleIdentifier,
               !PanneauBas.refusées.contains(bundle),
-              !emprunts.contains(where: { $0.bundle == bundle && $0.note == nil }) else {
+              !emprunts.contains(where: { $0.bundle == bundle && !$0.fenêtreÀPart }) else {
             journalBas("ajout refusé pour %@ (déjà dans le panneau, ou application illisible)", url.lastPathComponent)
             return
         }
@@ -184,9 +194,12 @@ extension PanneauBas {
     func envoyerAuTiroir(pid: pid_t) {
         guard let a = NSRunningApplication(processIdentifier: pid), let url = a.bundleURL, let bundle = a.bundleIdentifier,
               bundle != Bundle.main.bundleIdentifier, !PanneauBas.refusées.contains(bundle) else { NSSound.beep(); return }
-        if !emprunts.contains(where: { $0.bundle == bundle && $0.note == nil }) { ajouter(url) }
+        // Horizon devant sur la fenêtre d'une vue : c'est cette vue qui rejoint le tiroir, pas tout Horizon (20/11/2026).
+        let vue = bundle == VuesHorizon.bundle ? vueDevant(a) : nil
+        let estElle: (EmpruntBas) -> Bool = { e in vue.map { e.chemin == $0 } ?? (e.bundle == bundle && !e.fenêtreÀPart) }
+        if !emprunts.contains(where: estElle) { if let vue { ajouterVue(vue) } else { ajouter(url) } }
         journalBas("%@ envoyée au tiroir", a.localizedName ?? bundle)
-        guard let i = emprunts.firstIndex(where: { $0.bundle == bundle && $0.note == nil }) else { return }
+        guard let i = emprunts.firstIndex(where: estElle) else { return }
         let e = emprunts[i]
         tuileÀMontrer = i
         // La transition : la fenêtre rétrécit jusqu'à sa place dans le tiroir, pendant que le tiroir arrive.
@@ -223,7 +236,9 @@ extension PanneauBas {
             if a.isHidden { a.unhide() }
             var v: CFTypeRef?
             AXUIElementCopyAttributeValue(AXUIElementCreateApplication(a.processIdentifier), kAXWindowsAttribute as CFString, &v)
-            if let f = (v as? [AXUIElement])?.first { Agrandir.basculer(f, seulementAgrandir: true); AXBas.lever(f) }
+            // Une vue d'Horizon : sa fenêtre à elle, pas la première venue d'Horizon.
+            let f = e.estUneVue ? VuesHorizon.fenêtre(e.chemin) : (v as? [AXUIElement])?.first
+            if let f { Agrandir.basculer(f, seulementAgrandir: true); AXBas.lever(f) }
             a.activate(options: [])
         }
         // La tuile quitte le tiroir sans que sa fenêtre soit rendue au milieu de l'écran : elle ira droit à sa place finale.
@@ -240,6 +255,14 @@ extension PanneauBas {
         } else {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { finale() }
         }
+    }
+
+    /// La vue d'Horizon dont la fenêtre est au premier plan d'Horizon, ou nil (fenêtre principale, ou autre chose).
+    func vueDevant(_ a: NSRunningApplication) -> String? {
+        var v: CFTypeRef?
+        AXUIElementCopyAttributeValue(AXUIElementCreateApplication(a.processIdentifier), kAXFocusedWindowAttribute as CFString, &v)
+        guard let v, CFGetTypeID(v) == AXUIElementGetTypeID() else { return nil }
+        return VuesHorizon.chemin(deTitre: titre(v as! AXUIElement))
     }
 
     /// La fenêtre accepte-t-elle qu'on change sa taille ?
@@ -262,8 +285,11 @@ extension PanneauBas {
             self?.envoyerAuTiroir(pid: a.processIdentifier)
         }
         TouchesBas.ajouter(51, touche: UInt32(kVK_UpArrow), modifs: UInt32(controlKey | optionKey)) { [weak self] in
-            guard let self, let b = NSWorkspace.shared.frontmostApplication?.bundleIdentifier,
-                  let e = self.emprunts.first(where: { $0.bundle == b }) else { NSSound.beep(); return }
+            guard let self, let a = NSWorkspace.shared.frontmostApplication, let b = a.bundleIdentifier else { NSSound.beep(); return }
+            // Horizon a plusieurs tuiles (lui-même, ses vues) : celle dont la fenêtre est devant.
+            let vue = b == VuesHorizon.bundle ? self.vueDevant(a) : nil
+            guard let e = self.emprunts.first(where: { t in vue.map { t.chemin == $0 } ?? (t.bundle == b && !t.estUneVue) })
+                    ?? self.emprunts.first(where: { $0.bundle == b }) else { NSSound.beep(); return }
             self.passerEnPleinEcran(nom: e.nom)
         }
     }

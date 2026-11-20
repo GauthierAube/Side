@@ -5,7 +5,74 @@ Il est mis à jour à chaque modification, en même temps que le code.
 
 ---
 
+## 20/11/2026 — Volet de gauche (et de droite) : plein écran, comme le tiroir
+
+- **Demandé par Gauthier** : les vues qui sortent du bord de l'écran doivent pouvoir passer en plein écran, comme le
+  tiroir : un petit bouton, ou un double-clic sur la barre du haut ; la même chose les renvoie dans leur volet.
+- **Comment** : un bouton en haut à droite de la vue (mêmes symboles que le tiroir). Il demande le zoom natif du Mac
+  (macOS anime la fenêtre) ; le double-clic sur la barre du haut, géré par Horizon, fait le même zoom. Side reconnaît
+  le plein écran à la taille de la fenêtre : le volet ne se referme plus quand la souris le quitte, les points et le
+  geste à quatre doigts entre les vues se mettent en pause, et Échap renvoie la vue dans son volet (au lieu de le fermer).
+  Fermé en plein écran, le volet garde sa largeur d'avant. Commande d'essai : `volet-plein`.
+- **Code** : `VoletVue.swift` (« Plein écran »), `Tiroir+Tuiles.swift` (commande d'essai).
+- **Essayé par Gauthier** : ça marche. **Bouton redessiné** à sa demande (on ne voyait pas qu'il menait au plein écran, ni
+  qu'il était cliquable) : une pastille de verre dépoli avec quatre flèches vers les coins (vers le centre pour revenir) ;
+  au survol, elle passe à la couleur d'accent, s'élargit en « Plein écran » / « Revenir », et la souris devient une main
+  (`BoutonPleinEcran.swift`). Image de contrôle : `docs/bouton-plein-ecran-volet.png`.
+- **Clignotement au survol (vu par Gauthier)** : en s'élargissant, la pastille faisait recalculer à macOS sa zone de survol,
+  qui signalait une sortie ; elle se repliait, puis se rouvrait. Le survol est maintenant décidé par le volet, d'après la
+  position de la souris (sur le rond d'origine ou sur la pastille élargie). Vérifié à la vraie souris : la pastille
+  s'ouvre une fois, reste ouverte tant qu'on est dessus (texte compris), se replie une fois en partant.
+
+## 20/11/2026 — Tiroir : le mini carrousel part de l'application affichée
+
+- **Vu par Gauthier** : tiroir ouvert, quatre doigts pour passer d'une application à l'autre : le carrousel repartait
+  toujours de plus haut (Babel), même sur Messages tout en bas ; ça faisait un saut.
+- **Cause** : la première image du geste partait bien de l'application affichée, mais dès la suivante, Side recomptait
+  le trajet des doigts comme si le tiroir s'ouvrait (à partir de 0 au lieu de 1) : environ quatre applications plus haut.
+- **Correction** : tant que le geste dure, Side se souvient qu'il a commencé tiroir ouvert (`PanneauBas.swift`). Le journal
+  note aussi l'application de départ (« mini carrousel : départ … »).
+- **Vérifié** : compilé ; départ juste avec le geste d'essai (Messages). Pas encore essayé avec les vrais doigts.
+
+## 20/11/2026 — Vues d'Horizon : la grande fenêtre d'Horizon ne passe plus devant le tiroir
+
+- **Vu par Gauthier** : dès qu'une vue d'Horizon s'affichait dans le tiroir, la grande fenêtre d'Horizon passait devant
+  en plein écran, le tiroir disparaissait, et seule la petite vue restait.
+- **Cause** : pour donner le clavier à une tuile, Side mettait son application « au premier plan », ce qui fait remonter
+  toutes ses fenêtres. Depuis le matin, les vues sont des fenêtres d'Horizon lui-même : sa grande fenêtre remontait avec.
+- **Correction** : pour Horizon, Side fait d'abord passer la vue devant les autres fenêtres d'Horizon, puis active Horizon
+  sans premier plan forcé. macOS n'amène alors que cette fenêtre, comme un clic dessus. Même ordre pour le volet du coin
+  et pour le clavier donné à l'application affichée (`Tiroir+Trou.swift`, `VoletVue.swift`, `Tiroir+Emprunts.swift`).
+- **Vérifié** (grande fenêtre d'Horizon ouverte derrière, relevé 500 fois par seconde) : tiroir ouvert sur Coffre, la grande
+  fenêtre ne passe jamais devant ; un clic dans la vue, le tiroir reste ouvert ; le volet de gauche s'ouvre devant elle.
+- **Pas encore vu** par Gauthier avec le trackpad.
+
+## 20/11/2026 — Vues d'Horizon : le tiroir ne se referme plus, le volet ne clignote plus
+
+- **Signalé par Gauthier** : une vue d'Horizon dans le tiroir faisait disparaître le tiroir ; le volet du coin en haut à gauche faisait apparaître la vue du tiroir en clignotant.
+- **Cause** : quand Horizon passe devant, Side lui demandait quelle fenêtre est active. Avec plusieurs fenêtres ouvertes, Horizon met jusqu'à une demi-seconde à répondre : Side se trompait, refermait le tiroir, ou l'ouvrait sur une vue pendant que le volet en montrait une autre.
+- **Maintenant** : Side lit la fenêtre d'Horizon la plus en avant dans l'ordre des fenêtres de macOS, sans rien demander à Horizon ; dans le doute, le tiroir reste ouvert. Quand le volet d'un coin est ouvert, Horizon qui passe devant n'ouvre plus le tiroir.
+- **Essai** : nouvelle commande d'essai `coin:hautGauche` (ouvre ou ferme le volet de ce coin), en plus de `panneau` et `tuile:N`.
+- **Vérifié** : tiroir ouvert sur la vue Coffre, un clic dedans, il reste ouvert ; volet du coin ouvert sur « À planifier », la vue Coffre du tiroir reste rangée.
+
+## 20/11/2026 — Trois doigts ne lancent plus le défilé des fenêtres
+
+- **Signalé par Gauthier** : en sélectionnant du texte ou en déplaçant un fichier avec trois doigts, le défilé horizontal des fenêtres en plein écran partait, alors qu'il est réservé aux quatre doigts.
+- **Cause** : le pouce posé sur le trackpad comptait comme quatrième doigt. Il ne bougeait pas, mais la moyenne des quatre avançait quand même.
+- **Maintenant** : les quatre doigts doivent tous glisser dans le même sens (chacun au moins 40 % du trajet moyen). Vaut pour le défilé plein écran, le volet à plusieurs vues et le geste vertical qui ouvre et ferme Side.
+
 ## 20/11/2026
+
+### Vues d'Horizon : des fenêtres d'Horizon, plus de petites applications
+- Horizon ne crée plus une petite application par vue (CRM, Aujourd'hui, À planifier…) dans le dossier « Horizon Vues » : chaque vue est maintenant une fenêtre d'Horizon lui-même, qui porte son nom (« Horizon CRM »). Beaucoup moins de mémoire utilisée.
+- Side suit : dans le tiroir, dans le volet d'un coin et dans le volet à plusieurs vues, une vue est la fenêtre d'Horizon qui porte son nom. Horizon s'ouvre tout seul s'il ne tourne pas, et une vue fermée se rouvre quand on la demande.
+- La liste des vues et leurs icônes viennent d'Horizon. Sans Horizon sur le Mac, les vues ne sont pas proposées, comme avant.
+- Une tuile « Horizon » (toute l'application) ne prend que la fenêtre principale d'Horizon, jamais celle d'une vue.
+- Fermer une vue ne ferme que sa fenêtre : Horizon reste ouvert, avec ses autres fenêtres. Dans le menu de son icône du tiroir, « Quitter » devient « Fermer » pour une vue.
+- Les réglages déjà faits (tuiles du tiroir, coins, volets à plusieurs vues) sont repris tels quels : chaque ancienne petite application devient la vue du même nom.
+- Horizon Mail reste une application à part, sans changement.
+- Le plein écran n'agrandit jamais la fenêtre d'une vue d'Horizon.
+- ⌃⌥↓ sur une vue d'Horizon l'envoie seule au tiroir (pas tout Horizon) ; ⌃⌥↑ fait sortir la vue de devant.
 
 ### Tiroir : agrandir presque en plein écran, le temps d'une grosse tâche
 - Demandé par Gauthier : passer l'application du tiroir en grand pour une grosse tâche, et la réduire aussitôt après.

@@ -23,7 +23,9 @@ extension PanneauBas {
         for el in (v as? [AXUIElement]) ?? [] {
             var wid: CGWindowID = 0
             guard _AXUIElementGetWindow(el, &wid) == .success, wid != idPrincipale, !secondairesPosées.contains(wid),
-                  !AX.vrai(el, kAXMinimizedAttribute), Relevé.estSecondaire(el), let c = AXBas.cadre(el),
+                  !AX.vrai(el, kAXMinimizedAttribute), Relevé.estSecondaire(el),
+                  // (Une vue d'Horizon n'est pas une fenêtre secondaire d'Horizon : elle a sa place à elle.)
+                  !(a.bundleIdentifier == VuesHorizon.bundle && VuesHorizon.estFenêtreDeVue(el)), let c = AXBas.cadre(el),
                   c.width >= 120, c.height >= 80 else { continue }
             secondairesPosées.insert(wid)
             let w = min(c.width, zone.width), h = min(c.height, zone.height)
@@ -63,7 +65,7 @@ extension PanneauBas {
         if uneApp, tic % 3 == 0 {
             var relayable: CGRect?
             // (Largeur fixe mais hauteur libre : le relais vaut pour le bord du haut seulement.)
-            let maxi = entières(p.frame).first.flatMap { taillesMaxi[$0.0.bundle] }
+            let maxi = entières(p.frame).first.flatMap { taillesMaxi[$0.0.cléTaille] }
             PanneauBas.relaisHauteurSeule = (maxi?.first ?? 100_000) < 50_000
             if let (e, zone) = entières(p.frame).first, (maxi?.last ?? 100_000) > 50_000, let f = fenetre(e), let c = AXBas.cadre(f),
                abs(c.minX - zone.minX) < 30, abs(c.maxY - zone.maxY) < 30 || abs(c.minY - zone.minY) < 30, Self.redimensionnable(f) {
@@ -255,9 +257,7 @@ extension PanneauBas {
         let v = ecran.visibleFrame
         let plein = CGRect(x: v.minX, y: principal.frame.height - v.maxY, width: v.width, height: v.height)
         // L'application peut ne pas être ouverte encore : on l'ouvre, puis on agrandit sa fenêtre dès qu'elle existe.
-        if fenetre(e) == nil {
-            NSWorkspace.shared.openApplication(at: URL(fileURLWithPath: e.chemin), configuration: NSWorkspace.OpenConfiguration(), completionHandler: nil)
-        }
+        if fenetre(e) == nil { lancer(e) }
         func essayer(_ reste: Int) {
             if let f = fenetre(e) {
                 AXBas.placer(f, plein)

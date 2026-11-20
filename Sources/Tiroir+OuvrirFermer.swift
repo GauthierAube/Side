@@ -154,12 +154,13 @@ extension PanneauBas {
         guard let p = panneau, let ecran = écranDuTiroir, let z = zoneÉcran() else { return }
         let départ = rangCourant
         navDepart = départ
+        journalBas("mini carrousel : départ %@ (rang %d, défilement %.0f)", emprunts[départ].nom, départ, Double(défilement))
         let visibles = Set(entières(p.frame).map { $0.0.nom })
         let imgs: [NSImage?] = emprunts.map { e in
             // L'application affichée est rephotographiée (elle a pu changer) ; les autres gardent leur dernière photo.
             photo(e, taille: z.size, fraîche: visibles.contains(e.nom)) ?? photos[e.nom]
         }
-        let icos: [NSImage?] = emprunts.map { NSWorkspace.shared.icon(forFile: $0.chemin) }
+        let icos: [NSImage?] = emprunts.map { VuesHorizon.icône($0.chemin) }
         CarrouselTiroir.commun.ouvrir(images: imgs, icones: icos, depart: départ, zone: z, ecran: ecran, enHaut: enHaut)
     }
 

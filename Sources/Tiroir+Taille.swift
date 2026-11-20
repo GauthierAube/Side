@@ -58,8 +58,8 @@ extension PanneauBas {
               let f = fenetre(e), let c = AXBas.cadre(f), let ecran = écranDuTiroir else { return }
         // L'application se laisse rendre plus petite que la taille minimum retenue pour elle (retenue un jour où elle
         // n'avait pas encore suivi) : on corrige, sinon le tiroir regrandissait une seconde après qu'on l'a lâché.
-        if let m = hauteursMini[e.bundle], c.height < m - 2 { var t = hauteursMini; t[e.bundle] = c.height.rounded(.up); hauteursMini = t }
-        if let m = largeursMini[e.bundle], c.width < m - 2 { var t = largeursMini; t[e.bundle] = c.width.rounded(.up); largeursMini = t }
+        if let m = hauteursMini[e.cléTaille], c.height < m - 2 { var t = hauteursMini; t[e.cléTaille] = c.height.rounded(.up); hauteursMini = t }
+        if let m = largeursMini[e.cléTaille], c.width < m - 2 { var t = largeursMini; t[e.cléTaille] = c.width.rounded(.up); largeursMini = t }
         // La souris va plus loin que le bord de la fenêtre : l'application refuse d'être plus petite. On dit pourquoi.
         if !piluleDuGeste, let d = PanneauBas.relais {
             let haut = Ecrans.disposition.hauteurPrincipal
@@ -110,16 +110,16 @@ extension PanneauBas {
         do {
             if PanneauBas.relaisCôté == 0, fin.height > p.frame.height + 10 {
                 piluleDuGeste = true
-                let laPlusHaute = emprunts.max { (hauteursMini[$0.bundle] ?? 0) < (hauteursMini[$1.bundle] ?? 0) }
-                let parElle = laPlusHaute.flatMap { hauteursMini[$0.bundle] }.map { $0 + 2 * marge >= fin.height - 1 } ?? false
+                let laPlusHaute = emprunts.max { (hauteursMini[$0.cléTaille] ?? 0) < (hauteursMini[$1.cléTaille] ?? 0) }
+                let parElle = laPlusHaute.flatMap { hauteursMini[$0.cléTaille] }.map { $0 + 2 * marge >= fin.height - 1 } ?? false
                 direLimite(app: parElle ? laPlusHaute?.nom : nil, hauteur: true,
-                           points: parElle ? (laPlusHaute.flatMap { hauteursMini[$0.bundle] } ?? fin.height) : fin.height)
+                           points: parElle ? (laPlusHaute.flatMap { hauteursMini[$0.cléTaille] } ?? fin.height) : fin.height)
             } else if PanneauBas.relaisCôté != 0, fin.width > p.frame.width + 10 {
                 piluleDuGeste = true
-                let laPlusLarge = emprunts.max { (largeursMini[$0.bundle] ?? 0) < (largeursMini[$1.bundle] ?? 0) }
-                let parElle = laPlusLarge.flatMap { largeursMini[$0.bundle] } != nil
+                let laPlusLarge = emprunts.max { (largeursMini[$0.cléTaille] ?? 0) < (largeursMini[$1.cléTaille] ?? 0) }
+                let parElle = laPlusLarge.flatMap { largeursMini[$0.cléTaille] } != nil
                 direLimite(app: parElle ? laPlusLarge?.nom : nil, hauteur: false,
-                           points: parElle ? (laPlusLarge.flatMap { largeursMini[$0.bundle] } ?? fin.width) : fin.width)
+                           points: parElle ? (laPlusLarge.flatMap { largeursMini[$0.cléTaille] } ?? fin.width) : fin.width)
             }
         }
         let terminer = { [weak self] in
@@ -168,9 +168,9 @@ extension PanneauBas {
         // On voudrait plus bas que le tiroir ne peut aller : on dit qui l'en empêche.
         if !piluleDuGeste, voulue < fin.height - 20, fin.height < (ecran.visibleFrame.height * 0.9) {
             piluleDuGeste = true
-            let laPlusHaute = emprunts.max { (hauteursMini[$0.bundle] ?? 0) < (hauteursMini[$1.bundle] ?? 0) }
-            let parElle = laPlusHaute.flatMap { hauteursMini[$0.bundle] }.map { $0 + 2 * marge >= fin.height - 1 } ?? false
-            direLimite(app: parElle ? laPlusHaute?.nom : nil, hauteur: true, points: parElle ? (hauteursMini[laPlusHaute!.bundle] ?? fin.height) : fin.height)
+            let laPlusHaute = emprunts.max { (hauteursMini[$0.cléTaille] ?? 0) < (hauteursMini[$1.cléTaille] ?? 0) }
+            let parElle = laPlusHaute.flatMap { hauteursMini[$0.cléTaille] }.map { $0 + 2 * marge >= fin.height - 1 } ?? false
+            direLimite(app: parElle ? laPlusHaute?.nom : nil, hauteur: true, points: parElle ? (hauteursMini[laPlusHaute!.cléTaille] ?? fin.height) : fin.height)
         }
         p.setFrame(fin, display: true)
         disposerLeFond(fin)
@@ -232,8 +232,8 @@ extension PanneauBas {
         disposerLeFond(fin)
         if !piluleDuGeste, voulue < fin.width - 20 {
             piluleDuGeste = true
-            let laPlusLarge = emprunts.max { (largeursMini[$0.bundle] ?? 0) < (largeursMini[$1.bundle] ?? 0) }
-            direLimite(app: laPlusLarge.flatMap { largeursMini[$0.bundle] } != nil ? laPlusLarge?.nom : nil, hauteur: false, points: fin.width)
+            let laPlusLarge = emprunts.max { (largeursMini[$0.cléTaille] ?? 0) < (largeursMini[$1.cléTaille] ?? 0) }
+            direLimite(app: laPlusLarge.flatMap { largeursMini[$0.cléTaille] } != nil ? laPlusLarge?.nom : nil, hauteur: false, points: fin.width)
         }
         if enDirect { suivreEnDirect(fin); return }
         poser(1)

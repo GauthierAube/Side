@@ -26,7 +26,8 @@ final class PileVues: ObservableObject {
     // Les clés du volet de gauche gardent leur nom d'origine (réglages déjà enregistrés).
     private var clé: String { côté == .gauche ? "voletGauche" : "voletDroite" }
 
-    /// Les chemins des applications, dans l'ordre des pages.
+    /// Les chemins des vues, dans l'ordre des pages : « horizon-vue://crm » pour une vue d'Horizon (20/11/2026),
+    /// ou le chemin d'une application (Horizon Mail).
     @Published var vues: [String] {
         didSet { défauts.set(vues, forKey: clé + "Vues"); borner() }
     }
@@ -44,7 +45,11 @@ final class PileVues: ObservableObject {
         self.défauts = défauts
         self.côté = côté
         let clé = côté == .gauche ? "voletGauche" : "voletDroite"
-        vues = défauts.stringArray(forKey: clé + "Vues") ?? []
+        let lues = défauts.stringArray(forKey: clé + "Vues") ?? []
+        // Les anciennes petites applications « Horizon Vues » deviennent les vues du même nom, dans Horizon (20/11/2026).
+        let migrées = lues.map(VuesHorizon.migrer)
+        vues = migrées
+        if migrées != lues { défauts.set(migrées, forKey: clé + "Vues") }
         index = défauts.integer(forKey: clé + "Index")
         borner()
     }
@@ -82,6 +87,13 @@ enum GestePages {
     private static let seuil: Float = 0.02         // trajet avant de décider, en largeur de trackpad
     static let course: Float = 0.3                 // trajet des doigts pour une carte entière
 
+    /// Chaque doigt a fait au moins 40 % du trajet moyen, dans le même sens (20/11/2026). Un doigt resté immobile, comme
+    /// le pouce posé pendant un glisser à trois doigts, ou parti à contresens (un pincement) : ce n'est pas un glissement
+    /// à quatre doigts.
+    static func tousGlissent(_ trajets: [Float], moyenne: Float) -> Bool {
+        trajets.count >= 4 && trajets.allSatisfy { $0 * moyenne > 0 && abs($0) >= 0.4 * abs(moyenne) }
+    }
+
     static func suivre(_ doigts: [(Int32, Float, Float)], instant: TimeInterval) -> Événement? {
         if doigts.count < 3 {
             defer { départs = [:]; sens = 0; refusé = false; avancée = 0; élan = 0 }
@@ -95,8 +107,9 @@ enum GestePages {
         let dy = écarts.map(\.1).reduce(0, +) / Float(écarts.count)
         if sens == 0 {
             guard doigts.count >= 4, écarts.count >= 4, max(abs(dx), abs(dy)) > seuil else { return nil }
-            // Tous les doigts dans le même sens (pas un pincement), et nettement à l'horizontale.
-            let mêmeSens = écarts.allSatisfy { dx > 0 ? $0.0 > -0.02 : $0.0 < 0.02 }
+            // Tous les doigts glissent dans le même sens (pas un pincement, ni trois doigts avec le pouce posé), et nettement
+            // à l'horizontale.
+            let mêmeSens = tousGlissent(écarts.map(\.0), moyenne: dx)
             guard mêmeSens, abs(dx) > 1.5 * abs(dy) else { refusé = true; return nil }
             sens = dx < 0 ? 1 : -1
             avancée = max(0, -dx * sens / course)
@@ -129,8 +142,8 @@ struct PointsPileVue: View {
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
-                .help(FileManager.default.displayName(atPath: chemin).replacingOccurrences(of: ".app", with: ""))
-                .accessibilityLabel(FileManager.default.displayName(atPath: chemin).replacingOccurrences(of: ".app", with: ""))
+                .help(VuesHorizon.nom(chemin))
+                .accessibilityLabel(VuesHorizon.nom(chemin))
             }
         }
         .padding(.horizontal, 8)
@@ -196,18 +209,16 @@ struct ReglagesPileVues: View {
 private struct ListeVues: View {
     @ObservedObject var pile: PileVues
 
-    private func nom(_ chemin: String) -> String {
-        FileManager.default.displayName(atPath: chemin).replacingOccurrences(of: ".app", with: "")
-    }
+    private func nom(_ chemin: String) -> String { VuesHorizon.nom(chemin) }
 
     private var restantes: [String] {
-        PanneauBas.commun.vuesHorizon.map(\.path).filter { !pile.vues.contains($0) }
+        PanneauBas.commun.vuesHorizon.filter { !pile.vues.contains($0) }
     }
 
     var body: some View {
         ForEach(pile.vues, id: \.self) { chemin in
             HStack {
-                Image(nsImage: NSWorkspace.shared.icon(forFile: chemin)).resizable().frame(width: 18, height: 18)
+                Image(nsImage: VuesHorizon.icône(chemin)).resizable().frame(width: 18, height: 18)
                 Text(nom(chemin))
                 Spacer()
                 Button {

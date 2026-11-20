@@ -52,7 +52,7 @@ extension PanneauBas {
             NSColor(white: 0.93, alpha: 1).setFill()
             NSBezierPath(roundedRect: r, xRadius: 10, yRadius: 10).fill()
             let c: CGFloat = 72
-            NSWorkspace.shared.icon(forFile: e.chemin).draw(in: NSRect(x: r.midX - c / 2, y: r.midY - c / 2, width: c, height: c))
+            VuesHorizon.icône(e.chemin).draw(in: NSRect(x: r.midX - c / 2, y: r.midY - c / 2, width: c, height: c))
             return true
         }
     }
@@ -213,7 +213,7 @@ extension PanneauBas {
             icônesColonne = emprunts.indices.map { i in
                 let v = IcôneBarreBas(frame: .zero)
                 v.imageScaling = .scaleProportionallyUpOrDown
-                v.image = NSWorkspace.shared.icon(forFile: emprunts[i].chemin)
+                v.image = VuesHorizon.icône(emprunts[i].chemin)
                 v.toolTip = emprunts[i].nom
                 v.auClic = { [weak self] in self?.montrerTuile(i) }
                 v.auGlisser = { [weak self] dy in self?.glisserIcône(i, dy) }

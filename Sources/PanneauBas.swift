@@ -161,8 +161,22 @@ struct EmpruntBas {
     }
     init?(_ d: [String: String]) {
         guard let nom = d["nom"], let bundle = d["bundle"], let chemin = d["chemin"] else { return nil }
+        // Une ancienne petite application « Horizon Vues » (avant le 20/11/2026) devient la vue du même nom, dans Horizon.
+        let neuf = VuesHorizon.migrer(chemin)
+        if neuf != chemin {
+            self.init(nom: VuesHorizon.nom(neuf), bundle: VuesHorizon.bundle, chemin: neuf)
+            return
+        }
         self.init(nom: nom, bundle: bundle, chemin: chemin, note: d["note"], noteId: d["noteId"])
     }
+
+    /// Une vue d'Horizon (20/11/2026) : une fenêtre d'Horizon parmi d'autres, reconnue à son titre, et non toute l'application.
+    var estUneVue: Bool { VuesHorizon.estUneVue(chemin) }
+    /// Une tuile qui ne prend qu'une fenêtre de son application (une note, une vue d'Horizon) : l'application elle-même
+    /// peut avoir d'autres fenêtres, et d'autres tuiles.
+    var fenêtreÀPart: Bool { note != nil || estUneVue }
+    /// La clé des tailles retenues (minimum, maximum) : une vue d'Horizon a la sienne, pas celle de tout Horizon.
+    var cléTaille: String { estUneVue ? chemin : bundle }
 }
 
 final class FenetrePanneauBas: NSPanel {
@@ -814,6 +828,8 @@ enum GestePanneauBas {
     private static var réservé = false       // le geste en cours est pour le panneau : Side l'ignore jusqu'au lever des doigts
     private static var suit = false
     private static var fermeture = false
+    /// Le geste a commencé tiroir ouvert (mini carrousel) : le trajet des doigts part de 1, comme pour une fermeture.
+    private static var depuisOuvert = false
     private static var progression: Float = 0
     private static var vitesse: Float = 0    // en hauteurs de trackpad par seconde, dans le sens d'ouverture
     private static var instant: TimeInterval = 0
@@ -842,12 +858,15 @@ enum GestePanneauBas {
             }
             departs = [:]
             réservé = false
+            depuisOuvert = false
             return false
         }
         for (id, y) in doigts where departs[id] == nil { departs[id] = y }
         if suit {
             guard let m = moyenne(doigts) else { return true }
-            let p = max(0, (fermeture ? 1 : 0) + m / course)
+            // Tiroir déjà ouvert (fermeture, ou mini carrousel) : on part de 1. Sans ça, dès la deuxième image, le mini
+            // carrousel sautait d'environ quatre applications vers le haut (20/11/2026).
+            let p = max(0, (fermeture || depuisOuvert ? 1 : 0) + m / course)
             let dt = Float(maintenant - instant)
             if dt > 0.004 { vitesse = vitesse * 0.6 + (p - progression) * course / dt * 0.4; instant = maintenant }
             progression = p
@@ -863,6 +882,7 @@ enum GestePanneauBas {
                 // Panneau déjà ouvert, doigts dans le sens d'ouverture : une app à la fois, les applications défilent.
                 guard navigation else { return true }
                 fermeture = false
+                depuisOuvert = true
                 suit = true
                 progression = 1 + m / course
                 vitesse = 0

@@ -92,10 +92,18 @@ extension PanneauBas {
         }
         ajouter(String(localized: "Retirer du tiroir"), "minus.circle", { [weak self] in self?.retirerSansFermer(nom: e.nom) })
         m.addItem(.separator())
-        ajouter(String(localized: "Quitter \(e.nom)"), "xmark.circle", { [weak self] in
-            guard let self else { return }
-            if let a = self.app(e) { if e.note != nil { self.retirerSansFermer(nom: e.nom) } else { a.terminate() } }
-        })
+        if e.estUneVue {
+            // Une vue d'Horizon : on ferme sa fenêtre, jamais Horizon (sa fenêtre principale et les autres vues restent).
+            ajouter(String(localized: "Fermer \(e.nom)"), "xmark.circle", { [weak self] in
+                VuesHorizon.fermer(e.chemin)
+                self?.retirerSansFermer(nom: e.nom)
+            })
+        } else {
+            ajouter(String(localized: "Quitter \(e.nom)"), "xmark.circle", { [weak self] in
+                guard let self else { return }
+                if let a = self.app(e) { if e.note != nil { self.retirerSansFermer(nom: e.nom) } else { a.terminate() } }
+            })
+        }
         NSMenu.popUpContextMenu(m, with: ev, for: vue)
         _ = actions
     }

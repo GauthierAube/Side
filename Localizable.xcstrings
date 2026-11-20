@@ -2815,6 +2815,16 @@
         }
       }
     },
+    "Fermer %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Close %@"
+          }
+        }
+      }
+    },
     "Fermer (Échap)" : {
       "localizations" : {
         "en" : {
@@ -6411,6 +6421,9 @@
         }
       }
     },
+    "Revenir" : {
+
+    },
     "Revenir au dossier précédent" : {
       "localizations" : {
         "en" : {
@@ -6420,6 +6433,9 @@
           }
         }
       }
+    },
+    "Revenir au volet (Échap)" : {
+
     },
     "Revoir la présentation" : {
       "localizations" : {

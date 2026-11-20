@@ -18,7 +18,9 @@ enum AgrandirAuto {
         // (Avant la fusion, Square lisait les réglages de Side par son nom. Depuis qu'ils ne font qu'une app, cette lecture
         // ne renvoyait plus rien : les applications du tiroir étaient agrandies en plein écran à leur première apparition.)
         let liste = UserDefaults.standard.array(forKey: "panneauBasTuiles") as? [[String: String]] ?? []
-        return Set(liste.compactMap { $0["bundle"] })
+        // Une vue d'Horizon n'est qu'une fenêtre d'Horizon (20/11/2026) : Horizon lui-même reste agrandi comme d'habitude.
+        // Les fenêtres des vues sont protégées par leur numéro (fenetresDuTiroir).
+        return Set(liste.filter { !VuesHorizon.estUneVue($0["chemin"] ?? "") }.compactMap { $0["bundle"] })
     }
 
     private static var observateurs: [pid_t: AXObserver] = [:]
@@ -100,6 +102,9 @@ enum AgrandirAuto {
         guard AXUIElementGetPid(el, &pid) == .success, let a = NSRunningApplication(processIdentifier: pid),
               a.activationPolicy == .regular, !exceptions.contains(a.bundleIdentifier ?? ""),
               !tuilesDeSide.contains(a.bundleIdentifier ?? "") else { return }
+        // La fenêtre d'une vue d'Horizon (CRM, Aujourd'hui…) : un petit volet, fait pour le tiroir ou un coin, jamais agrandi
+        // (20/11/2026 ; avant, chaque vue était une application à part, rangée parmi les applications du tiroir).
+        if a.bundleIdentifier == VuesHorizon.bundle, VuesHorizon.estFenêtreDeVue(el) { return }
         // Une fenêtre ordinaire, qui sait passer en plein écran : ni boîte de dialogue, ni palette, ni fenêtre de réglages.
         // Une fenêtre pas encore prête (sans sous-rôle ni boutons), réduite ou masquée sera réexaminée plus tard.
         guard texte(el, kAXRoleAttribute) == kAXWindowRole, texte(el, kAXSubroleAttribute) == kAXStandardWindowSubrole,

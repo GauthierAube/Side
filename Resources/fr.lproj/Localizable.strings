@@ -582,6 +582,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Fenêtres en plein écran d'Apple</string>
 	<key>Fermer</key>
 	<string>Fermer</string>
+	<key>Fermer %@</key>
+	<string>Fermer %@</string>
 	<key>Fermer (Échap)</key>
 	<string>Fermer (Échap)</string>
 	<key>Fermer d'un clic en dehors</key>
@@ -1314,8 +1316,12 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Retirer du tiroir</string>
 	<key>Retirer le fond (%@, en PNG transparent)</key>
 	<string>Retirer le fond (%@, en PNG transparent)</string>
+	<key>Revenir</key>
+	<string>Revenir</string>
 	<key>Revenir au dossier précédent</key>
 	<string>Revenir au dossier précédent</string>
+	<key>Revenir au volet (Échap)</key>
+	<string>Revenir au volet (Échap)</string>
 	<key>Revoir la présentation</key>
 	<string>Revoir la présentation</string>
 	<key>Rien dans cette rubrique.</key>

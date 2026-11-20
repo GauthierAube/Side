@@ -240,9 +240,8 @@ struct CoinsActifsView: View {
                 // Le volet à plusieurs vues, du côté du coin : on passe de l'une à l'autre avec quatre doigts à l'horizontale.
                 let pile = (c == .hautGauche || c == .basGauche) ? PileVues.gauche : PileVues.droite
                 Label("Plusieurs vues", systemImage: "rectangle.stack").tag("vue:" + pile.sentinelle)
-                ForEach(vues, id: \.path) { url in
-                    Label(FileManager.default.displayName(atPath: url.path).replacingOccurrences(of: ".app", with: ""),
-                          systemImage: "sidebar.left").tag("vue:" + url.path)
+                ForEach(vues, id: \.self) { chemin in
+                    Label(VuesHorizon.nom(chemin), systemImage: "sidebar.left").tag("vue:" + chemin)
                 }
             }
         }
@@ -448,7 +447,7 @@ struct SectionsTiroir: View {
                 if tuiles.isEmpty { Text("Aucune application.").foregroundStyle(.secondary) }
                 ForEach(tuiles, id: \.nom) { t in
                     HStack(spacing: 9) {
-                        Image(nsImage: NSWorkspace.shared.icon(forFile: t.chemin)).resizable().frame(width: 22, height: 22)
+                        Image(nsImage: VuesHorizon.icône(t.chemin)).resizable().frame(width: 22, height: 22)
                         Text(t.nom)
                         Spacer()
                         Button("Retirer") {

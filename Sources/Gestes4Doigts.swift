@@ -132,7 +132,8 @@ enum Doigts {
         let ecarts = doigts.compactMap { id, y in departs[id].map { y - $0 } }
         guard ecarts.count >= 4 else { return nil }
         let moyen = ecarts.reduce(0, +) / Float(ecarts.count)
-        guard ecarts.allSatisfy({ moyen > 0 ? $0 > -0.03 : $0 < 0.03 }) else { return nil }
+        // Chacun glisse vraiment (20/11/2026) : trois doigts avec le pouce posé ne font pas un geste à quatre doigts.
+        guard GestePages.tousGlissent(ecarts, moyenne: moyen) else { return nil }
         return moyen
     }
 
@@ -159,7 +160,7 @@ enum Doigts {
         guard ecarts.count >= 4 else { return 0 }
         let moyen = ecarts.reduce(0, +) / Float(ecarts.count)
         // Tous les doigts doivent aller dans le même sens (pas un pincement ni un écartement).
-        let memeSens = ecarts.allSatisfy { moyen > 0 ? $0 > -0.02 : $0 < 0.02 }
+        let memeSens = GestePages.tousGlissent(ecarts, moyenne: moyen)
         if memeSens && abs(moyen) > seuil { dejaFait = true; return moyen > 0 ? 1 : -1 }
         return 0
     }

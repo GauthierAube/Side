@@ -46,6 +46,7 @@ Un fichier = un thème. Les quatre parties de Side (Finder, Plein écran, Tiroir
 | `Systeme.swift`, `Reseau.swift` | ce que Side lit de macOS : captures en cours, raccourcis du système, serveurs du réseau |
 | `IALocale.swift` | l'IA locale (serveur Ollama du Mac ou du réseau, jamais Internet) : ses réglages (`ConfigIA`), le client (`IALocale`), le nom des captures d'écran (`NomDeCapture`, vérifié par `Side --test-nom-capture` et `--test-capture fichier`), son volet de réglages |
 | `Parties.swift` | les quatre parties et leur interrupteur |
+| `VuesHorizon.swift` | les vues d'Horizon (CRM, Aujourd'hui…), fenêtres du seul Horizon : liste, nom, icône, ouvrir, retrouver par titre, fermer ; conversion des anciens réglages « Horizon Vues ». Utilisé par le tiroir, le volet d'un coin (`VoletVue`) et le volet à plusieurs vues (`PileVues`) |
 | `Raccourcis.swift` | tous les raccourcis clavier globaux, et la saisie d'un nouveau raccourci |
 | `Pilule.swift`, `Presentation.swift`, `Langue.swift` | pastille d'information, présentation, langue |
 

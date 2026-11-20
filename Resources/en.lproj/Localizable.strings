@@ -548,6 +548,8 @@ Press Esc to cancel.</string>
 	<string>Windows in macOS full screen</string>
 	<key>Fermer</key>
 	<string>Close</string>
+	<key>Fermer %@</key>
+	<string>Close %@</string>
 	<key>Fermer (Échap)</key>
 	<string>Close (Esc)</string>
 	<key>Fermer d'un clic en dehors</key>

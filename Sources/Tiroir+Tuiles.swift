@@ -38,7 +38,7 @@ extension PanneauBas {
     }
     /// La plus grande des largeurs minimum des applications du tiroir (360 points si aucune n'en impose).
     var largeurAppMini: CGFloat {
-        max(360, emprunts.compactMap { largeursMini[$0.bundle] }.max() ?? 0)
+        max(360, emprunts.compactMap { largeursMini[$0.cléTaille] }.max() ?? 0)
     }
     /// Où commencent les tuiles des applications, après le coin multimédia.
     var débutTuiles: CGFloat { médias.isEmpty || (agrandi && uneApp) ? 0 : largeurTête + marge }
@@ -134,6 +134,13 @@ extension PanneauBas {
         case _ where commande.hasPrefix("tuile:"):          // pour les essais : afficher l'application de ce rang
             if let i = Int(commande.dropFirst(6)), emprunts.indices.contains(i) { montrerTuile(i) }
         // Les commandes d'essai qui agissent sur des fichiers ou sur la page YouTube ne sont écoutées que si on l'a demandé
+        case "volet-plein": VoletVue.commun.basculerAgrandi()   // pour les essais : le bouton plein écran du volet ouvert
+        case _ where commande.hasPrefix("coin:"):           // pour les essais : « coin:hautGauche » ouvre (ou ferme) le volet de ce coin
+            if VoletVue.commun.estOuvert {
+                VoletVue.commun.fermer()
+            } else if let c = Coin(rawValue: String(commande.dropFirst(5))), let chemin = VoletVue.commun.chemin(c), let e = NSScreen.main {
+                VoletVue.commun.ouvrir(c, chemin, sur: e)
+            }
         case _ where commande.hasPrefix("bord:"):           // pour les essais : « bord:x:y » (coordonnées globales, en haut à gauche)
             let v = commande.split(separator: ":").dropFirst().compactMap { Double($0) }
             if v.count == 2 {
@@ -187,7 +194,8 @@ extension PanneauBas {
             }
         // Pour les essais : « vue:hautGauche » fait comme le coin actif de ce nom (le volet d'une vue d'Horizon).
         case _ where commande.hasPrefix("vue:"):
-            // « vue:basDroite:/chemin/de/l'application.app » essaie une application sans toucher aux réglages.
+            // « vue:basDroite:/chemin/de/l'application.app » (ou « vue:basDroite:horizon-vue://crm ») essaie une application
+            // ou une vue d'Horizon sans toucher aux réglages.
             let m = commande.dropFirst(4).split(separator: ":", maxSplits: 1).map(String.init)
             if let c = m.first.flatMap(Coin.init(rawValue:)), let ch = m.count > 1 ? m[1] : VoletVue.commun.chemin(c), let e = Ecrans.deTravail {
                 VoletVue.commun.ouvrir(c, ch, sur: e)

@@ -27,7 +27,7 @@ extension PanneauBas {
         if agrandi, uneApp { return z.integral }
         let voulue = hauteurChoisie > 0 ? hauteurChoisie : (z.height * 0.52).rounded()
         // Jamais plus bas que l'application la plus haute du tiroir (elle dépasserait), ni que le minimum habituel.
-        let hApps = (emprunts.compactMap { hauteursMini[$0.bundle] }.max() ?? 0) + 2 * marge
+        let hApps = (emprunts.compactMap { hauteursMini[$0.cléTaille] }.max() ?? 0) + 2 * marge
         let h = min(max(voulue, hauteurMini, hApps), (z.height * 0.94).rounded())
         // Réduit, le tiroir reste centré ; jamais moins que le coin multimédia et une application (720 points au moins).
         let w = min(z.width, max(min(largeurTiroirMini, z.width), (Self.largeurRéférence(z.width) * largeurChoisie).rounded()))
@@ -67,7 +67,7 @@ extension PanneauBas {
             return emprunts.indices.map { i in
                 let y = b.minY + sensV * (CGFloat(i) * (h + marge) - défilement)
                 // Une application qui refuse de grandir est centrée dans sa place.
-                guard let m = maxi[emprunts[i].bundle], m.count == 2 else { return CGRect(x: x, y: y, width: w, height: h) }
+                guard let m = maxi[emprunts[i].cléTaille], m.count == 2 else { return CGRect(x: x, y: y, width: w, height: h) }
                 let wi = min(w, CGFloat(m[0])), hi = min(h, CGFloat(m[1]))
                 return CGRect(x: (x + (w - wi) / 2).rounded(), y: (y + (h - hi) / 2).rounded(), width: wi, height: hi)
             }

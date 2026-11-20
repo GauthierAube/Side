@@ -129,10 +129,11 @@ enum Glisse {
         let contacts = touches.bindMemory(to: ContactGlisse.self, capacity: nombre)
         var dx: Float = 0, dy: Float = 0, suivis: Float = 0
         var vus: [Int32: (Float, Float)] = [:]
+        var parDoigt: [Float] = []
         for i in 0..<nombre {
             let c = contacts[i]
             vus[c.identifiant] = (c.x, c.y)
-            if let d = depart[c.identifiant] { dx += c.x - d.0; dy += c.y - d.1; suivis += 1 }
+            if let d = depart[c.identifiant] { dx += c.x - d.0; dy += c.y - d.1; suivis += 1; parDoigt.append(c.x - d.0) }
         }
         let maintenant = ProcessInfo.processInfo.systemUptime
         if suivis < 4 { if phase == 0 { depart = vus; instantPose = maintenant }; return }   // les quatre doigts viennent de se poser
@@ -143,6 +144,10 @@ enum Glisse {
             guard max(abs(dx), abs(dy)) > debut else { return }
             // Nettement vertical : c'est pour Side (sa carte, son panneau du bas).
             guard abs(dx) > abs(dy) else { phase = -1; return }
+            // Les quatre doigts glissent, chacun dans le même sens (20/11/2026). Un glisser à trois doigts (sélectionner du
+            // texte, déplacer un fichier) avec le pouce posé sur le trackpad faisait aussi quatre contacts : la moyenne avançait
+            // et le carrousel partait. Un doigt immobile (le pouce) ou à contresens : ce geste n'est pas pour nous.
+            guard GestePages.tousGlissent(parDoigt, moyenne: dx) else { phase = -1; return }
             phase = 1
             debutGeste = maintenant
             // Vitesse de départ : le trajet déjà fait, sur le temps écoulé depuis que les doigts ont commencé à bouger.
