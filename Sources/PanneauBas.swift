@@ -622,6 +622,11 @@ final class PanneauBas: NSObject {
     var dernierLever = Date.distantPast
     var levées = 0
     var mainRendue = -1                       // la série d'ouverture pour laquelle Side a repris le clavier
+    /// Une app à la fois : le trou ouvert dans le fond du tiroir, à la place de l'application affichée (voir Tiroir+Trou).
+    var trou: CGRect?
+    var installéeÀ: Date?                    // l'application affichée est arrivée dans le trou (pour l'installation en cours)
+    var activations = 0                       // demandes d'activation pour l'installation en cours
+    var activéeÀ = Date.distantPast           // la dernière fois que Side a fait passer une application du tiroir devant
     /// Un menu de Side est en train d'être affiché (suivi par les notifications de NSMenu).
     static var menuOuvert = false
     var demandées: Set<String> = []     // fenêtres dont on a déjà demandé l'ouverture, pour cette fois

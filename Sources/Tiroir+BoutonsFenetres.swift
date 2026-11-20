@@ -47,6 +47,7 @@ extension PanneauBas {
             PanneauBas.boutonsVerts = []; PanneauBas.boutonsJaunes = []; enMain = nil; return
         }
         tic += 1
+        suivreLeTrou()
         let appuyé = NSEvent.pressedMouseButtons & 1 != 0
         if appuyé, !étaitAppuyé { pointAppui = NSEvent.mouseLocation }      // où le bouton a été enfoncé
         étaitAppuyé = appuyé

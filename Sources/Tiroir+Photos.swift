@@ -66,6 +66,7 @@ extension PanneauBas {
     /// `fraîches` : les tuiles à l'écran sont rephotographiées (elles ont pu changer) ; les autres gardent leur dernière photo.
     func poserImages(fraîches: Bool = true) {
         let àLÉcran = Set((panneau.map { entières($0.frame) } ?? []).map { $0.0.nom })
+        trouer(nil)                      // les photos reviennent : plus de trou dessous
         images.values.forEach { $0.removeFromSuperview() }
         images = [:]
         guard let p = panneau else { return }

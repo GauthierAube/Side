@@ -5,6 +5,16 @@ Il est mis à jour à chaque modification, en même temps que le code.
 
 ---
 
+## 20/11/2026
+
+### Tiroir (une application à la fois) : fiable, sans clignotement
+- Demandé par Gauthier : les applications du tiroir étaient parfois dedans, parfois non, et clignotaient.
+- La cause : le tiroir passait derrière l'application affichée et se battait avec macOS pour qu'elle reste devant lui (réactiver l'application, reprendre la main, repasser dessous, plusieurs fois par seconde). Chaque essai pouvait rater.
+- Maintenant, le tiroir laisse un trou à la place de l'application : on la voit au travers, et un clic dans le trou va directement à elle, quel que soit l'ordre des fenêtres. Il ne reste qu'à poser sa fenêtre et à la faire passer devant, une fois. La photo ne s'efface que lorsque c'est bien elle qu'on voit.
+- macOS rendait souvent la main à l'application d'avant (Safari, Claude…) une fraction de seconde après l'ouverture : le tiroir se refermait tout seul, ou l'application restait derrière. Le tiroir le repère et ramène son application devant.
+- Une application du tiroir cliquée dans le Dock ouvre le tiroir sans que ce même clic le referme aussitôt.
+- La bande de tuiles côte à côte (réglage « une application à la fois » coupé) ne change pas.
+
 ## 19/11/2026
 
 ### Île de l'encoche : le calendrier d'abord, sans « Aujourd'hui » ni bac

@@ -102,6 +102,7 @@ extension PanneauBas {
 
     func déplacerImages(animé: Bool) {
         guard let p = panneau else { return }
+        trouer(nil)                      // les photos se déplacent : le trou se referme jusqu'à la prochaine installation
         let b = bande(p.frame)
         placerPlus(animé: animé)
         placerLecteurs(hauteur: b.height, animé: animé)

@@ -54,6 +54,8 @@ extension PanneauBas {
         ecouteClics = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] _ in
             guard let self, let p = self.panneau, !p.frame.contains(NSEvent.mouseLocation) else { return }
             guard ConfigTiroir.commun.fermerAuClic else { return }
+            // Le clic qui vient d'ouvrir le tiroir (une application du tiroir cliquée dans le Dock) ne le referme pas.
+            guard Date().timeIntervalSince(self.ouvertÀ) > 0.5 else { journalBas("clic ailleurs ignoré : tiroir tout juste ouvert"); return }
             guard !self.captureEnCours() else { journalBas("clic ailleurs ignoré : capture d'écran en cours"); return }
             journalBas("clic ailleurs")
             self.fermer(rendreLaMain: false)
@@ -78,6 +80,8 @@ extension PanneauBas {
         levées = 0
         dernierLever = .distantPast
         let visibles = entières(p.frame).filter { !ailleursNoms.contains($0.0.nom) }
+        // La photo revient à la place du trou, le temps que la vraie fenêtre soit reposée.
+        if uneApp { trouer(nil); visibles.forEach { images[$0.0.nom]?.isHidden = false } }
         ranger(sauf: Set(visibles.map { $0.0.nom }))
         préparer(visibles, serie: serie)
     }

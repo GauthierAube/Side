@@ -84,7 +84,8 @@ extension PanneauBas {
     /// Un clic dans le tiroir (case « + », sélecteur, page YouTube…) fait passer sa fenêtre devant celles des tuiles,
     /// qui disparaissent alors derrière lui. On le remet aussitôt juste sous la tuile la plus en arrière.
     func repasserSousLesTuiles() {
-        guard ouvert, enPlace, !défile, !sansFenêtres, let p = panneau else { return }
+        // Une app à la fois : le tiroir a un trou à la place de l'application, l'ordre des fenêtres ne compte plus.
+        guard !uneApp, ouvert, enPlace, !défile, !sansFenêtres, let p = panneau else { return }
         let infos = (CGWindowListCopyWindowInfo([.optionOnScreenOnly], kCGNullWindowID) as? [[String: Any]]) ?? []
         let ordre = infos.compactMap { $0[kCGWindowNumber as String] as? Int }
         guard let rangPanneau = ordre.firstIndex(of: p.windowNumber) else { return }

@@ -260,6 +260,19 @@ extension PanneauBas {
     /// alors qu'elle est encore hors de l'écran. Une fois le panneau arrivé, on les installe d'un coup à la place de leurs photos.
     func préparer(_ visibles: [(EmpruntBas, CGRect)], serie maSerie: Int) {
         guard ouvert, serie == maSerie else { return }
+        // Une app à la fois : plus de course pour passer devant le tiroir. On attend qu'il soit arrivé, puis on pose
+        // la fenêtre une fois, dans le trou (voir Tiroir+Trou).
+        if uneApp {
+            guard glissé else {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.02) { [weak self] in self?.préparer(visibles, serie: maSerie) }
+                return
+            }
+            activations = 0
+            activéeÀ = .distantPast
+            installéeÀ = nil
+            installerUneApp(visibles, serie: maSerie)
+            return
+        }
         let prêtes = visibles.allSatisfy { fenetre($0.0).map { estDevant($0) } ?? true }
         if glissé && (prêtes || Date().timeIntervalSince(glisséÀ) > 0.4) {
             for (e, zone) in visibles { if let f = fenetre(e) { placer(e, f, zone) } }
@@ -310,7 +323,7 @@ extension PanneauBas {
     /// Toutes les tuiles sont devant. Pour y arriver, il a fallu activer leurs applications : la dernière garde le clavier
     /// (le champ de recherche de Mots de passe, par exemple). Side le reprend, et repasse aussitôt sous les tuiles.
     func rendreLeClavier(_ liste: [EmpruntBas]) {
-        guard !PanneauBas.menuOuvert, mainRendue != serie, Date().timeIntervalSince(dernierLever) > 0.3 else { return }
+        guard !uneApp, !PanneauBas.menuOuvert, mainRendue != serie, Date().timeIntervalSince(dernierLever) > 0.3 else { return }
         // Une app à la fois : le clavier va directement à l'application affichée, dès l'ouverture et à chaque changement,
         // sans avoir à cliquer dedans.
         if uneApp, emprunts.indices.contains(rangCourant) {
@@ -341,7 +354,7 @@ extension PanneauBas {
     /// macOS ne fait passer devant qu'une application par demande.
     func remonter(_ liste: [EmpruntBas], attente: TimeInterval = 0.2) {
         // Un menu de Side est ouvert (clic droit sur la barre des lecteurs…) : activer une application le refermerait.
-        guard !PanneauBas.menuOuvert else { return }
+        guard !uneApp, !PanneauBas.menuOuvert else { return }
         // Side a repris le clavier : les tuiles sont déjà devant, on ne réactive plus leurs applications.
         guard mainRendue != serie else { return }
         guard Date().timeIntervalSince(dernierLever) > attente, levées < 12 else { return }
@@ -484,6 +497,14 @@ extension PanneauBas {
                 ouvrir()
                 break
             }
+            return
+        }
+        // Juste après que Side a fait passer une application du tiroir devant, macOS rend parfois la main à l'application
+        // d'avant (Safari, Claude…). Ce n'est pas vous : le tiroir restait ouvert une fraction de seconde puis se refermait
+        // (20/11/2026). On l'ignore, et l'application du tiroir repasse devant.
+        if uneApp, a.processIdentifier == pidAvant, Date().timeIntervalSince(activéeÀ) < 1.5 {
+            journalBas("%@ revient devant juste après l'ouverture : ignoré", a.localizedName ?? "?")
+            if let p = panneau, let (e, _) = entières(p.frame).first, let b = app(e), let f = fenetre(e), activations < 8 { activer(b, f) }
             return
         }
         guard Date().timeIntervalSince(ouvertÀ) > 0.4, !estEmpruntée(a),
