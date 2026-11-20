@@ -126,6 +126,8 @@
 	<string>Make each new window fill the screen</string>
 	<key>Agrandir la fenêtre en cours  (⌃⌥ Entrée)</key>
 	<string>Fill the Screen with Current Window  (⌃⌥ Return)</string>
+	<key>Agrandir le tiroir (⌃⌥ Entrée)</key>
+	<string>Enlarge the drawer (⌃⌥ Return)</string>
 	<key>Ajouter</key>
 	<string>Add</string>
 	<key>Ajouter au Dock</key>
@@ -1264,6 +1266,8 @@ Press Esc to cancel.</string>
 	<string>Recents</string>
 	<key>Réduire %@ à %@</key>
 	<string>Shrink %1$@ to %2$@</string>
+	<key>Réduire le tiroir (⌃⌥ Entrée)</key>
+	<string>Shrink the drawer (⌃⌥ Return)</string>
 	<key>Réglages</key>
 	<string>Settings</string>
 	<key>Réglages : icône Side, barre des menus</key>

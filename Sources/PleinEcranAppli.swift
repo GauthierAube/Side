@@ -66,7 +66,11 @@ final class Appli: NSObject, NSApplicationDelegate, NSMenuDelegate {
         // Commandes venues d'une autre application (Mulot, pour les boutons de la souris).
         DistributedNotificationCenter.default().addObserver(self, selector: #selector(commandeExterieure(_:)),
                                                             name: .init("com.gauthieraube.square.commande"), object: nil)
-        Touches.ajouter(idAgrandir, touche: UInt32(kVK_Return), modifs: UInt32(controlKey | optionKey)) { if Partie.pleinEcran.active { Agrandir.fenetreActive() } }
+        Touches.ajouter(idAgrandir, touche: UInt32(kVK_Return), modifs: UInt32(controlKey | optionKey)) {
+            // Tiroir ouvert (une app à la fois) : le même raccourci agrandit ou réduit le tiroir (20/11/2026).
+            if PanneauBas.commun.ouvert, ConfigTiroir.commun.uneApp { PanneauBas.commun.basculerAgrandi(); return }
+            if Partie.pleinEcran.active { Agrandir.fenetreActive() }
+        }
         // Partie « Plein écran » coupée ou rallumée dans les réglages : ses raccourcis ⌘1 à ⌘9 suivent.
         NotificationCenter.default.addObserver(forName: Partie.changement, object: nil, queue: .main) { [weak self] _ in
             self?.brancherRaccourcisDirects()

@@ -41,7 +41,7 @@ extension PanneauBas {
         max(360, emprunts.compactMap { largeursMini[$0.bundle] }.max() ?? 0)
     }
     /// Où commencent les tuiles des applications, après le coin multimédia.
-    var débutTuiles: CGFloat { médias.isEmpty ? 0 : largeurTête + marge }
+    var débutTuiles: CGFloat { médias.isEmpty || (agrandi && uneApp) ? 0 : largeurTête + marge }
     /// Le coin multimédia montre un seul de ses éléments, au choix (retenu). Les autres continuent de jouer, masqués.
     var média: String {
         get {

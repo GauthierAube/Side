@@ -7,6 +7,18 @@ Il est mis à jour à chaque modification, en même temps que le code.
 
 ## 20/11/2026
 
+### Tiroir : agrandir presque en plein écran, le temps d'une grosse tâche
+- Demandé par Gauthier : passer l'application du tiroir en grand pour une grosse tâche, et la réduire aussitôt après.
+- Un bouton à lui tout seul (deux flèches), dans sa petite barre au-dessus de la colonne d'icônes : l'application prend tout l'écran (sous la barre des menus, au-dessus du Dock). Le coin YouTube/Spotify s'efface (la musique ou la vidéo continue). Un second clic la ramène dans le tiroir.
+- Derrière le tiroir agrandi, tout est flouté avec le même voile que celui du Finder de Side (même force, réglée dans les réglages) : on ne voit plus que l'application.
+- La même chose au clavier, ⌃⌥ Entrée (le raccourci « Agrandir » de Square, qui agrandit le tiroir quand il est ouvert), ou par un double-clic sur le bord du tiroir, même quand sa taille est figée par YouTube.
+- Le tiroir se rouvre toujours à sa taille habituelle. Tirer un de ses bords quand il est agrandi en fait un tiroir ordinaire, à la taille tirée.
+- Pas de photo, ni de fenêtre déplacée pas à pas (les deux ont été essayés : laid, puis saccadé). C'est macOS qui agrandit la fenêtre, avec le zoom du Mac (celui du bouton vert avec ⌥), animé par l'application elle-même ; à défaut, « Remplir » ou « Réduire/agrandir » de son menu Fenêtre. La même commande, dans l'autre sens, la ramène à sa place dans le tiroir.
+- Agrandie, l'application prend tout l'écran : la colonne d'icônes s'en va, il ne reste que le bouton « réduire », au milieu du bord droit, au-dessus d'elle.
+- Tiroir agrandi : Échap le fait redescendre (au lieu de le fermer), comme un clic à côté de l'application.
+- Corrigé : après un clic sur le bouton (ou sur la colonne d'icônes), le tiroir repassait devant l'application, et les clics dans l'application n'arrivaient plus. Le tiroir laisse maintenant passer la souris dès qu'elle est sur l'application.
+- Le bouton vert de l'application garde son rôle.
+
 ### Tiroir (une application à la fois) : fiable, sans clignotement
 - Demandé par Gauthier : les applications du tiroir étaient parfois dedans, parfois non, et clignotaient.
 - La cause : le tiroir passait derrière l'application affichée et se battait avec macOS pour qu'elle reste devant lui (réactiver l'application, reprendre la main, repasser dessous, plusieurs fois par seconde). Chaque essai pouvait rater.

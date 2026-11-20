@@ -439,8 +439,11 @@ final class PanneauBas: NSObject {
     static var tailleFixe: Bool { TuilePeinard.disponible && ConfigTiroir.commun.medias.contains { $0.genre == "youtube" } }
     static let largeurPeinard: CGFloat = 740
 
-    static func surLeBord(_ p: CGPoint) -> Bool {
-        guard !tailleFixe else { return false }
+    /// Le dernier clic sur le bord du tiroir (instant, endroit) : deux clics rapprochés font un double-clic (agrandir).
+    static var dernierClicBord: (TimeInterval, CGPoint) = (0, .zero)
+    /// `mêmeFigé` : aussi quand la taille du tiroir est figée (le double-clic pour agrandir reste possible).
+    static func surLeBord(_ p: CGPoint, mêmeFigé: Bool = false) -> Bool {
+        guard mêmeFigé || !tailleFixe else { return false }
         let c = cadreBrut
         let bord = ConfigTiroir.enHaut ? c.maxY : c.minY                   // le bord tourné vers le milieu de l'écran
         let dedans = ConfigTiroir.enHaut ? bord - p.y : p.y - bord
@@ -623,7 +626,19 @@ final class PanneauBas: NSObject {
     var levées = 0
     var mainRendue = -1                       // la série d'ouverture pour laquelle Side a repris le clavier
     /// Une app à la fois : le trou ouvert dans le fond du tiroir, à la place de l'application affichée (voir Tiroir+Trou).
-    var trou: CGRect?
+    var trou: CGRect? { didSet { PanneauBas.trouÉcran = trou; majClicsDansLeTrou(nil) } }
+    /// Le trou, lu par le filtre d'événements (hors du fil principal) pour savoir si le pointeur est dedans.
+    static var trouÉcran: CGRect?
+    static var pointeurDansLeTrou = false
+    /// Une app à la fois : le tiroir monte presque en plein écran, le temps d'une grosse tâche (20/11/2026).
+    /// Jamais retenu : il se rouvre toujours à sa taille habituelle.
+    var agrandi = false
+    /// La commande de macOS qui a agrandi la fenêtre (« remplir » ou « zoom »), pour la réduire par la commande inverse.
+    var commandeAgrandi: String?
+    /// Tiroir agrandi : la place du bouton « réduire » à l'écran (coordonnées globales). Les clics dessus restent au tiroir.
+    static var pastilleÉcran: CGRect?
+    var enTransition = false                  // l'animation d'agrandissement (ou de réduction) est en cours
+    let boutonAgrandir = BoutonBas(frame: .zero)
     var installéeÀ: Date?                    // l'application affichée est arrivée dans le trou (pour l'installation en cours)
     var activations = 0                       // demandes d'activation pour l'installation en cours
     var activéeÀ = Date.distantPast           // la dernière fois que Side a fait passer une application du tiroir devant
@@ -674,6 +689,27 @@ final class PanneauBas: NSObject {
         bandeVue.addSubview(v, positioned: .below, relativeTo: plus)
         return v
     }()
+    /// La petite barre du bouton « agrandir », au-dessus de la colonne : le même fond, mais à part.
+    lazy var barreAgrandir: NSVisualEffectView = {
+        let v = NSVisualEffectView()
+        v.material = .popover
+        v.blendingMode = .behindWindow
+        v.state = .active
+        v.wantsLayer = true
+        v.layer?.cornerRadius = Rayon.panneau
+        v.layer?.cornerCurve = .continuous
+        v.layer?.masksToBounds = true
+        v.layer?.borderWidth = 0.5
+        v.layer?.borderColor = NSColor(white: 0.5, alpha: 0.25).cgColor
+        let t = TeinteBas()
+        t.wantsLayer = true
+        t.autoresizingMask = [.width, .height]
+        v.addSubview(t)
+        bandeVue.addSubview(v, positioned: .below, relativeTo: boutonAgrandir)
+        return v
+    }()
+    /// Le voile flou posé derrière le tiroir agrandi (le même que celui du Finder de Side) : on ne voit plus que l'application.
+    var voileAgrandi: NSPanel?
     /// Pendant le mini carrousel (geste à quatre doigts prolongé) : le rang de l'application au départ.
     var navDepart: Int?
     var navDepuisOuvert = false

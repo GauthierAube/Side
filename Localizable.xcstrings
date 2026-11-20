@@ -651,6 +651,16 @@
         }
       }
     },
+    "Agrandir le tiroir (⌃⌥ Entrée)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enlarge the drawer (⌃⌥ Return)"
+          }
+        }
+      }
+    },
     "Ajouter" : {
       "localizations" : {
         "en" : {
@@ -6498,6 +6508,16 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Réduire %1$@ à %2$@"
+          }
+        }
+      }
+    },
+    "Réduire le tiroir (⌃⌥ Entrée)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shrink the drawer (⌃⌥ Return)"
           }
         }
       }

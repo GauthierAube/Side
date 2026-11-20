@@ -40,14 +40,16 @@ extension PanneauBas {
         if capture != enCapture {
             enCapture = capture
             if capture { TouchesBas.retirer(idEchap) }
-            else if ouvert { TouchesBas.ajouter(idEchap, touche: UInt32(kVK_Escape), modifs: 0) { [weak self] in self?.fermer(rendreLaMain: true) } }
+            else if ouvert { TouchesBas.ajouter(idEchap, touche: UInt32(kVK_Escape), modifs: 0) { [weak self] in self?.échap() } }
         }
         if capture { return }
-        guard ouvert, enPlace, !défile, !enDirect, !suiviDoigts, !sansFenêtres, let p = panneau else {
+        guard ouvert, enPlace, !défile, !enDirect, !enTransition, !suiviDoigts, !sansFenêtres, let p = panneau else {
             PanneauBas.boutonsVerts = []; PanneauBas.boutonsJaunes = []; enMain = nil; return
         }
         tic += 1
         suivreLeTrou()
+        // Agrandi : la fenêtre vit sa vie en grand, le tiroir ne surveille ni sa taille ni ses boutons.
+        if agrandi { PanneauBas.boutonsVerts = []; PanneauBas.boutonsJaunes = []; PanneauBas.fenêtreRelayable = nil; return }
         let appuyé = NSEvent.pressedMouseButtons & 1 != 0
         if appuyé, !étaitAppuyé { pointAppui = NSEvent.mouseLocation }      // où le bouton a été enfoncé
         étaitAppuyé = appuyé

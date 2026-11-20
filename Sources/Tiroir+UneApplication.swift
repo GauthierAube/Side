@@ -23,6 +23,8 @@ extension PanneauBas {
     /// Emplacement du panneau (coordonnées AppKit) : collé au bas (ou au haut) de l'écran, à la hauteur choisie.
     func cadre(_ ecran: NSScreen) -> CGRect {
         let z = ecran.visibleFrame
+        // Agrandi : toute la place de l'écran, sous la barre des menus et au-dessus du Dock.
+        if agrandi, uneApp { return z.integral }
         let voulue = hauteurChoisie > 0 ? hauteurChoisie : (z.height * 0.52).rounded()
         // Jamais plus bas que l'application la plus haute du tiroir (elle dépasserait), ni que le minimum habituel.
         let hApps = (emprunts.compactMap { hauteursMini[$0.bundle] }.max() ?? 0) + 2 * marge
@@ -55,6 +57,11 @@ extension PanneauBas {
     func zones(_ c: CGRect) -> [CGRect] {
         if uneApp {
             let b = bande(c), h = b.height
+            if agrandi {
+                // Agrandi : toute la place de l'écran est à l'application (c'est macOS qui lui donne sa taille).
+                let g = panneauGlobal(c)
+                return emprunts.indices.map { i in g.offsetBy(dx: 0, dy: sensV * (CGFloat(i) * (h + marge) - défilement)) }
+            }
             let x = b.minX + débutTuiles, w = max(200, b.width - débutTuiles - largeurColonne - marge)
             let maxi = taillesMaxi
             return emprunts.indices.map { i in
@@ -223,6 +230,13 @@ extension PanneauBas {
         // Après chaque clic dans le tiroir, ses tuiles repassent devant lui (voir repasserSousLesTuiles).
         NSEvent.addLocalMonitorForEvents(matching: [.leftMouseDown, .leftMouseUp]) { [weak self] ev in
             if let self, ev.window === self.panneau {
+                // Tiroir agrandi : un clic à côté de l'application (sur le fond, pas sur un bouton) le fait redescendre.
+                if ev.type == .leftMouseDown, self.agrandi, let support = self.panneau?.contentView,
+                   let vue = support.hitTest(support.convert(ev.locationInWindow, from: nil)),
+                   vue === support || vue === self.fond || vue === self.bandeVue {
+                    self.basculerAgrandi()
+                    return nil
+                }
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { self.repasserSousLesTuiles() }
             }
             return ev
@@ -235,6 +249,13 @@ extension PanneauBas {
         roue.target = self
         roue.action = #selector(ouvrirLesRéglages)
         bandeVue.addSubview(roue)                // au bout de la bande, sous la case « + », alignée sur le bas des tuiles
+        boutonAgrandir.isBordered = false
+        boutonAgrandir.contentTintColor = .secondaryLabelColor
+        boutonAgrandir.target = self
+        boutonAgrandir.action = #selector(basculerAgrandi)
+        majBoutonAgrandir()
+        bandeVue.addSubview(boutonAgrandir)
+        _ = barreAgrandir                        // sa petite barre, posée juste dessous
         return p
     }
 }

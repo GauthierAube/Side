@@ -22,6 +22,11 @@ extension PanneauBas {
         let p = panneau ?? construire()
         panneau = p
         publierFenêtres()                          // le tiroir lui-même compte parmi « ses » fenêtres (double flèche du bord)
+        let rang = rangCourant                     // (calculé avec la taille d'avant : le tiroir a pu être fermé agrandi)
+        agrandi = false                            // le tiroir se rouvre toujours à sa taille habituelle
+        p.level = .normal
+        PanneauBas.pastilleÉcran = nil
+        majBoutonAgrandir()
         let fin = cadre(ecran)
         p.setFrame(fin, display: false)
         disposerLeFond(fin)
@@ -36,6 +41,7 @@ extension PanneauBas {
             : String(localized: "En photo : \(ailleursNoms.sorted().joined(separator: ", ")) — fenêtre ouverte sur un autre bureau.")
         if sansFenêtres { journalBas("ouvert par-dessus un plein écran d'Apple : tuiles en photo") }
         if !ailleursNoms.isEmpty { journalBas("sur un autre bureau, laissées en photo : %@", ailleursNoms.sorted().joined(separator: ", ")) }
+        garderLeRang(rang, fin)
         défilement = min(défilement, arrêts(fin).maxi)
         poser(0)
         poserImages(fraîches: false)
@@ -50,7 +56,7 @@ extension PanneauBas {
         absences = [:]
         enMain = nil
         veille = Timer.scheduledTimer(withTimeInterval: 0.12, repeats: true) { [weak self] _ in self?.veiller() }
-        TouchesBas.ajouter(idEchap, touche: UInt32(kVK_Escape), modifs: 0) { [weak self] in self?.fermer(rendreLaMain: true) }
+        TouchesBas.ajouter(idEchap, touche: UInt32(kVK_Escape), modifs: 0) { [weak self] in self?.échap() }
         ecouteClics = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] _ in
             guard let self, let p = self.panneau, !p.frame.contains(NSEvent.mouseLocation) else { return }
             guard ConfigTiroir.commun.fermerAuClic else { return }
@@ -124,7 +130,7 @@ extension PanneauBas {
 
     /// Le tiroir est déjà ouvert et les doigts repartent dans le sens d'ouverture : le mini carrousel apparaît.
     func commencerNavigation() {
-        guard uneApp, ouvert, enPlace, !suiviDoigts, emprunts.count > 1 else { return }
+        guard uneApp, ouvert, enPlace, !agrandi, !suiviDoigts, emprunts.count > 1 else { return }
         suiviDoigts = true
         fermetureSuivie = false
         navDepuisOuvert = true
@@ -251,6 +257,7 @@ extension PanneauBas {
     func terminerFermeture(rendreLaMain: Bool, duree: TimeInterval, courbe: CAMediaTimingFunction) {
         guard ouvert else { return }
         ouvert = false
+        cacherVoileAgrandi()                 // le flou du tiroir agrandi s'en va avec lui
         // Un mini carrousel encore affiché disparaît avec le tiroir.
         if navDepart != nil { navDepart = nil; navDepuisOuvert = false; CarrouselTiroir.commun.masquer() }
         suiviDoigts = false

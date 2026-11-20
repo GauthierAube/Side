@@ -102,14 +102,17 @@ extension PanneauBas {
         let seul = liste.count <= 1
         choixMédia.isHidden = seul
         choixMédia.montrer(liste.map { ($0.id, $0.nom) }, choisi: choisi)
-        poignéeMédia.isHidden = liste.isEmpty
+        // Tiroir agrandi : le coin multimédia se replie (la musique ou la vidéo continue, cachée) pour laisser toute la largeur.
+        let replié = agrandi && uneApp
+        if replié { choixMédia.isHidden = true }
+        poignéeMédia.isHidden = liste.isEmpty || replié
         let h = max(0, seul ? hauteur : hauteur - hauteurChoix - 6)
         let x0 = uneApp ? 0 : -défilement          // une app à la fois : le coin multimédia reste fixe
         let s = NSRect(x: x0, y: 0, width: largeurTête, height: h)
         let c = NSRect(x: x0, y: hauteur - hauteurChoix, width: largeurTête, height: hauteurChoix)
         poignéeMédia.frame = NSRect(x: s.maxX - 9, y: 0, width: 9, height: h)
         let courant = liste.first { $0.id == choisi }
-        lecteur.isHidden = courant?.genre != "spotify"
+        lecteur.isHidden = courant?.genre != "spotify" || replié
         // La page de l'élément choisi est créée à sa première apparition, tiroir ouvert.
         if let m = courant, m.genre != "spotify", pagesWeb[m.id] == nil, ouvert, let adresse = URL(string: m.adresse) {
             // YouTube : Peinard, quand Side a été compilé avec lui. Les autres sites : le lecteur web.
@@ -123,7 +126,7 @@ extension PanneauBas {
                 vue.réveiller()
             }
         }
-        for (id, vue) in pagesWeb { vue.isHidden = id != choisi }
+        for (id, vue) in pagesWeb { vue.isHidden = id != choisi || replié }
         if animé {
             lecteur.animator().frame = s; choixMédia.animator().frame = c
             pagesWeb.values.forEach { $0.animator().frame = s }
@@ -142,17 +145,46 @@ extension PanneauBas {
     func placerPlus(animé: Bool) {
         guard let p = panneau else { return }
         let b = bande(p.frame)
+        if uneApp, agrandi {
+            // Agrandi : la colonne s'en va, il ne reste que le bouton « réduire », au milieu du bord droit, au-dessus de l'application.
+            icônesColonne.forEach { $0.isHidden = true }
+            repèreColonne.isHidden = true
+            barreColonne.isHidden = true
+            plus.isHidden = true
+            roue.isHidden = true
+            let cadreBouton = NSRect(x: b.width - largeurPlus - 12, y: ((b.height - largeurPlus) / 2).rounded(), width: largeurPlus + 8, height: largeurPlus)
+            barreAgrandir.isHidden = false
+            barreAgrandir.frame = cadreBouton
+            barreAgrandir.subviews.first?.frame = barreAgrandir.bounds
+            boutonAgrandir.isHidden = false
+            boutonAgrandir.frame = cadreBouton
+            if let fenêtre = bandeVue.window {
+                PanneauBas.pastilleÉcran = Ecrans.versAX(fenêtre.convertToScreen(bandeVue.convert(cadreBouton, to: nil))).insetBy(dx: -6, dy: -6)
+            }
+            return
+        }
+        plus.isHidden = false
+        roue.isHidden = false
         if uneApp {
             // La colonne de droite, réunie dans une seule barre flottante comme le Dock de la grille : le « + » en haut,
             // une icône par application, la roue dentée en bas. Elle est centrée en hauteur et ne prend que sa place.
             let x = b.width - largeurColonne + (largeurColonne - largeurPlus) / 2
             let n = CGFloat(emprunts.count)
-            let pasIcône: CGFloat = min(44, max(34, (b.height - 2 * largeurPlus - 40) / max(n, 1)))
+            // (La place de la petite barre « agrandir », posée au-dessus, est comptée : 44 points et un écart.)
+            let pasIcône: CGFloat = min(44, max(34, (b.height - 3 * largeurPlus - 60) / max(n, 1)))
             let hauteurBarre = 2 * largeurPlus + n * pasIcône + 24
-            let bas0 = ((b.height - hauteurBarre) / 2).rounded()
+            let écartAgrandir: CGFloat = 10
+            let bas0 = ((b.height - hauteurBarre - largeurPlus - écartAgrandir) / 2).rounded()
             let r = NSRect(x: x, y: bas0 + hauteurBarre - largeurPlus - 4, width: largeurPlus, height: largeurPlus)
             let bas = NSRect(x: x, y: bas0 + 4, width: largeurPlus, height: largeurPlus)
             if animé { plus.animator().frame = r; roue.animator().frame = bas } else { plus.frame = r; roue.frame = bas }
+            // Le bouton « agrandir » : seul dans sa petite barre, au-dessus de la colonne (20/11/2026).
+            let cadreAgrandir = NSRect(x: x - 4, y: bas0 + hauteurBarre + écartAgrandir, width: largeurPlus + 8, height: largeurPlus)
+            barreAgrandir.isHidden = false
+            barreAgrandir.frame = cadreAgrandir
+            barreAgrandir.subviews.first?.frame = barreAgrandir.bounds
+            boutonAgrandir.isHidden = false
+            boutonAgrandir.frame = cadreAgrandir
             let fond = NSRect(x: x - 4, y: bas0, width: largeurPlus + 8, height: hauteurBarre)
             barreColonne.isHidden = false
             barreColonne.frame = fond
@@ -161,6 +193,8 @@ extension PanneauBas {
             return
         }
         icônesColonne.forEach { $0.isHidden = true }
+        boutonAgrandir.isHidden = true
+        barreAgrandir.isHidden = true
         repèreColonne.isHidden = true
         barreColonne.isHidden = true
         let fin = (zones(p.frame).last?.maxX ?? (b.minX - défilement + largeurTête)) + marge

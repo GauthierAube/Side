@@ -85,6 +85,15 @@ extension PanneauBas {
                 }
             }
             if type == .leftMouseDragged { return Unmanaged.passUnretained(ev) }
+            if type == .mouseMoved || type == .leftMouseDown {
+                // Le pointeur dans le trou : le tiroir laisse passer les clics à l'application (macOS ne le fait pas
+                // de lui-même pour une zone transparente, quand le tiroir est passé devant elle).
+                let dans = (PanneauBas.trouÉcran?.contains(ev.location) ?? false) && !(PanneauBas.pastilleÉcran?.contains(ev.location) ?? false)
+                if dans != PanneauBas.pointeurDansLeTrou {
+                    PanneauBas.pointeurDansLeTrou = dans
+                    DispatchQueue.main.async { PanneauBas.commun.majClicsDansLeTrou(ev.location) }
+                }
+            }
             if type == .mouseMoved {
                 // Au-dessus du bord : le pointeur devient une double flèche, pour montrer qu'on peut le tirer.
                 let dessus = PanneauBas.estOuvertBrut && PanneauBas.surLeBord(ev.location)
@@ -97,6 +106,20 @@ extension PanneauBas {
             }
             if type == .leftMouseDown, PanneauBas.estOuvertBrut {
                 let p = ev.location
+                // Double-clic sur le bord du tiroir : agrandir ou réduire, comme la barre de titre d'une fenêtre du Mac.
+                // (Reconnu par Side lui-même : deux clics rapprochés au même endroit du bord. Le compteur de clics de macOS
+                // n'arrive pas toujours jusqu'ici.)
+                if ConfigTiroir.commun.uneApp, PanneauBas.surLeBord(p, mêmeFigé: true) {
+                    let maintenant = ProcessInfo.processInfo.systemUptime
+                    let d = PanneauBas.dernierClicBord
+                    PanneauBas.dernierClicBord = (maintenant, p)
+                    if maintenant - d.0 < NSEvent.doubleClickInterval, abs(p.x - d.1.x) < 8, abs(p.y - d.1.y) < 8 {
+                        PanneauBas.dernierClicBord = (0, .zero)
+                        // (Le petit redimensionnement commencé par le premier clic s'est terminé à son relâcher, juste avant.)
+                        DispatchQueue.main.async { PanneauBas.commun.basculerAgrandi() }
+                        return nil
+                    }
+                }
                 let côté = PanneauBas.surUnCôté(p)
                 // Une application redimensionnable est affichée : le clic sur le bord du tiroir est relayé sur le bord de sa fenêtre.
                 if ConfigTiroir.commun.uneApp, let c = PanneauBas.fenêtreRelayable, côté != 0 || PanneauBas.surLeBord(p), c.width > 120, c.height > 120,

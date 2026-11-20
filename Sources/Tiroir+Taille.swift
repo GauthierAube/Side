@@ -160,6 +160,7 @@ extension PanneauBas {
 
     func tirerHauteur(_ montée: CGFloat) {
         guard ouvert, défile || enDirect, let p = panneau, let ecran = écranDuTiroir else { return }
+        quitterAgrandi()
         hauteurChoisie = hauteurAuDepart + (enHaut ? -montée : montée)          // bornée par cadre() : un minimum, et presque tout l'écran au plus
         let voulue = hauteurChoisie
         let fin = cadre(ecran)
@@ -222,6 +223,7 @@ extension PanneauBas {
     /// `écart` : le chemin fait par la souris depuis le début, vers l'intérieur du tiroir (positif = plus étroit).
     func tirerLargeur(_ écart: CGFloat) {
         guard ouvert, défile || enDirect, let p = panneau, let ecran = écranDuTiroir else { return }
+        quitterAgrandi()
         let z = ecran.visibleFrame
         let voulue = largeurAuDépart - 2 * écart
         largeurChoisie = min(1, max(0.3, voulue / Self.largeurRéférence(z.width)))     // les deux côtés bougent ensemble

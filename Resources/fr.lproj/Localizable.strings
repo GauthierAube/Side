@@ -138,6 +138,8 @@
 	<string>Agrandir chaque nouvelle fenêtre</string>
 	<key>Agrandir la fenêtre en cours  (⌃⌥ Entrée)</key>
 	<string>Agrandir la fenêtre en cours  (⌃⌥ Entrée)</string>
+	<key>Agrandir le tiroir (⌃⌥ Entrée)</key>
+	<string>Agrandir le tiroir (⌃⌥ Entrée)</string>
 	<key>Ajouter</key>
 	<string>Ajouter</string>
 	<key>Ajouter au Dock</key>
@@ -1332,6 +1334,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Récents</string>
 	<key>Réduire %@ à %@</key>
 	<string>Réduire %@ à %@</string>
+	<key>Réduire le tiroir (⌃⌥ Entrée)</key>
+	<string>Réduire le tiroir (⌃⌥ Entrée)</string>
 	<key>Réglages</key>
 	<string>Réglages</string>
 	<key>Réglages : icône Side, barre des menus</key>
