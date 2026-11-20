@@ -12,6 +12,7 @@ Il est mis à jour à chaque modification, en même temps que le code.
 - Un bouton à lui tout seul (deux flèches), dans sa petite barre au-dessus de la colonne d'icônes : l'application prend tout l'écran (sous la barre des menus, au-dessus du Dock). Le coin YouTube/Spotify s'efface (la musique ou la vidéo continue). Un second clic la ramène dans le tiroir.
 - Derrière le tiroir agrandi, tout est flouté avec le même voile que celui du Finder de Side (même force, réglée dans les réglages) : on ne voit plus que l'application.
 - La même chose au clavier, ⌃⌥ Entrée (le raccourci « Agrandir » de Square, qui agrandit le tiroir quand il est ouvert), ou par un double-clic sur le bord du tiroir, même quand sa taille est figée par YouTube.
+- Un double-clic sur la barre du haut de l'application (barre de titre ou d'outils, hors de ses boutons) l'agrandit aussi, et la ramène dans le tiroir.
 - Le tiroir se rouvre toujours à sa taille habituelle. Tirer un de ses bords quand il est agrandi en fait un tiroir ordinaire, à la taille tirée.
 - Pas de photo, ni de fenêtre déplacée pas à pas (les deux ont été essayés : laid, puis saccadé). C'est macOS qui agrandit la fenêtre, avec le zoom du Mac (celui du bouton vert avec ⌥), animé par l'application elle-même ; à défaut, « Remplir » ou « Réduire/agrandir » de son menu Fenêtre. La même commande, dans l'autre sens, la ramène à sa place dans le tiroir.
 - Agrandie, l'application prend tout l'écran : la colonne d'icônes s'en va, il ne reste que le bouton « réduire », au milieu du bord droit, au-dessus d'elle.

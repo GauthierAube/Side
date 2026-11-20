@@ -439,6 +439,17 @@ final class PanneauBas: NSObject {
     static var tailleFixe: Bool { TuilePeinard.disponible && ConfigTiroir.commun.medias.contains { $0.genre == "youtube" } }
     static let largeurPeinard: CGFloat = 740
 
+    /// Y a-t-il un bouton, un champ ou un autre contrôle de l'application à cet endroit de l'écran ? (Un double-clic dessus
+    /// est pour lui, pas pour agrandir la fenêtre.)
+    static func surUnContrôle(_ p: CGPoint) -> Bool {
+        var el: AXUIElement?
+        guard AXUIElementCopyElementAtPosition(AXUIElementCreateSystemWide(), Float(p.x), Float(p.y), &el) == .success, let el else { return false }
+        var v: CFTypeRef?
+        AXUIElementCopyAttributeValue(el, kAXRoleAttribute as CFString, &v)
+        let rôle = (v as? String) ?? ""
+        return ["AXButton", "AXTextField", "AXSearchField", "AXPopUpButton", "AXMenuButton", "AXCheckBox", "AXRadioButton",
+                "AXSlider", "AXLink", "AXComboBox", "AXTabGroup", "AXSegmentedControl", "AXTextArea"].contains(rôle)
+    }
     /// Le dernier clic sur le bord du tiroir (instant, endroit) : deux clics rapprochés font un double-clic (agrandir).
     static var dernierClicBord: (TimeInterval, CGPoint) = (0, .zero)
     /// `mêmeFigé` : aussi quand la taille du tiroir est figée (le double-clic pour agrandir reste possible).

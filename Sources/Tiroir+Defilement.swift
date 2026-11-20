@@ -106,6 +106,15 @@ extension PanneauBas {
             }
             if type == .leftMouseDown, PanneauBas.estOuvertBrut {
                 let p = ev.location
+                // Double-clic sur la barre du haut de l'application affichée (sa barre de titre ou d'outils) : elle s'agrandit,
+                // ou revient dans le tiroir. Le second clic est avalé : sinon macOS ferait aussi son propre zoom, en double.
+                if ConfigTiroir.commun.uneApp, ev.getIntegerValueField(.mouseEventClickState) == 2, let t = PanneauBas.trouÉcran,
+                   p.x >= t.minX + 76, p.x <= t.maxX - 8, p.y >= t.minY, p.y <= t.minY + 38,      // (76 : après les trois boutons ronds)
+                   PanneauBas.tiroirSous(p, sansSide: true), !PanneauBas.surUnContrôle(p) {
+                    PanneauBas.clicAvalé = true
+                    DispatchQueue.main.async { PanneauBas.commun.basculerAgrandi() }
+                    return nil
+                }
                 // Double-clic sur le bord du tiroir : agrandir ou réduire, comme la barre de titre d'une fenêtre du Mac.
                 // (Reconnu par Side lui-même : deux clics rapprochés au même endroit du bord. Le compteur de clics de macOS
                 // n'arrive pas toujours jusqu'ici.)

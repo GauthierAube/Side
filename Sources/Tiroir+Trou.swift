@@ -267,7 +267,7 @@ extension PanneauBas {
     }
 
     /// Attend que la fenêtre ait bougé puis se soit arrêtée (l'animation de macOS est finie). `bougé` : faux si rien
-    /// ne s'est passé en 0,4 s (la commande n'a pas eu d'effet).
+    /// ne s'est passé en 0,8 s (la commande n'a pas eu d'effet).
     func attendreLaFenêtre(_ f: AXUIElement, depuis départ: CGRect, fin: @escaping (Bool) -> Void) {
         let début = CACurrentMediaTime()
         var dernier = départ, calme = 0, bougé = false
@@ -277,7 +277,7 @@ extension PanneauBas {
             if !c.equalTo(départ) { bougé = true }
             calme = c.equalTo(dernier) ? calme + 1 : 0
             dernier = c
-            if !bougé, écoulé > 0.4 { t.invalidate(); fin(false); return }
+            if !bougé, écoulé > 0.8 { t.invalidate(); fin(false); return }
             if bougé, calme >= 3 || écoulé > 1.5 { t.invalidate(); fin(true) }
         }
     }
