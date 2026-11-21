@@ -415,6 +415,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         Programme.appli.demarrer()        // le plein écran (grille, carrousel, agrandissement) : l'ancien Square
         Enregistrements.demarrer()        // les fichiers enregistrés ailleurs : la carte s'ouvre sur eux
         VisualiseurFichiers.ecouter()     // « Afficher dans le Finder », quand Side est le visualiseur de fichiers
+        FinderJamais.demarrer()           // « Toujours Side, jamais le Finder » : les fenêtres du Finder reviennent à Side
         if CommandLine.arguments.count == 1 { MesApps.commun.demarrer() }   // « Mes applications » : tout se met en place
         nettoyerDepot()
         creerDepot()

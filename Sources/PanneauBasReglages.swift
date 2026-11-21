@@ -337,6 +337,7 @@ struct SectionsTiroir: View {
     @State private var tuiles = PanneauBas.commun.tuiles
     @State private var spotify = SpotifyCompte.commun.connecte
     @State private var nomSite = ""
+    @State private var liensYouTube = LiensWeb.actif
     @State private var adresseSite = ""
 
     private func note(_ texte: String) -> some View { Text(texte).font(.caption).foregroundStyle(.secondary) }
@@ -414,6 +415,16 @@ struct SectionsTiroir: View {
                     Toggle("Couper les publicités", isOn: $tiroir.couperPubs)
                 } header: { Text("YouTube") } footer: {
                     note(String(localized: "Masquer les Shorts retire leurs rangées, leur onglet et les vidéos courtes, tout de suite ; masquer les posts retire les messages des chaînes. Les pastilles gardent « Tous » et tes centres d'intérêt, sans les rubriques générales (Actualités, Musique…) ; décoché, toute la rangée est masquée. Les passages sponsorisés sont signalés par la communauté SponsorBlock. Couper les publicités est contraire aux conditions d'utilisation de YouTube : à activer en connaissance de cause, pris en compte au prochain lancement de Side."))
+                }
+            }
+            if tiroir.medias.contains(where: { $0.genre == "youtube" }) {
+                Section {
+                    Toggle("Ouvrir les liens YouTube dans le tiroir", isOn: Binding(get: { liensYouTube }, set: { oui in
+                        liensYouTube = oui
+                        LiensWeb.choisir(oui) { liensYouTube = LiensWeb.actif }
+                    }))
+                } header: { Text("Liens YouTube") } footer: {
+                    note(String(localized: "Un lien YouTube cliqué dans Mail, Messages ou ailleurs s'ouvre dans le tiroir, plus dans le navigateur. Pour cela, Side devient le navigateur par défaut du Mac (macOS te demande de confirmer) : il garde les vidéos YouTube et passe aussitôt tous les autres liens à \(LiensWeb.nomNavigateur). YouTube Music et YouTube Studio restent dans le navigateur. Décoché : \(LiensWeb.nomNavigateur) redevient le navigateur par défaut."))
                 }
             }
             if tiroir.medias.contains(where: { $0.genre == "youtube" }) {

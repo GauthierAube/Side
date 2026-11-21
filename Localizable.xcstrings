@@ -8131,9 +8131,6 @@
         }
       }
     },
-    "« Afficher dans le Finder » des autres applications, et l'ouverture d'un dossier, montrent la carte de Side. Décoché : le Finder de macOS, comme avant." : {
-
-    },
     "À droite" : {
       "localizations" : {
         "en" : {
@@ -8430,6 +8427,56 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "No favorites. Click an item's star to keep it here."
+          }
+        }
+      }
+    },
+    "Toujours Side, jamais le Finder" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Always Side, Never the Finder"
+          }
+        }
+      }
+    },
+    "« Afficher dans le Finder » des autres applications, et l'ouverture d'un dossier, montrent la carte de Side. « Jamais le Finder » va plus loin : dès que le Finder ouvre une fenêtre (un fichier reçu par AirDrop, un téléchargement, un disque branché), Side la referme et montre le même dossier dans sa carte. Seul « Afficher dans le Finder » de Side ouvre encore le Finder. Décoché : le Finder de macOS, comme avant." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“Show in Finder” in other apps, and opening a folder, show Side's card. “Never the Finder” goes further: as soon as the Finder opens a window (a file received by AirDrop, a download, a disk you plug in), Side closes it and shows the same folder in its card. Only Side's own “Show in Finder” still opens the Finder. Unchecked: the macOS Finder, as before."
+          }
+        }
+      }
+    },
+    "Ouvrir les liens YouTube dans le tiroir" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open YouTube Links in the Drawer"
+          }
+        }
+      }
+    },
+    "Liens YouTube" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "YouTube Links"
+          }
+        }
+      }
+    },
+    "Un lien YouTube cliqué dans Mail, Messages ou ailleurs s'ouvre dans le tiroir, plus dans le navigateur. Pour cela, Side devient le navigateur par défaut du Mac (macOS te demande de confirmer) : il garde les vidéos YouTube et passe aussitôt tous les autres liens à %@. YouTube Music et YouTube Studio restent dans le navigateur. Décoché : %@ redevient le navigateur par défaut." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A YouTube link clicked in Mail, Messages or anywhere else opens in the drawer instead of the browser. To do this, Side becomes the Mac's default browser (macOS asks you to confirm): it keeps YouTube videos and immediately hands every other link to %1$@. YouTube Music and YouTube Studio stay in the browser. Unchecked: %2$@ becomes the default browser again."
           }
         }
       }

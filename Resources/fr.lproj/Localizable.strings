@@ -972,6 +972,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Lien ou texte à coller</string>
 	<key>Liens</key>
 	<string>Liens</string>
+	<key>Liens YouTube</key>
+	<string>Liens YouTube</string>
 	<key>Liens enregistrés</key>
 	<string>Liens enregistrés</string>
 	<key>Lire les informations</key>
@@ -1100,6 +1102,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Ouvrir le site Spotify</string>
 	<key>Ouvrir les dossiers dans Side</key>
 	<string>Ouvrir les dossiers dans Side</string>
+	<key>Ouvrir les liens YouTube dans le tiroir</key>
+	<string>Ouvrir les liens YouTube dans le tiroir</string>
 	<key>Ouvrir les réglages d'accessibilité</key>
 	<string>Ouvrir les réglages d'accessibilité</string>
 	<key>Ouvrir les réglages du trackpad</key>
@@ -1492,6 +1496,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Titres</string>
 	<key>Titres, artistes, albums, playlists</key>
 	<string>Titres, artistes, albums, playlists</string>
+	<key>Toujours Side, jamais le Finder</key>
+	<string>Toujours Side, jamais le Finder</string>
 	<key>Toujours fermer</key>
 	<string>Toujours fermer</string>
 	<key>Toujours rester affichée</key>
@@ -1542,6 +1548,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Un clic remplit l'écran en restant sur le même bureau ; un second rend à la fenêtre sa taille. Maj + clic ou Option + clic gardent le plein écran d'Apple.</string>
 	<key>Un effleurement rapide change d'application sans rien afficher. Un geste posé fait apparaître le carrousel, et l'application du centre passe devant quand les doigts se lèvent. Le geste ne s'active que s'il n'y a qu'un seul bureau ; sinon macOS glisse d'un bureau à l'autre.</key>
 	<string>Un effleurement rapide change d'application sans rien afficher. Un geste posé fait apparaître le carrousel, et l'application du centre passe devant quand les doigts se lèvent. Le geste ne s'active que s'il n'y a qu'un seul bureau ; sinon macOS glisse d'un bureau à l'autre.</string>
+	<key>Un lien YouTube cliqué dans Mail, Messages ou ailleurs s'ouvre dans le tiroir, plus dans le navigateur. Pour cela, Side devient le navigateur par défaut du Mac (macOS te demande de confirmer) : il garde les vidéos YouTube et passe aussitôt tous les autres liens à %@. YouTube Music et YouTube Studio restent dans le navigateur. Décoché : %@ redevient le navigateur par défaut.</key>
+	<string>Un lien YouTube cliqué dans Mail, Messages ou ailleurs s'ouvre dans le tiroir, plus dans le navigateur. Pour cela, Side devient le navigateur par défaut du Mac (macOS te demande de confirmer) : il garde les vidéos YouTube et passe aussitôt tous les autres liens à %@. YouTube Music et YouTube Studio restent dans le navigateur. Décoché : %@ redevient le navigateur par défaut.</string>
 	<key>Un modèle d'IA qui tourne chez toi, avec Ollama. Side ne parle qu'à ce serveur.</key>
 	<string>Un modèle d'IA qui tourne chez toi, avec Ollama. Side ne parle qu'à ce serveur.</string>
 	<key>Un raccourci pour le Finder, le tiroir et le presse-papiers.</key>
@@ -1680,8 +1688,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>« %@ » ne peut pas être moins haute : le tiroir s'arrête à %lld points</string>
 	<key>« %@ » ne peut pas être moins large : le tiroir s'arrête à %lld points</key>
 	<string>« %@ » ne peut pas être moins large : le tiroir s'arrête à %lld points</string>
-	<key>« Afficher dans le Finder » des autres applications, et l'ouverture d'un dossier, montrent la carte de Side. Décoché : le Finder de macOS, comme avant.</key>
-	<string>« Afficher dans le Finder » des autres applications, et l'ouverture d'un dossier, montrent la carte de Side. Décoché : le Finder de macOS, comme avant.</string>
+	<key>« Afficher dans le Finder » des autres applications, et l'ouverture d'un dossier, montrent la carte de Side. « Jamais le Finder » va plus loin : dès que le Finder ouvre une fenêtre (un fichier reçu par AirDrop, un téléchargement, un disque branché), Side la referme et montre le même dossier dans sa carte. Seul « Afficher dans le Finder » de Side ouvre encore le Finder. Décoché : le Finder de macOS, comme avant.</key>
+	<string>« Afficher dans le Finder » des autres applications, et l'ouverture d'un dossier, montrent la carte de Side. « Jamais le Finder » va plus loin : dès que le Finder ouvre une fenêtre (un fichier reçu par AirDrop, un téléchargement, un disque branché), Side la referme et montre le même dossier dans sa carte. Seul « Afficher dans le Finder » de Side ouvre encore le Finder. Décoché : le Finder de macOS, comme avant.</string>
 	<key>À droite</key>
 	<string>À droite</string>
 	<key>À gauche</key>

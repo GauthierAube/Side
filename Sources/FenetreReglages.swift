@@ -167,6 +167,7 @@ struct ReglagesView: View {
     @State private var parties = 0          // change quand une partie est activée ou coupée : la barre latérale se redessine
     @State private var demarrage = SMAppService.mainApp.status == .enabled
     @State private var ecoute = false
+    @State private var jamaisFinder = FinderJamais.actif && VisualiseurFichiers.actif
 
     var body: some View {
         HStack(spacing: 0) {
@@ -497,9 +498,11 @@ struct ReglagesView: View {
             }
             Section {
                 Toggle("Ouvrir les dossiers dans Side", isOn: Binding(get: { VisualiseurFichiers.actif },
-                                                                     set: { VisualiseurFichiers.choisir($0) }))
+                                                                     set: { VisualiseurFichiers.choisir($0); if !$0 { FinderJamais.actif = false }; jamaisFinder = FinderJamais.actif }))
+                Toggle("Toujours Side, jamais le Finder", isOn: Binding(get: { jamaisFinder },
+                                                                       set: { if $0 { VisualiseurFichiers.choisir(true) }; FinderJamais.actif = $0; jamaisFinder = $0 }))
             } header: { Text("À la place du Finder") } footer: {
-                note("« Afficher dans le Finder » des autres applications, et l'ouverture d'un dossier, montrent la carte de Side. Décoché : le Finder de macOS, comme avant.")
+                note("« Afficher dans le Finder » des autres applications, et l'ouverture d'un dossier, montrent la carte de Side. « Jamais le Finder » va plus loin : dès que le Finder ouvre une fenêtre (un fichier reçu par AirDrop, un téléchargement, un disque branché), Side la referme et montre le même dossier dans sa carte. Seul « Afficher dans le Finder » de Side ouvre encore le Finder. Décoché : le Finder de macOS, comme avant.")
             }
             Section("Options avancées") {
                 Toggle("Afficher toutes les extensions de fichiers", isOn: $config.extensions)

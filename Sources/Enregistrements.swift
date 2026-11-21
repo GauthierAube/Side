@@ -163,6 +163,7 @@ enum VisualiseurFichiers {
     static func revelerDansLeFinder(_ u: URL) {
         let chemin = u.path.replacingOccurrences(of: "\\", with: "\\\\").replacingOccurrences(of: "\"", with: "\\\"")
         var err: NSDictionary?
+        FinderJamais.laisserPasserJusqua = Date().addingTimeInterval(5)   // cette fenêtre-là, on la veut dans le Finder
         NSAppleScript(source: "tell application \"Finder\"\nreveal (POSIX file \"\(chemin)\" as alias)\nactivate\nend tell")?
             .executeAndReturnError(&err)
         if err != nil { NSWorkspace.shared.activateFileViewerSelecting([u]) }
@@ -209,7 +210,13 @@ extension AppDelegate {
 
     /// Les dossiers ou fichiers que macOS demande à Side d'ouvrir (Side visualiseur de fichiers, ou « open -a Side »).
     func application(_ application: NSApplication, open urls: [URL]) {
-        guard let u = urls.first else { return }
+        // Les liens web (Side navigateur par défaut, pour envoyer YouTube dans le tiroir) : voir Detournements.swift.
+        let liens = urls.filter { !$0.isFileURL }
+        if !liens.isEmpty {
+            let expediteur = NSAppleEventManager.shared().currentAppleEvent?.attributeDescriptor(forKeyword: keySenderPIDAttr)?.int32Value
+            LiensWeb.recevoir(liens, deSide: expediteur == ProcessInfo.processInfo.processIdentifier)
+        }
+        guard let u = urls.first(where: \.isFileURL) else { return }
         montrerDansLaCarte(u)
     }
 }

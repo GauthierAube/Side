@@ -5,6 +5,28 @@ Il est mis à jour à chaque modification, en même temps que le code.
 
 ---
 
+## 21/11/2026 — Jamais le Finder, et les liens YouTube dans le tiroir
+
+- **Demandé par Gauthier** : que tout ce qui va au Finder aille à Side (un fichier reçu par AirDrop, par exemple), toujours ;
+  et qu'un lien YouTube s'ouvre dans le tiroir, pas dans Safari.
+- **Jamais le Finder** (Réglages > Finder, « Toujours Side, jamais le Finder ») : la case « Ouvrir les dossiers dans
+  Side » existait déjà, mais AirDrop, Safari ou un disque branché s'adressent au Finder par son nom. Side surveille
+  maintenant les fenêtres du Finder : dès qu'il en ouvre une, Side lit son dossier et le fichier choisi, la referme, et
+  montre la même chose dans sa carte. On voit la fenêtre du Finder une fraction de seconde. Seul « Afficher dans le
+  Finder » de Side ouvre encore le Finder (5 secondes de passage libre). Les fenêtres qui ne sont pas des dossiers
+  (Lire les informations, AirDrop, Récents) ne sont pas touchées.
+- **Liens YouTube** (Réglages > Tiroir > Multimédia, « Ouvrir les liens YouTube dans le tiroir ») : sur un Mac, seul le
+  navigateur par défaut reçoit les liens cliqués ailleurs. Side le devient (macOS demande confirmation), garde les liens
+  YouTube pour le tiroir et passe tous les autres au navigateur d'avant. YouTube Music et YouTube Studio restent dans le
+  navigateur, comme les liens ouverts par Side lui-même. Décoché : l'ancien navigateur revient.
+- **Limites connues** : Side doit tourner (macOS le relance sinon) ; un lien cliqué à l'intérieur de Safari reste dans
+  Safari ; les deux cases sont décochées au départ pour les autres utilisateurs.
+- **Code** : `Detournements.swift` (nouveau), `Enregistrements.swift`, `Info.plist` (Side déclare savoir ouvrir http et
+  https), réglages. La commande d'essai « youtube lien » ouvre maintenant le tiroir sur sa tuile YouTube.
+- **Essayé** : une fenêtre du Finder ouverte par script est reprise par Side ; un lien ordinaire envoyé à Side part
+  dans Safari ; la commande YouTube ouvre le tiroir sur la recherche. **Pas essayé** : un vrai AirDrop, et Side en
+  navigateur par défaut (la confirmation de macOS revient à Gauthier).
+
 ## 21/11/2026 — Gestes à quatre doigts : plus francs, plus fiables
 
 - **Vu par Gauthier** : les gestes (carrousel horizontal, changement de vue dans le volet de gauche) partent parfois,

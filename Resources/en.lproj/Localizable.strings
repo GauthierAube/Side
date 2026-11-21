@@ -924,6 +924,8 @@ Press Esc to cancel.</string>
 	<string>Link or text to paste</string>
 	<key>Liens</key>
 	<string>Links</string>
+	<key>Liens YouTube</key>
+	<string>YouTube Links</string>
 	<key>Liens enregistrés</key>
 	<string>Saved Links</string>
 	<key>Lire les informations</key>
@@ -1044,6 +1046,8 @@ Press Esc to cancel.</string>
 	<string>Open Settings</string>
 	<key>Ouvrir le site Spotify</key>
 	<string>Open the Spotify Site</string>
+	<key>Ouvrir les liens YouTube dans le tiroir</key>
+	<string>Open YouTube Links in the Drawer</string>
 	<key>Ouvrir les réglages d'accessibilité</key>
 	<string>Open Accessibility Settings</string>
 	<key>Ouvrir les réglages du trackpad</key>
@@ -1414,6 +1418,8 @@ Press Esc to cancel.</string>
 	<string>Songs</string>
 	<key>Titres, artistes, albums, playlists</key>
 	<string>Songs, artists, albums, playlists</string>
+	<key>Toujours Side, jamais le Finder</key>
+	<string>Always Side, Never the Finder</string>
 	<key>Toujours fermer</key>
 	<string>Always close</string>
 	<key>Toujours rester affichée</key>
@@ -1462,6 +1468,8 @@ Press Esc to cancel.</string>
 	<string>One click fills the screen while staying on the same desktop; a second click restores the window's size. Shift-click or Option-click keeps macOS full screen.</string>
 	<key>Un effleurement rapide change d'application sans rien afficher. Un geste posé fait apparaître le carrousel, et l'application du centre passe devant quand les doigts se lèvent. Le geste ne s'active que s'il n'y a qu'un seul bureau ; sinon macOS glisse d'un bureau à l'autre.</key>
 	<string>A quick flick switches apps without showing anything. A slower swipe brings up the carousel, and the app in the center comes to the front when you lift your fingers. The gesture only works when there is a single desktop; otherwise macOS swipes between desktops.</string>
+	<key>Un lien YouTube cliqué dans Mail, Messages ou ailleurs s'ouvre dans le tiroir, plus dans le navigateur. Pour cela, Side devient le navigateur par défaut du Mac (macOS te demande de confirmer) : il garde les vidéos YouTube et passe aussitôt tous les autres liens à %@. YouTube Music et YouTube Studio restent dans le navigateur. Décoché : %@ redevient le navigateur par défaut.</key>
+	<string>A YouTube link clicked in Mail, Messages or anywhere else opens in the drawer instead of the browser. To do this, Side becomes the Mac's default browser (macOS asks you to confirm): it keeps YouTube videos and immediately hands every other link to %1$@. YouTube Music and YouTube Studio stay in the browser. Unchecked: %2$@ becomes the default browser again.</string>
 	<key>Un modèle d'IA qui tourne chez toi, avec Ollama. Side ne parle qu'à ce serveur.</key>
 	<string>An AI model running at home, with Ollama. Side only talks to that server.</string>
 	<key>Un raccourci pour le Finder, le tiroir et le presse-papiers.</key>
@@ -1580,6 +1588,8 @@ Press Esc to cancel.</string>
 	<string>“%1$@” can't be any shorter: the drawer stops at %2$lld points</string>
 	<key>« %@ » ne peut pas être moins large : le tiroir s'arrête à %lld points</key>
 	<string>“%1$@” can't be any narrower: the drawer stops at %2$lld points</string>
+	<key>« Afficher dans le Finder » des autres applications, et l'ouverture d'un dossier, montrent la carte de Side. « Jamais le Finder » va plus loin : dès que le Finder ouvre une fenêtre (un fichier reçu par AirDrop, un téléchargement, un disque branché), Side la referme et montre le même dossier dans sa carte. Seul « Afficher dans le Finder » de Side ouvre encore le Finder. Décoché : le Finder de macOS, comme avant.</key>
+	<string>“Show in Finder” in other apps, and opening a folder, show Side's card. “Never the Finder” goes further: as soon as the Finder opens a window (a file received by AirDrop, a download, a disk you plug in), Side closes it and shows the same folder in its card. Only Side's own “Show in Finder” still opens the Finder. Unchecked: the macOS Finder, as before.</string>
 	<key>À droite</key>
 	<string>Right</string>
 	<key>À gauche</key>

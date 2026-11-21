@@ -212,7 +212,7 @@ extension PanneauBas {
             if commande.hasPrefix("js "), UserDefaults.standard.bool(forKey: "essais"), let y = lecteursWeb.first(where: { $0.estUnYouTube }) { y.essaiScript(String(commande.dropFirst(3))); return }
             // « youtube https://… » : ouvre ce lien dans la tuile YouTube (pour les essais, et pour d'autres apps).
             if commande.hasPrefix("youtube "), let u = URL(string: String(commande.dropFirst(8))) {
-                if TuilePeinard.disponible { TuilePeinard.ouvrir(u) } else { lecteursWeb.first(where: { $0.estUnYouTube })?.ouvrir(u) }
+                montrerYouTube(u)      // le tiroir s'ouvre sur sa tuile YouTube (21/11/2026 ; avant, il fallait l'avoir ouvert)
             }
         }
     }
