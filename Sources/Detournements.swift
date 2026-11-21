@@ -11,6 +11,31 @@
 import AppKit
 import ApplicationServices
 
+// MARK: - Cochés d'office
+
+/// Les deux réglages sont cochés d'office, une fois, au premier lancement (choix de Gauthier, 21/11/2026). Ensuite, ce
+/// que l'on coche ou décoche dans les réglages est respecté : Side n'y revient plus.
+enum Detournements {
+    static func premierLancement() {
+        let d = UserDefaults.standard
+        // Jamais depuis une copie d'essai (tools/snap.sh, --test-…) : elle changerait les réglages du Mac.
+        guard !d.bool(forKey: "detournementsProposes"), Bundle.main.bundleIdentifier == VisualiseurFichiers.side,
+              !CommandLine.arguments.contains(where: { $0.hasPrefix("--test") || $0 == "--image" }) else { return }
+        d.set(true, forKey: "detournementsProposes")
+        if Partie.finder.active {
+            VisualiseurFichiers.choisir(true)
+            FinderJamais.actif = true
+            journalBas("premier lancement : toujours Side, jamais le Finder")
+        }
+        // Le navigateur par défaut : macOS demande confirmation, un instant après le lancement.
+        guard Partie.tiroir.active, !LiensWeb.actif, ConfigTiroir.commun.medias.contains(where: { $0.genre == "youtube" }) else { return }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+            journalBas("premier lancement : les liens YouTube dans le tiroir (confirmation de macOS)")
+            LiensWeb.choisir(true)
+        }
+    }
+}
+
 // MARK: - Jamais le Finder
 
 enum FinderJamais {

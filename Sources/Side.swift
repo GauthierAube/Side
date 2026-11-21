@@ -416,6 +416,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
         Enregistrements.demarrer()        // les fichiers enregistrés ailleurs : la carte s'ouvre sur eux
         VisualiseurFichiers.ecouter()     // « Afficher dans le Finder », quand Side est le visualiseur de fichiers
         FinderJamais.demarrer()           // « Toujours Side, jamais le Finder » : les fenêtres du Finder reviennent à Side
+        Detournements.premierLancement()  // les deux réglages, cochés d'office la première fois
         if CommandLine.arguments.count == 1 { MesApps.commun.demarrer() }   // « Mes applications » : tout se met en place
         nettoyerDepot()
         creerDepot()

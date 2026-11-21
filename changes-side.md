@@ -20,7 +20,9 @@ Il est mis à jour à chaque modification, en même temps que le code.
   YouTube pour le tiroir et passe tous les autres au navigateur d'avant. YouTube Music et YouTube Studio restent dans le
   navigateur, comme les liens ouverts par Side lui-même. Décoché : l'ancien navigateur revient.
 - **Limites connues** : Side doit tourner (macOS le relance sinon) ; un lien cliqué à l'intérieur de Safari reste dans
-  Safari ; les deux cases sont décochées au départ pour les autres utilisateurs.
+  Safari.
+- **Cochés d'office** (choix de Gauthier) : au premier lancement, Side coche les deux réglages, une seule fois. Pour les
+  liens YouTube, macOS demande quand même confirmation. Ce que l'on décoche ensuite reste décoché.
 - **Code** : `Detournements.swift` (nouveau), `Enregistrements.swift`, `Info.plist` (Side déclare savoir ouvrir http et
   https), réglages. La commande d'essai « youtube lien » ouvre maintenant le tiroir sur sa tuile YouTube.
 - **Essayé** : une fenêtre du Finder ouverte par script est reprise par Side ; un lien ordinaire envoyé à Side part
