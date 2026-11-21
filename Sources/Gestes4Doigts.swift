@@ -49,6 +49,7 @@ enum Doigts {
         }
         dernierePresence = ProcessInfo.processInfo.systemUptime
         nombreDoigts = doigts.count
+        noterDeparts(doigts)
         guard actif, !CaptureEcran.enCours else { return }
         // Version personnelle : un glissement qui part à l'horizontale (changement d'application, dans Square) n'est pas pour nous.
         if let touches, nombre > 0 {
@@ -135,6 +136,16 @@ enum Doigts {
         // Chacun glisse vraiment (20/11/2026) : trois doigts avec le pouce posé ne font pas un geste à quatre doigts.
         guard GestePages.tousGlissent(ecarts, moyenne: moyen) else { return nil }
         return moyen
+    }
+
+    private static var quatrePoses = false
+    /// Le départ de chaque doigt, noté à chaque image, même pendant que le geste est encore trié entre vertical et
+    /// horizontal (21/11/2026). Quand le quatrième doigt se pose, tous repartent de là : avant, les trois premiers avaient
+    /// de l'avance, le dernier « ne glissait pas assez », et la carte tardait à partir.
+    private static func noterDeparts(_ doigts: [(Int32, Float)]) {
+        if doigts.count < 3 { departs = [:]; quatrePoses = false; return }
+        if doigts.count >= 4, !quatrePoses { quatrePoses = true; departs = [:] }
+        for (id, y) in doigts where departs[id] == nil { departs[id] = y }
     }
 
     /// Nombre de doigts posés à l'instant, et moment de la dernière mesure (pour bloquer le défilement parasite).

@@ -5,6 +5,42 @@ Il est mis à jour à chaque modification, en même temps que le code.
 
 ---
 
+## 21/11/2026 — Gestes à quatre doigts : plus francs, plus fiables
+
+- **Vu par Gauthier** : les gestes (carrousel horizontal, changement de vue dans le volet de gauche) partent parfois,
+  parfois non, parfois en retard ; il n'ose plus s'en servir.
+- **Causes trouvées dans le code** :
+  1. Volet : les doigts ne se posent jamais ensemble. Si trois doigts glissaient déjà quand le quatrième arrivait, celui-ci
+     « ne glissait pas » et le geste entier était refusé jusqu'au lever des doigts. Un geste vif ratait donc souvent.
+  2. Carrousel et volet : depuis la veille, chaque doigt devait avoir fait 40 % du trajet moyen, jugé une seule fois, après
+     2 mm de trajet. Un doigt qui traîne un instant (le petit doigt) faisait refuser tout le geste.
+  3. Le carrousel, le volet et la carte de Side décidaient « horizontal ou vertical » chacun à sa façon et à des instants
+     différents (1,4 %, 2 % et 2,5 % du trackpad). Un départ un peu en biais pouvait être refusé par tous : rien ne se passait.
+  4. Carte de Side : même avance des trois premiers doigts, qui retardait le départ de la carte.
+  5. Volet : un second geste fait pendant que la vue précédente finissait d'arriver était perdu en entier.
+- **Corrections** : quand le quatrième doigt se pose, tous repartent de là ; un doigt qui traîne a jusqu'à 5 % du trackpad
+  pour suivre (le pouce posé pendant un glisser à trois doigts reste refusé) ; une seule règle « horizontal ou vertical »
+  pour tout Side (`GestePages.horizontal` : net, décidé à 2 mm ; en biais, on attend 3 %) ; dans le volet, un geste fait
+  pendant un changement de vue est repris dès que le volet est prêt. Le journal note désormais les gestes refusés.
+- **Code** : `VoletGauche.swift` (GestePages), `PleinEcranGlisse.swift`, `PanneauBas.swift` (FiltreHorizontalBas),
+  `Gestes4Doigts.swift`, `VoletVue.swift`. Essais ajoutés à `Side --test-pages` (50 essais, tous bons) ; `--test-doigts` inchangé.
+- **À essayer par Gauthier** : avec de vrais doigts, seul lui peut dire si c'est devenu franc.
+
+## 21/11/2026 — Presse-papiers : une étoile pour les favoris
+
+- **Demandé par Gauthier** : une petite étoile sur chaque élément copié, et un filtre « étoile » à côté des filtres
+  image, lien, etc. pour n'afficher que les favoris.
+- **Comment** : chaque carte du volet (et chaque ligne de la liste de la barre latérale) porte une étoile en haut à droite ;
+  un clic la remplit en doré, un autre clic la vide (doré soutenu et pastille teintée : le jaune du Mac se détachait mal du gris). Une pastille étoile apparaît à côté de « Tout » dès qu'il y a un
+  favori : elle n'affiche que les favoris, de toute nature. Les mots de passe n'ont pas d'étoile (ils ne sont jamais
+  écrits sur le disque).
+- **Choix** : l'étoile **remplace l'épingle** du clic droit, c'était la même idée sous deux noms. Un favori garde donc ce
+  que faisait l'épingle : il reste en haut de la liste, il n'est pas oublié au bout de sept jours, il survit à « Effacer
+  l'historique » et il est partagé avec l'autre Mac. Les anciens épinglés sont devenus des favoris tout seuls.
+- **Code** : `PresseVolet.swift` (`EtoileFavori`, pastille Favoris), `BarreLaterale.swift`, textes français et anglais.
+  Photo d'essai du volet seul : `Side --image fichier.png --volet-presse`.
+- **À essayer par Gauthier** : le clic sur l'étoile et sur la pastille (les photos ne montrent que le dessin).
+
 ## 20/11/2026 — Volet : le passage en plein écran ne saccade plus
 
 - **Vu par Gauthier** : le plein écran du volet saccadait.

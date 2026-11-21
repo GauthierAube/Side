@@ -210,6 +210,8 @@ Press Esc to cancel.</string>
 	<string>When Side starts, show</string>
 	<key>Aucun</key>
 	<string>None</string>
+	<key>Aucun favori. Clique sur l'étoile d'un élément pour le garder ici.</key>
+	<string>No favorites. Click an item's star to keep it here.</string>
 	<key>Aucun fichier sélectionné : sélectionne des fichiers dans le Finder</key>
 	<string>No file selected: select files in the Finder</string>
 	<key>Aucun lecteur : cette partie n'apparaît pas dans le tiroir.</key>
@@ -336,8 +338,8 @@ Press Esc to cancel.</string>
 	<string>Choose what each corner opens: the Finder, the drawer, the clipboard, the app grid, or nothing. Going back to the corner closes it. If macOS already uses that corner, turn it off in System Settings &gt; Desktop &amp; Dock &gt; Hot Corners.</string>
 	<key>Clavier</key>
 	<string>Keyboard</string>
-	<key>Clic : recopier. Clic droit : épingler. On peut aussi le glisser ailleurs.</key>
-	<string>Click: copy again. Right-click: pin. You can also drag it elsewhere.</string>
+	<key>Clic : recopier. Étoile : mettre en favori. On peut aussi le glisser ailleurs.</key>
+	<string>Click: copy again. Star: add to favorites. You can also drag it elsewhere.</string>
 	<key>Clic droit dans la barre</key>
 	<string>Right-click in the bar</string>
 	<key>Clique pour replier. Glisse un dossier ici pour l'ajouter aux favoris.</key>
@@ -480,14 +482,12 @@ Press Esc to cancel.</string>
 	<string>Drop an app here to add it to the mini Dock</string>
 	<key>Désactivé</key>
 	<string>Off</string>
-	<key>Désépingler</key>
-	<string>Unpin</string>
 	<key>Déverrouillée : se cache quand Side se ferme. Clique pour la garder à l'écran.</key>
 	<string>Unlocked: hides when Side closes. Click to keep it on screen.</string>
 	<key>Effacer</key>
 	<string>Clear</string>
-	<key>Effacer l'historique (sauf les épinglés)</key>
-	<string>Clear History (Except Pinned)</string>
+	<key>Effacer l'historique (sauf les favoris)</key>
+	<string>Clear History (Except Favorites)</string>
 	<key>Effacer la recherche</key>
 	<string>Clear search</string>
 	<key>Emplacements</key>
@@ -910,8 +910,8 @@ Press Esc to cancel.</string>
 	<string>The parts of Side</string>
 	<key>Les petites applications et la musique, une à la fois.</key>
 	<string>Small apps and music, one at a time.</string>
-	<key>Les textes, les fichiers et les 40 dernières images copiés sont gardés 7 jours ; ce que tu épingles (clic droit) est gardé sans limite. Les mots de passe ne sont jamais écrits sur le disque. Décocher l'historique efface tout.</key>
-	<string>Copied text, files and the last 40 images are kept for 7 days; what you pin (right-click) is kept with no limit. Passwords are never written to disk. Turning the history off erases everything.</string>
+	<key>Les textes, les fichiers et les 40 dernières images copiés sont gardés 7 jours ; tes favoris (l'étoile) sont gardés sans limite. Les mots de passe ne sont jamais écrits sur le disque. Décocher l'historique efface tout.</key>
+	<string>Copied text, files and the last 40 images are kept for 7 days; your favorites (the star) are kept with no limit. Passwords are never written to disk. Turning the history off erases everything.</string>
 	<key>Les textes, les fichiers et les 40 dernières images copiés sont gardés 7 jours sur ce Mac ; ce que tu épingles (clic droit) est gardé sans limite. Les mots de passe ne sont jamais écrits sur le disque. Décocher l'historique efface tout.</key>
 	<string>Copied text, files and the last 40 images are kept for 7 days on this Mac; what you pin (right-click) is kept with no limit. Passwords are never written to disk. Turning off history erases everything.</string>
 	<key>Les vidéos du tiroir se mettront en pause à %@.</key>
@@ -1608,8 +1608,6 @@ Press Esc to cancel.</string>
 	<string>Pin This Folder as a Column</string>
 	<key>Épingler en colonne</key>
 	<string>Pin as Column</string>
-	<key>Épingler en haut de la liste</key>
-	<string>Pin to Top of List</string>
 	<key>Épingler un autre dossier…</key>
 	<string>Pin Another Folder…</string>
 	<key>Épingler un dossier en colonne</key>

@@ -1707,16 +1707,6 @@
         }
       }
     },
-    "Clic : recopier. Clic droit : épingler. On peut aussi le glisser ailleurs." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Click: copy again. Right-click: pin. You can also drag it elsewhere."
-          }
-        }
-      }
-    },
     "Clic droit dans la barre" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -2464,16 +2454,6 @@
         }
       }
     },
-    "Désépingler" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Unpin"
-          }
-        }
-      }
-    },
     "Déverrouillée : se cache quand Side se ferme. Clique pour la garder à l'écran." : {
       "localizations" : {
         "en" : {
@@ -2490,16 +2470,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Clear"
-          }
-        }
-      }
-    },
-    "Effacer l'historique (sauf les épinglés)" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Clear History (Except Pinned)"
           }
         }
       }
@@ -4674,12 +4644,12 @@
         }
       }
     },
-    "Les textes, les fichiers et les 40 dernières images copiés sont gardés 7 jours ; ce que tu épingles (clic droit) est gardé sans limite. Les mots de passe ne sont jamais écrits sur le disque. Décocher l'historique efface tout." : {
+    "Les textes, les fichiers et les 40 dernières images copiés sont gardés 7 jours ; tes favoris (l'étoile) sont gardés sans limite. Les mots de passe ne sont jamais écrits sur le disque. Décocher l'historique efface tout." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Copied text, files and the last 40 images are kept for 7 days; what you pin (right-click) is kept with no limit. Passwords are never written to disk. Turning the history off erases everything."
+            "value" : "Copied text, files and the last 40 images are kept for 7 days; your favorites (the star) are kept with no limit. Passwords are never written to disk. Turning the history off erases everything."
           }
         }
       }
@@ -8311,16 +8281,6 @@
         }
       }
     },
-    "Épingler en haut de la liste" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pin to Top of List"
-          }
-        }
-      }
-    },
     "Épingler un autre dossier…" : {
       "localizations" : {
         "en" : {
@@ -8440,6 +8400,36 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "⌥ + number"
+          }
+        }
+      }
+    },
+    "Effacer l'historique (sauf les favoris)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear History (Except Favorites)"
+          }
+        }
+      }
+    },
+    "Clic : recopier. Étoile : mettre en favori. On peut aussi le glisser ailleurs." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Click: copy again. Star: add to favorites. You can also drag it elsewhere."
+          }
+        }
+      }
+    },
+    "Aucun favori. Clique sur l'étoile d'un élément pour le garder ici." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No favorites. Click an item's star to keep it here."
           }
         }
       }

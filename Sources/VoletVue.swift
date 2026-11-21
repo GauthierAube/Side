@@ -449,6 +449,10 @@ final class VoletVue: NSObject, ObservableObject {
     }
     private var transition: Transition?
     private var enGeste = false      // les doigts tiennent les cartes (pas encore lâchées)
+    /// Un geste parti pendant que le changement précédent finissait (21/11/2026) : avant, il était perdu en entier.
+    /// Les doigts encore posés : les cartes partent dès que le volet est prêt. Déjà relevés : la vue change juste après.
+    private var sensEnAttente: Int?
+    private var suiteEnAttente: Int?
 
     /// Quatre doigts à l'horizontale sur le volet : les cartes suivent les doigts (voir GestePages et CartesPile).
     func geste(_ e: GestePages.Événement) {
@@ -458,9 +462,18 @@ final class VoletVue: NSObject, ObservableObject {
             guard let pile = ouvert?.pile else { return }
             let sens = pile.àDroite ? -doigts : doigts
             enGeste = commencer(sens: sens, cible: pile.page(sens))
+            sensEnAttente = enGeste || transition == nil ? nil : sens
         case .suivi(let p):
+            if !enGeste, let s = sensEnAttente, transition == nil, let pile = ouvert?.pile {
+                sensEnAttente = nil
+                enGeste = commencer(sens: s, cible: pile.page(s))
+            }
             if enGeste { CartesPile.commun.dessiner(CGFloat(p)) }
         case .fin(let p, let élan):
+            if !enGeste, let s = sensEnAttente {
+                sensEnAttente = nil
+                if transition != nil, (p > 0.4 || élan > 0.6) && élan > -0.4 { suiteEnAttente = s }
+            }
             guard enGeste else { return }
             enGeste = false
             // Comme sur l'iPad : à mi-chemin, ou d'un geste vif, la carte change ; un retour vif la ramène.
@@ -551,6 +564,13 @@ final class VoletVue: NSObject, ObservableObject {
             if va, let n = t.neuf, let i = t.cible { n.pile?.index = i; self.ouvert = n } else { self.ouvert = t.ancien }
             self.poser(essais: 60, tour: monTour, cartes: va)
             self.préparer()          // la vue quittée a peut-être été retirée des réglages : sa fenêtre revient
+            // Un second geste fait pendant ce mouvement : la vue suivante part maintenant.
+            if let s = self.suiteEnAttente {
+                self.suiteEnAttente = nil
+                if !self.enGeste, let pile = self.ouvert?.pile, self.commencer(sens: s, cible: pile.page(s)) {
+                    self.terminer(arrivée: true, depuis: 0)
+                }
+            }
         }
     }
 

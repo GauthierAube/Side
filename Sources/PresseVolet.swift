@@ -115,7 +115,7 @@ struct ReglagesVoletPresse: View {
                 .disabled(!config.historique)
                 .help("Garde ⌘ enfoncé et tape V une deuxième fois : une petite fenêtre montre les 5 derniers copiés. Chaque V passe au suivant, lâcher ⌘ colle, Échap annule.")
         } header: { Text("Historique") } footer: {
-            Text("Les textes, les fichiers et les 40 dernières images copiés sont gardés 7 jours ; ce que tu épingles (clic droit) est gardé sans limite. Les mots de passe ne sont jamais écrits sur le disque. Décocher l'historique efface tout.")
+            Text("Les textes, les fichiers et les 40 dernières images copiés sont gardés 7 jours ; tes favoris (l'étoile) sont gardés sans limite. Les mots de passe ne sont jamais écrits sur le disque. Décocher l'historique efface tout.")
                 .font(.caption).foregroundStyle(.secondary)
         }
         Section {
@@ -686,6 +686,25 @@ private struct OngletLiens: View {
 
 // MARK: - Une carte
 
+/// La petite étoile d'un élément copié : pleine et jaune quand il est en favori. Un clic bascule.
+/// (Un favori reste en haut de la liste, n'est pas oublié au bout de sept jours et survit à « Effacer ».)
+struct EtoileFavori: View {
+    let c: Copie
+    /// Un doré soutenu : le jaune du Mac se détachait mal du gris des cartes et des pastilles (vu par Gauthier, 21/11/2026).
+    static let dore = Color(red: 0.93, green: 0.58, blue: 0.0)
+    var body: some View {
+        Button { PressePapiers.shared.epingler(c) } label: {
+            Image(systemName: c.epingle ? "star.fill" : "star")
+                .font(.system(size: 12, weight: .medium))
+                .foregroundStyle(c.epingle ? Self.dore : Color.secondary.opacity(0.7))
+                .frame(width: 20, height: 20).contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .help(c.epingle ? "Retirer des favoris" : "Ajouter aux favoris")
+        .accessibilityLabel(c.epingle ? "Retirer des favoris" : "Ajouter aux favoris")
+    }
+}
+
 private struct CartePresse: View {
     let c: Copie
     let copiee: Bool
@@ -711,9 +730,11 @@ private struct CartePresse: View {
                     .background(RoundedRectangle(cornerRadius: Rayon.ligne, style: .continuous).fill(nature.couleur.gradient))
                 Text(nature.titre).font(.caption.weight(.semibold)).foregroundStyle(nature.couleur)
                 Spacer(minLength: 0)
-                if c.epingle { Image(systemName: "pin.fill").font(.caption2).foregroundStyle(Color.accentColor) }
                 Text(copiee ? String(localized: "Copié") : Self.dates.localizedString(for: c.date, relativeTo: Date()))
                     .font(.caption2).foregroundStyle(copiee ? Color.accentColor : .secondary)
+                // L'étoile : un clic met l'élément dans les favoris (ou l'en retire). Pas pour un mot de passe,
+                // qui n'est jamais écrit sur le disque.
+                if !c.secret { EtoileFavori(c: c) }
             }
             contenu(nature)
         }
@@ -736,15 +757,15 @@ private struct CartePresse: View {
             if nature == .lien, let u = URL(string: (c.texte ?? "").trimmingCharacters(in: .whitespacesAndNewlines)) {
                 Button("Ouvrir le lien") { NSWorkspace.shared.open(u) }
             }
-            if !c.secret { Button(c.epingle ? "Désépingler" : "Épingler en haut de la liste") { presse.epingler(c) } }
+            if !c.secret { Button(c.epingle ? "Retirer des favoris" : "Ajouter aux favoris") { presse.epingler(c) } }
             if !c.secret, let t = c.texte?.trimmingCharacters(in: .whitespacesAndNewlines), !t.isEmpty {
                 Button("Garder dans les liens…") { LiensGardes.commun.brouillon = LienGarde(titre: "", texte: t) }
             }
             Button("Supprimer de l'historique") { presse.supprimer(c) }
             Divider()
-            Button("Effacer l'historique (sauf les épinglés)") { presse.vider() }
+            Button("Effacer l'historique (sauf les favoris)") { presse.vider() }
         }
-        .help("Clic : recopier. Clic droit : épingler. On peut aussi le glisser ailleurs.")
+        .help("Clic : recopier. Étoile : mettre en favori. On peut aussi le glisser ailleurs.")
         .animation(Mouvement.survol, value: survol)
     }
 
@@ -794,6 +815,8 @@ struct VoletPresseVue: View {
     @ObservedObject private var config = Config.shared
     @State private var filtre = ""
     @State private var nature: NaturePresse?
+    /// Le filtre « Favoris » (l'étoile) : n'affiche que les éléments étoilés, de toute nature.
+    @State private var favoris = false
     @State private var copiee: UUID?
     @State private var lienCopie: UUID?
     @ObservedObject private var liens = LiensGardes.commun
@@ -805,6 +828,7 @@ struct VoletPresseVue: View {
     private var visibles: [Copie] {
         let f = filtre.trimmingCharacters(in: .whitespaces)
         return presse.tries.filter { c in
+            if favoris && !c.epingle { return false }
             if let nature, NaturePresse.de(c) != nature { return false }
             guard !f.isEmpty else { return true }
             if c.secret { return false }
@@ -864,9 +888,11 @@ struct VoletPresseVue: View {
             .background(Capsule().fill(Gris.moyen))
             if onglet == 0 {
                 // Les filtres par nature : une pastille par sorte d'élément présent.
-                if natures.count > 1 {
+                let aDesFavoris = favoris || presse.elements.contains(where: \.epingle)
+                if natures.count > 1 || aDesFavoris {
                     HStack(spacing: 6) {
                         pastille(nil)
+                        if aDesFavoris { pastilleFavoris }
                         ForEach(natures, id: \.self) { pastille($0) }
                         Spacer(minLength: 0)
                     }
@@ -878,7 +904,8 @@ struct VoletPresseVue: View {
                         } else if presse.elements.isEmpty {
                             vide("Ce que tu copies apparaîtra ici.")
                         } else if visibles.isEmpty {
-                            vide("Aucun résultat")
+                            vide(favoris && filtre.trimmingCharacters(in: .whitespaces).isEmpty
+                                 ? "Aucun favori. Clique sur l'étoile d'un élément pour le garder ici." : "Aucun résultat")
                         } else {
                             ForEach(visibles) { c in
                                 CartePresse(c: c, copiee: copiee == c.id) { copier(c) }
@@ -918,7 +945,7 @@ struct VoletPresseVue: View {
     }
 
     private func pastille(_ n: NaturePresse?) -> some View {
-        let choisie = nature == n
+        let choisie = nature == n && !favoris
         return Image(systemName: n?.symbole ?? "square.grid.2x2.fill")
             .font(.system(size: 11, weight: .semibold))
             .foregroundStyle(choisie ? .white : (n?.couleur ?? Color.primary))
@@ -926,9 +953,25 @@ struct VoletPresseVue: View {
             .background(RoundedRectangle(cornerRadius: Rayon.ligne, style: .continuous)
                 .fill(choisie ? AnyShapeStyle((n?.couleur ?? Color.accentColor).gradient) : AnyShapeStyle(Gris.moyen)))
             .contentShape(Rectangle())
-            .onTapGesture { nature = n }
+            .onTapGesture { nature = n; favoris = false }
             .help(n?.titre ?? String(localized: "Tout"))
             .accessibilityLabel(n?.titre ?? String(localized: "Tout"))
+    }
+
+    /// La pastille « Favoris » : à côté de « Tout », avant les natures.
+    private var pastilleFavoris: some View {
+        Image(systemName: "star.fill")
+            .font(.system(size: 11, weight: .semibold))
+            .foregroundStyle(favoris ? Color.white : EtoileFavori.dore)
+            .frame(width: 30, height: 24)
+            // La pastille est teintée de doré même au repos : on la repère tout de suite parmi les autres.
+            .background(RoundedRectangle(cornerRadius: Rayon.ligne, style: .continuous)
+                .fill(favoris ? AnyShapeStyle(EtoileFavori.dore.gradient) : AnyShapeStyle(EtoileFavori.dore.opacity(0.22))))
+            .contentShape(Rectangle())
+            .onTapGesture { favoris = true; nature = nil }
+            .help("Favoris")
+            .accessibilityLabel("Favoris")
+            .accessibilityAddTraits(.isButton)
     }
 
     private func copier(_ l: LienGarde) {

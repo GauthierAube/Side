@@ -793,7 +793,6 @@ final class PanneauBas: NSObject {
 enum FiltreHorizontalBas {
     private static var departs: [Int32: (Float, Float)] = [:]
     private static var sens = 0              // 0 : pas encore décidé, 1 : vertical, 2 : horizontal
-    private static let seuil: Float = 0.025  // trajet moyen des doigts avant de trancher
 
     /// Renvoie vrai quand Side doit ignorer cet instant du geste.
     static func avaler(_ doigts: [(Int32, Float, Float)]) -> Bool {
@@ -811,8 +810,9 @@ enum FiltreHorizontalBas {
             return false
         }
         dx /= suivis; dy /= suivis
-        guard max(abs(dx), abs(dy)) > seuil else { return true }      // pas encore assez de trajet : on attend de savoir
-        sens = abs(dx) > abs(dy) ? 2 : 1
+        // La même règle que le carrousel et le volet, sur les mêmes images : ils tranchent pareil, au même instant.
+        guard let aPlat = GestePages.horizontal(dx, dy) else { return true }   // pas encore assez de trajet : on attend de savoir
+        sens = aPlat ? 2 : 1
         return sens == 2
     }
 }

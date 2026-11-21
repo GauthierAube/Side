@@ -234,13 +234,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
             if CommandLine.arguments.contains("--sombre") { NSApp.appearance = NSAppearance(named: .darkAqua) }
             if CommandLine.arguments.contains("--clair") { NSApp.appearance = NSAppearance(named: .aqua) }
             let reglages = CommandLine.arguments.contains("--volet")
-            let taille = reglages ? NSSize(width: 820, height: 900) : NSSize(width: 1150, height: 560)
-            let vue: NSView = reglages ? NSHostingView(rootView: ReglagesView()) : NSHostingView(rootView: DrawerView(store: store))
+            let volet = CommandLine.arguments.contains("--volet-presse")   // pour les tests : le volet du presse-papiers seul
+            let taille = volet ? NSSize(width: 360, height: 640) : reglages ? NSSize(width: 820, height: 900) : NSSize(width: 1150, height: 560)
+            let vue: NSView = volet ? NSHostingView(rootView: VoletPresseVue(fermer: {}))
+                : reglages ? NSHostingView(rootView: ReglagesView()) : NSHostingView(rootView: DrawerView(store: store))
             let w = NSWindow(contentRect: NSRect(origin: .zero, size: taille), styleMask: [.borderless], backing: .buffered, defer: false)
             w.contentView = vue
             store.largeurMax = 1400
             store.reloadAll()
-            if CommandLine.arguments.contains("--presse") {   // pour les tests : un historique d'exemple
+            if CommandLine.arguments.contains("--presse") || volet {   // pour les tests : un historique d'exemple
                 PressePapiers.shared.elements = [
                     Copie(date: Date(), texte: "FR76 0000 0000 0000 0000 0000 000", epingle: true),
                     Copie(date: Date().addingTimeInterval(-40), texte: "Bonjour, merci pour votre message, je reviens vers vous demain."),

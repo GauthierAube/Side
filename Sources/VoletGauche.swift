@@ -84,8 +84,24 @@ enum GestePages {
     private static var avancée: Float = 0
     private static var élan: Float = 0
     private static var instantPrécédent: TimeInterval = 0
-    private static let seuil: Float = 0.02         // trajet avant de décider, en largeur de trackpad
     static let course: Float = 0.3                 // trajet des doigts pour une carte entière
+    private static var quatrePosés = false         // le quatrième doigt est arrivé : les départs ont été repris à cet instant
+    /// Un doigt peut traîner au tout début : on lui laisse ce trajet moyen (en largeur de trackpad) pour suivre les autres
+    /// avant de conclure que ce n'est pas un glissement à quatre doigts.
+    static let patience: Float = 0.05
+
+    /// Le geste part-il à l'horizontale ? Nil : trop tôt pour le dire. Une seule règle pour tout Side (21/11/2026) : avant,
+    /// le carrousel, le volet et la carte de Side tranchaient chacun à leur façon et à des instants différents ; un départ
+    /// un peu en biais pouvait être refusé par les trois à la fois, et le geste ne faisait rien.
+    /// Net (deux fois plus d'un côté que de l'autre) : décidé dès 1,4 % du trackpad, environ 2 mm. En biais : on attend 3 %.
+    static func horizontal(_ dx: Float, _ dy: Float) -> Bool? {
+        let trajet = max(abs(dx), abs(dy))
+        guard trajet > 0.014 else { return nil }
+        if abs(dx) > 2 * abs(dy) { return true }
+        if abs(dy) > 2 * abs(dx) { return false }
+        guard trajet > 0.03 else { return nil }
+        return abs(dx) > abs(dy)
+    }
 
     /// Chaque doigt a fait au moins 40 % du trajet moyen, dans le même sens (20/11/2026). Un doigt resté immobile, comme
     /// le pouce posé pendant un glisser à trois doigts, ou parti à contresens (un pincement) : ce n'est pas un glissement
@@ -96,9 +112,12 @@ enum GestePages {
 
     static func suivre(_ doigts: [(Int32, Float, Float)], instant: TimeInterval) -> Événement? {
         if doigts.count < 3 {
-            defer { départs = [:]; sens = 0; refusé = false; avancée = 0; élan = 0 }
+            defer { départs = [:]; sens = 0; refusé = false; avancée = 0; élan = 0; quatrePosés = false }
             return sens != 0 ? .fin(avancée, élan) : nil
         }
+        // Les doigts n'arrivent jamais ensemble. Quand le quatrième se pose, tous repartent de là (21/11/2026) : sinon les
+        // trois premiers avaient déjà de l'avance, le dernier « ne glissait pas », et le geste entier était refusé.
+        if sens == 0, !quatrePosés, doigts.count >= 4 { quatrePosés = true; départs = [:] }
         for (id, x, y) in doigts where départs[id] == nil { départs[id] = (x, y) }
         guard !refusé else { return nil }
         let écarts = doigts.compactMap { id, x, y in départs[id].map { (x - $0.0, y - $0.1) } }
@@ -106,11 +125,14 @@ enum GestePages {
         let dx = écarts.map(\.0).reduce(0, +) / Float(écarts.count)
         let dy = écarts.map(\.1).reduce(0, +) / Float(écarts.count)
         if sens == 0 {
-            guard doigts.count >= 4, écarts.count >= 4, max(abs(dx), abs(dy)) > seuil else { return nil }
-            // Tous les doigts glissent dans le même sens (pas un pincement, ni trois doigts avec le pouce posé), et nettement
-            // à l'horizontale.
-            let mêmeSens = tousGlissent(écarts.map(\.0), moyenne: dx)
-            guard mêmeSens, abs(dx) > 1.5 * abs(dy) else { refusé = true; return nil }
+            guard doigts.count >= 4, écarts.count >= 4, let àPlat = horizontal(dx, dy) else { return nil }
+            guard àPlat else { refusé = true; return nil }
+            // Tous les doigts glissent dans le même sens (pas un pincement, ni trois doigts avec le pouce posé). Sur les
+            // deux premiers millimètres, un doigt peut traîner : on attend qu'il suive, au lieu de refuser tout le geste.
+            guard tousGlissent(écarts.map(\.0), moyenne: dx) else {
+                if abs(dx) > patience { refusé = true }
+                return nil
+            }
             sens = dx < 0 ? 1 : -1
             avancée = max(0, -dx * sens / course)
             instantPrécédent = instant

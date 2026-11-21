@@ -252,7 +252,7 @@ struct PressePapiersView: View {
                     .font(.caption).foregroundStyle(copie == c.id ? Color.accentColor : .secondary)
             }
             Spacer(minLength: 0)
-            if c.epingle { Image(systemName: "pin.fill").font(.caption).foregroundStyle(Color.accentColor).padding(.top, 3) }
+            if !c.secret { EtoileFavori(c: c) }
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 6)
@@ -276,13 +276,13 @@ struct PressePapiersView: View {
             if c.secret {
                 // Un mot de passe ne s'épingle pas : il serait écrit sur le disque.
             } else {
-                Button(c.epingle ? "Désépingler" : "Épingler en haut de la liste") { presse.epingler(c) }
+                Button(c.epingle ? "Retirer des favoris" : "Ajouter aux favoris") { presse.epingler(c) }
             }
             Button("Supprimer de l'historique") { presse.supprimer(c) }
             Divider()
-            Button("Effacer l'historique (sauf les épinglés)") { presse.vider() }
+            Button("Effacer l'historique (sauf les favoris)") { presse.vider() }
         }
-        .help("Clic : recopier. Clic droit : épingler. On peut aussi le glisser ailleurs.")
+        .help("Clic : recopier. Étoile : mettre en favori. On peut aussi le glisser ailleurs.")
     }
 
     private func apercu(_ c: Copie) -> String {

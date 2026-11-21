@@ -77,7 +77,6 @@ enum Glisse {
     private static func gain(_ vitesse: Float) -> Float {
         1 + 3 * min(max((vitesse - 0.2) / 0.8, 0), 1)
     }
-    private static let debut: Float = 0.014    // trajet avant de trancher entre horizontal (nous) et vertical (Side)
     /// Sensibilité du geste (1 = normale) : plus elle est haute, moins les doigts ont à glisser pour passer d'une application
     /// à la suivante. Réglable dans Réglages > Plein écran > Carrousel.
     static var sensibilite: Double = UserDefaults.standard.object(forKey: "glisseSensibilite") as? Double ?? 1 {
@@ -141,13 +140,22 @@ enum Glisse {
         if phase == 0, max(abs(dx / suivis), abs(dy / suivis)) < 0.006 { instantPose = maintenant }
         dx /= suivis; dy /= suivis
         if phase == 0 {
-            guard max(abs(dx), abs(dy)) > debut else { return }
-            // Nettement vertical : c'est pour Side (sa carte, son panneau du bas).
-            guard abs(dx) > abs(dy) else { phase = -1; return }
+            // Horizontal (nous) ou vertical (Side, sa carte, son tiroir) : la même règle que Side, au même instant.
+            guard let aPlat = GestePages.horizontal(dx, dy) else { return }
+            guard aPlat else { phase = -1; return }
             // Les quatre doigts glissent, chacun dans le même sens (20/11/2026). Un glisser à trois doigts (sélectionner du
             // texte, déplacer un fichier) avec le pouce posé sur le trackpad faisait aussi quatre contacts : la moyenne avançait
             // et le carrousel partait. Un doigt immobile (le pouce) ou à contresens : ce geste n'est pas pour nous.
-            guard GestePages.tousGlissent(parDoigt, moyenne: dx) else { phase = -1; return }
+            // Jugé trop tôt (à 2 mm de trajet), un doigt qui traîne faisait refuser tout le geste : on lui laisse le temps
+            // de suivre (21/11/2026). Le pouce posé, lui, ne suit jamais : refusé un peu plus loin, sans rien afficher.
+            guard GestePages.tousGlissent(parDoigt, moyenne: dx) else {
+                if abs(dx) > GestePages.patience {
+                    phase = -1
+                    journal("Square: geste à quatre doigts refusé — un doigt ne glisse pas (trajets %@)",
+                            parDoigt.map { String(format: "%.3f", $0) }.joined(separator: " "))
+                }
+                return
+            }
             phase = 1
             debutGeste = maintenant
             // Vitesse de départ : le trajet déjà fait, sur le temps écoulé depuis que les doigts ont commencé à bouger.

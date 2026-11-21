@@ -224,6 +224,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Au lancement de Side, afficher</string>
 	<key>Aucun</key>
 	<string>Aucun</string>
+	<key>Aucun favori. Clique sur l'étoile d'un élément pour le garder ici.</key>
+	<string>Aucun favori. Clique sur l'étoile d'un élément pour le garder ici.</string>
 	<key>Aucun fichier sélectionné : sélectionne des fichiers dans le Finder</key>
 	<string>Aucun fichier sélectionné : sélectionne des fichiers dans le Finder</string>
 	<key>Aucun lecteur : cette partie n'apparaît pas dans le tiroir.</key>
@@ -356,8 +358,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Choisis pour chaque coin ce qu'il ouvre : le Finder, le tiroir, le presse-papiers, la grille des applications, ou rien. Revenir dans le coin referme. Si macOS utilise déjà ce coin, désactive-le dans Réglages Système &gt; Bureau et Dock &gt; Coins actifs.</string>
 	<key>Clavier</key>
 	<string>Clavier</string>
-	<key>Clic : recopier. Clic droit : épingler. On peut aussi le glisser ailleurs.</key>
-	<string>Clic : recopier. Clic droit : épingler. On peut aussi le glisser ailleurs.</string>
+	<key>Clic : recopier. Étoile : mettre en favori. On peut aussi le glisser ailleurs.</key>
+	<string>Clic : recopier. Étoile : mettre en favori. On peut aussi le glisser ailleurs.</string>
 	<key>Clic droit dans la barre</key>
 	<string>Clic droit dans la barre</string>
 	<key>Clique pour replier. Glisse un dossier ici pour l'ajouter aux favoris.</key>
@@ -508,14 +510,12 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Dépose une app ici pour l'ajouter au mini-Dock</string>
 	<key>Désactivé</key>
 	<string>Désactivé</string>
-	<key>Désépingler</key>
-	<string>Désépingler</string>
 	<key>Déverrouillée : se cache quand Side se ferme. Clique pour la garder à l'écran.</key>
 	<string>Déverrouillée : se cache quand Side se ferme. Clique pour la garder à l'écran.</string>
 	<key>Effacer</key>
 	<string>Effacer</string>
-	<key>Effacer l'historique (sauf les épinglés)</key>
-	<string>Effacer l'historique (sauf les épinglés)</string>
+	<key>Effacer l'historique (sauf les favoris)</key>
+	<string>Effacer l'historique (sauf les favoris)</string>
 	<key>Effacer la recherche</key>
 	<string>Effacer la recherche</string>
 	<key>Emplacements</key>
@@ -958,8 +958,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Les parties de Side</string>
 	<key>Les petites applications et la musique, une à la fois.</key>
 	<string>Les petites applications et la musique, une à la fois.</string>
-	<key>Les textes, les fichiers et les 40 dernières images copiés sont gardés 7 jours ; ce que tu épingles (clic droit) est gardé sans limite. Les mots de passe ne sont jamais écrits sur le disque. Décocher l'historique efface tout.</key>
-	<string>Les textes, les fichiers et les 40 dernières images copiés sont gardés 7 jours ; ce que tu épingles (clic droit) est gardé sans limite. Les mots de passe ne sont jamais écrits sur le disque. Décocher l'historique efface tout.</string>
+	<key>Les textes, les fichiers et les 40 dernières images copiés sont gardés 7 jours ; tes favoris (l'étoile) sont gardés sans limite. Les mots de passe ne sont jamais écrits sur le disque. Décocher l'historique efface tout.</key>
+	<string>Les textes, les fichiers et les 40 dernières images copiés sont gardés 7 jours ; tes favoris (l'étoile) sont gardés sans limite. Les mots de passe ne sont jamais écrits sur le disque. Décocher l'historique efface tout.</string>
 	<key>Les textes, les fichiers et les 40 dernières images copiés sont gardés 7 jours sur ce Mac ; ce que tu épingles (clic droit) est gardé sans limite. Les mots de passe ne sont jamais écrits sur le disque. Décocher l'historique efface tout.</key>
 	<string>Les textes, les fichiers et les 40 dernières images copiés sont gardés 7 jours sur ce Mac ; ce que tu épingles (clic droit) est gardé sans limite. Les mots de passe ne sont jamais écrits sur le disque. Décocher l'historique efface tout.</string>
 	<key>Les vidéos du tiroir se mettront en pause à %@.</key>
@@ -1714,8 +1714,6 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Épingler ce dossier en colonne</string>
 	<key>Épingler en colonne</key>
 	<string>Épingler en colonne</string>
-	<key>Épingler en haut de la liste</key>
-	<string>Épingler en haut de la liste</string>
 	<key>Épingler un autre dossier…</key>
 	<string>Épingler un autre dossier…</string>
 	<key>Épingler un dossier en colonne</key>

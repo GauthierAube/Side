@@ -36,7 +36,34 @@ enum EssaisPages {
         vérifier("lever les doigts : fin à mi-course (0,15 / 0,3), avec élan", fin(àGauche).map { abs($0.0 - 0.5) < 0.08 && $0.1 > 0 } == true)
         vérifier("une seule fin", àGauche.filter { if case .fin = $0 { return true }; return false }.count == 1)
         vérifier("quatre doigts vers la droite : la carte précédente", début(geste(trajet(de: 0.4, 0.5, à: 0.55, 0.5))) == -1)
-        vérifier("en diagonale : rien", geste(trajet(de: 0.4, 0.5, à: 0.5, 0.6)).isEmpty)
+        vérifier("plutôt vertical : rien", geste(trajet(de: 0.4, 0.5, à: 0.5, 0.64)).isEmpty)
+        vérifier("un peu en biais mais horizontal : la carte part", début(geste(trajet(de: 0.5, 0.5, à: 0.35, 0.56))) == 1)
+        // Relecture du 21/11/2026 : les doigts n'arrivent pas ensemble, et l'un d'eux peut traîner au départ.
+        // Trois doigts glissent déjà (5 % du trackpad) quand le quatrième se pose.
+        let enRetard: [[(Int32, Float, Float)]] = (0...20).map { i in
+            let x: Float = 0.6 - Float(i) * 0.01
+            let n = i < 5 ? 3 : 4
+            return (0..<n).map { d -> (Int32, Float, Float) in (Int32(d), x + Float(d) * 0.05, 0.5) }
+        }
+        vérifier("quatrième doigt posé en retard : la carte part quand même", début(geste(enRetard)) == 1)
+        vérifier("quatrième doigt en retard : pas de saut au départ", (suivis(geste(enRetard)).first ?? 1) < 0.15)
+        // Le petit doigt reste presque sur place les premiers millimètres, puis suit les autres.
+        let traîne: [[(Int32, Float, Float)]] = (0...20).map { i in
+            let t: Float = Float(i) * 0.005
+            let lent: Float = max(0, t - 0.02)
+            return (0..<4).map { d -> (Int32, Float, Float) in (Int32(d), 0.6 - (d == 3 ? lent : t) + Float(d) * 0.05, 0.5) }
+        }
+        vérifier("un doigt traîne au départ : la carte part quand même", début(geste(traîne)) == 1)
+        // Glisser à trois doigts, le pouce posé sans bouger : ce n'est pas pour nous, même en insistant.
+        let pouce: [[(Int32, Float, Float)]] = (0...30).map { i in
+            let x: Float = 0.7 - Float(i) * 0.01
+            return (0..<4).map { d -> (Int32, Float, Float) in d == 3 ? (3, 0.2, 0.1) : (Int32(d), x + Float(d) * 0.05, 0.5) }
+        }
+        vérifier("trois doigts et le pouce posé : rien", geste(pouce).isEmpty)
+        let net = GestePages.horizontal(0.016, 0.002) == true && GestePages.horizontal(0.002, -0.016) == false
+        let tôt = GestePages.horizontal(0.016, 0.012) == nil && GestePages.horizontal(0.01, 0) == nil
+        let biais = GestePages.horizontal(0.035, 0.03) == true && GestePages.horizontal(0.03, 0.035) == false
+        vérifier("la règle commune : net à 2 mm, en biais on attend", net && tôt && biais)
         vérifier("trois doigts seulement : rien", geste(trajet(3, de: 0.5, 0.5, à: 0.3, 0.5)).isEmpty)
         vérifier("tout petit trajet (0,01) : rien", geste(trajet(de: 0.5, 0.5, à: 0.49, 0.5)).isEmpty)
         // Pincement : deux doigts vers la gauche, deux vers la droite.
