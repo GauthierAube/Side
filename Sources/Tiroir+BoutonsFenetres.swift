@@ -214,23 +214,48 @@ extension PanneauBas {
         fermer(rendreLaMain: true)
     }
 
-    /// Bouton vert d'une tuile : l'application sort du tiroir, à sa taille, au milieu de l'écran (sans dépasser les trois quarts
-    /// de l'écran). Sa photo glisse de sa place dans le tiroir jusqu'au centre pendant que le tiroir s'en va.
-    /// Elle reste une application du tiroir : elle y retourne à sa prochaine ouverture.
+    /// La dernière fenêtre sortie du tiroir par son bouton vert, et quand : un second clic sur son bouton vert juste après
+    /// (double clic, ou clic répété pendant le glissement) ne doit pas la mettre en plein écran. Lu par `BoutonVert`.
+    static var sortieParLeVert: (wid: CGWindowID, à: Date)?
+
+    /// Bouton vert d'une tuile : l'application quitte le tiroir pour de bon et retrouve sa taille normale, celle qu'elle avait
+    /// avant d'y entrer, à sa place d'alors (sinon au milieu de l'écran, à sa taille, sans dépasser les trois quarts de l'écran).
+    /// Sa photo glisse de sa place dans le tiroir jusque-là pendant que le tiroir s'en va.
+    /// (Avant le 23/11/2026, elle restait une application du tiroir : appelée plus tard, elle y retournait d'elle-même.)
     func sortirAuCentre(nom: String) {
         guard let i = emprunts.firstIndex(where: { $0.nom == nom }), let principal = NSScreen.screens.first,
               let ecran = écranDuTiroir else { return }
         let e = emprunts[i]
         guard let f = fenetre(e), let c = AXBas.cadre(f) else { return }
-        journalBas("%@ sort du tiroir au centre", nom)
+        journalBas("%@ sort du tiroir par son bouton vert, à sa taille normale", nom)
         let image = photo(e, taille: c.size, fraîche: true)
+        // Sa place d'avant le tiroir (coordonnées de l'Accessibilité, origine en haut à gauche), si elle tient sur un écran.
+        let avant = origines[e.nom].flatMap { r -> CGRect? in
+            let enAppKit = CGRect(x: r.minX, y: principal.frame.height - r.maxY, width: r.width, height: r.height)
+            return NSScreen.screens.contains { $0.visibleFrame.insetBy(dx: -8, dy: -8).contains(enAppKit) } ? enAppKit : nil
+        }
         let v = ecran.visibleFrame
-        let taille = Self.redimensionnable(f) ? CGSize(width: min(c.width, v.width * 0.75), height: min(c.height, v.height * 0.75)) : c.size
-        let centre = CGRect(x: (v.midX - taille.width / 2).rounded(), y: (v.midY - taille.height / 2).rounded(),
-                            width: taille.width, height: taille.height)                     // origine en bas à gauche
-        let cible = CGRect(x: centre.minX, y: principal.frame.height - centre.maxY, width: taille.width, height: taille.height)
+        let arrivée: CGRect                                                                  // origine en bas à gauche
+        if let avant {
+            arrivée = avant
+        } else {
+            let taille = Self.redimensionnable(f) ? CGSize(width: min(c.width, v.width * 0.75), height: min(c.height, v.height * 0.75)) : c.size
+            arrivée = CGRect(x: (v.midX - taille.width / 2).rounded(), y: (v.midY - taille.height / 2).rounded(),
+                             width: taille.width, height: taille.height)
+        }
+        let cible = CGRect(x: arrivée.minX, y: principal.frame.height - arrivée.maxY, width: arrivée.width, height: arrivée.height)
+        var wid: CGWindowID = 0
+        if _AXUIElementGetWindow(f, &wid) == .success, wid != 0 {
+            Self.sortieParLeVert = (wid, Date())
+            AgrandirAuto.laisser(wid)          // sinon, l'application n'étant plus du tiroir, sa fenêtre serait agrandie
+        }
+        // Elle quitte la liste avant que le tiroir se ferme : il ne la gare pas hors de l'écran, et ne la reprendra plus.
+        numéros[e.nom] = nil
+        origines[e.nom] = nil
+        emprunts.remove(at: i)
+        journalBas("tuile retirée : %@", e.nom)
         fermer(rendreLaMain: false)
-        TransitionFenetre.animer(image, de: TransitionFenetre.versÉcran(c), vers: centre, durée: 0.32,
+        TransitionFenetre.animer(image, de: TransitionFenetre.versÉcran(c), vers: arrivée, durée: 0.32,
                                  arrondiDépart: 12, arrondiArrivée: 12) { [weak self] in
             guard let self else { return }
             if let a = self.app(e), a.isHidden { a.unhide() }

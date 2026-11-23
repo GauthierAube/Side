@@ -5,6 +5,23 @@ Il est mis à jour à chaque modification, en même temps que le code.
 
 ---
 
+## 23/11/2026 — Tiroir : le bouton vert rend la fenêtre à sa taille normale
+
+- **Demandé par Gauthier** : une fenêtre qu'on fait sortir du tiroir par son bouton vert ne doit pas passer en plein
+  écran ; elle doit reprendre sa taille normale. Et les fenêtres ne doivent plus « revenir » dans le tiroir toutes seules.
+- **Ce qui se passait** (vu dans les journaux du 23/11) : le bouton vert sortait la fenêtre au centre, aux trois quarts
+  de l'écran, mais elle restait une application du tiroir ; appelée plus tard, elle y retournait. Et à chaque fois, une
+  seconde plus tard, le bouton vert du plein écran la mettait en grand. Tiroir agrandi, ce clic partait même tout droit
+  au plein écran.
+- **Maintenant** : le bouton vert retire l'application du tiroir pour de bon. Sa fenêtre reprend la taille et la place
+  qu'elle avait avant d'entrer dans le tiroir (sinon : au centre, à sa taille, trois quarts de l'écran au plus).
+  L'agrandissement automatique la laisse tranquille, un second clic sur le vert dans la seconde et demie ne fait rien,
+  et tiroir agrandi, le vert fait la même chose qu'ailleurs. Pour la remettre dans le tiroir : ⌃⌥↓, le bouton jaune
+  ou la case « + », comme avant.
+- **Code** : `Tiroir+BoutonsFenetres.swift` (`sortirAuCentre`), `PleinEcranVert.swift`, `PleinEcranAuto.swift`
+  (`AgrandirAuto.laisser`).
+- **Essayé** : la compilation. **Pas essayé** : le clic réel sur le bouton vert (à faire par Gauthier).
+
 ## 21/11/2026 — Jamais le Finder, et les liens YouTube dans le tiroir
 
 - **Demandé par Gauthier** : que tout ce qui va au Finder aille à Side (un fichier reçu par AirDrop, par exemple), toujours ;

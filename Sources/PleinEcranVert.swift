@@ -49,6 +49,20 @@ enum BoutonVert {
                 }
                 return nil
             }
+            // Une fenêtre du tiroir ne passe jamais en plein écran (23/11/2026) : son bouton vert la fait sortir du tiroir
+            // à sa taille normale. C'était le cas quand le tiroir était agrandi, ou quand ce filtre voyait le clic avant
+            // celui du tiroir. Et un second clic juste après une sortie (double clic) ne fait rien.
+            var wid: CGWindowID = 0
+            _ = _AXUIElementGetWindow(fenetre, &wid)
+            if wid != 0, let s = PanneauBas.sortieParLeVert, s.wid == wid, Date().timeIntervalSince(s.à) < 1.5 {
+                BoutonVert.clicAvalé = true
+                return nil
+            }
+            if wid != 0, let nom = PanneauBas.commun.numéros.first(where: { $0.value == wid })?.key {
+                BoutonVert.clicAvalé = true
+                DispatchQueue.main.async { PanneauBas.commun.sortirAuCentre(nom: nom) }
+                return nil
+            }
             guard BoutonVert.actif, Partie.pleinEcran.active else { return Unmanaged.passUnretained(ev) }
             BoutonVert.clicAvalé = true
             DispatchQueue.main.async {

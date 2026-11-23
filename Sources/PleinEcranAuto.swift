@@ -26,6 +26,8 @@ enum AgrandirAuto {
     private static var observateurs: [pid_t: AXObserver] = [:]
     /// Fenêtres déjà examinées : chacune n'est agrandie qu'une fois, pour ne pas défaire une taille que vous avez choisie.
     private static var vues: Set<CGWindowID> = []
+    /// Une fenêtre à laisser à sa taille : sortie du tiroir par son bouton vert, elle n'est pas une nouvelle fenêtre à agrandir.
+    static func laisser(_ wid: CGWindowID) { vues.insert(wid) }
 
     private static func fenetres(_ a: NSRunningApplication) -> [AXUIElement] {
         var v: CFTypeRef?

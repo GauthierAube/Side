@@ -172,8 +172,8 @@ extension PanneauBas {
                 let bouton = { (c: CGRect) in c.contains(ev.location) && PanneauBas.tiroirSous(ev.location, sansSide: true) }
                 if let vert = PanneauBas.boutonsVerts.first(where: { bouton($0.cadre) }) {
                     PanneauBas.clicAvalé = true
-                    // Le bouton vert sort l'application du tiroir, à sa taille, au centre de l'écran : ce sont de petites
-                    // applications, pas faites pour remplir l'écran. Elle reviendra dans le tiroir à sa prochaine ouverture.
+                    // Le bouton vert sort l'application du tiroir pour de bon, à sa taille normale (celle d'avant le tiroir) :
+                    // ce sont de petites applications, pas faites pour remplir l'écran.
                     DispatchQueue.main.async { PanneauBas.commun.sortirAuCentre(nom: vert.nom) }
                     return nil
                 }
