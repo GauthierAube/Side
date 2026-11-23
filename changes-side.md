@@ -5,6 +5,18 @@ Il est mis à jour à chaque modification, en même temps que le code.
 
 ---
 
+## 23/11/2026 — Plusieurs écrans : la grille ne montre que les applications de son écran
+
+- **Demandé par Gauthier** : avec deux écrans, la grille ouverte par le coin d'un écran doit montrer les applications de
+  cet écran-là, pas celles des deux.
+- **Maintenant** : la grille ne garde que les fenêtres dont le milieu est sur son écran (et les plein écran d'Apple de
+  cet écran). Avec un seul écran, rien ne change.
+- **L'ordre des cases** reste un seul ordre pour tous les écrans : chaque grille montre le sien, numéroté 1, 2, 3…, et
+  ranger les cases d'un écran ne dérange pas celles de l'autre.
+- **Pas changé** : le carrousel à quatre doigts et ⌘1 à ⌘9 passent toujours par les applications de tous les écrans.
+- **Code** : `PleinEcranAppli.swift` (`casesDeLaGrille`, `estSur`, `placeGlobale`).
+- **Essayé** : la compilation. **Pas essayé** : la grille sur les deux écrans (à faire par Gauthier).
+
 ## 23/11/2026 — Tiroir : le bouton vert rend la fenêtre à sa taille normale
 
 - **Demandé par Gauthier** : une fenêtre qu'on fait sortir du tiroir par son bouton vert ne doit pas passer en plein

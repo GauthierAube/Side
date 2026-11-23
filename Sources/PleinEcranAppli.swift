@@ -484,6 +484,37 @@ final class Appli: NSObject, NSApplicationDelegate, NSMenuDelegate {
         return NSScreen.screens.first { $0.frame.contains(p) } ?? Ecrans.deTravail
     }
 
+    /// Les vraies places (celles de tous les écrans, voir `construire`) des cases affichées, dans l'ordre : la case 0 de la
+    /// grille est à la place `rangsGlobaux[0]`, etc. Pour ranger la grille d'un écran sans déranger celle de l'autre.
+    private var rangsGlobaux: [Int] = []
+
+    /// Les cases de la grille : celles de son écran seulement (23/11/2026), numérotées 0, 1, 2… dans l'ordre de toutes.
+    private func casesDeLaGrille(_ espaces: [Espace], ecran: NSScreen) -> [Tuile] {
+        var t = construire(espaces).filter { Self.estSur(ecran, $0) }
+        rangsGlobaux = t.map { $0.place }
+        for i in t.indices { t[i].place = i }
+        return t
+    }
+
+    /// La vraie place d'une case de la grille affichée (une place au-delà de la dernière case reste au-delà).
+    private func placeGlobale(_ p: Int) -> Int {
+        if rangsGlobaux.indices.contains(p) { return rangsGlobaux[p] }
+        return (rangsGlobaux.max() ?? -1) + 1 + max(0, p - rangsGlobaux.count)
+    }
+
+    /// La case est-elle sur cet écran ? Une fenêtre y est si son milieu y est ; un plein écran d'Apple ou un bureau, s'il est
+    /// sur cet écran. Une fenêtre garée hors de tout écran (celles du tiroir) n'est sur aucun.
+    static func estSur(_ ecran: NSScreen, _ t: Tuile) -> Bool {
+        guard NSScreen.screens.count > 1 else { return true }
+        let zone = Ecrans.cadreGlobal(ecran)                     // origine en haut à gauche, comme le cadre des fenêtres
+        let dedans = { (f: Fenetre) in zone.contains(CGPoint(x: f.cadre.midX, y: f.cadre.midY)) }
+        switch t.cible {
+        case .fenetre(let f, _): return dedans(f)
+        case .groupe(let fs, _): return fs.contains(where: dedans)
+        case .espace(let e): return e.ecran == Ecrans.identifiant(ecran)
+        }
+    }
+
     /// Construit les cases : les fenêtres agrandies, les plein écran d'Apple, puis les bureaux.
     private func construire(_ espaces: [Espace]) -> [Tuile] {
         var haut: [Tuile] = [], bureaux: [Tuile] = []
@@ -592,7 +623,8 @@ final class Appli: NSObject, NSApplicationDelegate, NSMenuDelegate {
         Groupes.nettoyer()
         let (tous, courants) = Relevé.tout()
         espaces = tous
-        tuiles = construire(tous)
+        // Plusieurs écrans : la grille ne montre que les applications de l'écran où elle s'ouvre (23/11/2026).
+        tuiles = casesDeLaGrille(tous, ecran: ecran)
         if panneau == nil {
             let p = Panneau(contentRect: ecran.frame, styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
             p.level = .screenSaver
@@ -765,15 +797,16 @@ final class Appli: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private func deposer(_ t: Tuile, _ d: DepotGrille) {
         var places = (UserDefaults.standard.dictionary(forKey: "placesCases") as? [String: Int]) ?? [:]
         switch d {
+        // (Les places de la grille sont celles de son écran : on les traduit en vraies places, voir `rangsGlobaux`.)
         case .echanger(let autre):
-            places[t.cle] = autre.place
-            places[autre.cle] = t.place
+            places[t.cle] = placeGlobale(autre.place)
+            places[autre.cle] = placeGlobale(t.place)
         case .place(let k):
-            places[t.cle] = k
+            places[t.cle] = placeGlobale(k)
         case .separer(let k):
             // La fenêtre quitte son groupe et reprend tout l'écran ; si elle n'y laisse qu'une fenêtre, celle-ci aussi.
             guard case .fenetre(let a, _) = t.cible else { return }
-            if let k { places[t.cle] = k; UserDefaults.standard.set(places, forKey: "placesCases") }
+            if let k { places[t.cle] = placeGlobale(k); UserDefaults.standard.set(places, forKey: "placesCases") }
             appliquerCadres(Groupes.separer(a, membres: membresDuGroupe(a.wid)))
             return
         case .redimensionner(let cadres):
@@ -781,7 +814,7 @@ final class Appli: NSObject, NSApplicationDelegate, NSMenuDelegate {
             return
         case .ordre(let nouvelles):
             // Les cases sont déjà à leur place à l'écran : on retient le nouvel ordre, et on les refait à l'identique.
-            for (cle, p) in nouvelles { places[cle] = p }
+            for (cle, p) in nouvelles { places[cle] = placeGlobale(p) }
             UserDefaults.standard.set(places, forKey: "placesCases")
             UserDefaults.standard.removeObject(forKey: "placesApps")
             retenirDansMesApps(places)
@@ -850,7 +883,7 @@ final class Appli: NSObject, NSApplicationDelegate, NSMenuDelegate {
             return copie
         }
         if let ecran = panneau?.screen, panneau?.isVisible == true {
-            tuiles = construire(espaces)
+            tuiles = casesDeLaGrille(espaces, ecran: ecran)
             let courants = Relevé.tout().courants
             grille.charger(tuiles, courante: cléCourante(espaces, courants, ecran: Ecrans.identifiant(ecran)), espaces: espaces, transition: transition)
             retirerTouches()
@@ -880,7 +913,7 @@ final class Appli: NSObject, NSApplicationDelegate, NSMenuDelegate {
         guard let ecran = panneau?.screen else { return }
         let (tous, courants) = Relevé.tout()
         espaces = tous
-        tuiles = construire(tous)
+        tuiles = casesDeLaGrille(tous, ecran: ecran)
         grille.charger(tuiles, courante: cléCourante(tous, courants, ecran: Ecrans.identifiant(ecran)), espaces: tous, transition: transition)
         retirerTouches()
         brancherTouchesGrille()
@@ -955,7 +988,11 @@ final class Appli: NSObject, NSApplicationDelegate, NSMenuDelegate {
             tuiles[derniere].place = libre
         }
         tuiles.sort { $0.place < $1.place }
-        UserDefaults.standard.set(Dictionary(tuiles.map { ($0.cle, $0.place) }, uniquingKeysWith: { a, _ in a }), forKey: "placesCases")
+        // Les cases des autres écrans gardent leur place : on ne réécrit que celles de cette grille.
+        var places = (UserDefaults.standard.dictionary(forKey: "placesCases") as? [String: Int]) ?? [:]
+        for cle in parties { places[cle] = nil }
+        for t in tuiles { places[t.cle] = placeGlobale(t.place) }
+        UserDefaults.standard.set(places, forKey: "placesCases")
         UserDefaults.standard.removeObject(forKey: "placesApps")
         guard panneau?.isVisible == true else { return }
         if tuiles.isEmpty { fermerGrille(); return }
