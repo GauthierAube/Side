@@ -16,6 +16,7 @@ enum DockNatif {
     /// Les zones utiles des écrans relevées Dock masqué, juste avant de le faire sortir.
     private static var zonesSansDock: [String: NSRect] = [:]
     private static var sansDockJusquÀ = Date.distantPast
+    private static var sortiÀ = Date.distantPast
     /// Les fenêtres qui occupaient tout l'écran à l'ouverture de la grille. Certaines applications (Claude, Safari…) se
     /// rétrécissent d'elles-mêmes quand le Dock apparaît, et ne regrandissent pas toujours quand il repart : on leur rend
     /// leur taille une fois le Dock reparti.
@@ -48,6 +49,7 @@ enum DockNatif {
             pleines = relever()
         }
         sorti = true
+        sortiÀ = Date()
         UserDefaults.standard.set(true, forKey: cleARendre)
         regler(masque: false) {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
@@ -62,34 +64,64 @@ enum DockNatif {
         guard sorti else { return }
         sorti = false
         sansDockJusquÀ = Date().addingTimeInterval(4)        // le temps que macOS rende sa place à l'écran
-        regler(masque: true) { DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) { verifier(essai: 1) } }
+        // Remasqué pendant qu'il est encore en train de sortir, le Dock reste parfois affiché, figé : on lui laisse finir.
+        let attente = max(0, 0.5 - Date().timeIntervalSince(sortiÀ))
+        DispatchQueue.main.asyncAfter(deadline: .now() + attente) {
+            guard !sorti else { return }
+            regler(masque: true) { DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) { verifier(tour: 0, vu: 0, coups: 0) } }
+        }
     }
 
-    /// Le Dock remet parfois de lui-même l'ancien réglage une fraction de seconde après (essayé le 24/11/2026) : on relit
-    /// deux fois, à une seconde d'écart, et on insiste tant qu'il n'est pas masqué et à sa place. Ensuite seulement, les
-    /// fenêtres rétrécies par leur application retrouvent tout l'écran.
-    private static func verifier(essai: Int, confirme: Bool = false) {
+    /// Après la grille, on regarde le Dock lui-même (sa position, par l'Accessibilité) toutes les 0,4 s : resté affiché
+    /// alors que la souris n'est pas dessus, il est figé (24/11/2026) ; on le fait ressortir puis rentrer, ce qui le
+    /// décoince. Une fois le Dock vraiment parti, les fenêtres rétrécies par leur application retrouvent tout l'écran.
+    private static func verifier(tour: Int, vu: Int, coups: Int) {
         guard !sorti else { return }                          // la grille s'est rouverte entre-temps
-        let coince = NSScreen.screens.contains { $0.visibleFrame.minY - $0.frame.minY > 10 }
-        if !seMasque || coince {
-            guard essai < 6 else { journal("Dock de macOS : impossible de le remasquer"); return }
-            journal("Dock de macOS : resté affiché après la grille, on le remasque (essai %d)", essai + 1)
-            sansDockJusquÀ = Date().addingTimeInterval(4)
-            regler(masque: !coince || !seMasque ? true : false) {
-                // Coincé alors que le réglage dit « masqué » : on le fait ressortir puis rentrer.
-                if coince && seMasque { regler(masque: true) {} }
-                DispatchQueue.main.async { DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) { verifier(essai: essai + 1) } }
+        let suite = { (vu: Int, coups: Int, dans: Double) in
+            DispatchQueue.main.asyncAfter(deadline: .now() + dans) { verifier(tour: tour + 1, vu: vu, coups: coups) }
+        }
+        guard tour < 60 else { journal("Dock de macOS : toujours affiché, on abandonne"); finir(); return }
+        if !seMasque {
+            journal("Dock de macOS : réglage revenu à « affiché », on le remasque")
+            regler(masque: true) { suite(0, coups, 0.6) }
+            return
+        }
+        guard dockAffiché() else { finir(); return }
+        sansDockJusquÀ = Date().addingTimeInterval(4)
+        if sourisSurLeDock() { suite(0, coups, 0.4); return }          // affiché parce qu'on le survole : normal
+        if vu < 2 { suite(vu + 1, coups, 0.4); return }                // il est peut-être juste en train de partir
+        guard coups < 4 else { journal("Dock de macOS : figé malgré 4 relances"); finir(); return }
+        journal("Dock de macOS : figé après la grille, relance %d", coups + 1)
+        regler(masque: false) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                guard !sorti else { return }
+                regler(masque: true) { suite(0, coups + 1, 0.7) }
             }
-            return
         }
-        if !confirme {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { verifier(essai: essai, confirme: true) }
-            return
-        }
+    }
+
+    private static func finir() {
         UserDefaults.standard.removeObject(forKey: cleARendre)
         rendreLesTailles()
         // Une application lente à réagir peut se rétrécir un peu plus tard : un second passage.
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { if !sorti { rendreLesTailles(); pleines = [] } }
+    }
+
+    /// Le Dock est-il à l'écran ? Masqué, sa barre est rangée juste sous le bas de l'écran (ou hors d'un côté).
+    private static func dockAffiché() -> Bool {
+        guard let dock = NSRunningApplication.runningApplications(withBundleIdentifier: "com.apple.dock").first,
+              let ecran = NSScreen.screens.first else { return false }
+        var v: CFTypeRef?
+        AXUIElementCopyAttributeValue(AXUIElementCreateApplication(dock.processIdentifier), kAXChildrenAttribute as CFString, &v)
+        guard let barre = (v as? [AXUIElement])?.first, let c = AX.cadre(barre) else { return false }
+        let f = CGRect(origin: .zero, size: ecran.frame.size)
+        return c.maxY <= f.maxY + 2 && c.minX >= f.minX - 2 && c.maxX <= f.maxX + 2
+    }
+
+    private static func sourisSurLeDock() -> Bool {
+        guard let ecran = NSScreen.screens.first else { return false }
+        let s = NSEvent.mouseLocation
+        return ecran.frame.contains(s) && s.y - ecran.frame.minY < hauteur + 40      // avec la loupe du Dock
     }
 
     private static func rendreLesTailles() {

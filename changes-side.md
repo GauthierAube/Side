@@ -5,6 +5,18 @@ Il est mis à jour à chaque modification, en même temps que le code.
 
 ---
 
+## 24/11/2026 — Grille : le Dock ne reste plus figé à l'écran
+
+- **Demandé par Gauthier** : après la grille, le Dock restait parfois affiché, figé, par-dessus l'application.
+- **Cause** : le réglage était bon (« masqué »), mais le Dock ne repartait pas à l'écran, surtout quand on choisissait une
+  application très vite, pendant qu'il était encore en train de sortir.
+- **Maintenant** : Side laisse le Dock finir de sortir (une demi-seconde) avant de le renvoyer. Puis il regarde le Dock
+  lui-même (sa position, par l'Accessibilité) toutes les 0,4 s : resté affiché alors que la souris n'est pas dessus, il
+  est relancé (sorti puis rentré), quatre fois au plus. Les fenêtres retrouvent tout l'écran une fois le Dock parti.
+- **Code** : `PleinEcranDockNatif.swift` (`rentrer`, `verifier`, `dockAffiché`, `sourisSurLeDock`).
+- **Essayé** : ouvertures-fermetures de la grille à 0,4 s et 1 s : Dock rangé sous l'écran. **Pas reproduit** : le Dock
+  figé lui-même (Gauthier utilisait le Mac) ; s'il revient, le journal `~/Library/Logs/Square.log` dira « figé ».
+
 ## 24/11/2026 — Grille : le Dock ne reste plus coincé, les fenêtres gardent tout l'écran
 
 - **Demandé par Gauthier** : parfois le Dock restait affiché après la grille, et les applications revenaient rétrécies.
