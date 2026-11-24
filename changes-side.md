@@ -5,6 +5,19 @@ Il est mis à jour à chaque modification, en même temps que le code.
 
 ---
 
+## 24/11/2026 — Grille : le Dock ne reste plus coincé, les fenêtres gardent tout l'écran
+
+- **Demandé par Gauthier** : parfois le Dock restait affiché après la grille, et les applications revenaient rétrécies.
+- **Cause** : le Dock était commandé par Événements système ; avec des allers-retours rapprochés, le Dock reprenait
+  l'ancien réglage quelques secondes plus tard (une fois sur trois à l'essai) et restait affiché. Et certaines applications
+  (Claude, Safari, Horizon) se rétrécissent d'elles-mêmes quand le Dock apparaît.
+- **Maintenant** : Side parle directement au Dock (fonction de macOS non documentée, plus d'autorisation Événements
+  système) : le réglage est pris tout de suite et tient. Après la grille, Side vérifie deux fois que le Dock est bien
+  remasqué, puis rend tout l'écran aux fenêtres qui l'occupaient à l'ouverture de la grille.
+- **Code** : `PleinEcranDockNatif.swift` (`regler`, `verifier`, `rendreLesTailles`).
+- **Essayé** : cinq ouvertures-fermetures de la grille à des rythmes différents : Dock remasqué à chaque fois, fenêtres
+  en plein écran ; Dock bien en bas pendant la grille.
+
 ## 24/11/2026 — Grille : plus de saut avec le Dock, et pas d'applications du tiroir
 
 - **Demandé par Gauthier** : le Dock arrivait après la grille, qui se redimensionnait (ça sautait) ; en revenant sur une
