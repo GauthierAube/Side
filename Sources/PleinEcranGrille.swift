@@ -199,6 +199,8 @@ final class Grille: NSView {
     var auDepot: ((Tuile, DepotGrille) -> Void)?
     private var animeDisposition = false
     let dock = DockGrille(frame: .zero)
+    /// La place à laisser en bas pour le Dock de macOS sorti le temps de la grille (nil : celle que donne macOS).
+    var basReserve: CGFloat?
 
     /// Des fenêtres ont quitté la grille : leurs cases disparaissent et les autres glissent en douceur vers leur nouvelle place
     /// (et leur nouvelle taille, si la grille a perdu une colonne ou une ligne).
@@ -354,7 +356,10 @@ final class Grille: NSView {
         // place (rien en bas quand le Dock se masque tout seul, il passe alors devant la grille au survol).
         var utile = bounds
         if let e = window?.screen {
-            let f = e.frame, v = e.visibleFrame
+            let f = e.frame
+            var v = DockNatif.zoneSansDock(e) ?? e.visibleFrame
+            // Le Dock sorti pour la grille : sa place est réservée d'avance, les cases ne bougent pas quand il arrive.
+            if let bas = basReserve, f.minY + bas > v.minY { v.size.height -= f.minY + bas - v.minY; v.origin.y = f.minY + bas }
             utile.origin.x += v.minX - f.minX; utile.origin.y += v.minY - f.minY
             utile.size.width -= (v.minX - f.minX) + (f.maxX - v.maxX)
             utile.size.height -= (v.minY - f.minY) + (f.maxY - v.maxY)

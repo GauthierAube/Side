@@ -185,6 +185,16 @@ enum Relevé {
         let ids = (CFPreferencesCopyAppValue("fenetresDuTiroir" as CFString, side as CFString) as? [Int]) ?? []
         return Set(ids.map { CGWindowID($0) })
     }
+    /// Les applications rangées dans le tiroir de Side (réglage `panneauBasTuiles`), par identifiant. Les vues d'Horizon
+    /// n'en font pas partie : Horizon lui-même garde sa case, seules les fenêtres de ses vues sont au tiroir.
+    static func appsDuTiroir() -> Set<String> {
+        CFPreferencesAppSynchronize(side as CFString)
+        let tuiles = (CFPreferencesCopyAppValue("panneauBasTuiles" as CFString, side as CFString) as? [[String: Any]]) ?? []
+        return Set(tuiles.compactMap { t in
+            guard let b = t["bundle"] as? String, !((t["chemin"] as? String) ?? "").contains("://") else { return nil }
+            return b
+        })
+    }
     /// Ferme une fenêtre par son bouton rouge, sans quitter l'application.
     static func fermerFenetre(pid: pid_t, wid: CGWindowID) {
         guard let el = AX.fenetre(pid: pid, wid: wid) else { return }

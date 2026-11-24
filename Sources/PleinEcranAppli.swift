@@ -495,7 +495,17 @@ final class Appli: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     /// Les cases de la grille : celles de son écran seulement (23/11/2026), numérotées 0, 1, 2… dans l'ordre de toutes.
     private func casesDeLaGrille(_ espaces: [Espace], ecran: NSScreen) -> [Tuile] {
-        var t = construire(espaces).filter { Self.estSur(ecran, $0) }
+        // Les applications du tiroir de Side n'ont pas de case dans la grille (24/11/2026), même sorties du tiroir.
+        let tiroir = Relevé.appsDuTiroir()
+        let horsTiroir = { (pid: pid_t) in !tiroir.contains(NSRunningApplication(processIdentifier: pid)?.bundleIdentifier ?? "") }
+        var t = construire(espaces).filter { c in
+            guard Self.estSur(ecran, c) else { return false }
+            switch c.cible {
+            case .fenetre(let f, _): return horsTiroir(f.pid)
+            case .groupe(let fs, _): return fs.contains { horsTiroir($0.pid) }
+            case .espace: return true
+            }
+        }
         rangsGlobaux = t.map { $0.place }
         for i in t.indices { t[i].place = i }
         return t
@@ -645,6 +655,12 @@ final class Appli: NSObject, NSApplicationDelegate, NSMenuDelegate {
             panneau = p
         }
         panneau?.setFrame(ecran.frame, display: false)
+        // Un Dock de macOS masqué automatiquement sort le temps de la grille ; sa place est gardée dès le départ.
+        DockNatif.sortir { [weak self] in
+            guard let self, self.panneau?.isVisible == true, DockNatif.sorti, ecran == NSScreen.screens.first else { return }
+            if self.grille.basReserve != DockNatif.hauteur { self.grille.basReserve = DockNatif.hauteur; self.grille.needsLayout = true }
+        }
+        grille.basReserve = DockNatif.sorti && ecran == NSScreen.screens.first ? DockNatif.hauteur : nil
         let cle = cléCourante(tous, courants, ecran: Ecrans.identifiant(ecran))
         grille.poserFond(Images.commun.fondFlou(ecran: ecran))
         grille.dock.charger()
@@ -655,11 +671,6 @@ final class Appli: NSObject, NSApplicationDelegate, NSMenuDelegate {
         grille.majSurvol()
         ouverteÀ = Date()
         enMouvement = false
-        // Un Dock de macOS masqué automatiquement sort le temps de la grille ; les cases se rangent ensuite au-dessus.
-        DockNatif.sortir { [weak self] in
-            guard let self, self.panneau?.isVisible == true else { return }
-            self.grille.needsLayout = true
-        }
 
         brancherTouchesGrille()
         Images.commun.oublier(sauf: Set(tous.flatMap { $0.fenetres.map { $0.wid } }))
@@ -735,6 +746,7 @@ final class Appli: NSObject, NSApplicationDelegate, NSMenuDelegate {
         }
         journal("Square: ouverture depuis le Dock de la grille")
         enMouvement = true
+        DockNatif.rentrer()                 // le Dock repart pendant que la case grandit
         // Comme une case choisie : l'icône grandit jusqu'à couvrir l'écran, et la grille s'efface quand la fenêtre arrive.
         retirerTouches()
         grille.zoomerIcone(chemin)
@@ -937,6 +949,7 @@ final class Appli: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private func fermerGrilleEnRevenant() {
         guard panneau?.isVisible == true, let c = grille.cases.first(where: { $0.courant }) else { fermerGrille(); return }
         enMouvement = true
+        DockNatif.rentrer()                 // le Dock repart pendant que la case grandit
         retirerTouches()
         grille.zoomer(c) { [weak self] in self?.fermerGrille() }
     }
@@ -951,6 +964,7 @@ final class Appli: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private func choisir(_ t: Tuile, depuis c: Case) {
         journal("Square: choix %@", t.titre)
         enMouvement = true
+        DockNatif.rentrer()                 // le Dock repart pendant que la case grandit
         retirerTouches()
         Bascule.aller(t, espaces: espaces)
         // L'image de la case grandit et cache ce qui se passe derrière ; la grille disparaît une fois arrivé.

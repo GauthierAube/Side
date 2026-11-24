@@ -87,7 +87,8 @@ enum Ecrans {
         return CGDisplayBounds(n)
     }
     /// Zone utilisable (sans barre de menus ni Dock) d'un écran, en coordonnées AX.
-    static func zoneVisible(_ e: NSScreen) -> CGRect { versAX(e.visibleFrame) }
+    /// Pendant la grille, le Dock de macOS est sorti pour elle : on agrandit comme s'il était masqué (voir `DockNatif`).
+    static func zoneVisible(_ e: NSScreen) -> CGRect { versAX(DockNatif.zoneSansDock(e) ?? e.visibleFrame) }
     /// Zone utilisable de l'écran qui contient ce cadre AX, en coordonnées AX.
     static func zoneVisible(contenant r: CGRect) -> CGRect {
         guard let s = contenant(r) else { return r }

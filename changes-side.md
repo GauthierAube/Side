@@ -5,6 +5,22 @@ Il est mis à jour à chaque modification, en même temps que le code.
 
 ---
 
+## 24/11/2026 — Grille : plus de saut avec le Dock, et pas d'applications du tiroir
+
+- **Demandé par Gauthier** : le Dock arrivait après la grille, qui se redimensionnait (ça sautait) ; en revenant sur une
+  application, elle était agrandie Dock compris, puis le Dock repartait et laissait un vide en bas. Et les applications
+  du tiroir ne doivent pas avoir de case dans la grille.
+- **Maintenant** : la grille réserve la place du Dock dès son ouverture (sa hauteur est apprise une fois, 58 points sur
+  l'Air) : les cases ne bougent plus quand il arrive. En choisissant une case (ou en revenant), le Dock repart pendant que
+  la case grandit, et l'application est agrandie sur toute la hauteur, comme si le Dock était masqué.
+- **Tiroir** : les applications rangées dans le tiroir (Réglages Système, Babel, Photos, Messages…) n'ont plus de case
+  dans la grille, même sorties du tiroir. Horizon garde la sienne : seules les fenêtres de ses vues sont au tiroir.
+- **Pas changé** : le carrousel à quatre doigts.
+- **Code** : `PleinEcranDockNatif.swift` (place réservée, zone sans Dock), `Ecrans.zoneVisible`, `PleinEcranGrille.swift`
+  (`basReserve`), `PleinEcranAppli.swift` (`casesDeLaGrille`), `Relevé.appsDuTiroir`.
+- **Essayé** : grille ouverte et refermée sur l'Air (Dock en bas, cases au-dessus, pas de Photos ni Messages, Dock remasqué
+  ensuite). **Pas essayé** : le retour sur une application en plein écran (à faire par Gauthier).
+
 ## 24/11/2026 — Grille : un Dock de macOS masqué sort tout seul
 
 - **Demandé par Gauthier** : le Dock ne venait qu'au survol (il se masque automatiquement sur l'Air) ; il doit être là
