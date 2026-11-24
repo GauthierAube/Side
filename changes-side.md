@@ -5,6 +5,21 @@ Il est mis à jour à chaque modification, en même temps que le code.
 
 ---
 
+## 24/11/2026 — Grille : Dock sans animation, applications jamais tronquées au retour
+
+- **Demandé par Gauthier** : le Dock doit apparaître et disparaître d'un coup ; une autre application choisie dans la
+  grille arrivait tronquée de la hauteur du Dock, puis sautait en plein écran (un clignotement).
+- **Dock sans animation** : Side coupe l'animation de masquage du Dock (réglages cachés de macOS `autohide-time-modifier`
+  et `autohide-delay` à 0), une seule fois par Mac et seulement si le Dock se masque tout seul ; le Dock redémarre une
+  fois. Cela vaut aussi au survol du bas de l'écran, hors de la grille. Pour revenir en arrière :
+  `defaults delete com.apple.dock autohide-time-modifier; defaults delete com.apple.dock autohide-delay; killall Dock`.
+- **Plus de fenêtre tronquée** : les applications de derrière (Safari, Horizon…) se rétrécissent quand le Dock sort. Dès
+  qu'on choisit une case, Side remasque le Dock et leur rend toute la hauteur aussitôt, avant que l'application ne
+  s'affiche (avant : une seconde après). Une fenêtre presque aussi large que l'écran (Horizon, 1706 points) compte aussi.
+- **Code** : `PleinEcranDockNatif.swift` (`couperLAnimation`, `rentrer`, `rendreLesTailles`, `relever`).
+- **Essayé** : Dock entièrement affiché puis parti en moins de 0,1 s ; Safari rétréci pendant la grille (1015) et revenu à
+  1073 un quart de seconde après la fermeture. **Pas essayé** : le réglage automatique sur le Mac mini.
+
 ## 24/11/2026 — Grille : le Dock ne reste plus figé à l'écran
 
 - **Demandé par Gauthier** : après la grille, le Dock restait parfois affiché, figé, par-dessus l'application.
