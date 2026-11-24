@@ -12,6 +12,10 @@ final class Appli: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private var espaces: [Espace] = []
     private var tuiles: [Tuile] = []
     private var ouverteÀ = Date.distantPast
+    /// La grille est en train de mener elle-même une application devant (case choisie, lancement depuis son Dock,
+    /// retour) : l'activation qui en découle ne doit pas la refermer d'un coup.
+    private var enMouvement = false
+    private var activationsIgnoréesJusquÀ = Date.distantPast
     private var pidDevant: pid_t = 0         // application devant en ce moment
     private var pidAvant: pid_t = 0          // celle d'avant
     private var fenetreRaccourci: NSWindow?
@@ -627,7 +631,8 @@ final class Appli: NSObject, NSApplicationDelegate, NSMenuDelegate {
         tuiles = casesDeLaGrille(tous, ecran: ecran)
         if panneau == nil {
             let p = Panneau(contentRect: ecran.frame, styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
-            p.level = .screenSaver
+            // Juste sous le Dock de macOS, pour qu'il reste visible en bas (24/11/2026) ; la barre des menus aussi.
+            p.level = NSWindow.Level(rawValue: Int(CGWindowLevelForKey(.dockWindow)) - 1)
             p.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .stationary, .ignoresCycle]
             p.isOpaque = false
             p.backgroundColor = .black
@@ -648,6 +653,7 @@ final class Appli: NSObject, NSApplicationDelegate, NSMenuDelegate {
         grille.apparaitre()
         grille.majSurvol()
         ouverteÀ = Date()
+        enMouvement = false
 
         brancherTouchesGrille()
         Images.commun.oublier(sauf: Set(tous.flatMap { $0.fenetres.map { $0.wid } }))
@@ -675,6 +681,7 @@ final class Appli: NSObject, NSApplicationDelegate, NSMenuDelegate {
     /// Clic droit sur une icône du Dock, « Quitter » : comme la croix d'une case, la grille se resserre en douceur.
     private func quitterDepuisLeDock(_ chemin: String) {
         guard let app = NSWorkspace.shared.runningApplications.first(where: { $0.bundleURL?.path == chemin }) else { return }
+        activationsIgnoréesJusquÀ = Date().addingTimeInterval(2)    // l'app qui quitte passe la main à une autre
         if let t = tuiles.first(where: { t in
             if t.pid == app.processIdentifier { return true }
             if case .groupe(let fs, _) = t.cible { return fs.contains { $0.pid == app.processIdentifier } }
@@ -721,6 +728,7 @@ final class Appli: NSObject, NSApplicationDelegate, NSMenuDelegate {
             return
         }
         journal("Square: ouverture depuis le Dock de la grille")
+        enMouvement = true
         // Comme une case choisie : l'icône grandit jusqu'à couvrir l'écran, et la grille s'efface quand la fenêtre arrive.
         retirerTouches()
         grille.zoomerIcone(chemin)
@@ -922,6 +930,7 @@ final class Appli: NSObject, NSApplicationDelegate, NSMenuDelegate {
     /// Refermer sans rien choisir : la fenêtre où vous étiez regrandit jusqu'à sa place, puis la grille disparaît.
     private func fermerGrilleEnRevenant() {
         guard panneau?.isVisible == true, let c = grille.cases.first(where: { $0.courant }) else { fermerGrille(); return }
+        enMouvement = true
         retirerTouches()
         grille.zoomer(c) { [weak self] in self?.fermerGrille() }
     }
@@ -934,6 +943,7 @@ final class Appli: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     private func choisir(_ t: Tuile, depuis c: Case) {
         journal("Square: choix %@", t.titre)
+        enMouvement = true
         retirerTouches()
         Bascule.aller(t, espaces: espaces)
         // L'image de la case grandit et cache ce qui se passe derrière ; la grille disparaît une fois arrivé.
@@ -958,6 +968,7 @@ final class Appli: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     private func fermer(_ t: Tuile) {
         guard let app = NSRunningApplication(processIdentifier: t.pid) else { return }
+        activationsIgnoréesJusquÀ = Date().addingTimeInterval(2)    // fermer ou quitter fait passer la main à une autre app
         // Le Finder ne se quitte pas : on ferme simplement sa fenêtre. Side non plus : sa vidéo en grand retourne dans son tiroir.
         func seFerme(_ a: NSRunningApplication?) -> Bool { a?.bundleIdentifier == "com.apple.finder" || a?.bundleIdentifier == Relevé.side }
         let finder = seFerme(app)
@@ -1016,5 +1027,12 @@ final class Appli: NSObject, NSApplicationDelegate, NSMenuDelegate {
               app.activationPolicy == .regular || (app.bundleIdentifier == Relevé.side && Relevé.videoDeSideAnnoncee),
               app.processIdentifier != ProcessInfo.processInfo.processIdentifier else { return }
         if app.processIdentifier != pidDevant { pidAvant = pidDevant; pidDevant = app.processIdentifier }
+        // Une application ouverte par le Dock de macOS (ou ⌘ Tab) pendant que la grille est affichée : la grille
+        // s'efface pour la laisser voir, sinon elle resterait cachée derrière.
+        if panneau?.isVisible == true, !enMouvement, Date() > activationsIgnoréesJusquÀ,
+           Date().timeIntervalSince(ouverteÀ) > 0.4 {
+            journal("Square: %@ activée hors de la grille, la grille s'efface", app.localizedName ?? "?")
+            fermerGrille()
+        }
     }
 }

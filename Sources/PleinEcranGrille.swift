@@ -350,9 +350,18 @@ final class Grille: NSView {
         super.layout()
         // Le Dock couvre toute la grille (il laisse passer les clics hors de sa pastille) ; les cases occupent la place
         // qui reste, du côté opposé au sien.
-        dock.frame = bounds
+        // La barre des menus et le Dock de macOS restent visibles au-dessus de la grille (24/11/2026) : on leur laisse leur
+        // place (rien en bas quand le Dock se masque tout seul, il passe alors devant la grille au survol).
+        var utile = bounds
+        if let e = window?.screen {
+            let f = e.frame, v = e.visibleFrame
+            utile.origin.x += v.minX - f.minX; utile.origin.y += v.minY - f.minY
+            utile.size.width -= (v.minX - f.minX) + (f.maxX - v.maxX)
+            utile.size.height -= (v.minY - f.minY) + (f.maxY - v.maxY)
+        }
+        dock.frame = utile
         let reserve = dock.reserve
-        var zone = bounds
+        var zone = utile
         switch DockGrille.cote {
         case "haut": zone.size.height -= reserve
         case "gauche": zone.origin.x += reserve; zone.size.width -= reserve

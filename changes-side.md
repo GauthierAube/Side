@@ -5,6 +5,20 @@ Il est mis à jour à chaque modification, en même temps que le code.
 
 ---
 
+## 24/11/2026 — Grille : le Dock de macOS reste visible en bas
+
+- **Demandé par Gauthier** : en mode grille, le vrai Dock du Mac doit apparaître en bas.
+- **Maintenant** : la grille passe juste sous le Dock de macOS (avant, elle couvrait tout l'écran, Dock compris). Un Dock
+  masqué automatiquement apparaît au survol du bas de l'écran, par-dessus la grille ; un Dock toujours affiché garde sa
+  place et les cases se rangent au-dessus. La barre des menus reste visible aussi (on ne peut pas passer sous le Dock
+  sans passer sous elle) : les cases et le Dock de la grille commencent sous elle.
+- **Clic sur une application du Dock de macOS** (ou ⌘ Tab) pendant la grille : la grille s'efface pour la laisser voir.
+  Fermer ou quitter une case, choisir une case ou lancer depuis le Dock de la grille ne la referme pas d'un coup.
+- **Pas changé** : le Dock propre à la grille (Réglages › Plein écran › Dock) existe toujours, avec son réglage.
+- **Code** : `PleinEcranAppli.swift` (niveau du panneau, `enMouvement`, `appActivée`), `PleinEcranGrille.swift` (`layout`).
+- **Essayé** : compilation, installation, grille ouverte (barre des menus visible, cases dessous). **Pas essayé** :
+  le Dock qui apparaît au survol et le clic dans le Dock (à faire par Gauthier).
+
 ## 23/11/2026 — Plusieurs écrans : la grille ne montre que les applications de son écran
 
 - **Demandé par Gauthier** : avec deux écrans, la grille ouverte par le coin d'un écran doit montrer les applications de
