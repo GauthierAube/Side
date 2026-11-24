@@ -24,7 +24,7 @@ Depuis novembre 2026, Side contient aussi Square (le plein écran et la grille),
 ### Le plein écran (ex-Square)
 
 - **Le bouton vert** remplit l'écran sans le plein écran d'Apple : tout reste sur un seul bureau, et Side passe par-dessus. Les nouvelles fenêtres peuvent s'agrandir toutes seules ; une vidéo aux proportions fixes (QuickTime) se pose sur un fond noir.
-- **La grille** : un coin de l'écran ou ⌥ Tab affiche toutes les applications de travail en vignettes, avec un Dock. On y change l'ordre, on partage l'écran entre deux à quatre fenêtres, on ferme une application.
+- **La grille** : un coin de l'écran ou ⌥ Tab affiche toutes les applications de travail en vignettes (pas celles du tiroir), avec le Dock de macOS en bas : s'il se masque tout seul, il sort le temps de la grille, sans animation. On y change l'ordre, on partage l'écran entre deux à quatre fenêtres, on ferme une application.
 - **Quatre doigts vers la gauche ou la droite** : un carrousel passe d'une application à l'autre. ⌘1 à ⌘9 vont droit à l'une d'elles.
 - **Changer de place** : ⌃⌥↓ envoie l'application de devant au tiroir, ⌃⌥↑ la ramène en plein écran (aussi au clic droit dans la grille).
 
