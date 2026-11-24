@@ -84,6 +84,7 @@ final class Appli: NSObject, NSApplicationDelegate, NSMenuDelegate {
         let centre = NSWorkspace.shared.notificationCenter
         centre.addObserver(self, selector: #selector(espaceChangé), name: NSWorkspace.activeSpaceDidChangeNotification, object: nil)
         centre.addObserver(self, selector: #selector(appActivée(_:)), name: NSWorkspace.didActivateApplicationNotification, object: nil)
+        DockNatif.reprendre()
 
         // La présentation du plein écran fait partie de celle de l'app (elle s'enchaîne après la sienne).
         // Autorisations demandées une fois : Accessibilité (pour déplacer les fenêtres) et Enregistrement de l'écran (pour les images).
@@ -654,6 +655,11 @@ final class Appli: NSObject, NSApplicationDelegate, NSMenuDelegate {
         grille.majSurvol()
         ouverteÀ = Date()
         enMouvement = false
+        // Un Dock de macOS masqué automatiquement sort le temps de la grille ; les cases se rangent ensuite au-dessus.
+        DockNatif.sortir { [weak self] in
+            guard let self, self.panneau?.isVisible == true else { return }
+            self.grille.needsLayout = true
+        }
 
         brancherTouchesGrille()
         Images.commun.oublier(sauf: Set(tous.flatMap { $0.fenetres.map { $0.wid } }))
@@ -936,6 +942,7 @@ final class Appli: NSObject, NSApplicationDelegate, NSMenuDelegate {
     }
 
     private func fermerGrille() {
+        DockNatif.rentrer()
         Lanceur.commun.fermer()
         panneau?.orderOut(nil)
         retirerTouches()

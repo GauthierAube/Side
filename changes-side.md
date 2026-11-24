@@ -5,6 +5,17 @@ Il est mis à jour à chaque modification, en même temps que le code.
 
 ---
 
+## 24/11/2026 — Grille : un Dock de macOS masqué sort tout seul
+
+- **Demandé par Gauthier** : le Dock ne venait qu'au survol (il se masque automatiquement sur l'Air) ; il doit être là
+  dès que la grille s'ouvre.
+- **Maintenant** : si le Dock de macOS se masque automatiquement, la grille coupe ce réglage le temps qu'elle est ouverte
+  (le Dock glisse en bas, les cases se rangent au-dessus), puis le remet en la refermant. Un Dock toujours affiché ne
+  change pas. Si Side s'arrête grille ouverte, il remasque le Dock à son lancement suivant.
+- **Autorisation** : passe par Événements système ; au premier essai, macOS demande si Side peut le contrôler.
+- **Code** : `PleinEcranDockNatif.swift`, branché dans `PleinEcranAppli.swift` (`ouvrirGrille`, `fermerGrille`, lancement).
+- **Essayé** : compilation, installation. **Pas essayé** : la grille elle-même (écran verrouillé), à faire par Gauthier.
+
 ## 24/11/2026 — Grille : le Dock de macOS reste visible en bas
 
 - **Demandé par Gauthier** : en mode grille, le vrai Dock du Mac doit apparaître en bas.
