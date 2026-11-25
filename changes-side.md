@@ -19,6 +19,8 @@ Il est mis à jour à chaque modification, en même temps que le code.
   L'île se referme encore quand on s'éloigne sans avoir rien tapé ; avec du texte, elle reste.
 - **Deuxième retouche** : le champ prend le clavier dès que l'île s'ouvre, sans passer la souris dessus. À la
   fermeture, l'application d'avant reprend le clavier.
+- **Troisième retouche** : la dictée de Flow arrivait dans Claude (Flow colle dans l'application de devant, et Side
+  n'y était pas). Side passe maintenant devant pendant la saisie, puis rend la main à l'application d'avant.
 - **Code** : `EncocheCapture.swift` (pilule et écriture), `Encoche.swift` (`PanneauIle` prend le clavier pendant la saisie).
 
 ## 25/11/2026 — Compilation hors de la recherche du Mac

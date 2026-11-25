@@ -39,6 +39,9 @@ final class CaptureIle: ObservableObject {
         avant = devant?.processIdentifier == ProcessInfo.processInfo.processIdentifier ? nil : devant
         finRetour?.invalidate(); retour = nil
         withAnimation(Mouvement.ileSurvol) { saisie = true }
+        // Side passe devant pendant la saisie : la dictée de Flow (qui colle dans l'application de devant) et les
+        // autres outils de saisie arrivent ainsi dans le champ, pas dans l'application d'avant.
+        NSApp.activate()
         Ile.commun.prendreClavier()
     }
 
@@ -47,7 +50,10 @@ final class CaptureIle: ObservableObject {
         guard saisie else { return }
         withAnimation(Mouvement.ileSurvol) { saisie = false }
         Ile.commun.rendreClavier()
-        avant?.activate()
+        // L'application d'avant reprend la main, sauf si on vient de cliquer dans une autre.
+        if NSWorkspace.shared.frontmostApplication?.processIdentifier == ProcessInfo.processInfo.processIdentifier {
+            avant?.activate()
+        }
         avant = nil
     }
 
