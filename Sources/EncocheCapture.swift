@@ -14,6 +14,10 @@ final class CaptureIle: ObservableObject {
     /// Le petit « Dans l'inbox » après un envoi (ou le message d'erreur).
     @Published private(set) var retour: String?
     @Published private(set) var echec = false
+    /// Le rouge d'Horizon (son terracotta, `AppColors.terracotta`).
+    static let rouge = Color(red: 0xD8 / 255, green: 0x6F / 255, blue: 0x4A / 255)
+    /// Un texte est en cours : l'île ne se referme pas quand le pointeur s'éloigne.
+    var retient: Bool { saisie && !texte.trimmingCharacters(in: .whitespaces).isEmpty }
     /// L'application devant avant la saisie : elle reprend le clavier ensuite.
     private var avant: NSRunningApplication?
     private var finRetour: Timer?
@@ -79,36 +83,37 @@ struct LigneCapture: View {
     @FocusState private var focus: Bool
 
     var body: some View {
-        HStack(spacing: 9) {
+        HStack(spacing: 12) {
             ZStack {
-                Circle().fill(capture.retour != nil && !capture.echec ? Color.green : Color.white)
+                Circle().fill(capture.retour != nil && !capture.echec ? Color.green : CaptureIle.rouge)
+                    .shadow(color: CaptureIle.rouge.opacity(capture.saisie ? 0.55 : 0.3), radius: capture.saisie ? 8 : 4)
                 Image(systemName: capture.retour != nil && !capture.echec ? "checkmark" : "plus")
-                    .font(.system(size: 11, weight: .bold))
-                    .foregroundStyle(capture.retour != nil && !capture.echec ? Color.white : Color.black)
+                    .font(.system(size: 16, weight: .bold))
+                    .foregroundStyle(Color.white)
                     .contentTransition(.symbolEffect(.replace))
                     .rotationEffect(.degrees(capture.saisie ? 90 : 0))
             }
-            .frame(width: 22, height: 22)
-            .scaleEffect(capture.saisie ? 0.9 : 1)
+            .frame(width: 32, height: 32)
+            .scaleEffect(capture.saisie ? 1.06 : 1)
 
             ZStack(alignment: .leading) {
                 if capture.saisie {
                     TextField("", text: $capture.texte, prompt: Text("Une idée, une tâche…").foregroundColor(.white.opacity(0.4)))
                         .textFieldStyle(.plain)
-                        .font(.system(size: 12))
+                        .font(.system(size: 14))
                         .foregroundStyle(.white)
                         .focused($focus)
                         .onSubmit { capture.envoyer() }
                         .onAppear { DispatchQueue.main.async { focus = true } }
                         .transition(.ile)
                 } else if let r = capture.retour {
-                    Text(r).font(.system(size: 12, weight: .medium))
+                    Text(r).font(.system(size: 14, weight: .medium))
                         .foregroundStyle(capture.echec ? Color.orange : Color.white.opacity(0.85))
                         .lineLimit(1)
                         .transition(.ile)
                 } else {
                     Text(capture.texte.isEmpty ? String(localized: "Capturer une idée") : capture.texte)
-                        .font(.system(size: 12))
+                        .font(.system(size: 14))
                         .foregroundStyle(.white.opacity(capture.texte.isEmpty ? 0.5 : 0.75))
                         .lineLimit(1)
                         .transition(.ile)
@@ -117,14 +122,15 @@ struct LigneCapture: View {
             .frame(maxWidth: .infinity, alignment: .leading)
 
             if capture.saisie {
-                Text("↩︎").font(.system(size: 11, weight: .semibold)).foregroundStyle(.white.opacity(0.35)).transition(.ile)
+                Text("↩︎").font(.system(size: 13, weight: .semibold)).foregroundStyle(.white.opacity(0.35)).transition(.ile)
             }
         }
-        .padding(.leading, 4).padding(.trailing, 12)
-        .frame(height: 30)
+        .padding(.leading, 5).padding(.trailing, 16)
+        .frame(height: 42)
         .background(Capsule().fill(Color.white.opacity(capture.saisie ? 0.14 : 0.08)))
         .contentShape(Capsule())
         .onTapGesture { capture.commencer() }
+        .onHover { if $0 { capture.commencer() } }
         .help("Capturer dans l'inbox d'Horizon")
     }
 }

@@ -226,8 +226,8 @@ private struct VueOuverte: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             if CaptureIle.disponible {
                 LigneCapture()
-                    .padding(.horizontal, 16)
-                    .padding(.bottom, 12)
+                    .padding(.horizontal, 14)
+                    .padding(.bottom, 14)
                     .frame(height: Ile.hauteurCapture, alignment: .top)
             }
         }

@@ -104,7 +104,7 @@ final class Ile: ObservableObject {
     static let largeurOuverte: CGFloat = 460
     /// Le contenu de l'île ouverte, et la ligne de capture d'Horizon en dessous (si Horizon est sur ce Mac).
     static var hauteurContenu: CGFloat { 166 + (CaptureIle.disponible ? Ile.hauteurCapture : 0) }
-    static let hauteurCapture: CGFloat = 40
+    static let hauteurCapture: CGFloat = 56
 
     var ouverte: Bool { etat == .ouvert }
 
@@ -259,13 +259,15 @@ final class Ile: ObservableObject {
                 }
             }
         case .ouvert:
+            // Le pointeur sur la pilule de capture : le champ prend le clavier tout de suite, sans clic.
+            if CaptureIle.disponible, dedans, p.y < cadre.minY + Ile.hauteurCapture { CaptureIle.commun.commencer() }
             // Ouverte, elle se referme quand le pointeur s'en éloigne (pas pendant un glisser, ni bouton enfoncé).
-            if cadre.insetBy(dx: -28, dy: -28).contains(p) || NSEvent.pressedMouseButtons != 0 || CaptureIle.commun.saisie {
+            if cadre.insetBy(dx: -28, dy: -28).contains(p) || NSEvent.pressedMouseButtons != 0 || CaptureIle.commun.retient {
                 departFermeture?.invalidate(); departFermeture = nil
             } else if departFermeture == nil {
                 departFermeture = Timer.scheduledTimer(withTimeInterval: 0.45, repeats: false) { [weak self] _ in
                     self?.departFermeture = nil
-                    guard let self, NSEvent.pressedMouseButtons == 0, !CaptureIle.commun.saisie,
+                    guard let self, NSEvent.pressedMouseButtons == 0, !CaptureIle.commun.retient,
                           !self.cadre.insetBy(dx: -28, dy: -28).contains(NSEvent.mouseLocation) else { return }
                     self.fermer()
                 }

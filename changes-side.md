@@ -14,6 +14,9 @@ Il est mis à jour à chaque modification, en même temps que le code.
   jour et un identifiant neuf, au même format que la capture de Safari d'Horizon). Le « + » devient une coche verte
   « Dans l'inbox ». Échap arrête la saisie (le texte tapé est gardé) ; l'île ne se referme pas pendant qu'on tape.
 - Sans Horizon sur le Mac, la pilule n'apparaît pas.
+- **Retouche le même jour** : pilule plus grande (42 points de haut, texte plus gros), « + » dans un rond au rouge
+  d'Horizon (terracotta). Passer la souris sur la pilule suffit : le champ prend le clavier, on tape directement.
+  L'île se referme encore quand on s'éloigne sans avoir rien tapé ; avec du texte, elle reste.
 - **Code** : `EncocheCapture.swift` (pilule et écriture), `Encoche.swift` (`PanneauIle` prend le clavier pendant la saisie).
 
 ## 25/11/2026 — Compilation hors de la recherche du Mac
