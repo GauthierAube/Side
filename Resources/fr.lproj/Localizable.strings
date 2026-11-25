@@ -298,6 +298,10 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Bureau</string>
 	<key>Calendrier</key>
 	<string>Calendrier</string>
+	<key>Capturer dans l'inbox d'Horizon</key>
+	<string>Capturer dans l'inbox d'Horizon</string>
+	<key>Capturer une idée</key>
+	<string>Capturer une idée</string>
 	<key>Captures d'écran</key>
 	<string>Captures d'écran</string>
 	<key>Carrousel</key>
@@ -446,6 +450,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Dans 60 minutes</string>
 	<key>Dans iCloud, pas encore sur ce Mac. Clique pour le télécharger.</key>
 	<string>Dans iCloud, pas encore sur ce Mac. Clique pour le télécharger.</string>
+	<key>Dans l'inbox</key>
+	<string>Dans l'inbox</string>
 	<key>Dans la grille : glisser une case sur le milieu d'une autre change l'ordre ; la glisser sur un bord partage l'écran entre les deux fenêtres ; deux doigts vers le haut sur une case ferment l'application.</key>
 	<string>Dans la grille : glisser une case sur le milieu d'une autre change l'ordre ; la glisser sur un bord partage l'écran entre les deux fenêtres ; deux doigts vers le haut sur une case ferment l'application.</string>
 	<key>Dans le tiroir</key>
@@ -746,6 +752,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Imprimer</string>
 	<key>Imprimer les %lld éléments</key>
 	<string>Imprimer les %lld éléments</string>
+	<key>Inbox d'Horizon introuvable</key>
+	<string>Inbox d'Horizon introuvable</string>
 	<key>Informations</key>
 	<string>Informations</string>
 	<key>Installer depuis GitHub</key>
@@ -1564,6 +1572,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Une application à la fois</string>
 	<key>Une fausse encoche apparaît en haut, au milieu de l'écran principal.</key>
 	<string>Une fausse encoche apparaît en haut, au milieu de l'écran principal.</string>
+	<key>Une idée, une tâche…</key>
+	<string>Une idée, une tâche…</string>
 	<key>Une partie coupée ne s'ouvre plus : ni par son coin, ni par son raccourci, ni par son geste. Ses réglages restent là pour le jour où tu la rallumes.</key>
 	<string>Une partie coupée ne s'ouvre plus : ni par son coin, ni par son raccourci, ni par son geste. Ses réglages restent là pour le jour où tu la rallumes.</string>
 	<key>Une petite app à la fois, à côté de ta musique. Continue le geste : les autres apps du tiroir défilent.</key>
@@ -1660,6 +1670,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>https://…</string>
 	<key>iCloud Drive n'est pas activé sur ce Mac.</key>
 	<string>iCloud Drive n'est pas activé sur ce Mac.</string>
+	<key>iCloud télécharge l'inbox, réessaie</key>
+	<string>iCloud télécharge l'inbox, réessaie</string>
 	<key>l'application</key>
 	<string>l'application</string>
 	<key>le Finder</key>
@@ -1706,6 +1718,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Écoutés récemment</string>
 	<key>Écris ce que tu veux faire des fichiers sélectionnés : « convertis en JPG », « réduis à 1080 px de haut », « zippe tout », « fusionne ces PDF », « enlève le fond »… Apple Intelligence comprend la demande, sur ton Mac, sans Internet. Les originaux ne sont jamais modifiés : le résultat est un nouveau fichier, à côté.</key>
 	<string>Écris ce que tu veux faire des fichiers sélectionnés : « convertis en JPG », « réduis à 1080 px de haut », « zippe tout », « fusionne ces PDF », « enlève le fond »… Apple Intelligence comprend la demande, sur ton Mac, sans Internet. Les originaux ne sont jamais modifiés : le résultat est un nouveau fichier, à côté.</string>
+	<key>Écriture impossible : %@</key>
+	<string>Écriture impossible : %@</string>
 	<key>Édition</key>
 	<string>Édition</string>
 	<key>Éjecter « %@ »</key>
@@ -1738,6 +1752,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>— désactivé</string>
 	<key>••••••••••  (mot de passe)</key>
 	<string>••••••••••  (mot de passe)</string>
+	<key>↩︎</key>
+	<string>↩︎</string>
 	<key>⌃ + chiffre</key>
 	<string>⌃ + chiffre</string>
 	<key>⌃⌥Espace</key>

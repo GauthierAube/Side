@@ -1057,6 +1057,16 @@
         }
       }
     },
+    "Aucun favori. Clique sur l'étoile d'un élément pour le garder ici." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No favorites. Click an item's star to keep it here."
+          }
+        }
+      }
+    },
     "Aucun fichier sélectionné : sélectionne des fichiers dans le Finder" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -1411,6 +1421,12 @@
     "Calendrier" : {
 
     },
+    "Capturer dans l'inbox d'Horizon" : {
+
+    },
+    "Capturer une idée" : {
+
+    },
     "Captures d'écran" : {
       "localizations" : {
         "en" : {
@@ -1703,6 +1719,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Keyboard"
+          }
+        }
+      }
+    },
+    "Clic : recopier. Étoile : mettre en favori. On peut aussi le glisser ailleurs." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Click: copy again. Star: add to favorites. You can also drag it elsewhere."
           }
         }
       }
@@ -2141,6 +2167,9 @@
         }
       }
     },
+    "Dans l'inbox" : {
+
+    },
     "Dans la grille : glisser une case sur le milieu d'une autre change l'ordre ; la glisser sur un bord partage l'écran entre les deux fenêtres ; deux doigts vers le haut sur une case ferment l'application." : {
       "localizations" : {
         "en" : {
@@ -2470,6 +2499,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Clear"
+          }
+        }
+      }
+    },
+    "Effacer l'historique (sauf les favoris)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear History (Except Favorites)"
           }
         }
       }
@@ -3590,6 +3629,9 @@
           }
         }
       }
+    },
+    "Inbox d'Horizon introuvable" : {
+
     },
     "Informations" : {
       "localizations" : {
@@ -4715,6 +4757,16 @@
         }
       }
     },
+    "Liens YouTube" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "YouTube Links"
+          }
+        }
+      }
+    },
     "Liens enregistrés" : {
       "localizations" : {
         "en" : {
@@ -5331,6 +5383,16 @@
     },
     "Ouvrir les dossiers dans Side" : {
 
+    },
+    "Ouvrir les liens YouTube dans le tiroir" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open YouTube Links in the Drawer"
+          }
+        }
+      }
     },
     "Ouvrir les réglages d'accessibilité" : {
       "localizations" : {
@@ -7242,6 +7304,16 @@
         }
       }
     },
+    "Toujours Side, jamais le Finder" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Always Side, Never the Finder"
+          }
+        }
+      }
+    },
     "Toujours fermer" : {
       "localizations" : {
         "en" : {
@@ -7485,6 +7557,16 @@
         }
       }
     },
+    "Un lien YouTube cliqué dans Mail, Messages ou ailleurs s'ouvre dans le tiroir, plus dans le navigateur. Pour cela, Side devient le navigateur par défaut du Mac (macOS te demande de confirmer) : il garde les vidéos YouTube et passe aussitôt tous les autres liens à %@. YouTube Music et YouTube Studio restent dans le navigateur. Décoché : %@ redevient le navigateur par défaut." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A YouTube link clicked in Mail, Messages or anywhere else opens in the drawer instead of the browser. To do this, Side becomes the Mac's default browser (macOS asks you to confirm): it keeps YouTube videos and immediately hands every other link to %1$@. YouTube Music and YouTube Studio stay in the browser. Unchecked: %2$@ becomes the default browser again."
+          }
+        }
+      }
+    },
     "Un modèle d'IA qui tourne chez toi, avec Ollama. Side ne parle qu'à ce serveur." : {
       "localizations" : {
         "en" : {
@@ -7533,6 +7615,9 @@
       }
     },
     "Une fausse encoche apparaît en haut, au milieu de l'écran principal." : {
+
+    },
+    "Une idée, une tâche…" : {
 
     },
     "Une partie coupée ne s'ouvre plus : ni par son coin, ni par son raccourci, ni par son geste. Ses réglages restent là pour le jour où tu la rallumes." : {
@@ -7998,6 +8083,9 @@
         }
       }
     },
+    "iCloud télécharge l'inbox, réessaie" : {
+
+    },
     "l'application" : {
       "localizations" : {
         "en" : {
@@ -8131,6 +8219,16 @@
         }
       }
     },
+    "« Afficher dans le Finder » des autres applications, et l'ouverture d'un dossier, montrent la carte de Side. « Jamais le Finder » va plus loin : dès que le Finder ouvre une fenêtre (un fichier reçu par AirDrop, un téléchargement, un disque branché), Side la referme et montre le même dossier dans sa carte. Seul « Afficher dans le Finder » de Side ouvre encore le Finder. Décoché : le Finder de macOS, comme avant." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“Show in Finder” in other apps, and opening a folder, show Side's card. “Never the Finder” goes further: as soon as the Finder opens a window (a file received by AirDrop, a download, a disk you plug in), Side closes it and shows the same folder in its card. Only Side's own “Show in Finder” still opens the Finder. Unchecked: the macOS Finder, as before."
+          }
+        }
+      }
+    },
     "À droite" : {
       "localizations" : {
         "en" : {
@@ -8204,6 +8302,9 @@
           }
         }
       }
+    },
+    "Écriture impossible : %@" : {
+
     },
     "Édition" : {
       "localizations" : {
@@ -8351,6 +8452,9 @@
         }
       }
     },
+    "↩︎" : {
+
+    },
     "⌃ + chiffre" : {
       "localizations" : {
         "en" : {
@@ -8397,86 +8501,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "⌥ + number"
-          }
-        }
-      }
-    },
-    "Effacer l'historique (sauf les favoris)" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Clear History (Except Favorites)"
-          }
-        }
-      }
-    },
-    "Clic : recopier. Étoile : mettre en favori. On peut aussi le glisser ailleurs." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Click: copy again. Star: add to favorites. You can also drag it elsewhere."
-          }
-        }
-      }
-    },
-    "Aucun favori. Clique sur l'étoile d'un élément pour le garder ici." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No favorites. Click an item's star to keep it here."
-          }
-        }
-      }
-    },
-    "Toujours Side, jamais le Finder" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Always Side, Never the Finder"
-          }
-        }
-      }
-    },
-    "« Afficher dans le Finder » des autres applications, et l'ouverture d'un dossier, montrent la carte de Side. « Jamais le Finder » va plus loin : dès que le Finder ouvre une fenêtre (un fichier reçu par AirDrop, un téléchargement, un disque branché), Side la referme et montre le même dossier dans sa carte. Seul « Afficher dans le Finder » de Side ouvre encore le Finder. Décoché : le Finder de macOS, comme avant." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "“Show in Finder” in other apps, and opening a folder, show Side's card. “Never the Finder” goes further: as soon as the Finder opens a window (a file received by AirDrop, a download, a disk you plug in), Side closes it and shows the same folder in its card. Only Side's own “Show in Finder” still opens the Finder. Unchecked: the macOS Finder, as before."
-          }
-        }
-      }
-    },
-    "Ouvrir les liens YouTube dans le tiroir" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Open YouTube Links in the Drawer"
-          }
-        }
-      }
-    },
-    "Liens YouTube" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "YouTube Links"
-          }
-        }
-      }
-    },
-    "Un lien YouTube cliqué dans Mail, Messages ou ailleurs s'ouvre dans le tiroir, plus dans le navigateur. Pour cela, Side devient le navigateur par défaut du Mac (macOS te demande de confirmer) : il garde les vidéos YouTube et passe aussitôt tous les autres liens à %@. YouTube Music et YouTube Studio restent dans le navigateur. Décoché : %@ redevient le navigateur par défaut." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "A YouTube link clicked in Mail, Messages or anywhere else opens in the drawer instead of the browser. To do this, Side becomes the Mac's default browser (macOS asks you to confirm): it keeps YouTube videos and immediately hands every other link to %1$@. YouTube Music and YouTube Studio stay in the browser. Unchecked: %2$@ becomes the default browser again."
           }
         }
       }
