@@ -307,6 +307,8 @@ final class Ile: ObservableObject {
             hud = nil
         }
         panneau?.ignoresMouseEvents = false
+        // Le champ de capture prend le clavier dès l'ouverture : on tape tout de suite (le 25/11/2026, Gauthier).
+        if CaptureIle.disponible { CaptureIle.commun.commencer() }
     }
 
     /// Passe à une autre vue ; elle glisse du côté où elle se trouve dans la liste.

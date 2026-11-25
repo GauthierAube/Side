@@ -17,6 +17,8 @@ Il est mis à jour à chaque modification, en même temps que le code.
 - **Retouche le même jour** : pilule plus grande (42 points de haut, texte plus gros), « + » dans un rond au rouge
   d'Horizon (terracotta). Passer la souris sur la pilule suffit : le champ prend le clavier, on tape directement.
   L'île se referme encore quand on s'éloigne sans avoir rien tapé ; avec du texte, elle reste.
+- **Deuxième retouche** : le champ prend le clavier dès que l'île s'ouvre, sans passer la souris dessus. À la
+  fermeture, l'application d'avant reprend le clavier.
 - **Code** : `EncocheCapture.swift` (pilule et écriture), `Encoche.swift` (`PanneauIle` prend le clavier pendant la saisie).
 
 ## 25/11/2026 — Compilation hors de la recherche du Mac
