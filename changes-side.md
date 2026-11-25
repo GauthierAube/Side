@@ -22,6 +22,7 @@ Il est mis à jour à chaque modification, en même temps que le code.
 - **Troisième retouche** : la dictée de Flow arrivait dans Claude (Flow colle dans l'application de devant, et Side
   n'y était pas). Side passe maintenant devant pendant la saisie, puis rend la main à l'application d'avant.
 - **Code** : `EncocheCapture.swift` (pilule et écriture), `Encoche.swift` (`PanneauIle` prend le clavier pendant la saisie).
+- **Essayé par Gauthier** : la capture marche, la dictée de Flow arrive bien dans le champ.
 
 ## 25/11/2026 — Compilation hors de la recherche du Mac
 
