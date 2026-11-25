@@ -222,8 +222,14 @@ private struct VueOuverte: View {
             }
             .padding(.horizontal, 22)
             .padding(.top, 8)
-            .padding(.bottom, 16)
+            .padding(.bottom, CaptureIle.disponible ? 6 : 16)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+            if CaptureIle.disponible {
+                LigneCapture()
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 12)
+                    .frame(height: Ile.hauteurCapture, alignment: .top)
+            }
         }
     }
 

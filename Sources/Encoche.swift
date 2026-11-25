@@ -90,7 +90,7 @@ final class Ile: ObservableObject {
 
     /// L'écran qui a une encoche (aucun : écran du MacBook fermé, ou Mac sans encoche).
     private(set) var ecran: NSScreen?
-    private var panneau: NSPanel?
+    private var panneau: PanneauIle?
     private var centreX: CGFloat = 0
     private var finHud: Timer?
     private var departFermeture: Timer?
@@ -102,7 +102,9 @@ final class Ile: ObservableObject {
     static let largeurFenetre: CGFloat = 840
     static let hauteurFenetre: CGFloat = 300
     static let largeurOuverte: CGFloat = 460
-    static let hauteurContenu: CGFloat = 166
+    /// Le contenu de l'île ouverte, et la ligne de capture d'Horizon en dessous (si Horizon est sur ce Mac).
+    static var hauteurContenu: CGFloat { 166 + (CaptureIle.disponible ? Ile.hauteurCapture : 0) }
+    static let hauteurCapture: CGFloat = 40
 
     var ouverte: Bool { etat == .ouvert }
 
@@ -184,8 +186,8 @@ final class Ile: ObservableObject {
         ToucheIle.majActivation()
     }
 
-    private func creerPanneau() -> NSPanel {
-        let p = NSPanel(contentRect: .zero, styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
+    private func creerPanneau() -> PanneauIle {
+        let p = PanneauIle(contentRect: .zero, styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
         p.isOpaque = false
         p.backgroundColor = .clear
         p.hasShadow = false
@@ -223,7 +225,9 @@ final class Ile: ObservableObject {
         let p = NSEvent.mouseLocation
         switch e.type {
         case .keyDown:
-            if ouverte, e.keyCode == 53 { fermer() }                 // Échap
+            if ouverte, e.keyCode == 53 {                            // Échap : arrête la saisie, sinon referme
+                if CaptureIle.commun.saisie { CaptureIle.commun.arreter() } else { fermer() }
+            }
             return
         case .leftMouseDown, .rightMouseDown:
             // Un clic ailleurs referme l'île (les clics dans d'autres fenêtres de Side aussi).
@@ -256,12 +260,12 @@ final class Ile: ObservableObject {
             }
         case .ouvert:
             // Ouverte, elle se referme quand le pointeur s'en éloigne (pas pendant un glisser, ni bouton enfoncé).
-            if cadre.insetBy(dx: -28, dy: -28).contains(p) || NSEvent.pressedMouseButtons != 0 {
+            if cadre.insetBy(dx: -28, dy: -28).contains(p) || NSEvent.pressedMouseButtons != 0 || CaptureIle.commun.saisie {
                 departFermeture?.invalidate(); departFermeture = nil
             } else if departFermeture == nil {
                 departFermeture = Timer.scheduledTimer(withTimeInterval: 0.45, repeats: false) { [weak self] _ in
                     self?.departFermeture = nil
-                    guard let self, NSEvent.pressedMouseButtons == 0,
+                    guard let self, NSEvent.pressedMouseButtons == 0, !CaptureIle.commun.saisie,
                           !self.cadre.insetBy(dx: -28, dy: -28).contains(NSEvent.mouseLocation) else { return }
                     self.fermer()
                 }
@@ -325,6 +329,7 @@ final class Ile: ObservableObject {
         departFermeture?.invalidate(); departFermeture = nil
         departOuverture?.invalidate(); departOuverture = nil
         guard ouverte else { return }
+        CaptureIle.commun.arreter()
         withAnimation(Mouvement.ileRetour) {
             etat = .repos
             survol = cadreRepos.insetBy(dx: -3, dy: -3).contains(NSEvent.mouseLocation)
@@ -333,6 +338,17 @@ final class Ile: ObservableObject {
     }
 
     func basculer() { ouverte ? fermer() : ouvrir() }
+
+    /// La saisie d'une capture : l'île prend le clavier, sans que Side passe devant (panneau « non activant »).
+    func prendreClavier() {
+        panneau?.clavier = true
+        panneau?.makeKey()
+    }
+
+    func rendreClavier() {
+        panneau?.clavier = false
+        panneau?.resignKey()
+    }
 
     /// L'île au repos, sans survol (pour savoir si le pointeur est dessus au moment de la refermer).
     private var cadreRepos: NSRect {
@@ -360,6 +376,12 @@ final class Ile: ObservableObject {
             }
         }
     }
+}
+
+/// La fenêtre de l'île : elle ne prend le clavier que pendant la saisie d'une capture.
+final class PanneauIle: NSPanel {
+    var clavier = false
+    override var canBecomeKey: Bool { clavier }
 }
 
 /// La vue de l'île dans sa fenêtre : réagit au premier clic (Side n'est jamais l'application active) et aux deux doigts.

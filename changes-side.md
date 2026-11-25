@@ -5,6 +5,17 @@ Il est mis à jour à chaque modification, en même temps que le code.
 
 ---
 
+## 25/11/2026 — Île de l'encoche : capturer une idée dans Horizon
+
+- **Demandé par Gauthier** : capturer tout de suite une idée depuis l'île, sans aller dans une autre vue, et qu'elle
+  arrive dans l'inbox d'Horizon.
+- **Maintenant** : en bas de l'île ouverte (sous le calendrier, et sous la lecture), une pilule « + Capturer une idée ».
+  Un clic, on tape, Entrée : l'idée part dans `00 Inbox 📥/Capture.md` d'Horizon (fin de « ## Tâches », avec la date du
+  jour et un identifiant neuf, au même format que la capture de Safari d'Horizon). Le « + » devient une coche verte
+  « Dans l'inbox ». Échap arrête la saisie (le texte tapé est gardé) ; l'île ne se referme pas pendant qu'on tape.
+- Sans Horizon sur le Mac, la pilule n'apparaît pas.
+- **Code** : `EncocheCapture.swift` (pilule et écriture), `Encoche.swift` (`PanneauIle` prend le clavier pendant la saisie).
+
 ## 25/11/2026 — Compilation hors de la recherche du Mac
 
 `build.sh` et `tools/snap.sh` compilent dans `build.noindex/` et `build-test.noindex/` (au lieu de `build/` et `build-test/`) : la recherche du Mac ignore ces dossiers, il ne reste qu'un seul Side.app à l'ouverture (celui de ~/Applications).
