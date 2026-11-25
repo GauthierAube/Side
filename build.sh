@@ -2,7 +2,7 @@
 # Compile Side, l'installe dans ~/Applications et le relance.
 set -e
 cd "$(dirname "$0")"
-APP=build/Side.app
+APP=build.noindex/Side.app
 rm -rf build
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 # Les textes viennent du catalogue Apple Localizable.xcstrings : texte source en français, traduction anglaise.
@@ -10,18 +10,18 @@ mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 # Ces fichiers compilés sont gardés dans le dépôt : sans Xcode (outils en ligne de commande seuls), on compile avec eux.
 EXTRAIRE=()
 if xcrun --find xcstringstool >/dev/null 2>&1; then
-  mkdir -p build/textes
-  EXTRAIRE=(-emit-localized-strings -emit-localized-strings-path build/textes)
+  mkdir -p build.noindex/textes
+  EXTRAIRE=(-emit-localized-strings -emit-localized-strings-path build.noindex/textes)
   [ -f Localizable.xcstrings ] || echo '{"sourceLanguage":"fr","strings":{},"version":"1.0"}' > Localizable.xcstrings
 fi
 # Le lecteur YouTube du tiroir est Peinard (~/Github/sans-pub) quand il est sur ce Mac : il demande macOS 26.
-PEINARD_OPTS=$(tools/peinard.sh build/peinard "$APP/Contents/Resources")
+PEINARD_OPTS=$(tools/peinard.sh build.noindex/peinard "$APP/Contents/Resources")
 CIBLE=arm64-apple-macos14.0
 if [ -n "$PEINARD_OPTS" ]; then CIBLE=arm64-apple-macos26.0; echo "Avec Peinard comme lecteur YouTube."; fi
 swiftc -O -swift-version 5 -parse-as-library -target $CIBLE \
   Sources/*.swift -o "$APP/Contents/MacOS/Side" "${EXTRAIRE[@]}" $PEINARD_OPTS
 if [ ${#EXTRAIRE[@]} -gt 0 ]; then
-  xcrun xcstringstool sync Localizable.xcstrings --stringsdata build/textes/*.stringsdata
+  xcrun xcstringstool sync Localizable.xcstrings --stringsdata build.noindex/textes/*.stringsdata
   xcrun xcstringstool compile Localizable.xcstrings -o Resources
   mkdir -p Resources/fr.lproj
   # Le français est la langue des textes du code, mais l'outil d'Apple ne produit que les traductions. Sans fichier

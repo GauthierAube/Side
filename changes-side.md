@@ -5,6 +5,10 @@ Il est mis à jour à chaque modification, en même temps que le code.
 
 ---
 
+## 25/11/2026 — Compilation hors de la recherche du Mac
+
+`build.sh` et `tools/snap.sh` compilent dans `build.noindex/` et `build-test.noindex/` (au lieu de `build/` et `build-test/`) : la recherche du Mac ignore ces dossiers, il ne reste qu'un seul Side.app à l'ouverture (celui de ~/Applications).
+
 ## 24/11/2026 — Grille : Dock sans animation, applications jamais tronquées au retour
 
 - **Demandé par Gauthier** : le Dock doit apparaître et disparaître d'un coup ; une autre application choisie dans la

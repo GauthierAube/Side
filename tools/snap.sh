@@ -1,13 +1,13 @@
 #!/bin/bash
 # Photographie chaque écran de Side, en clair et en sombre, SANS rien afficher ni installer :
-# compile dans build-test/ (le Side installé n'est pas touché), puis dessine chaque écran dans une image.
+# compile dans build-test.noindex/ (le Side installé n'est pas touché), puis dessine chaque écran dans une image.
 # Usage : tools/snap.sh [dossier de sortie] [--rafraichir]   (par défaut /tmp/Side-shots)
 set -e
 cd "$(dirname "$0")/.."
 SORTIE=${1:-/tmp/Side-shots}
-APP=build-test/Side.app
+APP=build-test.noindex/Side.app
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources" "$SORTIE"
-PEINARD_OPTS=$(tools/peinard.sh build-test/peinard "$APP/Contents/Resources")
+PEINARD_OPTS=$(tools/peinard.sh build-test.noindex/peinard "$APP/Contents/Resources")
 CIBLE=arm64-apple-macos14.0; [ -n "$PEINARD_OPTS" ] && CIBLE=arm64-apple-macos26.0
 swiftc -Onone -swift-version 5 -parse-as-library -target $CIBLE \
   Sources/*.swift -o "$APP/Contents/MacOS/Side" $PEINARD_OPTS 2>&1 | grep -E "error:" && exit 1
