@@ -19,7 +19,7 @@ final class SynchroPresse: ObservableObject {
     @Published var actif: Bool {
         didSet {
             d.set(actif, forKey: "pressePartage")
-            if actif { aEnvoyer = true; liensAEnvoyer = true; synchroniser() } else { etat = "" }
+            if actif { aEnvoyer = true; liensAEnvoyer = true; synchroniser(); if veille != nil { surveiller() } } else { etat = ""; guetteur?.cancel(); guetteur = nil }
         }
     }
     @Published private(set) var etat = ""
@@ -64,7 +64,8 @@ final class SynchroPresse: ObservableObject {
 
     // MARK: Quand synchroniser
 
-    /// Au lancement : une première fois, puis un coup d'œil toutes les 20 secondes (l'autre Mac a pu copier).
+    /// Au lancement : une première fois, puis à chaque fois qu'iCloud dépose un fichier dans le dossier Side
+    /// (l'autre Mac ou l'iPhone a copié), et un coup d'œil toutes les 20 secondes au cas où.
     func demarrer() {
         guard veille == nil else { return }
         if !d.bool(forKey: "presseLiensPartages") { liensAEnvoyer = true }
@@ -72,6 +73,36 @@ final class SynchroPresse: ObservableObject {
         let t = Timer(timeInterval: 20, repeats: true) { [weak self] _ in self?.synchroniser() }
         RunLoop.main.add(t, forMode: .common)
         veille = t
+        surveiller()
+    }
+
+    /// iCloud remplace le fichier d'un coup (nouveau fichier renommé à la place de l'ancien) : le dossier change,
+    /// on le voit aussitôt. Nos propres écritures déclenchent aussi un passage, sans effet (rien de nouveau à lire).
+    private var guetteur: DispatchSourceFileSystemObject?
+    private var relance: DispatchWorkItem?
+    private func surveiller() {
+        guetteur?.cancel()
+        guetteur = nil
+        guard actif, let dossier else { return }
+        try? fm.createDirectory(at: dossier, withIntermediateDirectories: true)
+        let fd = open(dossier.path, O_EVTONLY)
+        guard fd >= 0 else { return }
+        let g = DispatchSource.makeFileSystemObjectSource(fileDescriptor: fd, eventMask: [.write, .rename, .delete], queue: .main)
+        g.setEventHandler { [weak self] in
+            guard let self else { return }
+            if g.data.contains(.delete) || g.data.contains(.rename) {
+                // Le dossier lui-même a bougé : on le reprend un peu plus tard.
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2) { self.surveiller() }
+            }
+            // Plusieurs changements d'affilée (fichier + images) : un seul passage, une demi-seconde après.
+            self.relance?.cancel()
+            let r = DispatchWorkItem { [weak self] in self?.synchroniser() }
+            self.relance = r
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: r)
+        }
+        g.setCancelHandler { close(fd) }
+        g.resume()
+        guetteur = g
     }
 
     /// Quelque chose a changé ici : envoyé deux secondes plus tard (plusieurs copies d'affilée partent ensemble).

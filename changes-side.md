@@ -5,6 +5,34 @@ Il est mis à jour à chaque modification, en même temps que le code.
 
 ---
 
+## 26/11/2026 — Side sur l'iPhone : le presse-papiers partagé, un widget, le centre de contrôle et le menu Partager
+
+- **Demandé par Gauthier** : retrouver sur l'iPhone le presse-papiers de Side, et l'inverse ; y accéder facilement
+  (widget, centre de contrôle, menu Partager) ; que les copies arrivent tout de suite.
+- **Nouvelle app iPhone « Side »** (dossier `iPhone/`, `iPhone/build.sh` la compile et l'installe sur l'iPhone branché ou
+  sur le même Wi-Fi). Elle lit et écrit le même fichier que les Mac : « Presse-papiers.json » et « Presse-papiers images »
+  dans le dossier Side d'iCloud Drive. Même règles de fusion : chaque élément garde son identifiant, le changement le plus
+  récent l'emporte, un effacement laisse une trace sept jours pour que les autres appareils effacent aussi.
+  - À la première ouverture, on choisit une fois le dossier Side dans Fichiers (iOS n'ouvre pas iCloud Drive librement).
+  - Ce qu'on copie sur l'iPhone rejoint l'historique à l'ouverture de l'app (iOS interdit d'écouter le presse-papiers en
+    arrière-plan), ou avec le bouton Coller. Pour ne plus voir la question d'iOS : Réglages > Side > « Coller depuis
+    d'autres apps » > Autoriser.
+  - Toucher un élément le copie et le remonte en haut, sur les Mac aussi. Glisser : épingler ou effacer.
+  - Onglet « Liens » : les liens enregistrés de Side, à copier d'un geste (lecture seule).
+- **Widget** (écran d'accueil en trois tailles, écran verrouillé) : les derniers éléments copiés ; en toucher un ouvre
+  Side et le copie.
+- **Bouton du centre de contrôle** « Side » : ouvre l'app, qui ajoute aussitôt ce qu'on vient de copier.
+- **Menu Partager** : « Side » ajoute un texte, un lien ou une image à l'historique, Mac compris.
+- L'app, le widget et l'extension se passent le dossier choisi par le trousseau (pas de groupe d'apps : `xcodebuild` ne
+  sait pas en créer un sur le compte développeur). Si l'extension n'arrive pas à écrire dans iCloud, le texte attend dans
+  le trousseau et rejoint l'historique à la prochaine ouverture de l'app.
+- **Sur le Mac** : Side regardait le fichier partagé toutes les 20 secondes. Il réagit maintenant dès qu'iCloud dépose
+  une nouvelle version dans le dossier Side (0,6 seconde à l'essai). Le délai restant (souvent moins d'une minute) est
+  celui d'iCloud Drive.
+- **Pour l'instantané entre l'iPhone et le Mac**, c'est le presse-papiers universel d'Apple (Handoff) : Side sur le Mac
+  enregistre au passage ce qui arrive de l'iPhone. Il était bloqué dans le sens iPhone → Mac (l'iPhone n'annonçait plus
+  ses copies) : réglé en coupant puis rallumant Handoff, Bluetooth et Wi-Fi sur l'iPhone, puis en le redémarrant.
+
 ## 25/11/2026 — Île de l'encoche : capturer une idée dans Horizon
 
 - **Demandé par Gauthier** : capturer tout de suite une idée depuis l'île, sans aller dans une autre vue, et qu'elle
