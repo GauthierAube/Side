@@ -5,6 +5,15 @@ Il est mis à jour à chaque modification, en même temps que le code.
 
 ---
 
+## 26/11/2026 — La carte ne s'ouvre plus que sur les fichiers enregistrés dans iCloud Drive
+
+- **Demandé par Gauthier** : la carte s'ouvrait sur un fichier technique fraîchement créé (un fichier de compilation
+  `.pcm`), au lieu de rester sur ce qui le concerne.
+- Side ne guette plus les fichiers enregistrés que dans iCloud Drive. Le reste du Mac (dossier personnel hors iCloud,
+  code, caches, disques branchés) est ignoré : la carte s'y rouvre simplement sur le dernier dossier.
+
+---
+
 ## 26/11/2026 — Les Mac qui partagent seulement leur écran apparaissent dans « Réseau »
 
 - **Demandé par Gauthier** : voir l'écran du MacBook Air depuis le Mac mini, comme dans l'autre sens.

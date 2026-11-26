@@ -2,7 +2,7 @@
 //
 // 1. La carte se rouvre là où l'on était, sauf quand un fichier vient d'être enregistré (un export de Logic Pro vers la
 //    bibliothèque de sons, un téléchargement…) : elle s'ouvre alors sur le dossier de ce fichier, le fichier choisi.
-//    Side le repère avec FSEvents, le journal des changements de fichiers de macOS (dossier personnel et disques branchés).
+//    Side le repère avec FSEvents, le journal des changements de fichiers de macOS, dans iCloud Drive seulement.
 // 2. Réglages > Finder > « Ouvrir les dossiers dans Side » : Side devient le visualiseur de fichiers de macOS. « Afficher
 //    dans le Finder » d'une autre application, et l'ouverture d'un dossier, montrent alors la carte de Side.
 
@@ -15,22 +15,13 @@ enum Enregistrements {
     /// Un fichier enregistré compte pendant 10 minutes : au-delà, la carte retrouve simplement le dernier dossier.
     static let duree: TimeInterval = 600
     private static var flux: FSEventStreamRef?
-    private static var observe = false
 
-    /// Commence à repérer les fichiers enregistrés (au lancement de Side, et quand un disque est branché ou débranché).
+    /// Commence à repérer les fichiers enregistrés (au lancement de Side).
     static func demarrer() {
         arreter()
-        let home = FileManager.default.homeDirectoryForCurrentUser.path
-        // Les disques branchés que l'on voit dans le Finder, sans les disques de sauvegarde (Time Machine) ni de secours.
-        let disques = (FileManager.default.mountedVolumeURLs(includingResourceValuesForKeys: nil, options: [.skipHiddenVolumes]) ?? [])
-            .map(\.path).filter { chemin in
-                let nom = (chemin as NSString).lastPathComponent.lowercased()
-                let fm = FileManager.default
-                return chemin.hasPrefix("/Volumes/") && nom != "recovery" && !nom.contains("time machine")
-                    && !nom.hasPrefix("com.apple") && !fm.fileExists(atPath: chemin + "/Backups.backupdb")
-                    && !fm.fileExists(atPath: chemin + "/.timemachine")
-            }
-        let chemins = [home] + disques
+        // Seulement iCloud Drive (26/11/2026, demandé par Gauthier) : le reste du Mac (code, caches, outils, disques) est
+        // ignoré. Avant, tout le dossier personnel et les disques branchés étaient surveillés.
+        let chemins = [FileManager.default.homeDirectoryForCurrentUser.path + "/Library/Mobile Documents/com~apple~CloudDocs"]
         var contexte = FSEventStreamContext(version: 0, info: nil, retain: nil, release: nil, copyDescription: nil)
         let rappel: FSEventStreamCallback = { _, _, n, chemins, drapeaux, _ in
             guard let liste = unsafeBitCast(chemins, to: NSArray.self) as? [String] else { return }
@@ -49,11 +40,6 @@ enum Enregistrements {
         FSEventStreamStart(s)
         flux = s
         journalBas("fichiers enregistrés : surveillance de %@", chemins.joined(separator: ", "))
-        guard !observe else { return }
-        observe = true
-        let c = NSWorkspace.shared.notificationCenter
-        c.addObserver(forName: NSWorkspace.didMountNotification, object: nil, queue: .main) { _ in demarrer() }
-        c.addObserver(forName: NSWorkspace.didUnmountNotification, object: nil, queue: .main) { _ in demarrer() }
     }
 
     private static func arreter() {
@@ -81,8 +67,8 @@ enum Enregistrements {
         if temporaires.contains(u.pathExtension.lowercased()) { return false }
         // Un dossier caché sur le chemin (.git, .Trash…).
         if u.pathComponents.dropLast().contains(where: { $0.hasPrefix(".") }) { return false }
-        // La bibliothèque du dossier personnel ne compte pas, sauf iCloud Drive.
-        if chemin.hasPrefix(home + "/Library/") && !chemin.hasPrefix(home + "/Library/Mobile Documents/com~apple~CloudDocs/") { return false }
+        // Seulement iCloud Drive (26/11/2026) : tout le reste du Mac est ignoré.
+        if !chemin.hasPrefix(home + "/Library/Mobile Documents/com~apple~CloudDocs/") { return false }
         // Les fichiers de Side elle-même (zones de dépôt, historique, presse-papiers et liens gardés dans iCloud Drive).
         if chemin.contains("/Application Support/Side/")
             || chemin.hasPrefix(home + "/Library/Mobile Documents/com~apple~CloudDocs/Side/") { return false }
