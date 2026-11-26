@@ -16,6 +16,7 @@ struct LigneReseau: View {
     let nom: String
     @ObservedObject var reseau = Reseau.shared
     @State private var survol = false
+    @State private var survolEcran = false
 
     var body: some View {
         HStack(spacing: 7) {
@@ -23,6 +24,18 @@ struct LigneReseau: View {
             Text(nom).lineLimit(1).truncationMode(.middle)
             Spacer(minLength: 0)
             if reseau.enConnexion == nom { ProgressView().controlSize(.small) }
+            Button { reseau.voirEcran(nom) } label: {
+                Image(systemName: "display")
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(survolEcran ? Color.primary : Color.secondary)
+                    .frame(width: 22, height: 18)
+                    .background(Circle().fill(survolEcran ? Gris.fort : .clear))
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .onHover { survolEcran = $0 }
+            .help(String(localized: "Voir l'écran de « \(nom) »"))
+            .accessibilityLabel(String(localized: "Voir l'écran de « \(nom) »"))
         }
         .padding(.horizontal, 6)
         .padding(.vertical, 6)
@@ -30,6 +43,10 @@ struct LigneReseau: View {
         .contentShape(Rectangle())
         .onHover { survol = $0 }
         .onTapGesture { Reseau.shared.ouvrir(nom) }
+        .contextMenu {
+            Button("Ouvrir ses fichiers") { Reseau.shared.ouvrir(nom) }
+            Button("Voir l'écran") { Reseau.shared.voirEcran(nom) }
+        }
         .help("Se connecter à « \(nom) » et ouvrir ses fichiers dans Side.")
         .accessibilityLabel("Se connecter à \(nom)")
         .accessibilityAddTraits(.isButton)

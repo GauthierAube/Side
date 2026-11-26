@@ -355,6 +355,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, QLPrev
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) { Ile.commun.brancher() }
             // La recherche sur le web (Recherche.swift).
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) { Recherche.commun.brancher() }
+            // Les fenêtres de macOS (mot de passe, trousseau…) toujours devant Side (DialoguesSysteme.swift).
+            DialoguesSysteme.commun.brancher()
         }
         panel = DrawerPanel(
             contentRect: NSRect(x: 0, y: 0, width: 800, height: 400),

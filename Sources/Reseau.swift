@@ -44,8 +44,14 @@ final class Reseau: NSObject, ObservableObject, NetServiceBrowserDelegate, NetSe
         let noms = Set(services.map(\.name)).filter { $0 != moi }.sorted { $0.localizedStandardCompare($1) == .orderedAscending }
         if noms != ordinateurs { ordinateurs = noms }
     }
-    /// Ouvre l'ordinateur dans le Finder, qui affiche ses dossiers partagés (après identification si besoin).
-    func ouvrir(_ nom: String) {
+    /// Vrai quand la résolution en cours doit ouvrir l'écran de l'ordinateur plutôt que ses fichiers.
+    private var pourEcran = false
+    /// Se connecte aux dossiers partagés de l'ordinateur et les ouvre dans Side (après identification si besoin).
+    func ouvrir(_ nom: String) { resoudre(nom, ecran: false) }
+    /// Montre l'écran de l'ordinateur avec l'app Partage d'écran de macOS.
+    func voirEcran(_ nom: String) { resoudre(nom, ecran: true) }
+    private func resoudre(_ nom: String, ecran: Bool) {
+        pourEcran = ecran
         guard let service = services.first(where: { $0.name == nom && $0.type.hasPrefix("_smb") })
                 ?? services.first(where: { $0.name == nom }) else { return }
         enAttente = service
@@ -60,6 +66,14 @@ final class Reseau: NSObject, ObservableObject, NetServiceBrowserDelegate, NetSe
         var adresse = URLComponents()
         adresse.scheme = protocole
         adresse.host = hote.hasSuffix(".") ? String(hote.dropLast()) : hote
+        if pourEcran {
+            adresse.scheme = "vnc"
+            guard let url = adresse.url else { return }
+            DialoguesSysteme.commun.surveiller(pendant: 15)   // mot de passe du Mac distant : devant Side
+            AppDelegate.shared.hide()                          // la carte s'efface pour laisser voir l'écran
+            NSWorkspace.shared.open(url)
+            return
+        }
         guard let url = adresse.url else { return }
         connecter(url, nom: sender.name)
     }
@@ -67,6 +81,7 @@ final class Reseau: NSObject, ObservableObject, NetServiceBrowserDelegate, NetSe
     /// puis l'ouvre dans Side. Si le montage échoue, on laisse le Finder s'en charger.
     private func connecter(_ url: URL, nom: String) {
         enConnexion = nom
+        DialoguesSysteme.commun.surveiller(pendant: 15)   // la fenêtre du mot de passe doit passer devant Side
         let options = NSMutableDictionary()
         options[kNAUIOptionKey] = kNAUIOptionAllowUI
         var requete: AsyncRequestID?

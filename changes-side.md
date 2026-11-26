@@ -5,6 +5,25 @@ Il est mis à jour à chaque modification, en même temps que le code.
 
 ---
 
+## 26/11/2026 — Voir l'écran du Mac mini depuis Side
+
+- **Demandé par Gauthier** : « je veux voir l'écran du Mac », pas seulement ses fichiers.
+- Dans la rubrique « Réseau », chaque ordinateur a maintenant un petit bouton écran à droite : il ouvre l'écran de cet
+  ordinateur avec l'app Partage d'écran de macOS (la carte de Side s'efface pour laisser la place). Clic sur le nom :
+  ses fichiers dans Side, comme avant. Clic droit : les deux choix.
+
+---
+
+## 26/11/2026 — Les fenêtres de macOS (mot de passe, autorisations…) passent toujours devant Side
+
+- **Demandé par Gauthier** : la fenêtre du mot de passe du Mac mini s'ouvrait derrière la carte de Side (on croyait que la
+  connexion tournait sans fin). Ce n'était pas la première fois : ces fenêtres doivent TOUJOURS apparaître devant.
+- Nouveau `DialoguesSysteme.swift` : quand une fenêtre de macOS s'ouvre (mot de passe d'un serveur, trousseau, mot de passe
+  administrateur, Touch ID, autorisations, « ouvrir une app téléchargée ? », alertes des disques), les fenêtres flottantes
+  de Side redescendent au niveau ordinaire et la fenêtre de macOS prend le clavier. Elles remontent dès qu'elle se ferme.
+
+---
+
 ## 26/11/2026 — Se connecter au Mac mini (et aux autres ordinateurs du réseau) directement dans Side
 
 - **Demandé par Gauthier** : se connecter à son Mac mini depuis Side, d'un clic, sans passer par le Finder.

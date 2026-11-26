@@ -1116,6 +1116,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Ouvrir les réglages d'accessibilité</string>
 	<key>Ouvrir les réglages du trackpad</key>
 	<string>Ouvrir les réglages du trackpad</string>
+	<key>Ouvrir ses fichiers</key>
+	<string>Ouvrir ses fichiers</string>
 	<key>Ouvrir à l'ouverture de session</key>
 	<string>Ouvrir à l'ouverture de session</string>
 	<key>PDF fusionnés</key>
@@ -1392,6 +1394,8 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Se connecter à %@</string>
 	<key>Se connecter à « %@ » dans le Finder. Une fois connecté, il apparaît ici et se parcourt dans Side.</key>
 	<string>Se connecter à « %@ » dans le Finder. Une fois connecté, il apparaît ici et se parcourt dans Side.</string>
+	<key>Se connecter à « %@ » et ouvrir ses fichiers dans Side.</key>
+	<string>Se connecter à « %@ » et ouvrir ses fichiers dans Side.</string>
 	<key>Se règle aussi en tirant le bord gauche ou droit du tiroir ouvert.</key>
 	<string>Se règle aussi en tirant le bord gauche ou droit du tiroir ouvert.</string>
 	<key>Se règle aussi en tirant le bord gauche ou droit du tiroir ouvert. Sur un grand écran, la part se compte sur 1800 points au plus.</key>
@@ -1620,6 +1624,10 @@ Il faut au moins une touche ⌃ ⌥ ⇧ ou ⌘ (ou une touche F1 à F20).
 	<string>Vidéos suivantes</string>
 	<key>Vite</key>
 	<string>Vite</string>
+	<key>Voir l'écran</key>
+	<string>Voir l'écran</string>
+	<key>Voir l'écran de « %@ »</key>
+	<string>Voir l'écran de « %@ »</string>
 	<key>Voir la vidéo</key>
 	<string>Voir la vidéo</string>
 	<key>Voir le tiroir</key>

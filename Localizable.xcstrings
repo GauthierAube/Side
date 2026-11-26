@@ -5414,6 +5414,9 @@
         }
       }
     },
+    "Ouvrir ses fichiers" : {
+
+    },
     "Ouvrir à l'ouverture de session" : {
       "localizations" : {
         "en" : {
@@ -6746,6 +6749,7 @@
       }
     },
     "Se connecter à « %@ » dans le Finder. Une fois connecté, il apparaît ici et se parcourt dans Side." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -6754,6 +6758,9 @@
           }
         }
       }
+    },
+    "Se connecter à « %@ » et ouvrir ses fichiers dans Side." : {
+
     },
     "Se règle aussi en tirant le bord gauche ou droit du tiroir ouvert." : {
       "extractionState" : "stale",
@@ -7843,6 +7850,12 @@
           }
         }
       }
+    },
+    "Voir l'écran" : {
+
+    },
+    "Voir l'écran de « %@ »" : {
+
     },
     "Voir la vidéo" : {
       "localizations" : {
