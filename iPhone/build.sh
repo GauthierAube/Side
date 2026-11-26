@@ -4,7 +4,7 @@
 set -e -o pipefail
 cd "$(dirname "$0")"
 IPHONE=$(xcrun devicectl list devices 2>/dev/null | grep "physical" | grep "iPhone" | grep -v "unavailable" | grep -E "available|connected" \
-  | grep -oE '[0-9A-F]{8}-[0-9A-F]{16}' | head -1)
+  | grep -oE '[0-9A-F]{8}-[0-9A-F]{16}' | head -1 || true)
 if [[ -z "$IPHONE" ]]; then
   echo "iPhone introuvable : branche-le ou déverrouille-le sur le même Wi-Fi que le Mac."
   exit 1
