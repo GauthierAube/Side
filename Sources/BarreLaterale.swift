@@ -11,9 +11,10 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 /// La barre latérale, façon Finder : étagère, récents, favoris, emplacements.
-/// Un ordinateur du réseau dans la barre latérale : un clic l'ouvre dans le Finder pour s'y connecter.
+/// Un ordinateur du réseau dans la barre latérale : un clic s'y connecte et ouvre ses fichiers dans Side.
 struct LigneReseau: View {
     let nom: String
+    @ObservedObject var reseau = Reseau.shared
     @State private var survol = false
 
     var body: some View {
@@ -21,6 +22,7 @@ struct LigneReseau: View {
             Image(systemName: "desktopcomputer").foregroundStyle(Color.accentColor).frame(width: 18)
             Text(nom).lineLimit(1).truncationMode(.middle)
             Spacer(minLength: 0)
+            if reseau.enConnexion == nom { ProgressView().controlSize(.small) }
         }
         .padding(.horizontal, 6)
         .padding(.vertical, 6)
@@ -28,7 +30,7 @@ struct LigneReseau: View {
         .contentShape(Rectangle())
         .onHover { survol = $0 }
         .onTapGesture { Reseau.shared.ouvrir(nom) }
-        .help("Se connecter à « \(nom) » dans le Finder. Une fois connecté, il apparaît ici et se parcourt dans Side.")
+        .help("Se connecter à « \(nom) » et ouvrir ses fichiers dans Side.")
         .accessibilityLabel("Se connecter à \(nom)")
         .accessibilityAddTraits(.isButton)
     }
@@ -41,7 +43,7 @@ struct SidebarView: View {
     @State private var depotFavori = false
     /// Sections repliées (mémorisées). Les tags sont repliés au départ.
     @State private var repliees: Set<String> = Set(
-        UserDefaults.standard.stringArray(forKey: "sectionsRepliees") ?? ["Tags", "Réseau"])
+        UserDefaults.standard.stringArray(forKey: "sectionsRepliees") ?? ["Tags"])
 
     var body: some View {
         ScrollView {

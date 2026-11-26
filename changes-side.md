@@ -5,6 +5,17 @@ Il est mis à jour à chaque modification, en même temps que le code.
 
 ---
 
+## 26/11/2026 — Se connecter au Mac mini (et aux autres ordinateurs du réseau) directement dans Side
+
+- **Demandé par Gauthier** : se connecter à son Mac mini depuis Side, d'un clic, sans passer par le Finder.
+- Un clic sur un ordinateur de la rubrique « Réseau » de la barre latérale s'y connecte lui-même : macOS montre sa fenêtre
+  habituelle (nom et mot de passe, à garder dans le trousseau, puis choix du dossier partagé), et Side ouvre ensuite ce
+  dossier dans sa propre fenêtre. Une petite roue tourne à côté du nom pendant la connexion.
+- Si la connexion échoue, Side passe la main au Finder comme avant.
+- La rubrique « Réseau » est maintenant dépliée au départ (elle était repliée et passait inaperçue).
+
+---
+
 ## 26/11/2026 — Side sur l'iPhone : le presse-papiers partagé, un widget, le centre de contrôle et le menu Partager
 
 - **Demandé par Gauthier** : retrouver sur l'iPhone le presse-papiers de Side, et l'inverse ; y accéder facilement

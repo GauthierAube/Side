@@ -2,6 +2,7 @@
 // Sorti de Side.swift le 15/11/2026, sans changement.
 
 import AppKit
+import NetFS
 import Carbon.HIToolbox
 import Combine
 import Quartz
@@ -11,7 +12,8 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 /// Les ordinateurs du réseau local qui partagent des fichiers, comme la rubrique « Réseau » du Finder.
-/// Side les repère (annonces Bonjour) ; s'y connecter passe par le Finder, qui demande le mot de passe.
+/// Side les repère (annonces Bonjour) et s'y connecte lui-même : macOS demande le mot de passe (gardé dans le trousseau)
+/// et le dossier partagé à ouvrir, puis Side affiche ce dossier.
 final class Reseau: NSObject, ObservableObject, NetServiceBrowserDelegate, NetServiceDelegate {
     static let shared = Reseau()
     @Published var ordinateurs: [String] = []
@@ -50,6 +52,7 @@ final class Reseau: NSObject, ObservableObject, NetServiceBrowserDelegate, NetSe
         service.delegate = self
         service.resolve(withTimeout: 5)
     }
+    @Published var enConnexion: String?
     func netServiceDidResolveAddress(_ sender: NetService) {
         guard sender == enAttente, let hote = sender.hostName else { return }
         enAttente = nil
@@ -57,7 +60,28 @@ final class Reseau: NSObject, ObservableObject, NetServiceBrowserDelegate, NetSe
         var adresse = URLComponents()
         adresse.scheme = protocole
         adresse.host = hote.hasSuffix(".") ? String(hote.dropLast()) : hote
-        if let url = adresse.url { NSWorkspace.shared.open(url) }
+        guard let url = adresse.url else { return }
+        connecter(url, nom: sender.name)
+    }
+    /// Monte le partage comme le fait le Finder (fenêtre d'identification et choix du dossier de macOS),
+    /// puis l'ouvre dans Side. Si le montage échoue, on laisse le Finder s'en charger.
+    private func connecter(_ url: URL, nom: String) {
+        enConnexion = nom
+        let options = NSMutableDictionary()
+        options[kNAUIOptionKey] = kNAUIOptionAllowUI
+        var requete: AsyncRequestID?
+        let statut = NetFSMountURLAsync(url as CFURL, nil, nil, nil, options, nil, &requete, DispatchQueue.main) { erreur, _, points in
+            self.enConnexion = nil
+            let montes = (points as? [String]) ?? []
+            if erreur == 0, let premier = montes.first {
+                let dossier = URL(fileURLWithPath: premier, isDirectory: true)
+                AppDelegate.shared.store.naviguer(.folder(dossier))
+                self.objectWillChange.send()   // la barre latérale affiche le serveur connecté
+            } else if erreur != 0, erreur != Int32(ECANCELED), erreur != -128 {
+                NSWorkspace.shared.open(url)
+            }
+        }
+        if statut != 0 { enConnexion = nil; NSWorkspace.shared.open(url) }
     }
     func netService(_ sender: NetService, didNotResolve errorDict: [String: NSNumber]) {
         if sender == enAttente { enAttente = nil; NSSound.beep() }
