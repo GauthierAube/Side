@@ -5,6 +5,15 @@ Il est mis à jour à chaque modification, en même temps que le code.
 
 ---
 
+## 26/11/2026 — La résolution dynamique s'active toute seule sur l'écran du Mac mini
+
+- **Demandé par Gauthier** : Partage d'écran ne garde pas « Résolution dynamique » d'une fois sur l'autre.
+- Quand on ouvre l'écran d'un ordinateur depuis Side, Side attend que la session soit ouverte (après le mot de passe),
+  puis coche lui-même « Présentation > Résolution dynamique » (accès « Accessibilité »). Le texte du Mac distant garde
+  ainsi une taille normale. S'il est déjà coché, Side n'y touche pas ; il abandonne au bout d'une minute.
+
+---
+
 ## 26/11/2026 — Voir l'écran du Mac mini depuis Side
 
 - **Demandé par Gauthier** : « je veux voir l'écran du Mac », pas seulement ses fichiers.

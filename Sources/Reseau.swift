@@ -72,6 +72,7 @@ final class Reseau: NSObject, ObservableObject, NetServiceBrowserDelegate, NetSe
             DialoguesSysteme.commun.surveiller(pendant: 15)   // mot de passe du Mac distant : devant Side
             AppDelegate.shared.hide()                          // la carte s'efface pour laisser voir l'écran
             NSWorkspace.shared.open(url)
+            ResolutionDynamique.activer()
             return
         }
         guard let url = adresse.url else { return }
@@ -101,4 +102,53 @@ final class Reseau: NSObject, ObservableObject, NetServiceBrowserDelegate, NetSe
     func netService(_ sender: NetService, didNotResolve errorDict: [String: NSNumber]) {
         if sender == enAttente { enAttente = nil; NSSound.beep() }
     }
+}
+
+/// Active « Présentation > Résolution dynamique » dans Partage d'écran, que macOS ne retient pas (26/11/2026) :
+/// l'écran du Mac distant prend alors la taille de la fenêtre, avec un texte de taille normale.
+/// Side clique le menu à ta place (accès « Accessibilité »), une fois la session ouverte (après le mot de passe).
+/// Si le menu est déjà coché, il n'y touche pas. Il abandonne après une minute.
+enum ResolutionDynamique {
+    private static let menus = ["Présentation", "View"]
+    private static let elements = ["Résolution dynamique", "Dynamic Resolution",
+                                   "Activer la résolution dynamique", "Enable Dynamic Resolution"]
+    private static let dejaActive = ["Désactiver la résolution dynamique", "Disable Dynamic Resolution"]
+
+    static func activer() {
+        guard AXIsProcessTrusted() else { return }
+        DispatchQueue.global(qos: .userInitiated).async {
+            let fin = Date().addingTimeInterval(60)
+            Thread.sleep(forTimeInterval: 1)
+            while Date() < fin {
+                if essayer() { return }
+                Thread.sleep(forTimeInterval: 0.5)
+            }
+        }
+    }
+
+    /// Vrai quand c'est réglé (cliqué, ou déjà actif).
+    private static func essayer() -> Bool {
+        guard let app = NSRunningApplication.runningApplications(withBundleIdentifier: "com.apple.ScreenSharing").first
+        else { return false }
+        let ax = AXUIElementCreateApplication(app.processIdentifier)
+        // Pas de fenêtre de session encore (mot de passe en cours) : on attend.
+        guard let fenetres = valeur(ax, kAXWindowsAttribute) as? [AXUIElement], !fenetres.isEmpty,
+              let barreObjet = valeur(ax, kAXMenuBarAttribute),
+              let titres = valeur(barreObjet as! AXUIElement, kAXChildrenAttribute) as? [AXUIElement],
+              let menu = titres.first(where: { menus.contains(titre($0)) }),
+              let sous = (valeur(menu, kAXChildrenAttribute) as? [AXUIElement])?.first,
+              let items = valeur(sous, kAXChildrenAttribute) as? [AXUIElement] else { return false }
+        if items.contains(where: { dejaActive.contains(titre($0)) }) { return true }
+        guard let item = items.first(where: { elements.contains(titre($0)) }),
+              (valeur(item, kAXEnabledAttribute) as? Bool) == true else { return false }
+        // Coché = déjà active.
+        if let coche = valeur(item, kAXMenuItemMarkCharAttribute) as? String, !coche.isEmpty { return true }
+        return AXUIElementPerformAction(item, kAXPressAction as CFString) == .success
+    }
+
+    private static func valeur(_ e: AXUIElement, _ attribut: String) -> AnyObject? {
+        var v: AnyObject?
+        return AXUIElementCopyAttributeValue(e, attribut as CFString, &v) == .success ? v : nil
+    }
+    private static func titre(_ e: AXUIElement) -> String { (valeur(e, kAXTitleAttribute) as? String) ?? "" }
 }
