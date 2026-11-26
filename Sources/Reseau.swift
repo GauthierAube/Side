@@ -21,10 +21,15 @@ final class Reseau: NSObject, ObservableObject, NetServiceBrowserDelegate, NetSe
     private var services: [NetService] = []
     private var enAttente: NetService?
 
-    /// Lance la recherche (une seule fois) : partages Windows/Mac récents (SMB) et anciens Mac (AFP).
+    /// Les ordinateurs qui partagent leur écran (Partage d'écran), et ceux qui partagent des fichiers.
+    @Published var ecrans: Set<String> = []
+    @Published var fichiers: Set<String> = []
+
+    /// Lance la recherche (une seule fois) : partages Windows/Mac récents (SMB), anciens Mac (AFP), et partage d'écran
+    /// (un Mac qui ne partage que son écran apparaît aussi).
     func chercher() {
         guard chercheurs.isEmpty else { return }
-        for type in ["_smb._tcp.", "_afpovertcp._tcp."] {
+        for type in ["_smb._tcp.", "_afpovertcp._tcp.", "_rfb._tcp."] {
             let c = NetServiceBrowser()
             c.delegate = self
             c.searchForServices(ofType: type, inDomain: "local.")
@@ -43,16 +48,23 @@ final class Reseau: NSObject, ObservableObject, NetServiceBrowserDelegate, NetSe
         let moi = Host.current().localizedName
         let noms = Set(services.map(\.name)).filter { $0 != moi }.sorted { $0.localizedStandardCompare($1) == .orderedAscending }
         if noms != ordinateurs { ordinateurs = noms }
+        let e = Set(services.filter { $0.type.hasPrefix("_rfb") }.map(\.name))
+        let f = Set(services.filter { !$0.type.hasPrefix("_rfb") }.map(\.name))
+        if e != ecrans { ecrans = e }
+        if f != fichiers { fichiers = f }
     }
     /// Vrai quand la résolution en cours doit ouvrir l'écran de l'ordinateur plutôt que ses fichiers.
     private var pourEcran = false
     /// Se connecte aux dossiers partagés de l'ordinateur et les ouvre dans Side (après identification si besoin).
-    func ouvrir(_ nom: String) { resoudre(nom, ecran: false) }
+    /// Un ordinateur qui ne partage que son écran montre son écran.
+    func ouvrir(_ nom: String) { resoudre(nom, ecran: !fichiers.contains(nom)) }
     /// Montre l'écran de l'ordinateur avec l'app Partage d'écran de macOS.
     func voirEcran(_ nom: String) { resoudre(nom, ecran: true) }
     private func resoudre(_ nom: String, ecran: Bool) {
         pourEcran = ecran
-        guard let service = services.first(where: { $0.name == nom && $0.type.hasPrefix("_smb") })
+        let prefere = ecran ? "_rfb" : "_smb"
+        guard let service = services.first(where: { $0.name == nom && $0.type.hasPrefix(prefere) })
+                ?? services.first(where: { $0.name == nom && (ecran || !$0.type.hasPrefix("_rfb")) })
                 ?? services.first(where: { $0.name == nom }) else { return }
         enAttente = service
         service.delegate = self

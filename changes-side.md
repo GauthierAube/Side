@@ -5,6 +5,14 @@ Il est mis à jour à chaque modification, en même temps que le code.
 
 ---
 
+## 26/11/2026 — Les Mac qui partagent seulement leur écran apparaissent dans « Réseau »
+
+- **Demandé par Gauthier** : voir l'écran du MacBook Air depuis le Mac mini, comme dans l'autre sens.
+- La rubrique « Réseau » repère aussi les Mac qui partagent leur écran (Partage d'écran), même sans partage de fichiers.
+  Le bouton écran n'apparaît que pour ceux qui le partagent ; un clic sur un Mac qui ne partage que son écran l'affiche.
+
+---
+
 ## 26/11/2026 — La résolution dynamique s'active toute seule sur l'écran du Mac mini
 
 - **Demandé par Gauthier** : Partage d'écran ne garde pas « Résolution dynamique » d'une fois sur l'autre.
