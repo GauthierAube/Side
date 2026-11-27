@@ -5,6 +5,16 @@ Il est mis à jour à chaque modification, en même temps que le code.
 
 ---
 
+## 27/11/2026 — Le CRM d'Horizon dans le tiroir voit enfin le site
+
+Dans le tiroir, la page Élèves d'Horizon disait « Site non connecté » et « Aucun élève », alors que le site est
+bien relié dans Horizon. Les vues d'Horizon ne recevaient pas les clés du site. Maintenant, Side est signé avec le
+droit de LIRE le trousseau d'Horizon (clés du site et de Meta), grâce au profil que Xcode a déjà fait pour ce Mac
+(`tools/trousseau-horizon.sh`, appelé par `build.sh`). Rien n'est écrit dans le trousseau. Sur un Mac sans ce
+profil, Side se construit comme avant (et le CRM dit « Site non connecté »).
+
+---
+
 ## 26/11/2026 — La carte ne s'ouvre plus que sur les fichiers enregistrés dans iCloud Drive
 
 - **Demandé par Gauthier** : la carte s'ouvrait sur un fichier technique fraîchement créé (un fichier de compilation

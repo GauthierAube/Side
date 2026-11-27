@@ -39,6 +39,19 @@ cp Icone/Side.icns "$APP/Contents/Resources/Side.icns"
 IDENT=$(security find-identity -v -p codesigning | grep "Apple Development" | head -1 | sed -E 's/.*"(.*)"/\1/')
 if [ -n "$IDENT" ] && codesign --force --deep --sign "$IDENT" "$APP"; then
   echo "Signé avec : $IDENT"
+  # Les vues d'Horizon lisent les clés du site et de Meta dans le trousseau de l'app Horizon (tools/trousseau-horizon.sh).
+  # Seule l'app elle-même reçoit ce droit (pas --deep) ; sans profil pour ce Mac, Side reste signé comme avant.
+  DROITS=""
+  [ -n "$HORIZON_OPTS" ] && DROITS=$(tools/trousseau-horizon.sh "$APP" build.noindex/trousseau)
+  if [ -n "$DROITS" ]; then
+    cp build.noindex/trousseau/embedded.provisionprofile "$APP/Contents/embedded.provisionprofile"
+    if codesign --force --sign "$IDENT" --entitlements "$DROITS" "$APP"; then
+      echo "Avec le trousseau d'Horizon (clés du site et de Meta, en lecture)."
+    else
+      rm -f "$APP/Contents/embedded.provisionprofile"
+      codesign --force --deep --sign "$IDENT" "$APP"
+    fi
+  fi
 else
   codesign --force --deep --sign - "$APP"
   echo "Signature jetable (pas de certificat utilisable)."
