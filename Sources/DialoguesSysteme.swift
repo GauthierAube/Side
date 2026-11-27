@@ -3,6 +3,10 @@
 // Side, qui flotte au-dessus de tout, les cachait (la connexion au Mac mini semblait tourner sans fin).
 // Tant qu'une de ces fenêtres est à l'écran, les fenêtres flottantes de Side redescendent au niveau ordinaire, et la
 // fenêtre de macOS reçoit le clavier. Elles remontent dès qu'elle se ferme.
+// 27/11/2026 : élargi à TOUTE fenêtre de dialogue d'une autre application (Finder : « Forcer l'éjection ? », « Remplacer ? »,
+// « Placer dans la corbeille ? »…). La confirmation d'éjection d'un SSD restait cachée sous la carte et bloquait le Mac.
+// Side écoute (Accessibilité) l'application au premier plan : dès qu'elle ouvre un dialogue, une alerte ou une feuille,
+// les fenêtres de Side redescendent jusqu'à sa fermeture.
 import AppKit
 
 final class DialoguesSysteme {
@@ -33,7 +37,65 @@ final class DialoguesSysteme {
             forName: NSWorkspace.didActivateApplicationNotification, object: nil, queue: .main) { [weak self] n in
             let app = n.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication
             if let id = app?.bundleIdentifier, Self.agents.contains(id) { self?.surveiller(pendant: 3) }
+            self?.ecouter(app)
         }
+        ecouter(NSWorkspace.shared.frontmostApplication)
+    }
+
+    // MARK: Les dialogues des autres applications (Finder…)
+
+    private var observateur: AXObserver?
+    private var pidEcoute: pid_t = 0
+
+    /// Écoute les fenêtres qui s'ouvrent dans l'application au premier plan (une seule à la fois, pas de minuterie).
+    private func ecouter(_ app: NSRunningApplication?) {
+        guard let app, app.processIdentifier != getpid(), app.processIdentifier != pidEcoute, AXIsProcessTrusted() else { return }
+        if let o = observateur {
+            CFRunLoopRemoveSource(CFRunLoopGetMain(), AXObserverGetRunLoopSource(o), .defaultMode)
+        }
+        observateur = nil
+        pidEcoute = app.processIdentifier
+        var o: AXObserver?
+        guard AXObserverCreate(app.processIdentifier, { _, _, _, refcon in
+            guard let refcon else { return }
+            Unmanaged<DialoguesSysteme>.fromOpaque(refcon).takeUnretainedValue().surveiller(pendant: 1.5)
+        }, &o) == .success, let o else { return }
+        let el = AXUIElementCreateApplication(app.processIdentifier)
+        let moi = Unmanaged.passUnretained(self).toOpaque()
+        for n in [kAXWindowCreatedNotification, kAXFocusedWindowChangedNotification, kAXSheetCreatedNotification] {
+            AXObserverAddNotification(o, el, n as CFString, moi)
+        }
+        CFRunLoopAddSource(CFRunLoopGetMain(), AXObserverGetRunLoopSource(o), .defaultMode)
+        observateur = o
+        if dialogueEtranger() != nil { surveiller(pendant: 1.5) }
+    }
+
+    /// L'application au premier plan (autre que Side) qui affiche un dialogue, une alerte ou une feuille, s'il y en a une.
+    private func dialogueEtranger() -> NSRunningApplication? {
+        guard let app = NSWorkspace.shared.frontmostApplication, app.processIdentifier != getpid(),
+              AXIsProcessTrusted() else { return nil }
+        let el = AXUIElementCreateApplication(app.processIdentifier)
+        AXUIElementSetMessagingTimeout(el, 0.2)          // une application figée ne doit jamais figer Side
+        var v: CFTypeRef?
+        guard AXUIElementCopyAttributeValue(el, kAXWindowsAttribute as CFString, &v) == .success,
+              let fenetres = v as? [AXUIElement] else { return nil }
+        for f in fenetres {
+            AXUIElementSetMessagingTimeout(f, 0.2)
+            if Self.texte(f, kAXSubroleAttribute) == "AXDialog" || Self.texte(f, kAXSubroleAttribute) == "AXSystemDialog" { return app }
+            var modal: CFTypeRef?
+            if AXUIElementCopyAttributeValue(f, kAXModalAttribute as CFString, &modal) == .success,
+               (modal as? Bool) == true { return app }
+            var enfants: CFTypeRef?
+            if AXUIElementCopyAttributeValue(f, kAXChildrenAttribute as CFString, &enfants) == .success,
+               let liste = enfants as? [AXUIElement],
+               liste.contains(where: { Self.texte($0, kAXRoleAttribute) == (kAXSheetRole as String) }) { return app }
+        }
+        return nil
+    }
+
+    private static func texte(_ e: AXUIElement, _ attribut: String) -> String? {
+        var v: CFTypeRef?
+        return AXUIElementCopyAttributeValue(e, attribut as CFString, &v) == .success ? v as? String : nil
     }
 
     /// Guette une fenêtre de macOS pendant quelques secondes (par exemple au début d'une connexion à un serveur).
@@ -45,7 +107,7 @@ final class DialoguesSysteme {
     }
 
     private func regarder() {
-        if let agent = agentALEcran() {
+        if let agent = agentALEcran() ?? dialogueEtranger() {
             if abaissees.isEmpty { abaisser(); agent.activate() }
             jusquA = max(jusquA, Date().addingTimeInterval(1))
         } else {

@@ -95,6 +95,7 @@ enum Fichiers {
         store.columns.filter { $0.racine.map { $0.path == url.path || $0.path.hasPrefix(url.path + "/") } ?? false }
             .forEach { store.retirer($0) }
         let nom = Fichiers.nom(url)
+        DialoguesSysteme.commun.surveiller(pendant: 20)   // une fenêtre de macOS sur ce disque doit passer devant Side
         DispatchQueue.global(qos: .userInitiated).async {
             do {
                 try NSWorkspace.shared.unmountAndEjectDevice(at: url)
