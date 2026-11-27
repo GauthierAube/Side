@@ -5,6 +5,19 @@ Il est mis à jour à chaque modification, en même temps que le code.
 
 ---
 
+## 27/11/2026 — Les fenêtres de confirmation des autres applications passent toujours devant Side
+
+- **Demandé par Gauthier** : en éjectant le SSD, la question « Forcer l'éjection ? » du Finder s'est ouverte sous la
+  carte de Side. Elle restait invisible, le Finder attendait la réponse, et le Mac semblait bloqué : il a fallu
+  arracher le disque.
+- Avant, Side ne s'effaçait que devant quelques fenêtres de macOS (mot de passe, Touch ID, trousseau). Maintenant, dès
+  que l'application au premier plan (le Finder ou une autre) ouvre une fenêtre de confirmation, une alerte ou une
+  question, toutes les fenêtres de Side passent derrière. Elles reviennent quand cette fenêtre se ferme.
+- Side n'attend jamais plus d'une fraction de seconde une application figée : il ne peut plus se bloquer avec elle.
+- Quand on éjecte un disque depuis Side, Side surveille aussi les fenêtres de macOS pendant 20 secondes.
+
+---
+
 ## 27/11/2026 — Le CRM d'Horizon dans le tiroir voit enfin le site
 
 Dans le tiroir, la page Élèves d'Horizon disait « Site non connecté » et « Aucun élève », alors que le site est
